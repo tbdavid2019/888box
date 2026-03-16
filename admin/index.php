@@ -55,11 +55,11 @@ $images_html = renderImagesList($images);
 $pagination = renderPagination($current_page, $total_pages);
 ?>
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="zh-Hant">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>管理后台</title>
+    <title>管理後台</title>
     <link rel="shortcut icon" href="/static/favicon.svg">
     <link rel="stylesheet" href="/static/css/admin.css">
     <link rel="stylesheet" href="/static/css/fancybox.min.css">
@@ -67,19 +67,19 @@ $pagination = renderPagination($current_page, $total_pages);
 <body>
     <div id="gallery" class="gallery"><?= $images_html ?></div>
     <div class="rightside">
-        <a href="/" class="floating-link" title="返回主页">
+        <a href="/" class="floating-link" title="返回首頁">
             <svg class="icon" aria-hidden="true"><use xlink:href="#icon-home"></use></svg>
         </a>
-        <a class="select-link" title="多选模式">
+        <a class="select-link" title="多選模式">
             <svg class="icon" aria-hidden="true"><use xlink:href="#icon-select"></use></svg>
         </a>
-        <a href="#" class="settings-link" title="系统设置">
+        <a href="#" class="settings-link" title="系統設定">
             <svg class="icon" aria-hidden="true"><use xlink:href="#icon-Setting"></use></svg>
         </a>
-        <a href="?logout=true" class="logout-link" title="退出登录">
+        <a href="?logout=true" class="logout-link" title="登出">
             <svg class="icon" aria-hidden="true"><use xlink:href="#icon-logout"></use></svg>
         </a>
-        <a class="top-link" id="scroll-to-top" title="回到顶部">
+        <a class="top-link" id="scroll-to-top" title="回到頂部">
             <svg class="icon" aria-hidden="true"><use xlink:href="#icon-top"></use></svg>
         </a>
         <span id="current-total-pages"><?= $current_page ?>/<?= $total_pages ?></span>
@@ -99,7 +99,7 @@ $pagination = renderPagination($current_page, $total_pages);
 // 辅助函数
 function renderImagesList($images) {
     if (empty($images)) {
-        return '<div class="empty-state"><div class="empty-icon"></div><p>暂无图片</p></div>';
+        return '<div class="empty-state"><div class="empty-icon"></div><p>目前沒有圖片</p></div>';
     }
     
     $html = '';
@@ -126,9 +126,9 @@ function renderImagesList($images) {
                 </button>
             </div>
             <div class="image-info">
-                <p class="info-p">大小: <span>{$size} KB</span></p>
+                <p class="info-p">大小：<span>{$size} KB</span></p>
                 <p class="info-p">IP: <span>{$ip}</span></p>
-                <p class="info-p">时间: <span>{$time}</span></p>
+                <p class="info-p">時間：<span>{$time}</span></p>
             </div>
         </div>
 HTML;

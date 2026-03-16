@@ -29,24 +29,24 @@ try {
 }
 ?>
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="zh-Hant">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>若梦图床</title>
-    <meta name="keywords" content="图床程序,高效图片压缩,前端后台设计,图片上传,WEBP转换,阿里云OSS,本地存储,多格式支持,瀑布流管理,图片管理后台,自定义压缩率,尺寸限制">
-    <meta name="description" content="一款专为个人需求设计的高效图床解决方案，集成了强大的图片压缩功能与优雅的前台后台界面。项目结构精简高效，提供自定义图片压缩率与尺寸设置，有效降低存储与带宽成本。支持JPEG, PNG, GIF转换为WEBP以及SVG、WEBP直接上传，搭载阿里云OSS存储（默认）及灵活的本地存储选项。特性包括点击、拖拽、粘贴及URL本地化上传方式，以及配备瀑布流布局的管理后台，实现图片轻松管理与预览。完全可自定制的体验，满足不同用户对图片管理和优化的高级需求。">
+    <title>若夢圖床</title>
+    <meta name="keywords" content="圖床程式,高效圖片壓縮,前後台設計,圖片上傳,WEBP轉換,阿里雲OSS,本機儲存,多格式支援,瀑布流管理,圖片管理後台,自訂壓縮率,尺寸限制">
+    <meta name="description" content="一款專為個人需求設計的高效圖床解決方案，整合強大的圖片壓縮功能與優雅的前後台介面。專案結構精簡高效，提供自訂圖片壓縮率與尺寸設定，有效降低儲存與頻寬成本。支援 JPEG、PNG、GIF 轉換為 WEBP，也支援 SVG、WEBP 直接上傳，搭配阿里雲 OSS 儲存（預設）及彈性的本機儲存選項。特色包含點擊、拖曳、貼上及 URL 本地化上傳方式，以及具備瀑布流版面的管理後台，讓圖片管理與預覽更輕鬆。">
     <link rel="shortcut icon" href="static/favicon.svg">
     <link rel="stylesheet" type="text/css" href="static/css/styles.css">
 </head>
 <body>
     <header class="blur">
-        <a href="https://www.bsgun.cn/" target="_blank" title="主页" class="header-link">
+        <a href="https://www.bsgun.cn/" target="_blank" title="首頁" class="header-link">
             <svg class="icon" aria-hidden="true">
                 <use xlink:href="#icon-home"></use>
             </svg>
         </a>
-        <a href="https://blog.bsgun.cn/" target="_blank" title="博客" class="header-link">
+        <a href="https://blog.bsgun.cn/" target="_blank" title="部落格" class="header-link">
             <svg class="icon" aria-hidden="true">
                 <use xlink:href="#icon-Blog"></use>
             </svg>
@@ -56,7 +56,7 @@ try {
                 <use xlink:href="#icon-Github"></use>
             </svg>
         </a>
-        <a href="/admin/" target="_blank" title="后台" class="header-link">
+        <a href="/admin/" target="_blank" title="後台" class="header-link">
             <svg class="icon" aria-hidden="true">
                 <use xlink:href="#icon-Setting"></use>
             </svg>
@@ -101,12 +101,12 @@ try {
 
                 <!-- 网络图片上传输入框 -->
                 <div class="url-input-section">
-                    <input type="text" id="pasteOrUrlInput" class="pasteOrUrlInput" placeholder="输入图片网络链接自动上传，或使用Ctrl+V粘贴图片" title="注意：部分网站设置了防盗链，可能无法直接下载">
+                    <input type="text" id="pasteOrUrlInput" class="pasteOrUrlInput" placeholder="輸入圖片網址即可自動上傳，或使用 Ctrl+V 貼上圖片" title="注意：部分網站設有防盜鏈，可能無法直接下載">
                 </div>
 
                 <!-- 压缩比率调整 -->
                 <div class="quality-section">
-                    <label for="qualityInput">图片清晰度 60-100<output id="qualityOutput" class="qualityOutput">60</output></label>
+                    <label for="qualityInput">圖片清晰度 60-100<output id="qualityOutput" class="qualityOutput">60</output></label>
                     <input type="range" id="qualityInput" name="quality" min="60" max="100" value="60" step="1">
                 </div>
 
@@ -114,17 +114,17 @@ try {
                 <div class="copy-section">
                     <div class="copy-tab-buttons">
                         <div class="copy-icons-column">
-                            <button class="copy-tab-btn" data-type="url" title="复制图片链接">
+                            <button class="copy-tab-btn" data-type="url" title="複製圖片連結">
                                 <svg class="icon" aria-hidden="true">
                                     <use xlink:href="#icon-imageUrl"></use>
                                 </svg>
                             </button>
-                            <button class="copy-tab-btn" data-type="markdown" title="复制Markdown代码">
+                            <button class="copy-tab-btn" data-type="markdown" title="複製 Markdown 程式碼">
                                 <svg class="icon" aria-hidden="true">
                                     <use xlink:href="#icon-markdownUrl"></use>
                                 </svg>
                             </button>
-                            <button class="copy-tab-btn" data-type="html" title="复制HTML代码">
+                            <button class="copy-tab-btn" data-type="html" title="複製 HTML 程式碼">
                                 <svg class="icon" aria-hidden="true">
                                     <use xlink:href="#icon-htmlUrl"></use>
                                 </svg>
@@ -157,7 +157,7 @@ try {
                     <svg class="icon info-icon" aria-hidden="true">
                         <use xlink:href="#icon-imageUrl"></use>
                     </svg>
-                    <h3>原始图片</h3>
+                    <h3>原始圖片</h3>
                 </div>
                 <div class="info-grid">
                     <div class="info-item">
@@ -175,7 +175,7 @@ try {
                     <svg class="icon info-icon" aria-hidden="true">
                         <use xlink:href="#icon-up"></use>
                     </svg>
-                    <h3>压缩后</h3>
+                    <h3>壓縮後</h3>
                 </div>
                 <div class="info-grid">
                     <div class="info-item">
@@ -190,11 +190,11 @@ try {
             </div>
             <div class="compression-stats">
                 <div class="stat-badge">
-                    <span class="stat-label">压缩率</span>
+                    <span class="stat-label">壓縮率</span>
                     <span class="stat-value" id="compressionRatio">-</span>
                 </div>
                 <div class="stat-badge">
-                    <span class="stat-label">节省空间</span>
+                    <span class="stat-label">節省空間</span>
                     <span class="stat-value" id="savedSpace">-</span>
                 </div>
             </div>
@@ -207,37 +207,37 @@ try {
                 <div class="kbd-group">
                     <kbd>←</kbd><kbd>→</kbd>
                 </div>
-                <span>切换图片</span>
+                <span>切換圖片</span>
             </div>
             <div class="hint-item">
                 <div class="kbd-group">
                     <kbd>Ctrl</kbd><span class="plus">+</span><kbd>V</kbd>
                 </div>
-                <span>粘贴上传</span>
+                <span>貼上上傳</span>
             </div>
             <div class="hint-item">
                 <div class="kbd-group">
-                    <kbd>Ctrl</kbd><span class="plus">+</span><kbd>点击</kbd>
+                    <kbd>Ctrl</kbd><span class="plus">+</span><kbd>點擊</kbd>
                 </div>
-                <span>批量复制</span>
+                <span>批次複製</span>
             </div>
             <div class="hint-item">
                 <div class="kbd-group">
-                    <kbd>滚轮</kbd>
+                    <kbd>滾輪</kbd>
                 </div>
-                <span>切换图片</span>
+                <span>切換圖片</span>
             </div>
             <div class="hint-item">
                 <div class="kbd-group">
                     <kbd>Esc</kbd>
                 </div>
-                <span>清除图片</span>
+                <span>清除圖片</span>
             </div>
         </div>
     </main>
     <footer>
         <?php if (($_ENV['DEMO_MODE'] ?? 'false') === 'true'): ?>
-        <div style="padding: 10px;margin-bottom: 10px;border-radius: 10px;font-size: 15px;font-weight: bold;backdrop-filter: blur(10px);-webkit-backdrop-filter: blur(10px);border: 1px solid rgb(255 255 255 / 20%);background: rgb(255 60 60 / 30%);animation: fadeIn 0.5s ease-in-out forwards;">⚠️ 演示站点 - 所有图片公开可见且可能被删除</div>
+        <div style="padding: 10px;margin-bottom: 10px;border-radius: 10px;font-size: 15px;font-weight: bold;backdrop-filter: blur(10px);-webkit-backdrop-filter: blur(10px);border: 1px solid rgb(255 255 255 / 20%);background: rgb(255 60 60 / 30%);animation: fadeIn 0.5s ease-in-out forwards;">⚠️ 示範站點 - 所有圖片皆為公開可見且可能被刪除</div>
         <?php endif; ?>
         <span>富强</span>
         <span>民主</span>
@@ -247,15 +247,15 @@ try {
         <span>平等</span>
         <span>公正</span>
         <span>法治</span>
-        <span>爱国</span>
+        <span>愛國</span>
         <span>敬业</span>
         <span>诚信</span>
         <span>友善</span>
         <div class="icp">
-            <span>© 2024</span><a href="https://bsgun.cn" target="_blank">梦爱吃鱼</a>
-            <span>本站程序发布在</span><a href="https://github.com/JLinMr/PixPro/" target="_blank">Github</a>
-            <button class="logo-btn">站点声明</button>
-            <em class="logotitle blur">本站不保证内容，时效和稳定性，请勿上传包含危害国家安全和民族团结、侵犯他人权益、欺骗性质、色情或暴力的图片。严格遵守国家相关法律法规，尊重版权、著作权等权利；图片内容均由「网友」自行上传，所有图片作用、性质都与本站无关，本站对所有图片合法性概不负责，亦不承担任何法律责任；</em>
+            <span>© 2024</span><a href="https://bsgun.cn" target="_blank">夢愛吃魚</a>
+            <span>本程式發佈於</span><a href="https://github.com/JLinMr/PixPro/" target="_blank">GitHub</a>
+            <button class="logo-btn">站點聲明</button>
+            <em class="logotitle blur">本站不保證內容、時效與穩定性，請勿上傳包含危害國家安全與民族團結、侵犯他人權益、欺騙性質、色情或暴力的圖片。請嚴格遵守相關法律法規，尊重版權、著作權等權利；圖片內容均由「網友」自行上傳，所有圖片的用途與性質皆與本站無關，本站對所有圖片合法性概不負責，亦不承擔任何法律責任。</em>
         </div>
     </footer>
     <script type="module" src="static/js/main.js" data-max-file-size="<?php echo $maxFileSize; ?>">

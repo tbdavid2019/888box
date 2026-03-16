@@ -24,7 +24,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const handleAction = async (btn, action, onSuccess) => {
         const originalText = btn.textContent;
         btn.disabled = true;
-        btn.textContent = action === 'optimize_db' ? '优化中...' : '检测中...';
+        btn.textContent = action === 'optimize_db' ? '最佳化中...' : '檢查中...';
         
         try {
             const formData = new FormData();
@@ -39,8 +39,8 @@ document.addEventListener('DOMContentLoaded', () => {
             const data = await response.json();
             onSuccess(data);
         } catch (error) {
-            console.error('操作失败:', error);
-            UI.showNotification('操作失败', 'error');
+            console.error('操作失敗:', error);
+            UI.showNotification('操作失敗', 'error');
         } finally {
             btn.disabled = false;
             btn.textContent = originalText;
@@ -61,13 +61,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
         document.querySelector('.copy-token')?.addEventListener('click', () => {
             if (tokenInput.value) {
-                navigator.clipboard.writeText(tokenInput.value).then(() => UI.showNotification('Token已复制', 'success'));
+                navigator.clipboard.writeText(tokenInput.value).then(() => UI.showNotification('Token 已複製', 'success'));
             }
         });
 
         document.querySelector('.refresh-token')?.addEventListener('click', () => {
             tokenInput.value = generateRandomToken(32);
-            UI.showNotification('Token已刷新', 'success');
+            UI.showNotification('Token 已重新產生', 'success');
         });
 
         // 密码显示/隐藏
@@ -109,7 +109,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 UI.showNotification(message, success ? 'success' : 'error');
             } catch (error) {
                 console.error('Error saving settings:', error);
-                UI.showNotification('保存设置失败', 'error');
+                UI.showNotification('儲存設定失敗', 'error');
             }
         });
 
@@ -117,7 +117,7 @@ document.addEventListener('DOMContentLoaded', () => {
             e.preventDefault();
             handleAction(e.target, 'optimize_db', (data) => {
                 if (data.success) {
-                    const msg = data.saved > 0 ? `优化完成！节省 ${data.saved} MB 空间` : '数据库已是最优状态';
+                    const msg = data.saved > 0 ? `最佳化完成！節省 ${data.saved} MB 空間` : '資料庫已是最佳狀態';
                     UI.showNotification(msg, 'success');
                 } else {
                     UI.showNotification(data.message, 'error');
@@ -131,20 +131,20 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (data.success) {
                     if (data.isDev) {
                         // 测试版本提示
-                        const message = `<div class="title">${data.message}</div><div class="content">稳定版本: V${data.latest}</div><div class="footer">前往 dev 分支查看更新？</div>`;
+                        const message = `<div class="title">${data.message}</div><div class="content">穩定版本：V${data.latest}</div><div class="footer">前往 dev 分支查看更新？</div>`;
                         UI.createConfirmDialog(message, () => window.open(data.url, '_blank'), {
                             confirmText: '前往 dev 分支',
                             type: 'warning'
                         });
                     } else if (data.hasUpdate) {
                         // 有新版本
-                        const message = `<div class="title">${data.message}</div><div class="content">当前版本: V${data.current}</div><div class="footer">是否前往下载？</div>`;
+                        const message = `<div class="title">${data.message}</div><div class="content">目前版本：V${data.current}</div><div class="footer">是否前往下載？</div>`;
                         UI.createConfirmDialog(message, () => window.open(data.url, '_blank'), {
-                            confirmText: '前往下载',
+                            confirmText: '前往下載',
                         });
                     } else {
                         // 已是最新版本
-                        UI.showNotification(`当前版本 v${data.current} 已是最新`, 'success');
+                        UI.showNotification(`目前版本 v${data.current} 已是最新`, 'success');
                     }
                 } else {
                     UI.showNotification(data.message, 'error');
@@ -173,7 +173,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     UI.showNotification(data.message, data.success ? 'success' : 'error');
                     
                     if (!data.success && data.error) {
-                        console.error('存储连接错误详情:', data.error);
+                            console.error('儲存連線錯誤詳情:', data.error);
                     }
                 } finally {
                     btn.disabled = false;
@@ -201,7 +201,7 @@ document.addEventListener('DOMContentLoaded', () => {
             setupModalCloseHandlers(modal, () => closeModal(modal));
         } catch (error) {
             console.error('Error loading settings:', error);
-            UI.showNotification('加载设置失败', 'error');
+            UI.showNotification('載入設定失敗', 'error');
         }
     });
 });

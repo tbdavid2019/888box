@@ -26,7 +26,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $step === 1) {
         exit;
     } catch (Exception $e) {
         if (isset($pdo)) $pdo->rollback();
-        $error = '安装失败：' . $e->getMessage();
+        $error = '安裝失敗：' . $e->getMessage();
     }
 }
 
@@ -67,14 +67,14 @@ function initializeConfigs($pdo) {
     $siteUrl = $protocol . $_SERVER['HTTP_HOST'];
     
     $configs = [
-        ['storage', 'local', '存储方式'],
-        ['url_prefix', '', '图片代理'],
-        ['per_page', '20', '每页显示数量'],
-        ['login_restriction', 'false', '登录保护'],
-        ['max_file_size', '5242880', '最大文件大小'],
-        ['max_uploads_per_day', '50', '每日上传限制'],
-        ['output_format', 'webp', '输出图片格式'],
-        ['site_domain', $siteUrl, '网站域名']
+        ['storage', 'local', '儲存方式'],
+        ['url_prefix', '', '圖片代理'],
+        ['per_page', '20', '每頁顯示數量'],
+        ['login_restriction', 'false', '登入保護'],
+        ['max_file_size', '5242880', '最大檔案大小'],
+        ['max_uploads_per_day', '50', '每日上傳限制'],
+        ['output_format', 'webp', '輸出圖片格式'],
+        ['site_domain', $siteUrl, '網站網域']
     ];
 
     $stmt = $pdo->prepare("REPLACE INTO configs (`key`, value, description) VALUES (?, ?, ?)");
@@ -102,16 +102,16 @@ function handleAdminUser($pdo) {
 
 function saveConfig() {
     $content = <<<ENV
-# 演示模式配置
-# 开启后：首页和设置页面会显示演示站点提示、禁止保存设置修改、所有图片公开可见且可能被删除
+# 示範模式設定
+# 開啟後：首頁和設定頁會顯示示範站點提示、禁止儲存設定修改、所有圖片皆為公開可見且可能被刪除
 DEMO_MODE = false
 
-# 密码重置功能（默认关闭）
-# 使用方法：
-# 1. 将下方的 false 改为 true
-# 2. 访问登录页面，点击「忘记密码」重置密码
-# 3. 重置完成后立即改回 false
-# 警告：开启后任何人都可以重置管理员密码！
+# 密碼重設功能（預設關閉）
+# 使用方式：
+# 1. 將下方的 false 改為 true
+# 2. 前往登入頁面，點擊「忘記密碼」重設密碼
+# 3. 重設完成後立即改回 false
+# 警告：開啟後任何人都可以重設管理員密碼！
 ALLOW_PASSWORD_RESET = false
 ENV;
     
@@ -122,9 +122,9 @@ ENV;
 function checkEnvironment() {
     $checks = [
         ['PHP 版本', '≥ 7.0', phpversion(), version_compare(phpversion(), '7.0.0', '>=')],
-        ['SQLite', 'PDO SQLite扩展', null, 'pdo_sqlite'],
-        ['IMAGICK', '必需', null, 'imagick'],
-        ['EXIF', '可选', null, 'exif', true]
+        ['SQLite', 'PDO SQLite 擴充套件', null, 'pdo_sqlite'],
+        ['IMAGICK', '必要', null, 'imagick'],
+        ['EXIF', '可選', null, 'exif', true]
     ];
     
     $requirements = [];
@@ -134,7 +134,7 @@ function checkEnvironment() {
         
         $requirements[$check[0]] = [
             'required' => $check[1],
-            'current' => $check[2] ?? ($loaded ? '已安装' : '未安装'),
+            'current' => $check[2] ?? ($loaded ? '已安裝' : '未安裝'),
             'status' => $check[4] ?? $loaded
         ];
     }
@@ -148,24 +148,24 @@ if ($step === 0) {
 }
 ?>
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="zh-Hant">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>网站安装</title>
+    <title>網站安裝</title>
     <link rel="shortcut icon" href="../static/favicon.svg">
     <link rel="stylesheet" href="install.css">
 </head>
 <body>
     <div class="container">
-        <h2>网站安装向导</h2>
+        <h2>網站安裝精靈</h2>
         
         <?php if ($step === 0): ?>
             <table class="check-table">
                 <tr>
-                    <th>检测项目</th>
-                    <th>要求</th>
-                    <th>当前状态</th>
+                    <th>檢測項目</th>
+                    <th>需求</th>
+                    <th>目前狀態</th>
                 </tr>
                 <?php foreach ($requirements as $name => $req): ?>
                     <tr class="<?= $req['status'] ? 'success' : 'error' ?>">
@@ -181,21 +181,21 @@ if ($step === 0) {
                     <input type="button" value="下一步" onclick="location.href='?step=1'">
                 <?php else: ?>
                     <div class="error-message">
-                        请解决上述问题后继续安装
-                        <a href="?step=1" class="force-install">强制安装</a>
+                        請先解決上述問題後再繼續安裝
+                        <a href="?step=1" class="force-install">強制安裝</a>
                     </div>
                 <?php endif; ?>
             </div>
         <?php else: ?>
             <form method="POST">
                 <div class="info-message">
-                    <p>使用 SQLite 数据库，无需配置数据库连接</p>
-                    <p>数据库文件将保存在: database.db</p>
+                    <p>使用 SQLite 資料庫，無需設定資料庫連線</p>
+                    <p>資料庫檔案將儲存在：database.db</p>
                 </div>
                 <?php 
                 $fields = [
-                    ['adminUser', '管理员账号', 'text'],
-                    ['adminPass', '管理员密码', 'password']
+                    ['adminUser', '管理員帳號', 'text'],
+                    ['adminPass', '管理員密碼', 'password']
                 ];
                 foreach ($fields as [$id, $label, $type]): ?>
                     <div class="form-group">
@@ -204,7 +204,7 @@ if ($step === 0) {
                     </div>
                 <?php endforeach; ?>
                 <div class="form-group">
-                    <input type="submit" value="开始安装">
+                    <input type="submit" value="開始安裝">
                 </div>
             </form>
         <?php endif; ?>

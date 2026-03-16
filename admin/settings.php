@@ -8,7 +8,7 @@ if (!isset($_SESSION['loggedin']) || !$_SESSION['loggedin']) {
 if (empty($_SERVER['HTTP_X_REQUESTED_WITH']) || 
     strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) !== 'xmlhttprequest') {
     header('HTTP/1.1 403 Forbidden');
-    exit('禁止直接访问');
+    exit('禁止直接存取');
 }
 
 require_once '../config/database.php';
@@ -23,18 +23,18 @@ if (!empty($_POST['action'])) {
     try {
         switch ($_POST['action']) {
             case 'test_storage':
-                if (empty($_POST['storage_type'])) throw new Exception('未指定存储类型');
+                if (empty($_POST['storage_type'])) throw new Exception('未指定儲存類型');
                 
                 require_once '../config/storage.php';
                 $config = Database::getConfig($pdo);
                 
                 try {
                     StorageHelper::testConnection($_POST['storage_type'], $config);
-                    echo json_encode(['success' => true, 'message' => '存储连接测试成功'], JSON_UNESCAPED_UNICODE);
+                    echo json_encode(['success' => true, 'message' => '儲存連線測試成功'], JSON_UNESCAPED_UNICODE);
                 } catch (Exception $e) {
                     echo json_encode([
                         'success' => false, 
-                        'message' => '存储连接失败，请检查配置',
+                        'message' => '儲存連線失敗，請檢查設定',
                         'error' => $e->getMessage()
                     ], JSON_UNESCAPED_UNICODE);
                 }
@@ -51,7 +51,7 @@ if (!empty($_POST['action'])) {
                 ]);
                 
                 $response = @file_get_contents('https://api.github.com/repos/JLinMr/PixPro/releases/latest', false, $context);
-                if (!$response) throw new Exception('无法连接到 GitHub API');
+                if (!$response) throw new Exception('無法連線到 GitHub API');
                 
                 $latestVersion = ltrim(json_decode($response, true)['tag_name'] ?? '', 'v');
                 $compareResult = version_compare($currentVersion, $latestVersion);
@@ -66,8 +66,8 @@ if (!empty($_POST['action'])) {
                     'hasUpdate' => $hasUpdate,
                     'isDev' => $isDev,
                     'url' => $isDev ? 'https://github.com/JLinMr/PixPro/tree/dev' : 'https://github.com/JLinMr/PixPro/releases/latest',
-                    'message' => $isDev ? "您正在使用测试版本 V{$currentVersion}" 
-                        : ($hasUpdate ? "发现新版本 V{$latestVersion}" : '已是最新版本')
+                    'message' => $isDev ? "您正在使用測試版本 V{$currentVersion}" 
+                        : ($hasUpdate ? "發現新版本 V{$latestVersion}" : '已是最新版本')
                 ], JSON_UNESCAPED_UNICODE);
                 break;
                 
@@ -83,7 +83,7 @@ if (!empty($_POST['action'])) {
                 
                 echo json_encode([
                     'success' => true,
-                    'message' => '数据库优化完成',
+                    'message' => '資料庫最佳化完成',
                     'saved' => round(($sizeBefore - $sizeAfter) / 1024 / 1024, 2)
                 ], JSON_UNESCAPED_UNICODE);
                 break;
@@ -101,7 +101,7 @@ if (!empty($_POST['action'])) {
 // 处理POST请求
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if ($demoMode) {
-        exit(json_encode(['success' => false, 'message' => '演示模式下禁止修改设置']));
+        exit(json_encode(['success' => false, 'message' => '示範模式下禁止修改設定']));
     }
     
     try {
@@ -147,10 +147,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
         
         $pdo->commit();
-        exit(json_encode(['success' => true, 'message' => '设置已更新']));
+        exit(json_encode(['success' => true, 'message' => '設定已更新']));
     } catch (Exception $e) {
         $pdo->rollback();
-        exit(json_encode(['success' => false, 'message' => '更新失败: ' . $e->getMessage()]));
+        exit(json_encode(['success' => false, 'message' => '更新失敗：' . $e->getMessage()]));
     }
 }
 
@@ -209,48 +209,48 @@ function renderFields($fields, $configs) {
 
 $basicSettings = [
     'url_prefix' => [
-        'label' => '图片代理',
+        'label' => '圖片代理',
         'type' => 'text',
-        'placeholder' => '例如：https://i1.wp.com/（留空则不使用）',
-        'description' => '图片URL代理地址，可用于CDN加速或图片处理服务',
+        'placeholder' => '例如：https://i1.wp.com/（留空則不使用）',
+        'description' => '圖片 URL 代理位址，可用於 CDN 加速或圖片處理服務',
         'half_width' => true
     ],
     'per_page' => [
-        'label' => '单页数量',
+        'label' => '單頁數量',
         'type' => 'number',
         'min' => 1,
         'max' => 100,
-        'placeholder' => '建议设置为20',
-        'description' => '后台单页显示图片数量',
+        'placeholder' => '建議設定為 20',
+        'description' => '後台單頁顯示圖片數量',
         'half_width' => true
     ],
     'max_uploads_per_day' => [
         'label' => '每日限制',
         'type' => 'number',
         'min' => 1,
-        'placeholder' => '建议设置为50',
-        'description' => '每日上传次数限制',
+        'placeholder' => '建議設定為 50',
+        'description' => '每日上傳次數限制',
         'half_width' => true
     ],
     'max_file_size' => [
-        'label' => '文件大小',
+        'label' => '檔案大小',
         'type' => 'number',
         'min' => 1,
-        'placeholder' => '建议设置为5',
-        'description' => '单个文件大小限制(MB)',
+        'placeholder' => '建議設定為 5',
+        'description' => '單一檔案大小限制（MB）',
         'half_width' => true
     ],
     'site_domain' => [
-        'label' => '网站域名',
+        'label' => '網站網域',
         'type' => 'text',
         'placeholder' => '例如：https://example.com,http://localhost',
-        'description' => '用于验证上传，多个域名用英文逗号分隔，支持通配符 "*"'
+        'description' => '用於驗證上傳，多個網域請用英文逗號分隔，支援萬用字元 "*"'
     ],
     'output_format' => [
-        'label' => '输出格式',
+        'label' => '輸出格式',
         'type' => 'radio',
         'options' => [
-            'original' => '原格式',
+            'original' => '原始格式',
             'webp' => 'WebP',
             'avif' => 'AVIF'
         ]
@@ -262,18 +262,18 @@ $basicSettings = [
     <form id="settings-form" method="POST">
         <?php if ($demoMode): ?>
             <div class="demo-mode-warning">
-                <span>⚠️ <strong>演示模式</strong> - 当前处于演示模式，所有设置修改将被禁止</span>
+                <span>⚠️ <strong>示範模式</strong> - 目前處於示範模式，所有設定修改都將被禁止</span>
             </div>
         <?php endif; ?>
         <div class="settings-group">
             <div class="settings-header">
-                <h2>基本设置</h2>
+                <h2>基本設定</h2>
                 <button type="button" class="close-modal">
                     <svg class="icon" aria-hidden="true"><use xlink:href="#icon-xmark"></use></svg>
                 </button>
             </div>
             <div class="form-group">
-                <label>存储方式</label>
+                <label>儲存方式</label>
                 <div class="radio-group">
                     <?php foreach($storageConfigs['storage_types'] as $value => $storage): ?>
                         <label>
@@ -288,9 +288,9 @@ $basicSettings = [
             <?php renderFields($basicSettings, $configs); ?>
 
             <div class="form-group">
-                <label>开启登录保护</label>
+                <label>啟用登入保護</label>
                 <div class="radio-group">
-                    <?php foreach(['true' => '开启', 'false' => '关闭'] as $value => $label): ?>
+                    <?php foreach(['true' => '啟用', 'false' => '關閉'] as $value => $label): ?>
                         <label>
                             <input type="radio" name="login_restriction" value="<?= $value ?>"
                                    <?= $configs['login_restriction']['value'] === $value ? 'checked' : '' ?>>
@@ -303,24 +303,24 @@ $basicSettings = [
             <div class="form-group">
                 <label>
                     API Token
-                    <span class="label-description">用于API接口认证，请勿泄露，妥善保管</span>
+                    <span class="label-description">用於 API 介面驗證，請勿外洩並妥善保管</span>
                 </label>
                 <div class="token-input-group">
                     <input type="text" name="token" id="token-input" value="<?= $userToken ?>" readonly>
-                    <button type="button" class="token-action-btn copy-token" title="复制">
+                    <button type="button" class="token-action-btn copy-token" title="複製">
                         <svg class="icon" aria-hidden="true"><use xlink:href="#icon-copy"></use></svg>
                     </button>
-                    <button type="button" class="token-action-btn refresh-token" title="刷新">
+                    <button type="button" class="token-action-btn refresh-token" title="重新產生">
                         <svg class="icon" aria-hidden="true"><use xlink:href="#icon-refresh"></use></svg>
                     </button>
                 </div>
             </div>
             
             <div class="form-group">
-                <label>系统维护</label>
+                <label>系統維護</label>
                 <div style="display: flex; gap: 10px;">
-                    <button type="button" id="optimize-db-btn" class="update-btn">优化数据库</button>
-                    <button type="button" id="check-update-btn" class="update-btn">检测更新</button>
+                    <button type="button" id="optimize-db-btn" class="update-btn">最佳化資料庫</button>
+                    <button type="button" id="check-update-btn" class="update-btn">檢查更新</button>
                 </div>
             </div>
         </div>
@@ -328,11 +328,11 @@ $basicSettings = [
         <?php foreach ($storageConfigs['storage_types'] as $type => $storage): ?>
             <div class="settings-group" id="<?= $type ?>-settings" style="display: none;">
                 <div class="settings-header">
-                    <h2><?= $storage['name'] ?>设置</h2>
+                    <h2><?= $storage['name'] ?>設定</h2>
                     <?php if ($type !== 'local'): ?>
                         <button type="button" class="test-storage-btn" data-storage="<?= $type ?>">
                             <svg class="icon" aria-hidden="true"><use xlink:href="#icon-link"></use></svg>
-                            <span class="btn-text">测试</span>
+                            <span class="btn-text">測試</span>
                         </button>
                     <?php endif; ?>
                 </div>
@@ -340,6 +340,6 @@ $basicSettings = [
             </div>
         <?php endforeach; ?>
         
-        <button type="submit" name="submit" class="submit-btn submit-btn-float">保存设置</button>
+        <button type="submit" name="submit" class="submit-btn submit-btn-float">儲存設定</button>
     </form>
 </div>

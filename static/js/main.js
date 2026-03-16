@@ -139,7 +139,7 @@ function setupNavigationListeners() {
     const clear = () => {
         UI.clearImageInfo(DOM);
         imageHandler.cleanup();
-        UI.showNotification('图片信息清理成功');
+        UI.showNotification('圖片資訊已清除');
     };
     
     Navigation.setupKeyboard(prev, next, clear, () => PreviewState.images.length > 0);

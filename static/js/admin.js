@@ -103,11 +103,11 @@ const API = {
         if (pageData.success) updatePageContent(pageData);
         
         if (errors > 0) {
-            UI.showNotification(`删除失败 ${errors} 张图片`, 'error');
+            UI.showNotification(`刪除失敗 ${errors} 張圖片`, 'error');
             throw new Error();
         }
         
-        UI.showNotification(ids.length > 1 ? `成功删除 ${ids.length} 张图片` : '删除成功');
+        UI.showNotification(ids.length > 1 ? `成功刪除 ${ids.length} 張圖片` : '刪除成功');
         return true;
     },
 
@@ -153,7 +153,7 @@ const UI = {
     async copyToClipboard(text) {
         try {
             await navigator.clipboard.writeText(text);
-            this.showNotification('已复制到剪贴板');
+            this.showNotification('已複製到剪貼簿');
         } catch {
             const input = document.createElement('input');
             input.value = text;
@@ -161,12 +161,12 @@ const UI = {
             input.select();
             document.execCommand('copy');
             input.remove(); // 立即移除，避免累积
-            this.showNotification('已复制到剪贴板');
+            this.showNotification('已複製到剪貼簿');
         }
     },
 
     createConfirmDialog(message, onConfirm, options = {}) {
-        const { confirmText = '确认', cancelText = '取消', type = 'success' } = options;
+        const { confirmText = '確認', cancelText = '取消', type = 'success' } = options;
 
         // 清理旧对话框
         const oldDialog = document.querySelector('.custom-confirm');
@@ -232,9 +232,9 @@ function setupCopyAndDelete() {
             await UI.copyToClipboard(btn.dataset.url);
             isProcessing = false;
         } else if (!MultiSelectState.isActive) {
-            UI.createConfirmDialog('确定删除这张图片吗？', 
+            UI.createConfirmDialog('確定要刪除這張圖片嗎？', 
                 () => API.deleteImages(btn.dataset.id, btn.dataset.path),
-                { type: 'danger', confirmText: '删除' }
+                { type: 'danger', confirmText: '刪除' }
             );
         }
     }, { passive: false });
@@ -297,7 +297,7 @@ function setupPagination() {
                     }
                 } catch (err) {
                     if (err.name !== 'AbortError') {
-                        UI.showNotification('加载失败', 'error');
+                        UI.showNotification('載入失敗', 'error');
                     }
                 } finally {
                     isLoading = false;
@@ -335,7 +335,7 @@ function setupPageInput() {
             if (page >= 1 && page <= totalPages) {
                 window.location.href = `?page=${page}`;
             } else {
-                UI.showNotification('请输入有效的页码', 'error');
+                UI.showNotification('請輸入有效頁碼', 'error');
                 input.value = '';
             }
         }
@@ -372,7 +372,7 @@ function setupMultiSelect() {
     
     // 更新选中数量
     const updateSelectedCount = () => {
-        selectedCountEl.textContent = `已选择 ${MultiSelectState.count()}`;
+        selectedCountEl.textContent = `已選取 ${MultiSelectState.count()}`;
     };
     
     // 处理图片选择（使用事件委托）
@@ -401,12 +401,12 @@ function setupMultiSelect() {
     const handleDeleteSelected = () => {
         const count = MultiSelectState.count();
         if (count === 0) {
-            UI.showNotification('请先选择要删除的图片', 'error');
+            UI.showNotification('請先選取要刪除的圖片', 'error');
             return;
         }
         
         UI.createConfirmDialog(
-            `确定删除这 ${count} 张图片吗？`,
+            `確定要刪除這 ${count} 張圖片嗎？`,
             async () => {
                 try {
                     const ids = MultiSelectState.getAll();
@@ -419,7 +419,7 @@ function setupMultiSelect() {
                     toggleMode();
                 } catch {}
             },
-            { type: 'danger', confirmText: '删除' }
+            { type: 'danger', confirmText: '刪除' }
         );
     };
     
@@ -435,9 +435,9 @@ function createMultiSelectToolbar() {
     const toolbar = document.createElement('div');
     toolbar.className = 'multi-select-toolbar';
     toolbar.innerHTML = `
-        <span class="selected-count">已选择 0</span>
-        <button class="delete-selected">删除所选</button>
-        <button class="cancel-select">取消选择</button>
+        <span class="selected-count">已選取 0</span>
+        <button class="delete-selected">刪除所選</button>
+        <button class="cancel-select">取消選取</button>
     `;
     document.body.appendChild(toolbar);
     return toolbar;

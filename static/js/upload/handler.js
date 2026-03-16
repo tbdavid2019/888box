@@ -118,7 +118,7 @@ export class ImageHandler {
         UI.clearImageInfo(this.dom);
         UI.updateLinkDisplays(null);
         this.cleanup();
-        UI.showNotification('图片信息清理成功');
+        UI.showNotification('圖片資訊已清除');
     }
 
     processFiles(files) {
@@ -149,12 +149,12 @@ export class ImageHandler {
 
     async processUrls(urlString) {
         const url = urlString.trim();
-        if (!url) return UI.showNotification('请输入有效的图片链接', 'error');
+        if (!url) return UI.showNotification('請輸入有效的圖片連結', 'error');
 
         try {
             new URL(url);
         } catch {
-            return UI.showNotification('无效的URL格式', 'error');
+            return UI.showNotification('無效的 URL 格式', 'error');
         }
 
         this.resetState();
@@ -184,17 +184,17 @@ export class ImageHandler {
                 this.dom.pasteOrUrlInput.value = '';
             } else {
                 UI.hideProgressBar(this.dom.progressBar, this.dom.progressContainer);
-                UI.showNotification('图片验证失败', 'error');
+                UI.showNotification('圖片驗證失敗', 'error');
             }
         } catch (error) {
             UI.hideProgressBar(this.dom.progressBar, this.dom.progressContainer);
-            const errorMsg = error.message || '下载失败';
+            const errorMsg = error.message || '下載失敗';
             if (errorMsg.includes('CORS') || errorMsg.includes('Failed to fetch')) {
-                UI.showNotification('下载失败：目标网站可能设置了防盗链或跨域限制', 'error');
+                UI.showNotification('下載失敗：目標網站可能設有防盜鏈或跨網域限制', 'error');
             } else if (errorMsg.includes('HTTP error')) {
-                UI.showNotification(`下载失败：${errorMsg}`, 'error');
+                UI.showNotification(`下載失敗：${errorMsg}`, 'error');
             } else {
-                UI.showNotification('下载失败，请检查链接是否正确或尝试其他图片', 'error');
+                UI.showNotification('下載失敗，請檢查連結是否正確或改用其他圖片', 'error');
             }
             console.error('URL下载错误:', error);
         }
@@ -252,13 +252,13 @@ export class ImageHandler {
 
     validateFile(file) {
         if (!this.config.allowedTypes.includes(file.type)) {
-            UI.showNotification('不支持的文件类型，请上传图片文件', 'error');
+            UI.showNotification('不支援的檔案類型，請上傳圖片檔案', 'error');
             return false;
         }
 
         if (this.config.maxFileSize > 0 && file.size > this.config.maxFileSize) {
             const maxMB = Math.floor(this.config.maxFileSize / (1024 * 1024));
-            UI.showNotification(`文件 ${file.name} 大小超过限制，最大允许 ${maxMB}MB`, 'error');
+            UI.showNotification(`檔案 ${file.name} 超過大小限制，最大允許 ${maxMB}MB`, 'error');
             return false;
         }
 
@@ -389,7 +389,7 @@ export class ImageHandler {
         const response = JSON.parse(xhr.responseText);
         
         if (xhr.status !== 200 || response.message || response.error) {
-            return this.handleUploadError(response.error || response.message || '上传失败', imageIndex);
+            return this.handleUploadError(response.error || response.message || '上傳失敗', imageIndex);
         }
         
         if (response.data?.url) {
@@ -403,7 +403,7 @@ export class ImageHandler {
             }
             
             if (UI.uploadedCount === this.previewState.images.length) {
-                UI.showNotification(`成功上传 ${UI.uploadedCount} 张图片`);
+                UI.showNotification(`成功上傳 ${UI.uploadedCount} 張圖片`);
                 UI.uploadedCount = 0;
                 UI.hideProgressBar(this.dom.progressBar, this.dom.progressContainer);
             }

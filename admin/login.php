@@ -20,7 +20,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             $_SESSION['user_id'] = $user['id'];
             unset($_SESSION['demo_auto_login']);
         } else {
-            $_SESSION['error'] = "用户名或密码无效";
+            $_SESSION['error'] = "使用者名稱或密碼無效";
         }
     } elseif ($action === 'demo_login' && $isDemoMode) {
         // 演示模式快速登录
@@ -38,11 +38,11 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         $confirmPassword = $_POST['confirm_password'] ?? '';
         
         if (!$username || !$newPassword || !$confirmPassword) {
-            $_SESSION['error'] = "请填写所有字段";
+            $_SESSION['error'] = "請填寫所有欄位";
         } elseif ($newPassword !== $confirmPassword) {
-            $_SESSION['error'] = "两次输入的密码不一致";
+            $_SESSION['error'] = "兩次輸入的密碼不一致";
         } elseif (strlen($newPassword) < 6) {
-            $_SESSION['error'] = "密码长度至少为6位";
+            $_SESSION['error'] = "密碼長度至少需為 6 碼";
         } else {
             $stmt = $pdo->prepare("SELECT id FROM users WHERE username = ?");
             $stmt->execute([$username]);
@@ -50,12 +50,12 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             if ($user = $stmt->fetch(PDO::FETCH_ASSOC)) {
                 $stmt = $pdo->prepare("UPDATE users SET password = ? WHERE id = ?");
                 if ($stmt->execute([password_hash($newPassword, PASSWORD_DEFAULT), $user['id']])) {
-                    $_SESSION['success'] = "密码重置成功，请使用新密码登录";
+                    $_SESSION['success'] = "密碼重設成功，請使用新密碼登入";
                 } else {
-                    $_SESSION['error'] = "重置失败";
+                    $_SESSION['error'] = "重設失敗";
                 }
             } else {
-                $_SESSION['error'] = "用户名不存在";
+                $_SESSION['error'] = "使用者名稱不存在";
             }
         }
     }
@@ -65,11 +65,11 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 }
 ?>
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="zh-Hant">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>登录</title>
+    <title>登入</title>
     <link rel="shortcut icon" href="/static/favicon.svg">
     <style>
         * {
@@ -300,17 +300,17 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 <body>
     <div class="login-container">
         <div class="form-container active" id="login-form">
-            <h2>登录</h2>
+            <h2>登入</h2>
             <form method="post">
                 <input type="hidden" name="action" value="<?= $isDemoMode ? 'demo_login' : 'login' ?>">
                 <div class="form-group">
-                    <label for="username">账号：</label>
-                    <input type="text" name="username" <?= $isDemoMode ? 'disabled placeholder="演示模式无需填写"' : 'required' ?>>
+                    <label for="username">帳號：</label>
+                    <input type="text" name="username" <?= $isDemoMode ? 'disabled placeholder="示範模式無需填寫"' : 'required' ?>>
                 </div>
                 <div class="form-group">
-                    <label for="password">密码：</label>
+                    <label for="password">密碼：</label>
                     <div class="password-input-wrapper">
-                        <input type="password" name="password" <?= $isDemoMode ? 'disabled placeholder="演示模式无需填写"' : 'required' ?>>
+                        <input type="password" name="password" <?= $isDemoMode ? 'disabled placeholder="示範模式無需填寫"' : 'required' ?>>
                         <?php if (!$isDemoMode): ?>
                         <span class="toggle-password">
                             <svg class="icon" aria-hidden="true"><use xlink:href="#icon-eye"></use></svg>
@@ -323,54 +323,54 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                         <svg style="width: 18px; height: 18px; vertical-align: middle; margin-right: 6px;" viewBox="0 0 24 24" fill="currentColor">
                             <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
                         </svg>
-                        快速体验
+                        快速體驗
                     <?php else: ?>
-                        登录
+                        登入
                     <?php endif; ?>
                 </button>
             </form>
             <?php if ($allowPasswordReset && !$isDemoMode): ?>
             <div class="toggle-form">
-                <a href="#" onclick="toggleForm(event)">忘记密码？</a>
+                <a href="#" onclick="toggleForm(event)">忘記密碼？</a>
             </div>
             <?php endif; ?>
         </div>
         
         <?php if ($allowPasswordReset): ?>
         <div class="form-container" id="reset-form">
-            <h2>重置密码</h2>
+            <h2>重設密碼</h2>
             <div class="security-warning">
                 <strong>⚠️ 安全提示</strong>
-                密码重置功能已开启。为了系统安全，请在完成密码重置后，立即在 .env 文件中将 ALLOW_PASSWORD_RESET 设置为 false 以关闭此功能。
+                密碼重設功能已開啟。為了系統安全，請在完成密碼重設後，立即到 `.env` 將 `ALLOW_PASSWORD_RESET` 設為 `false` 以關閉此功能。
             </div>
             <form method="post">
                 <input type="hidden" name="action" value="reset">
                 <div class="form-group">
-                    <label for="username">用户名：</label>
-                    <input type="text" name="username" required placeholder="请输入要重置密码的用户名">
+                    <label for="username">使用者名稱：</label>
+                    <input type="text" name="username" required placeholder="請輸入要重設密碼的使用者名稱">
                 </div>
                 <div class="form-group">
-                    <label for="new_password">新密码：</label>
+                    <label for="new_password">新密碼：</label>
                     <div class="password-input-wrapper">
-                        <input type="password" name="new_password" required minlength="6" placeholder="至少6位字符">
+                        <input type="password" name="new_password" required minlength="6" placeholder="至少 6 個字元">
                         <span class="toggle-password">
                             <svg class="icon" aria-hidden="true"><use xlink:href="#icon-eye"></use></svg>
                         </span>
                     </div>
                 </div>
                 <div class="form-group">
-                    <label for="confirm_password">确认密码：</label>
+                    <label for="confirm_password">確認密碼：</label>
                     <div class="password-input-wrapper">
-                        <input type="password" name="confirm_password" required minlength="6" placeholder="再次输入新密码">
+                        <input type="password" name="confirm_password" required minlength="6" placeholder="再次輸入新密碼">
                         <span class="toggle-password">
                             <svg class="icon" aria-hidden="true"><use xlink:href="#icon-eye"></use></svg>
                         </span>
                     </div>
                 </div>
-                <button type="submit">重置密码</button>
+                <button type="submit">重設密碼</button>
             </form>
             <div class="toggle-form">
-                <a href="#" onclick="toggleForm(event)">返回登录</a>
+                <a href="#" onclick="toggleForm(event)">返回登入</a>
             </div>
         </div>
         <?php endif; ?>

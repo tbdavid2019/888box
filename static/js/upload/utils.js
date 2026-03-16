@@ -48,11 +48,11 @@ export const UI = {
         
         if (eventOrProgress === 'downloading') {
             progressBar.style.transform = 'scaleX(0.3)';
-            progressBar.textContent = '正在下载图片...';
+            progressBar.textContent = '正在下載圖片...';
         } else if (typeof eventOrProgress === 'object' && eventOrProgress.lengthComputable) {
             const percent = ((eventOrProgress.loaded / eventOrProgress.total) * 100).toFixed(0);
             progressBar.style.transform = `scaleX(${percent / 100})`;
-            progressBar.textContent = `上传中 ${imageIndex + 1}/${totalImages} - ${percent}%`;
+            progressBar.textContent = `上傳中 ${imageIndex + 1}/${totalImages} - ${percent}%`;
         }
     },
 
@@ -131,13 +131,13 @@ export const UI = {
 // 剪贴板操作
 export const Clipboard = {
     async copyImageUrl(urlData, type, onSuccess, onError) {
-        if (!urlData) return onError('图片还未上传完成');
-        await this.copy([urlData], type, onSuccess, onError, '已复制当前图片链接');
+        if (!urlData) return onError('圖片尚未上傳完成');
+        await this.copy([urlData], type, onSuccess, onError, '已複製目前圖片連結');
     },
 
     async copyAllUrls(allUrls, type, onSuccess, onError) {
-        if (allUrls.length === 0) return onError('没有已上传的图片');
-        await this.copy(allUrls, type, onSuccess, onError, `已批量复制 ${allUrls.length} 张图片链接`);
+        if (allUrls.length === 0) return onError('沒有已上傳的圖片');
+        await this.copy(allUrls, type, onSuccess, onError, `已批次複製 ${allUrls.length} 張圖片連結`);
     },
 
     async copy(urlDataList, type, onSuccess, onError, successMsg) {
@@ -149,8 +149,8 @@ export const Clipboard = {
             await navigator.clipboard.writeText(texts.join('\n'));
             onSuccess(successMsg);
         } catch (err) {
-            console.error('复制失败:', err);
-            onError('复制失败，请重试');
+            console.error('複製失敗:', err);
+            onError('複製失敗，請再試一次');
         }
     },
 
