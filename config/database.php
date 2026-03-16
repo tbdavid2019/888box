@@ -33,7 +33,7 @@ class Database {
         $dbPath = dirname(__DIR__) . '/database.db';
         $dbDir = dirname($dbPath);
         
-        if (!is_dir($dbDir)) mkdir($dbDir, 0777, true);
+        if (!is_dir($dbDir)) mkdir($dbDir, 0755, true);
         
         // 如果数据库文件不存在，检查是否需要迁移
         if (!file_exists($dbPath)) {

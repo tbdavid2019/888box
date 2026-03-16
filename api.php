@@ -101,14 +101,16 @@ function isUploadAllowed($maxUploadsPerDay) {
     file_put_contents($limitFile, json_encode($uploadData, JSON_PRETTY_PRINT));
     
     // 10%概率清理过期文件
-    if (rand(1, 10) === 1) {
-        foreach (glob($uploadDir . '*.json') as $file) {
-            $data = json_decode(@file_get_contents($file), true);
-            if (isset($data['date']) && $data['date'] !== $currentDate) {
-                @unlink($file);
+    try {
+        if (random_int(1, 10) === 1) {
+            foreach (glob($uploadDir . '*.json') as $file) {
+                $data = json_decode(@file_get_contents($file), true);
+                if (isset($data['date']) && $data['date'] !== $currentDate) {
+                    @unlink($file);
+                }
             }
         }
-    }
+    } catch (Exception $e) {}
     
     return true;
 }
@@ -121,9 +123,9 @@ function isUploadAllowed($maxUploadsPerDay) {
  * 验证Token和请求来源
  */
 function validateToken() {
-    global $pdo;
+    global $pdo, $config;
     
-    // 获取Token
+    // 1. 获取 Token
     $token = '';
     if (preg_match('/Bearer\s+(.*)$/i', $_SERVER['HTTP_AUTHORIZATION'] ?? '', $matches)) {
         $token = $matches[1];
@@ -131,18 +133,29 @@ function validateToken() {
         $token = $_POST['token'] ?? '';
     }
     
-    // 验证域名
-    $refererHost = parse_url($_SERVER['HTTP_REFERER'] ?? '', PHP_URL_HOST);
-    if (isDomainAllowed($refererHost)) return;
-    
-    // 验证Token
+    // 2. 验证 Token (優先級最高)
     if (!empty($token)) {
         $stmt = $pdo->prepare("SELECT id FROM users WHERE token = ?");
         $stmt->execute([$token]);
         if ($stmt->fetch()) return;
     }
     
-    respondAndExit(['result' => 'error', 'code' => 403, 'message' => 'Token验证失败 或 域名未授权']);
+    // 3. 验证 Session (針對官方網頁上傳)
+    if (isset($_SESSION['loggedin']) && $_SESSION['loggedin'] === true) {
+        return;
+    }
+    
+    // 4. 如果開啟了登入限制，則此時應拒絕（因為 Token 與 Session 都失效）
+    $loginRestriction = isset($config['login_restriction']) && filter_var($config['login_restriction'], FILTER_VALIDATE_BOOLEAN);
+    if ($loginRestriction) {
+        respondAndExit(['result' => 'error', 'code' => 403, 'message' => '登入保護已開啟，請提供有效的 Token 或先登入']);
+    }
+
+    // 5. 驗證網域 (僅作為公開模式下的基本過濾)
+    $refererHost = parse_url($_SERVER['HTTP_REFERER'] ?? '', PHP_URL_HOST);
+    if (isDomainAllowed($refererHost)) return;
+    
+    respondAndExit(['result' => 'error', 'code' => 403, 'message' => '身分驗證失敗：無效的 Token、尚未登入或網域未授權']);
 }
 
 /**

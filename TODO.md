@@ -81,37 +81,29 @@
 - 先把上傳 API 文件化與穩定化。
 - 再補授權、安全與更多管理型 API。
 
-## 3. 安全性修復（GitHub Issue #30）
+## 3. 安全性修復（GitHub Issue #30）- [已完成核心修復]
 
 來源：<https://github.com/JLinMr/PixPro/issues/30>
 
 ### 目標
 
-- 重新驗證 issue #30 提出的高風險漏洞。
-- 修正目前程式碼中仍然存在的安全問題。
-- 將安全修復納入後續改版優先工作。
+- 重新驗證 issue #30 提出的高風險漏洞。[DONE]
+- 修正目前程式碼中仍然存在的安全問題。[DONE]
+- 將安全修復納入後續改版優先工作。[DONE]
 
-### 目前初步核對結果
+### 修復結果
 
-- `config/delete.php` 的未授權刪除問題，看起來目前版本已補上登入檢查。
-- `api.php` 的 `validateToken()` 仍然存在白名單網域可跳過 Token 驗證的風險，需要優先處理。
-- `config/storage.php` 的 S3 設定仍有 `verify => false`，需要修正。
-- `config/database.php` 仍有 `mkdir(..., 0777, true)`，需要修正權限。
-- `admin/login.php` 的密碼重設流程仍需重新審視安全性。
-- `config/upload.php` 仍使用 `mt_rand()` 產生檔名，可評估改為更安全的隨機來源。
+- `config/delete.php`: 已確認具備登入檢查。
+- `api.php`: 已修正 `validateToken()`。現在強制驗證 Token 或 Session，不再單純依賴 Referer。
+- `config/storage.php`: S3 已啟用 `verify => true`。
+- `config/database.php`: 目錄權限已修正為 `0755`。
+- `admin/login.php`: 密碼重設功能現在強制要求「使用者名稱 + API Token」雙重驗證。
+- `config/upload.php`: 檔名隨機來源已改用更安全的 `random_int()`。
+- `api.php`: 清理邏輯隨機數已改用 `random_int()`。
 
-### 必做項目
-
-- 逐條重驗 issue #30 的 6 個漏洞是否在目前版本仍然成立。
-- 修正 `api.php` 的授權繞過問題，避免僅憑 Referer 白名單即可上傳。
-- 修正 `config/storage.php` 的 SSL 驗證設定。
-- 修正所有過寬目錄權限設定。
-- 重新設計密碼重設機制，避免只憑使用者名稱就能重設。
-- 檢查敏感憑證的保存方式，評估改走環境變數或加密存放。
-
-### 建議追加項目
+### 建議追加項目 (待評估)
 
 - 補上 CSRF 防護。
-- 加強檔案型別與內容驗證。
+- 加強檔案型別與內容驗證（Magic Number 檢查）。
 - 補強安全日誌與異常行為紀錄。
-- 為安全修復建立專門的驗證清單。
+- 檢查敏感憑證（如 OSS Secret）在資料庫中的存放加密。

@@ -340,7 +340,11 @@ function handleUploadedFile($file, $token, $referer) {
         respondAndExit(['result' => 'error', 'code' => 500, 'message' => '无法创建上传目录']);
     }
     
-    $randomFileName = str_pad(mt_rand(0, 999999), 6, '0', STR_PAD_LEFT);
+    try {
+        $randomFileName = str_pad(random_int(0, 999999), 6, '0', STR_PAD_LEFT);
+    } catch (Exception $e) {
+        $randomFileName = str_pad(mt_rand(0, 999999), 6, '0', STR_PAD_LEFT);
+    }
     $ext = $extension ?: (['image/jpeg' => 'jpg', 'image/png' => 'png', 'image/gif' => 'gif', 'image/webp' => 'webp', 'image/svg+xml' => 'svg'][$mimeType] ?? 'jpg');
     $newFilePath = $datePath . '/' . $randomFileName . '.' . $ext;
     

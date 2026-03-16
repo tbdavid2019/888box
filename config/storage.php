@@ -126,7 +126,7 @@ class StorageHelper {
             ],
             'suppress_php_deprecation_warning' => true,
             'http' => [
-                'verify' => false  // 临时禁用SSL验证
+                'verify' => true
             ]
         ]);
     }

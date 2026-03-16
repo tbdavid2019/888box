@@ -34,18 +34,19 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         }
     } elseif ($action === 'reset' && $allowPasswordReset) {
         $username = $_POST['username'] ?? '';
+        $token = $_POST['token'] ?? '';
         $newPassword = $_POST['new_password'] ?? '';
         $confirmPassword = $_POST['confirm_password'] ?? '';
         
-        if (!$username || !$newPassword || !$confirmPassword) {
+        if (!$username || !$token || !$newPassword || !$confirmPassword) {
             $_SESSION['error'] = "請填寫所有欄位";
         } elseif ($newPassword !== $confirmPassword) {
             $_SESSION['error'] = "兩次輸入的密碼不一致";
         } elseif (strlen($newPassword) < 6) {
             $_SESSION['error'] = "密碼長度至少需為 6 碼";
         } else {
-            $stmt = $pdo->prepare("SELECT id FROM users WHERE username = ?");
-            $stmt->execute([$username]);
+            $stmt = $pdo->prepare("SELECT id FROM users WHERE username = ? AND token = ?");
+            $stmt->execute([$username, $token]);
             
             if ($user = $stmt->fetch(PDO::FETCH_ASSOC)) {
                 $stmt = $pdo->prepare("UPDATE users SET password = ? WHERE id = ?");
@@ -55,7 +56,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                     $_SESSION['error'] = "重設失敗";
                 }
             } else {
-                $_SESSION['error'] = "使用者名稱不存在";
+                $_SESSION['error'] = "使用者名稱或 API Token 不正確";
             }
         }
     }
@@ -348,6 +349,10 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 <div class="form-group">
                     <label for="username">使用者名稱：</label>
                     <input type="text" name="username" required placeholder="請輸入要重設密碼的使用者名稱">
+                </div>
+                <div class="form-group">
+                    <label for="token">API Token：</label>
+                    <input type="text" name="token" required placeholder="請輸入該帳號的 API Token 以驗證身分">
                 </div>
                 <div class="form-group">
                     <label for="new_password">新密碼：</label>
