@@ -187,36 +187,94 @@ function setCorsHeaders() {
 try {
     setCorsHeaders();
 
-    if ($_SERVER['REQUEST_METHOD'] !== 'POST' || empty($_FILES)) {
-        respondAndExit(['result' => 'error', 'code' => 204, 'message' => '无文件上传']);
-    }
-    
-    // 验证上传次数
-    $maxUploadsPerDay = getConfigValue($pdo, 'max_uploads_per_day');
-    $uploadCheck = isUploadAllowed($maxUploadsPerDay);
-    if ($uploadCheck !== true) {
-        respondAndExit(['result' => 'error', 'message' => $uploadCheck]);
-    }
-    
-    // 验证文件大小
-    $maxFileSize = getConfigValue($pdo, 'max_file_size');
-    foreach ($_FILES as $file) {
-        if ($file['size'] > $maxFileSize) {
-            $maxFileSizeMB = $maxFileSize / (1024 * 1024);
-            respondAndExit(['result' => 'error', 'message' => "文件大小超过限制，最大允许 {$maxFileSizeMB}MB"]);
+    $action = $_GET['action'] ?? $_POST['action'] ?? 'upload';
+
+    if ($action === 'upload') {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST' || empty($_FILES)) {
+            respondAndExit(['result' => 'error', 'code' => 204, 'message' => '无文件上传']);
         }
-    }
-    
-    // 验证权限
-    validateToken();
-    
-    // 处理上传
-    foreach ($_FILES as $file) {
-        handleUploadedFile($file, $_POST['token'] ?? '', $_SERVER['HTTP_REFERER'] ?? '');
+        
+        // 验证上传次数
+        $maxUploadsPerDay = getConfigValue($pdo, 'max_uploads_per_day');
+        $uploadCheck = isUploadAllowed($maxUploadsPerDay);
+        if ($uploadCheck !== true) {
+            respondAndExit(['result' => 'error', 'code' => 429, 'message' => $uploadCheck]);
+        }
+        
+        // 验证文件大小
+        $maxFileSize = getConfigValue($pdo, 'max_file_size');
+        foreach ($_FILES as $file) {
+            if ($file['size'] > $maxFileSize) {
+                $maxFileSizeMB = $maxFileSize / (1024 * 1024);
+                respondAndExit(['result' => 'error', 'code' => 413, 'message' => "文件大小超过限制，最大允许 {$maxFileSizeMB}MB"]);
+            }
+        }
+        
+        // 验证权限
+        validateToken();
+        
+        // 处理上传
+        foreach ($_FILES as $file) {
+            handleUploadedFile($file, $_POST['token'] ?? '', $_SERVER['HTTP_REFERER'] ?? '');
+        }
+    } elseif ($action === 'list') {
+        validateToken();
+        $page = isset($_GET['page']) ? max(1, (int)$_GET['page']) : 1;
+        $limit = 20;
+        $offset = ($page - 1) * $limit;
+
+        $stmt = $pdo->prepare("SELECT * FROM images ORDER BY created_at DESC LIMIT ? OFFSET ?");
+        $stmt->bindValue(1, $limit, PDO::PARAM_INT);
+        $stmt->bindValue(2, $offset, PDO::PARAM_INT);
+        $stmt->execute();
+        $images = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        // Explicitly set share_url for LLMs
+        foreach ($images as &$img) {
+            $img['share_url'] = $img['url'];
+        }
+
+        $totalCount = (int)$pdo->query("SELECT COUNT(*) FROM images")->fetchColumn();
+        $totalPages = ceil($totalCount / $limit);
+
+        respondAndExit([
+            'result' => 'success',
+            'code' => 200,
+            'data' => $images,
+            'pagination' => [
+                'current_page' => $page,
+                'total_pages' => (int)$totalPages,
+                'total_count' => $totalCount
+            ]
+        ]);
+    } elseif ($action === 'search') {
+        validateToken();
+        $query = $_GET['q'] ?? '';
+        if (empty($query)) {
+            respondAndExit(['result' => 'error', 'code' => 400, 'message' => '搜索内容不能为空']);
+        }
+
+        $stmt = $pdo->prepare("SELECT * FROM images WHERE path LIKE ? OR url LIKE ? ORDER BY created_at DESC LIMIT 50");
+        $stmt->execute(["%$query%", "%$query%"]);
+        $images = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        // Explicitly set share_url for LLMs
+        foreach ($images as &$img) {
+            $img['share_url'] = $img['url'];
+        }
+
+        respondAndExit([
+            'result' => 'success',
+            'code' => 200,
+            'data' => $images,
+            'query' => $query
+        ]);
+    } else {
+        respondAndExit(['result' => 'error', 'code' => 400, 'message' => '未知的操作: ' . $action]);
     }
     
 } catch (Exception $e) {
     logMessage('错误: ' . $e->getMessage());
-    respondAndExit(['result' => 'error', 'code' => 500, 'message' => '发生错误: ' . $e->getMessage()]);
+    respondAndExit(['result' => 'error', 'code' => 500, 'message' => '服务器错误: ' . $e->getMessage()]);
 }
 ?>
