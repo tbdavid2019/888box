@@ -34,8 +34,8 @@ try {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>888box</title>
-    <meta name="keywords" content="圖床程式,高效圖片壓縮,前後台設計,圖片上傳,WEBP轉換,阿里雲OSS,本機儲存,多格式支援,瀑布流管理,圖片管理後台,自訂壓縮率,尺寸限制">
-    <meta name="description" content="一款專為個人需求設計的高效圖床與影片上傳解決方案，支援自動生成 Podcast RSS。">
+    <meta name="keywords" content="檔案託管,影片上傳,高效圖片壓縮,前後台設計,Podcast,自動生成RSS,AWS S3,本機儲存,多格式支援,瀑布流管理,管理後台,自訂壓縮率,尺寸限制">
+    <meta name="description" content="一款專為個人需求設計的高效媒體託管解決方案，整合強大的圖片與影片處理功能。提供自訂壓縮率與尺寸設定，有效降低儲存成本。搭配 AWS S3 儲存（支援相容 S3 的各類雲端空間）及彈性的本機儲存選項。特色包含自動提取影片 MetaData、封面圖生成及 Podcast RSS 自動更新功能。">
     <link rel="shortcut icon" href="static/favicon.svg">
     <link rel="stylesheet" type="text/css" href="static/css/styles.css">
 </head>
