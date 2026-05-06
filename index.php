@@ -41,21 +41,6 @@ try {
 </head>
 <body>
     <header class="blur">
-        <a href="https://www.bsgun.cn/" target="_blank" title="首頁" class="header-link">
-            <svg class="icon" aria-hidden="true">
-                <use xlink:href="#icon-home"></use>
-            </svg>
-        </a>
-        <a href="https://blog.bsgun.cn/" target="_blank" title="部落格" class="header-link">
-            <svg class="icon" aria-hidden="true">
-                <use xlink:href="#icon-Blog"></use>
-            </svg>
-        </a>
-        <a href="https://github.com/JLinMr/PixPro/" target="_blank" title="Github" class="header-link">
-            <svg class="icon" aria-hidden="true">
-                <use xlink:href="#icon-Github"></use>
-            </svg>
-        </a>
         <a href="/admin/" target="_blank" title="後台" class="header-link">
             <svg class="icon" aria-hidden="true">
                 <use xlink:href="#icon-Setting"></use>
@@ -238,25 +223,12 @@ try {
     </main>
     <footer>
         <?php if (($_ENV['DEMO_MODE'] ?? 'false') === 'true'): ?>
-        <div style="padding: 10px;margin-bottom: 10px;border-radius: 10px;font-size: 15px;font-weight: bold;backdrop-filter: blur(10px);-webkit-backdrop-filter: blur(10px);border: 1px solid rgb(255 255 255 / 20%);background: rgb(255 60 60 / 30%);animation: fadeIn 0.5s ease-in-out forwards;">⚠️ 示範站點 - 所有圖片皆為公開可見且可能被刪除</div>
+        <div style="padding: 10px;margin-bottom: 10px;border-radius: 10px;font-size: 15px;font-weight: bold;backdrop-filter: blur(10px);-webkit-backdrop-filter: blur(10px);border: 1px solid rgb(255 255 255 / 20%);background: rgb(255 60 60 / 30%);animation: fadeIn 0.5s ease-in-out forwards;">⚠️ 示範站點 - 所有檔案皆為公開可見且可能被刪除</div>
         <?php endif; ?>
-        <span>富强</span>
-        <span>民主</span>
-        <span>文明</span>
-        <span>和谐</span>
-        <span>自由</span>
-        <span>平等</span>
-        <span>公正</span>
-        <span>法治</span>
-        <span>愛國</span>
-        <span>敬业</span>
-        <span>诚信</span>
-        <span>友善</span>
         <div class="icp">
-            <span>© 2024</span><a href="https://bsgun.cn" target="_blank">夢愛吃魚</a>
-            <span>本程式發佈於</span><a href="https://github.com/JLinMr/PixPro/" target="_blank">GitHub</a>
+            <span>© <?php echo date('Y'); ?></span>
             <button class="logo-btn">站點聲明</button>
-            <em class="logotitle blur">本站不保證內容、時效與穩定性，請勿上傳包含危害國家安全與民族團結、侵犯他人權益、欺騙性質、色情或暴力的圖片。請嚴格遵守相關法律法規，尊重版權、著作權等權利；圖片內容均由「網友」自行上傳，所有圖片的用途與性質皆與本站無關，本站對所有圖片合法性概不負責，亦不承擔任何法律責任。</em>
+            <em class="logotitle blur">本站不保證內容、時效與穩定性。請嚴格遵守相關法律法規，尊重版權、著作權等權利；內容均由使用者自行上傳，所有檔案的用途與性質皆與本站無關，本站對所有檔案合法性概不負責，亦不承擔任何法律責任。</em>
         </div>
     </footer>
     <script type="module" src="static/js/main.js" data-max-file-size="<?php echo $maxFileSize; ?>">
