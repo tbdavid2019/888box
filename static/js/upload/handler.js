@@ -251,14 +251,20 @@ export class ImageHandler {
     }
 
     validateFile(file) {
-        if (!this.config.allowedTypes.includes(file.type)) {
+        const isVideo = file.type.startsWith('video/');
+        const isAllowedType = this.config.allowedTypes.includes(file.type) || isVideo;
+        
+        if (!isAllowedType) {
             UI.showNotification('不支援的檔案類型，請上傳圖片或影片檔案', 'error');
             return false;
         }
 
-        if (this.config.maxFileSize > 0 && file.size > this.config.maxFileSize) {
-            const maxMB = Math.floor(this.config.maxFileSize / (1024 * 1024));
-            UI.showNotification(`檔案 ${file.name} 超過大小限制，最大允許 ${maxMB}MB`, 'error');
+        const effectiveMaxSize = isVideo ? this.config.maxFileSize * 10 : this.config.maxFileSize;
+
+        if (effectiveMaxSize > 0 && file.size > effectiveMaxSize) {
+            const maxMB = Math.floor(effectiveMaxSize / (1024 * 1024));
+            const typeStr = isVideo ? '影片' : '圖片';
+            UI.showNotification(`${typeStr} ${file.name} 超過大小限制，最大允許 ${maxMB}MB`, 'error');
             return false;
         }
 
