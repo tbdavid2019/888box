@@ -33,9 +33,9 @@ try {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>若夢圖床</title>
+    <title>888box</title>
     <meta name="keywords" content="圖床程式,高效圖片壓縮,前後台設計,圖片上傳,WEBP轉換,阿里雲OSS,本機儲存,多格式支援,瀑布流管理,圖片管理後台,自訂壓縮率,尺寸限制">
-    <meta name="description" content="一款專為個人需求設計的高效圖床解決方案，整合強大的圖片壓縮功能與優雅的前後台介面。專案結構精簡高效，提供自訂圖片壓縮率與尺寸設定，有效降低儲存與頻寬成本。支援 JPEG、PNG、GIF 轉換為 WEBP，也支援 SVG、WEBP 直接上傳，搭配阿里雲 OSS 儲存（預設）及彈性的本機儲存選項。特色包含點擊、拖曳、貼上及 URL 本地化上傳方式，以及具備瀑布流版面的管理後台，讓圖片管理與預覽更輕鬆。">
+    <meta name="description" content="一款專為個人需求設計的高效圖床與影片上傳解決方案，支援自動生成 Podcast RSS。">
     <link rel="shortcut icon" href="static/favicon.svg">
     <link rel="stylesheet" type="text/css" href="static/css/styles.css">
 </head>
@@ -134,6 +134,13 @@ try {
                     <div id="progressBar" class="progressBar"></div>
                 </div>
             </form>
+            
+            <div class="system-links" style="margin-top: 15px; text-align: center; border-top: 1px solid var(--border-white-20); padding-top: 15px;">
+                <a href="/storage/podcast.xml" target="_blank" style="color: var(--link-color); font-weight: bold; font-size: 14px;">
+                    🎧 Podcast RSS 訂閱連結 (XML)
+                </a>
+                <p style="font-size: 12px; color: var(--text-gray); margin-top: 5px;">影片上傳完成後，RSS 將自動更新</p>
+            </div>
         </div>
 
         <!-- 图片信息展示 -->
