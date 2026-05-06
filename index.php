@@ -76,7 +76,7 @@ try {
                         <svg class="icon upload-icon" aria-hidden="true">
                             <use xlink:href="#icon-up"></use>
                         </svg>
-                        <input type="file" id="imageInput" name="image[]" accept="image/png, image/jpeg, image/webp, image/svg+xml, image/gif" multiple>
+                        <input type="file" id="imageInput" name="image[]" accept="image/png, image/jpeg, image/webp, image/svg+xml, image/gif, video/mp4, video/webm, video/quicktime" multiple>
                         <div id="imagePreviewContainer" class="imagePreviewContainer">
                             <button id="prevButton" class="nav-button prev-button">
                                 <svg class="icon" aria-hidden="true">
@@ -84,6 +84,7 @@ try {
                                 </svg>
                             </button>
                             <img id="imagePreview" class="imagePreview" src="" alt="">
+                            <video id="videoPreview" class="imagePreview" src="" controls style="display:none; max-height: 60vh;"></video>
                             <button id="nextButton" class="nav-button next-button">
                                 <svg class="icon" aria-hidden="true">
                                     <use xlink:href="#icon-Right-arrow"></use>
@@ -101,7 +102,7 @@ try {
 
                 <!-- 网络图片上传输入框 -->
                 <div class="url-input-section">
-                    <input type="text" id="pasteOrUrlInput" class="pasteOrUrlInput" placeholder="輸入圖片網址即可自動上傳，或使用 Ctrl+V 貼上圖片" title="注意：部分網站設有防盜鏈，可能無法直接下載">
+                    <input type="text" id="pasteOrUrlInput" class="pasteOrUrlInput" placeholder="輸入圖片或影片網址即可自動上傳，或使用 Ctrl+V 貼上" title="注意：部分網站設有防盜鏈，可能無法直接下載">
                 </div>
 
                 <!-- 压缩比率调整 -->

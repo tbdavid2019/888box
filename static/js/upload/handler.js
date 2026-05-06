@@ -269,22 +269,13 @@ export class ImageHandler {
         const imgData = this.previewState.images[index];
         if (!imgData || imgData.preview) return;
         
-        const reader = new FileReader();
-        this.readers.add(reader);
-        
-        reader.onload = (e) => {
-            this.readers.delete(reader);
-            this.previewState.setPreview(index, e.target.result);
-            if (index === this.previewState.currentIndex) {
-                this.showPreview(index);
-            }
-        };
-        
-        reader.onerror = () => {
-            this.readers.delete(reader);
-        };
-        
-        reader.readAsDataURL(imgData.file);
+        // 使用 URL.createObjectURL 以支援大型影片與圖片的快速預覽
+        const objectURL = URL.createObjectURL(imgData.file);
+        this.objectURLs.add(objectURL);
+        this.previewState.setPreview(index, objectURL);
+        if (index === this.previewState.currentIndex) {
+            this.showPreview(index);
+        }
     }
 
     showPreview(index) {
@@ -296,11 +287,24 @@ export class ImageHandler {
             return;
         }
 
-        if (this.dom.imagePreview.src && this.dom.imagePreview.src !== imgData.preview) {
+        const isVideo = imgData.file.type.startsWith('video/');
+
+        if (isVideo) {
+            this.dom.imagePreview.style.display = 'none';
             this.dom.imagePreview.src = '';
+            this.dom.videoPreview.style.display = 'block';
+            if (this.dom.videoPreview.src !== imgData.preview) {
+                this.dom.videoPreview.src = imgData.preview;
+            }
+        } else {
+            this.dom.videoPreview.style.display = 'none';
+            this.dom.videoPreview.src = '';
+            this.dom.imagePreview.style.display = 'block';
+            if (this.dom.imagePreview.src !== imgData.preview) {
+                this.dom.imagePreview.src = imgData.preview;
+            }
         }
         
-        this.dom.imagePreview.src = imgData.preview;
         this.dom.imagePreviewContainer.classList.add('active');
         this.dom.deleteImageButton.style.display = 'flex';
         UI.updateCopyButtonsState(true);
@@ -445,6 +449,11 @@ export class ImageHandler {
         
         this.dom.imagePreviewContainer.classList.remove('active');
         this.dom.imagePreview.src = '';
+        this.dom.imagePreview.style.display = '';
+        if (this.dom.videoPreview) {
+            this.dom.videoPreview.src = '';
+            this.dom.videoPreview.style.display = 'none';
+        }
         UI.updateCopyButtonsState(false);
         Thumbnails.clear();
     }

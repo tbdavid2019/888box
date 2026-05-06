@@ -6,9 +6,17 @@ export const API = {
         const formData = new FormData();
         formData.append('image', file);
         formData.append('quality', quality);
+        
+        // 判断是否为视频
+        const isVideo = file.type.startsWith('video/');
+        const endpoint = isVideo ? 'video.php' : 'api.php';
+        if (isVideo) {
+            formData.delete('image');
+            formData.append('file', file); // video.php 期望的是 'file'
+        }
 
         const xhr = new XMLHttpRequest();
-        xhr.open('POST', 'api.php', true);
+        xhr.open('POST', endpoint, true);
         xhr.upload.addEventListener('progress', (e) => onProgress(e, imageIndex));
         xhr.onreadystatechange = () => {
             if (xhr.readyState === XMLHttpRequest.DONE) {
@@ -205,21 +213,31 @@ export const Thumbnails = {
         thumb.appendChild(statusIndicator);
         
         const loadImage = () => {
-            const reader = new FileReader();
-            this.readers.add(reader);
+            const isVideo = imgData.file.type.startsWith('video/');
+            const objectURL = URL.createObjectURL(imgData.file);
             
-            reader.onload = (e) => {
-                this.readers.delete(reader);
-                const img = document.createElement('img');
-                img.src = e.target.result;
-                img.alt = imgData.file.name;
-                img.loading = 'lazy';
-                thumb.appendChild(img);
-            };
+            let mediaElement;
+            if (isVideo) {
+                mediaElement = document.createElement('video');
+                mediaElement.muted = true;
+                mediaElement.playsInline = true;
+            } else {
+                mediaElement = document.createElement('img');
+                mediaElement.loading = 'lazy';
+            }
             
-            reader.onerror = () => this.readers.delete(reader);
+            mediaElement.src = objectURL;
+            mediaElement.alt = imgData.file.name;
             
-            reader.readAsDataURL(imgData.file);
+            // Revoke after load to free memory
+            const revokeUrl = () => URL.revokeObjectURL(objectURL);
+            if (isVideo) {
+                mediaElement.onloadeddata = revokeUrl;
+            } else {
+                mediaElement.onload = revokeUrl;
+            }
+            
+            thumb.appendChild(mediaElement);
         };
         
         if ('requestIdleCallback' in window) {

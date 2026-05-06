@@ -88,7 +88,7 @@ const PreviewState = {
 document.addEventListener('DOMContentLoaded', () => {
     const scriptTag = document.currentScript || document.querySelector('script[src*="script.js"]');
     CONFIG = {
-        allowedTypes: ['image/jpeg', 'image/png', 'image/gif', 'image/webp', 'image/svg+xml'],
+        allowedTypes: ['image/jpeg', 'image/png', 'image/gif', 'image/webp', 'image/svg+xml', 'video/mp4', 'video/webm', 'video/quicktime'],
         maxFileSize: parseInt(scriptTag?.dataset?.maxFileSize) || 0
     };
     
@@ -96,6 +96,7 @@ document.addEventListener('DOMContentLoaded', () => {
     DOM = {
         imageInput: document.getElementById('imageInput'),
         imagePreview: document.getElementById('imagePreview'),
+        videoPreview: document.getElementById('videoPreview'),
         imagePreviewContainer: document.getElementById('imagePreviewContainer'),
         prevButton: document.getElementById('prevButton'),
         nextButton: document.getElementById('nextButton'),
