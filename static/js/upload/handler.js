@@ -34,7 +34,7 @@ export class ImageHandler {
         // 粘贴上传
         document.addEventListener('paste', event => {
             const files = Array.from(event.clipboardData?.items || [])
-                .filter(item => item.kind === 'file' && item.type.startsWith('image/'))
+                .filter(item => item.kind === 'file' && (item.type.startsWith('image/') || item.type.startsWith('video/')))
                 .map(item => item.getAsFile())
                 .filter(file => file !== null);
             
@@ -252,7 +252,7 @@ export class ImageHandler {
 
     validateFile(file) {
         if (!this.config.allowedTypes.includes(file.type)) {
-            UI.showNotification('不支援的檔案類型，請上傳圖片檔案', 'error');
+            UI.showNotification('不支援的檔案類型，請上傳圖片或影片檔案', 'error');
             return false;
         }
 
@@ -456,5 +456,8 @@ export class ImageHandler {
         }
         UI.updateCopyButtonsState(false);
         Thumbnails.clear();
+    }
+}
+mbnails.clear();
     }
 }

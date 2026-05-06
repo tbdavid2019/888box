@@ -37,7 +37,7 @@ try {
     <meta name="keywords" content="檔案託管,影片上傳,高效圖片壓縮,前後台設計,Podcast,自動生成RSS,AWS S3,本機儲存,多格式支援,瀑布流管理,管理後台,自訂壓縮率,尺寸限制">
     <meta name="description" content="一款專為個人需求設計的高效媒體託管解決方案，整合強大的圖片與影片處理功能。提供自訂壓縮率與尺寸設定，有效降低儲存成本。搭配 AWS S3 儲存（支援相容 S3 的各類雲端空間）及彈性的本機儲存選項。特色包含自動提取影片 MetaData、封面圖生成及 Podcast RSS 自動更新功能。">
     <link rel="shortcut icon" href="static/favicon.svg">
-    <link rel="stylesheet" type="text/css" href="static/css/styles.css">
+    <link rel="stylesheet" type="text/css" href="static/css/styles.css?v=<?php echo time(); ?>">
 </head>
 <body>
     <header class="blur">
@@ -238,10 +238,10 @@ try {
             <em class="logotitle blur">本站不保證內容、時效與穩定性。請嚴格遵守相關法律法規，尊重版權、著作權等權利；內容均由使用者自行上傳，所有檔案的用途與性質皆與本站無關，本站對所有檔案合法性概不負責，亦不承擔任何法律責任。</em>
         </div>
     </footer>
-    <script type="module" src="static/js/main.js" data-max-file-size="<?php echo $maxFileSize; ?>">
+    <script type="module" src="static/js/main.js?v=<?php echo time(); ?>" data-max-file-size="<?php echo $maxFileSize; ?>">
     </script>
     <!-- 引入鼠标指针跟随特效 -->
-    <script type="text/javascript" src="static/js/cursor.js" defer data-lazy="true"></script>
+    <script type="text/javascript" src="static/js/cursor.js?v=<?php echo time(); ?>" defer data-lazy="true"></script>
     <script src="//at.alicdn.com/t/c/font_4623353_hb4c04qfi4u.js"></script>
 </body>
 </html>
