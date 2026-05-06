@@ -135,7 +135,7 @@ function convertImageToWebp($source, $destination, $quality = 60) {
             
             $image = new Imagick($source);
             if ($image->getImageAlphaChannel()) {
-                $image->setImageBackgroundColor(new ImagickPixel('transparent'));
+                $image->setImageBackgroundColor('transparent');
                 $image->setImageAlphaChannel(Imagick::ALPHACHANNEL_ACTIVATE);
                 $image = $image->mergeImageLayers(Imagick::LAYERMETHOD_FLATTEN);
             }
@@ -286,7 +286,12 @@ function detectMimeType($file) {
         'png' => 'image/png',
         'gif' => 'image/gif',
         'webp' => 'image/webp',
-        'svg' => 'image/svg+xml'
+        'svg' => 'image/svg+xml',
+        'mp4' => 'video/mp4',
+        'webm' => 'video/webm',
+        'mov' => 'video/quicktime',
+        'avi' => 'video/x-msvideo',
+        'mkv' => 'video/x-matroska'
     ];
     
     $mimeType = $mimeTypes[$extension] ?? 'application/octet-stream';

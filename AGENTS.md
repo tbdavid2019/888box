@@ -140,6 +140,18 @@ This file guides coding agents working in `PixPro`.
 - Do not bypass `generateFileUrl()`, `validateFile()`, or `generateUploadResponse()` without a good reason.
 - Respect existing behavior around daily upload limits, max file size, and output format conversion.
 
+## Video and Podcast Logic
+
+- Video uploads are handled by `video.php` in the repository root.
+- Core logic resides in `config/video_logic.php`, including RSS and JSON generation.
+- `config/video_helper.php` provides FFmpeg wrappers for metadata extraction and thumbnail generation.
+- **FFmpeg Requirement**: The system expects `ffmpeg` and `ffprobe` binaries to be available in the PATH (installed via Dockerfile).
+- **Concurrency**: `flock()` is used on `.lock` files to protect `storage/podcast.xml` and daily `videos.json` during concurrent updates.
+- **Metadata**: Extracted fields include duration, resolution, and bitrate.
+- **Thumbnails**: Automatically generated at 1s mark and stored alongside videos.
+- **RSS**: Generated using `DOMDocument`, follows iTunes podcast specs (`itunes:duration`, `itunes:image`), and maintains newest-first order.
+- **Daily JSON**: Stored in `storage/YYYY-MM-DD/videos.json`, also maintains newest-first order.
+
 ## Validation Checklist For Agents
 
 - If you changed PHP, run `php -l` on every changed PHP file.

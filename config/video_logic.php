@@ -1,0 +1,212 @@
+<?php
+
+require_once __DIR__ . '/video_helper.php';
+require_once __DIR__ . '/upload.php';
+
+/**
+ * Handle video upload logic
+ */
+function handleVideoUpload($file, $pdo) {
+    $config = Database::getConfig($pdo);
+    $storage = $config['storage'];
+    $user_id = $_SESSION['user_id'] ?? NULL;
+    
+    // 1. Validate file
+    list($mimeType, $extension) = detectMimeType($file);
+    $allowedVideoTypes = ['video/mp4', 'video/webm', 'video/quicktime', 'video/x-msvideo', 'video/x-matroska'];
+    
+    if (!in_array($mimeType, $allowedVideoTypes)) {
+        respondAndExit(['result' => 'error', 'code' => 406, 'message' => '不支持的影片格式: ' . $mimeType]);
+    }
+    
+    // 2. Prepare paths
+    $datePath = 'i/' . date('Y/m/d');
+    if (!is_dir($datePath) && !mkdir($datePath, 0755, true)) {
+        respondAndExit(['result' => 'error', 'code' => 500, 'message' => '無法創建上傳目錄']);
+    }
+    
+    $randomFileName = str_pad(mt_rand(0, 999999), 6, '0', STR_PAD_LEFT);
+    $videoFileName = $randomFileName . '.' . $extension;
+    $localVideoPath = $datePath . '/' . $videoFileName;
+    
+    // 3. Move uploaded file
+    if (!move_uploaded_file($file['tmp_name'], $localVideoPath)) {
+        respondAndExit(['result' => 'error', 'code' => 500, 'message' => '影片上傳失敗']);
+    }
+    
+    // 4. Extract metadata and generate thumbnail
+    $metadata = VideoHelper::getVideoMetadata($localVideoPath);
+    $thumbFileName = $randomFileName . '_thumb.jpg';
+    $localThumbPath = $datePath . '/' . $thumbFileName;
+    
+    $thumbSuccess = VideoHelper::generateThumbnail($localVideoPath, $localThumbPath);
+    
+    // 5. Store files using StorageHelper
+    try {
+        $videoRemotePath = $datePath . '/' . $videoFileName;
+        $thumbRemotePath = $datePath . '/' . $thumbFileName;
+        
+        // Upload Video
+        $videoResult = StorageHelper::upload($storage, $config, $localVideoPath, $videoRemotePath);
+        $videoUrl = generateFileUrl($storage, $config, $videoRemotePath, $videoResult);
+        
+        // Upload Thumbnail if generated
+        $thumbUrl = '';
+        if ($thumbSuccess) {
+            $thumbResult = StorageHelper::upload($storage, $config, $localThumbPath, $thumbRemotePath);
+            $thumbUrl = generateFileUrl($storage, $config, $thumbRemotePath, $thumbResult);
+        }
+        
+        // Cleanup local files if not using local storage
+        if ($storage !== 'local') {
+            if (file_exists($localVideoPath)) unlink($localVideoPath);
+            if (file_exists($localThumbPath)) unlink($localThumbPath);
+        }
+        
+        $videoData = [
+            'url' => $videoUrl,
+            'thumbnail_url' => $thumbUrl,
+            'path' => $videoRemotePath,
+            'thumb_path' => $thumbRemotePath,
+            'size' => filesize($storage === 'local' ? $localVideoPath : $localVideoPath), // filesize might fail if unlinked
+            'filename' => $videoFileName,
+            'metadata' => $metadata,
+            'timestamp' => time()
+        ];
+        
+        // Since we might have unlinked, we should get size earlier or handle it
+        if ($storage !== 'local') {
+            // size was already available if we didn't unlink yet, but let's be safe
+            $videoData['size'] = filesize($localVideoPath); 
+        } else {
+            $videoData['size'] = filesize($localVideoPath);
+        }
+
+        // 6. Update RSS and JSON (Tasks 4 & 5)
+        updatePodcastRSS($videoData, $config);
+        updateDailyList($videoData, $config);
+        
+        // 7. Save to database (optional, but good for consistency)
+        $stmt = $pdo->prepare("INSERT INTO images (url, path, storage, size, upload_ip, user_id) VALUES (?, ?, ?, ?, ?, ?)");
+        $stmt->execute([$videoUrl, $videoRemotePath, $storage, $videoData['size'], getClientIp(), $user_id]);
+
+        return $videoData;
+        
+    } catch (Exception $e) {
+        logMessage("影片處理失敗: " . $e->getMessage());
+        respondAndExit(['result' => 'error', 'code' => 500, 'message' => '影片處理失敗: ' . $e->getMessage()]);
+    }
+}
+
+/**
+ * Update Podcast RSS Feed with flock
+ */
+function updatePodcastRSS($videoData, $config) {
+    $rssPath = 'storage/podcast.xml';
+    if (!is_dir('storage')) mkdir('storage', 0755, true);
+    
+    $lockFile = $rssPath . '.lock';
+    $fp = fopen($lockFile, "w+");
+    if (flock($fp, LOCK_EX)) {
+        $dom = new DOMDocument('1.0', 'UTF-8');
+        $dom->formatOutput = true;
+        
+        if (file_exists($rssPath)) {
+            @$dom->load($rssPath);
+        }
+        
+        $rss = $dom->getElementsByTagName('rss')->item(0);
+        if (!$rss) {
+            $rss = $dom->createElement('rss');
+            $rss->setAttribute('version', '2.0');
+            $rss->setAttribute('xmlns:itunes', 'http://www.itunes.com/dtds/podcast-1.0.dtd');
+            $rss->setAttribute('xmlns:content', 'http://purl.org/rss/1.0/modules/content/');
+            $dom->appendChild($rss);
+        }
+        
+        $channel = $rss->getElementsByTagName('channel')->item(0);
+        if (!$channel) {
+            $channel = $dom->createElement('channel');
+            $rss->appendChild($channel);
+            
+            $channel->appendChild($dom->createElement('title', 'PixPro Video Podcast'));
+            $channel->appendChild($dom->createElement('description', 'Automatically generated video podcast from PixPro uploads.'));
+            $channel->appendChild($dom->createElement('link', generateFileUrl($config['storage'], $config, '', null)));
+            $channel->appendChild($dom->createElement('language', 'zh-tw'));
+        }
+        
+        // Create new item
+        $item = $dom->createElement('item');
+        $item->appendChild($dom->createElement('title', $videoData['filename']));
+        $item->appendChild($dom->createElement('description', 'Uploaded via PixPro on ' . date('Y-m-d H:i:s', $videoData['timestamp'])));
+        $item->appendChild($dom->createElement('pubDate', date(DATE_RSS, $videoData['timestamp'])));
+        
+        $enclosure = $dom->createElement('enclosure');
+        $enclosure->setAttribute('url', $videoData['url']);
+        $enclosure->setAttribute('length', $videoData['size']);
+        $enclosure->setAttribute('type', 'video/mp4'); // Defaulting to mp4, could be more dynamic
+        $item->appendChild($enclosure);
+        
+        if (!empty($videoData['thumbnail_url'])) {
+            $itunesImage = $dom->createElement('itunes:image');
+            $itunesImage->setAttribute('href', $videoData['thumbnail_url']);
+            $item->appendChild($itunesImage);
+        }
+        
+        if (isset($videoData['metadata']['duration'])) {
+            $durationSec = round($videoData['metadata']['duration']);
+            $item->appendChild($dom->createElement('itunes:duration', $durationSec));
+        }
+        
+        $item->appendChild($dom->createElement('guid', $videoData['url']));
+        
+        // Insert at the beginning of channel (after channel metadata)
+        $items = $channel->getElementsByTagName('item');
+        if ($items->length > 0) {
+            $channel->insertBefore($item, $items->item(0));
+        } else {
+            $channel->appendChild($item);
+        }
+        
+        $dom->save($rssPath);
+        flock($fp, LOCK_UN);
+    }
+    fclose($fp);
+}
+
+/**
+ * Update Daily Video List with flock
+ */
+function updateDailyList($videoData, $config) {
+    $date = date('Y-m-d');
+    $dir = 'storage/' . $date;
+    if (!is_dir($dir)) mkdir($dir, 0755, true);
+    
+    $jsonPath = $dir . '/videos.json';
+    $lockFile = $jsonPath . '.lock';
+    
+    $fp = fopen($lockFile, "w+");
+    if (flock($fp, LOCK_EX)) {
+        $list = [];
+        if (file_exists($jsonPath)) {
+            $content = file_get_contents($jsonPath);
+            $list = json_decode($content, true) ?: [];
+        }
+        
+        // Add new item at the beginning
+        array_unshift($list, [
+            'filename' => $videoData['filename'],
+            'url' => $videoData['url'],
+            'thumbnail_url' => $videoData['thumbnail_url'],
+            'size' => $videoData['size'],
+            'duration' => $videoData['metadata']['duration'] ?? 0,
+            'resolution' => isset($videoData['metadata']['width']) ? ($videoData['metadata']['width'] . 'x' . $videoData['metadata']['height']) : 'unknown',
+            'timestamp' => $videoData['timestamp'],
+            'datetime' => date('Y-m-d H:i:s', $videoData['timestamp'])
+        ]);
+        
+        file_put_contents($jsonPath, json_encode($list, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES));
+        flock($fp, LOCK_UN);
+    }
+    fclose($fp);
+}

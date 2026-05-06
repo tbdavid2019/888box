@@ -12,6 +12,7 @@ RUN apt-get update && apt-get install -y \
     libpng-dev \
     libwebp-dev \
     libsqlite3-dev \
+    ffmpeg \
     && rm -rf /var/lib/apt/lists/*
 
 # 安装 PHP 扩展
