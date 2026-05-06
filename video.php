@@ -14,6 +14,119 @@ $db = Database::getInstance();
 $pdo = $db->getConnection();
 $config = Database::getConfig($pdo);
 
+// ============================================
+// 工具函数 (从 api.php 移植)
+// ============================================
+
+function getConfigValue($pdo, $key) {
+    $stmt = $pdo->prepare("SELECT value FROM configs WHERE `key` = ?");
+    $stmt->execute([$key]);
+    return (int)$stmt->fetch(PDO::FETCH_ASSOC)['value'];
+}
+
+function isDomainAllowed($host) {
+    global $config;
+    if (empty($host)) return false;
+    $siteDomains = array_map('trim', explode(',', $config['site_domain']));
+    if (in_array('*', $siteDomains)) return true;
+    foreach ($siteDomains as $domain) {
+        if ($host === parse_url($domain, PHP_URL_HOST)) {
+            return true;
+        }
+    }
+    return false;
+}
+
+function logMessage($message) {
+    file_put_contents('上传日志.txt', "[" . date('Y-m-d H:i:s') . "] $message" . PHP_EOL, FILE_APPEND);
+}
+
+function respondAndExit($response) {
+    ob_end_clean();
+    header('Content-Type: application/json; charset=utf-8');
+    echo json_encode($response, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+    exit;
+}
+
+function isUploadAllowed($maxUploadsPerDay) {
+    if ($maxUploadsPerDay <= 0) return true;
+    
+    $uploadDir = 'i/.upload_limits/';
+    if (!is_dir($uploadDir)) mkdir($uploadDir, 0755, true);
+    
+    $clientIp = getClientIp();
+    $currentDate = date('Y-m-d');
+    $limitFile = $uploadDir . md5($clientIp) . '.json';
+    
+    $uploadData = file_exists($limitFile) 
+        ? json_decode(file_get_contents($limitFile), true) ?: []
+        : [];
+    
+    if (!isset($uploadData['date']) || $uploadData['date'] !== $currentDate) {
+        $uploadData = ['date' => $currentDate, 'count' => 0, 'ip' => $clientIp];
+    }
+    
+    if ($uploadData['count'] >= $maxUploadsPerDay) {
+        return "影片上傳次數已達今日限制（{$maxUploadsPerDay}次），請明天再試";
+    }
+    
+    $uploadData['count']++;
+    $uploadData['last_upload'] = date('Y-m-d H:i:s');
+    file_put_contents($limitFile, json_encode($uploadData, JSON_PRETTY_PRINT));
+    
+    return true;
+}
+
+function validateToken() {
+    global $pdo, $config;
+    
+    $token = '';
+    if (preg_match('/Bearer\s+(.*)$/i', $_SERVER['HTTP_AUTHORIZATION'] ?? '', $matches)) {
+        $token = $matches[1];
+    } else {
+        $token = $_POST['token'] ?? '';
+    }
+    
+    if (!empty($token)) {
+        $stmt = $pdo->prepare("SELECT id FROM users WHERE token = ?");
+        $stmt->execute([$token]);
+        if ($stmt->fetch()) return;
+    }
+    
+    if (isset($_SESSION['loggedin']) && $_SESSION['loggedin'] === true) {
+        return;
+    }
+    
+    $loginRestriction = isset($config['login_restriction']) && filter_var($config['login_restriction'], FILTER_VALIDATE_BOOLEAN);
+    if ($loginRestriction) {
+        respondAndExit(['result' => 'error', 'code' => 403, 'message' => '登入保護已開啟，請提供有效的 Token 或先登入']);
+    }
+
+    $refererHost = parse_url($_SERVER['HTTP_REFERER'] ?? '', PHP_URL_HOST);
+    if (isDomainAllowed($refererHost)) return;
+    
+    respondAndExit(['result' => 'error', 'code' => 403, 'message' => '身分驗證失敗：無效的 Token、尚未登入或網域未授權']);
+}
+
+function setCorsHeaders() {
+    global $config;
+    
+    $origin = $_SERVER['HTTP_ORIGIN'] ?? '';
+    $siteDomains = array_map('trim', explode(',', $config['site_domain']));
+    
+    if (in_array('*', $siteDomains)) {
+        header("Access-Control-Allow-Origin: *");
+    } else if (!empty($origin) && isDomainAllowed(parse_url($origin, PHP_URL_HOST))) {
+        header("Access-Control-Allow-Origin: $origin");
+        header("Access-Control-Allow-Credentials: true");
+    } else {
+        header("Access-Control-Allow-Origin: null");
+    }
+    
+    header("Access-Control-Allow-Methods: GET, POST, OPTIONS");
+    header("Access-Control-Allow-Headers: Content-Type, Authorization");
+}
+
 // 设置CORS响应头
 setCorsHeaders();
 
