@@ -48,6 +48,13 @@ try {
         </a>
     </header>
     <main>
+        <!-- 影片專屬入口 Banner -->
+        <div style="width: 100%; text-align: center; margin-bottom: 25px; padding: 15px; background: linear-gradient(135deg, #3b82f6, #8b5cf6); border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.2);">
+            <a href="upload_video.php" style="color: white; font-size: 1.2rem; font-weight: bold; text-decoration: none; display: flex; align-items: center; justify-content: center; gap: 10px;">
+                <span>🎬</span> 點此進入【影片專屬上傳區】 (提供專屬拖曳預覽、獨立操作面板) <span>👉</span>
+            </a>
+        </div>
+
         <!-- 左側：上傳區與縮圖 -->
         <div class="left-column" style="flex: 1; width: 100%; max-width: 540px;">
             <div class="upload-container blur">
