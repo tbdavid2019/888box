@@ -23,7 +23,11 @@ RUN docker-php-ext-configure gd --with-freetype --with-jpeg --with-webp \
 
 # 设置 PHP 配置，屏蔽 Notice
 RUN echo "display_errors = Off" >> /usr/local/etc/php/conf.d/docker-custom.ini \
-    && echo "error_reporting = E_ALL & ~E_NOTICE" >> /usr/local/etc/php/conf.d/docker-custom.ini
+    && echo "error_reporting = E_ALL & ~E_NOTICE" >> /usr/local/etc/php/conf.d/docker-custom.ini \
+    && echo "upload_max_filesize = 500M" >> /usr/local/etc/php/conf.d/docker-custom.ini \
+    && echo "post_max_size = 500M" >> /usr/local/etc/php/conf.d/docker-custom.ini \
+    && echo "memory_limit = 512M" >> /usr/local/etc/php/conf.d/docker-custom.ini \
+    && echo "max_execution_time = 600" >> /usr/local/etc/php/conf.d/docker-custom.ini
 
 # 设置权限
 RUN chown -R www-data:www-data /var/www/html
