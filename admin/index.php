@@ -67,6 +67,9 @@ $pagination = renderPagination($current_page, $total_pages);
 <body>
     <div id="gallery" class="gallery"><?= $images_html ?></div>
     <div class="rightside">
+        <a href="/admin/video.php" class="floating-link" title="影片管理" style="background-color: #3b82f6;">
+            <svg class="icon" aria-hidden="true" style="fill: white;"><use xlink:href="#icon-Right-arrow"></use></svg>
+        </a>
         <a href="/" class="floating-link" title="返回首頁">
             <svg class="icon" aria-hidden="true"><use xlink:href="#icon-home"></use></svg>
         </a>

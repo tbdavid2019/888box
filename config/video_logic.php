@@ -210,10 +210,60 @@ function updateDailyList($videoData, $config) {
     }
     fclose($fp);
 }
-' => date('Y-m-d H:i:s', $videoData['timestamp'])
-        ]);
+
+/**
+ * Rebuild Podcast RSS Feed from database
+ */
+function rebuildVideoRSS($pdo, $config) {
+    $rssPath = 'storage/podcast.xml';
+    if (!is_dir('storage')) mkdir('storage', 0755, true);
+    
+    $lockFile = $rssPath . '.lock';
+    $fp = fopen($lockFile, "w+");
+    if (flock($fp, LOCK_EX)) {
+        $dom = new DOMDocument('1.0', 'UTF-8');
+        $dom->formatOutput = true;
         
-        file_put_contents($jsonPath, json_encode($list, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES));
+        $rss = $dom->createElement('rss');
+        $rss->setAttribute('version', '2.0');
+        $rss->setAttribute('xmlns:itunes', 'http://www.itunes.com/dtds/podcast-1.0.dtd');
+        $rss->setAttribute('xmlns:content', 'http://purl.org/rss/1.0/modules/content/');
+        $dom->appendChild($rss);
+        
+        $channel = $dom->createElement('channel');
+        $rss->appendChild($channel);
+        
+        $channel->appendChild($dom->createElement('title', '888box Video Podcast'));
+        $channel->appendChild($dom->createElement('description', 'Automatically generated video podcast from 888box uploads.'));
+        $channel->appendChild($dom->createElement('link', generateFileUrl($config['storage'], $config, '', null)));
+        $channel->appendChild($dom->createElement('language', 'zh-tw'));
+        
+        // Fetch all videos from DB
+        $stmt = $pdo->prepare("SELECT * FROM images WHERE url LIKE '%.mp4' OR url LIKE '%.webm' OR url LIKE '%.mov' OR url LIKE '%.mkv' ORDER BY id DESC");
+        $stmt->execute();
+        $videos = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        
+        foreach ($videos as $video) {
+            $item = $dom->createElement('item');
+            $item->appendChild($dom->createElement('title', htmlspecialchars($video['title'] ?: $video['path'])));
+            $item->appendChild($dom->createElement('description', htmlspecialchars($video['description'] ?: '')));
+            $item->appendChild($dom->createElement('pubDate', date(DATE_RSS, strtotime($video['created_at']))));
+            
+            $enclosure = $dom->createElement('enclosure');
+            $enclosure->setAttribute('url', $video['url']);
+            $enclosure->setAttribute('length', $video['size']);
+            // A basic check for mime type based on extension
+            $type = 'video/mp4';
+            if (strpos($video['url'], '.webm') !== false) $type = 'video/webm';
+            elseif (strpos($video['url'], '.mov') !== false) $type = 'video/quicktime';
+            $enclosure->setAttribute('type', $type);
+            $item->appendChild($enclosure);
+            
+            $item->appendChild($dom->createElement('guid', $video['url']));
+            $channel->appendChild($item);
+        }
+        
+        $dom->save($rssPath);
         flock($fp, LOCK_UN);
     }
     fclose($fp);

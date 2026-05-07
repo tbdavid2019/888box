@@ -7,7 +7,7 @@ try {
     $pdo = $db->getConnection();
     $config = Database::getConfig($pdo);
     
-    // 检查是否需要登录限制
+    // 檢查是否需要登入限制
     if ($config && 
         isset($config['login_restriction']) && 
         filter_var($config['login_restriction'], FILTER_VALIDATE_BOOLEAN) && 
