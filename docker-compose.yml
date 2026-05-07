@@ -1,13 +1,11 @@
 services:
   pixpro:
-    image: jlinmr/pixpro:latest
+    build: .
+    container_name: pixpro-pixpro-1
     environment:
-      TZ: Asia/Shanghai
+      TZ: Asia/Taipei
     volumes:
-      - pixpro-data:/var/www/html
+      - .:/var/www/html
     ports:
       - "6767:80"
     restart: unless-stopped
-
-volumes:
-  pixpro-data:
