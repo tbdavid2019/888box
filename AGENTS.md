@@ -1,6 +1,6 @@
 # AGENTS.md
 
-This file guides coding agents working in `PixPro`.
+This file guides coding agents working in `888box`.
 
 ## Scope
 

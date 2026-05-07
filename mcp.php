@@ -1,9 +1,9 @@
 <?php
 /**
- * PixPro MCP Server
+ * 888box MCP Server
  * 
  * Implements Model Context Protocol (MCP) over stdio.
- * Allows LLMs to use PixPro as a tool.
+ * Allows LLMs to use 888box as a tool.
  */
 
 require_once 'vendor/autoload.php';
@@ -42,7 +42,7 @@ function handleRequest($request, $pdo) {
                     'resources' => (object)[]
                 ],
                 'serverInfo' => [
-                    'name' => 'pixpro-mcp-server',
+                    'name' => '888box-mcp-server',
                     'version' => '1.0.0'
                 ]
             ];

@@ -1,14 +1,14 @@
-# PixPro Image Hosting Skill
+# 888box Image Hosting Skill
 
 A professional image hosting and management system for AI agents and LLMs.
 
 ## Overview
-PixPro allows you to upload, list, and search for images. It supports modern formats like WebP and handles various storage backends (Local, OSS, S3, UpYun).
+888box allows you to upload, list, and search for images. It supports modern formats like WebP and handles various storage backends (Local, OSS, S3, UpYun).
 
 ## Tools
 
 ### upload_image
-Upload an image to the PixPro system.
+Upload an image to the 888box system.
 - **Endpoint**: `POST /api.php`
 - **Authentication**: Bearer Token in `Authorization` header or `token` in POST body.
 - **Parameters**:
@@ -42,14 +42,14 @@ Authorization: Bearer <your_token>
 
 ### Uploading an image (via cURL)
 ```bash
-curl -X POST "https://your-pixpro-domain.com/api.php" \
+curl -X POST "https://your-888box-domain.com/api.php" \
      -H "Authorization: Bearer your_token_here" \
      -F "file=@/path/to/image.jpg"
 ```
 
 ### Searching for images
 ```bash
-curl -G "https://your-pixpro-domain.com/api.php" \
+curl -G "https://your-888box-domain.com/api.php" \
      -H "Authorization: Bearer your_token_here" \
      -d "action=search" \
      -d "q=nature"

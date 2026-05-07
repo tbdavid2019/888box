@@ -1,5 +1,5 @@
 services:
-  pixpro:
+  888box:
     build: .
     container_name: 888box
     environment:

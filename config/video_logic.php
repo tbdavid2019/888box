@@ -133,8 +133,8 @@ function updatePodcastRSS($videoData, $config) {
             $channel = $dom->createElement('channel');
             $rss->appendChild($channel);
             
-            $channel->appendChild($dom->createElement('title', 'PixPro Video Podcast'));
-            $channel->appendChild($dom->createElement('description', 'Automatically generated video podcast from PixPro uploads.'));
+            $channel->appendChild($dom->createElement('title', '888box Video Podcast'));
+            $channel->appendChild($dom->createElement('description', 'Automatically generated video podcast from 888box uploads.'));
             $channel->appendChild($dom->createElement('link', generateFileUrl($config['storage'], $config, '', null)));
             $channel->appendChild($dom->createElement('language', 'zh-tw'));
         }
