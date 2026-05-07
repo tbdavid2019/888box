@@ -1,7 +1,7 @@
 services:
   pixpro:
     build: .
-    container_name: pixpro-pixpro-1
+    container_name: 888box
     environment:
       TZ: Asia/Taipei
     volumes:
