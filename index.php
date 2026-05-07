@@ -40,7 +40,8 @@ try {
     <link rel="stylesheet" type="text/css" href="static/css/styles.css?v=<?php echo time(); ?>">
 </head>
 <body>
-    <header class="blur">
+    <header class="blur" style="width: 100%; max-width: 1200px; display: flex; justify-content: space-between; align-items: center; padding: 0 20px; box-sizing: border-box;">
+        <h1 style="margin: 0; font-size: 1.5rem; color: #e5e7eb; padding: 15px 0;">🖼️ 888box 圖片託管中心</h1>
         <a href="/admin/" target="_blank" title="後台" class="header-link">
             <svg class="icon" aria-hidden="true">
                 <use xlink:href="#icon-Setting"></use>
