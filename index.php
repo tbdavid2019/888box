@@ -48,50 +48,74 @@ try {
         </a>
     </header>
     <main>
-        <div class="upload-container blur">
-            <form id="uploadForm" enctype="multipart/form-data">
-                <!-- 上传框区域 -->
-                <div class="upload-section">
-                    <button id="deleteImageButton" class="deleteImageButton">
-                        <svg class="icon" aria-hidden="true">
-                            <use xlink:href="#icon-xmark"></use>
-                        </svg>
-                    </button>
-                    <div id="imageUploadBox" class="imageUploadBox" onclick="document.getElementById('imageInput').click();">
-                        <svg class="icon upload-icon" aria-hidden="true">
-                            <use xlink:href="#icon-up"></use>
-                        </svg>
-                        <input type="file" id="imageInput" name="image[]" accept="image/png, image/jpeg, image/webp, image/svg+xml, image/gif, video/mp4, video/webm, video/quicktime" multiple>
-                        <div id="imagePreviewContainer" class="imagePreviewContainer">
-                            <button id="prevButton" class="nav-button prev-button">
-                                <svg class="icon" aria-hidden="true">
-                                    <use xlink:href="#icon-Left-arrow"></use>
-                                </svg>
-                            </button>
-                            <img id="imagePreview" class="imagePreview" src="" alt="">
-                            <video id="videoPreview" class="imagePreview" src="" controls style="display:none; max-height: 60vh;"></video>
-                            <button id="nextButton" class="nav-button next-button">
-                                <svg class="icon" aria-hidden="true">
-                                    <use xlink:href="#icon-Right-arrow"></use>
-                                </svg>
-                            </button>
-                            <div id="imageCounter" class="image-counter"></div>
+        <!-- 左側：上傳區與縮圖 -->
+        <div class="left-column" style="flex: 1; width: 100%; max-width: 540px;">
+            <div class="upload-container blur">
+                <form id="uploadForm" enctype="multipart/form-data">
+                    <!-- 上传框区域 -->
+                    <div class="upload-section">
+                        <button id="deleteImageButton" class="deleteImageButton">
+                            <svg class="icon" aria-hidden="true">
+                                <use xlink:href="#icon-xmark"></use>
+                            </svg>
+                        </button>
+                        <div id="imageUploadBox" class="imageUploadBox" onclick="document.getElementById('imageInput').click();">
+                            <svg class="icon upload-icon" aria-hidden="true">
+                                <use xlink:href="#icon-up"></use>
+                            </svg>
+                            <input type="file" id="imageInput" name="image[]" accept="image/png, image/jpeg, image/webp, image/svg+xml, image/gif, video/mp4, video/webm, video/quicktime" multiple>
+                            <div id="imagePreviewContainer" class="imagePreviewContainer">
+                                <button id="prevButton" class="nav-button prev-button">
+                                    <svg class="icon" aria-hidden="true">
+                                        <use xlink:href="#icon-Left-arrow"></use>
+                                    </svg>
+                                </button>
+                                <img id="imagePreview" class="imagePreview" src="" alt="">
+                                <video id="videoPreview" class="imagePreview" src="" controls style="display:none; max-height: 60vh;"></video>
+                                <button id="nextButton" class="nav-button next-button">
+                                    <svg class="icon" aria-hidden="true">
+                                        <use xlink:href="#icon-Right-arrow"></use>
+                                    </svg>
+                                </button>
+                                <div id="imageCounter" class="image-counter"></div>
+                            </div>
                         </div>
                     </div>
-                </div>
 
-                <!-- 缩略图区域 -->
-                <div id="thumbnailStrip" class="thumbnail-strip">
-                    <div id="thumbnailScrollContainer" class="thumbnail-scroll-container"></div>
-                </div>
+                    <!-- 缩略图区域 -->
+                    <div id="thumbnailStrip" class="thumbnail-strip">
+                        <div id="thumbnailScrollContainer" class="thumbnail-scroll-container"></div>
+                    </div>
 
-                <!-- 网络图片上传输入框 -->
-                <div class="url-input-section">
-                    <input type="text" id="pasteOrUrlInput" class="pasteOrUrlInput" placeholder="輸入圖片或影片網址即可自動上傳，或使用 Ctrl+V 貼上" title="注意：部分網站設有防盜鏈，可能無法直接下載">
-                </div>
+                    <!-- 网络图片上传输入框 -->
+                    <div class="url-input-section">
+                        <input type="text" id="pasteOrUrlInput" class="pasteOrUrlInput" placeholder="輸入圖片或影片網址即可自動上傳，或使用 Ctrl+V 貼上" title="注意：部分網站設有防盜鏈，可能無法直接下載">
+                    </div>
 
-                <!-- 压缩比率调整 -->
-                <div class="quality-section">
+                    <div id="progressContainer" class="progressContainer" style="position: relative; border-radius: 5px; margin-top: 15px;">
+                        <div id="progressBar" class="progressBar"></div>
+                    </div>
+                </form>
+            </div>
+            
+            <div class="keyboard-hints blur" style="margin-top: 20px;">
+                <div class="hint-item">
+                    <div class="kbd-group"><kbd>←</kbd><kbd>→</kbd></div><span>切換檔案</span>
+                </div>
+                <div class="hint-item">
+                    <div class="kbd-group"><kbd>Ctrl</kbd><span class="plus">+</span><kbd>V</kbd></div><span>貼上上傳</span>
+                </div>
+                <div class="hint-item">
+                    <div class="kbd-group"><kbd>Esc</kbd></div><span>清除預覽</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- 右側：設定、資訊與連結區 -->
+        <div class="right-column" style="flex: 1; width: 100%; max-width: 540px; display: flex; flex-direction: column; gap: 20px;">
+            <div class="upload-container blur" style="margin-bottom: 0;">
+                <!-- 压缩比率调整 (影片時隱藏) -->
+                <div class="quality-section" id="qualityControlSection">
                     <label for="qualityInput">圖片清晰度 60-100<output id="qualityOutput" class="qualityOutput">60</output></label>
                     <input type="range" id="qualityInput" name="quality" min="60" max="100" value="60" step="1">
                 </div>
@@ -100,20 +124,14 @@ try {
                 <div class="copy-section">
                     <div class="copy-tab-buttons">
                         <div class="copy-icons-column">
-                            <button class="copy-tab-btn" data-type="url" title="複製圖片連結">
-                                <svg class="icon" aria-hidden="true">
-                                    <use xlink:href="#icon-imageUrl"></use>
-                                </svg>
+                            <button class="copy-tab-btn" data-type="url" title="複製連結">
+                                <svg class="icon" aria-hidden="true"><use xlink:href="#icon-imageUrl"></use></svg>
                             </button>
-                            <button class="copy-tab-btn" data-type="markdown" title="複製 Markdown 程式碼">
-                                <svg class="icon" aria-hidden="true">
-                                    <use xlink:href="#icon-markdownUrl"></use>
-                                </svg>
+                            <button class="copy-tab-btn" data-type="markdown" title="複製 Markdown">
+                                <svg class="icon" aria-hidden="true"><use xlink:href="#icon-markdownUrl"></use></svg>
                             </button>
-                            <button class="copy-tab-btn" data-type="html" title="複製 HTML 程式碼">
-                                <svg class="icon" aria-hidden="true">
-                                    <use xlink:href="#icon-htmlUrl"></use>
-                                </svg>
+                            <button class="copy-tab-btn" data-type="html" title="複製 HTML">
+                                <svg class="icon" aria-hidden="true"><use xlink:href="#icon-htmlUrl"></use></svg>
                             </button>
                         </div>
                         <div class="copy-links-column">
@@ -130,102 +148,63 @@ try {
                     </div>
                 </div>
 
-                <div id="progressContainer" class="progressContainer">
-                    <div id="progressBar" class="progressBar"></div>
+                <div class="system-links" style="margin-top: 20px; text-align: center; border-top: 1px solid var(--border-white-20); padding-top: 15px;">
+                    <a href="/storage/podcast.xml" target="_blank" style="color: var(--link-color); font-weight: bold; font-size: 14px;">
+                        🎧 Podcast RSS 訂閱連結 (XML)
+                    </a>
+                    <p style="font-size: 12px; color: var(--text-gray); margin-top: 5px;">影片上傳完成後，RSS 將自動更新</p>
                 </div>
-            </form>
-            
-            <div class="system-links" style="margin-top: 15px; text-align: center; border-top: 1px solid var(--border-white-20); padding-top: 15px;">
-                <a href="/storage/podcast.xml" target="_blank" style="color: var(--link-color); font-weight: bold; font-size: 14px;">
-                    🎧 Podcast RSS 訂閱連結 (XML)
-                </a>
-                <p style="font-size: 12px; color: var(--text-gray); margin-top: 5px;">影片上傳完成後，RSS 將自動更新</p>
             </div>
-        </div>
 
-        <!-- 图片信息展示 -->
-        <div id="imageInfo" class="imageInfo blur">
-            <div class="image-info-block">
-                <div class="info-header">
-                    <svg class="icon info-icon" aria-hidden="true">
-                        <use xlink:href="#icon-imageUrl"></use>
-                    </svg>
-                    <h3>原始圖片</h3>
-                </div>
-                <div class="info-grid">
-                    <div class="info-item">
-                        <span class="info-label">尺寸</span>
-                        <span class="info-value" id="originalWidth"></span>
+            <!-- 图片/影片信息展示 -->
+            <div id="imageInfo" class="imageInfo blur" style="margin-bottom: 0;">
+                <div class="image-info-block">
+                    <div class="info-header">
+                        <svg class="icon info-icon" aria-hidden="true"><use xlink:href="#icon-imageUrl"></use></svg>
+                        <h3 id="infoTitleBefore">上傳前</h3>
                     </div>
-                    <div class="info-item">
-                        <span class="info-label">大小</span>
-                        <span class="info-value" id="originalSize"></span>
-                    </div>
-                </div>
-            </div>
-            <div class="image-info-block">
-                <div class="info-header">
-                    <svg class="icon info-icon" aria-hidden="true">
-                        <use xlink:href="#icon-up"></use>
-                    </svg>
-                    <h3>壓縮後</h3>
-                </div>
-                <div class="info-grid">
-                    <div class="info-item">
-                        <span class="info-label">尺寸</span>
-                        <span class="info-value" id="compressedWidth"></span>
-                    </div>
-                    <div class="info-item">
-                        <span class="info-label">大小</span>
-                        <span class="info-value" id="compressedSize"></span>
+                    <div class="info-grid">
+                        <div class="info-item">
+                            <span class="info-label">尺寸</span>
+                            <span class="info-value" id="originalWidth"></span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">大小</span>
+                            <span class="info-value" id="originalSize"></span>
+                        </div>
                     </div>
                 </div>
-            </div>
-            <div class="compression-stats">
-                <div class="stat-badge">
-                    <span class="stat-label">壓縮率</span>
-                    <span class="stat-value" id="compressionRatio">-</span>
+                <div class="image-info-block" id="infoBlockAfter">
+                    <div class="info-header">
+                        <svg class="icon info-icon" aria-hidden="true"><use xlink:href="#icon-up"></use></svg>
+                        <h3 id="infoTitleAfter">處理後</h3>
+                    </div>
+                    <div class="info-grid">
+                        <div class="info-item">
+                            <span class="info-label">尺寸</span>
+                            <span class="info-value" id="compressedWidth"></span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">大小</span>
+                            <span class="info-value" id="compressedSize"></span>
+                        </div>
+                    </div>
                 </div>
-                <div class="stat-badge">
-                    <span class="stat-label">節省空間</span>
-                    <span class="stat-value" id="savedSpace">-</span>
+                <div class="compression-stats" id="compressionStatsBox">
+                    <div class="stat-badge">
+                        <span class="stat-label">壓縮率</span>
+                        <span class="stat-value" id="compressionRatio">-</span>
+                    </div>
+                    <div class="stat-badge">
+                        <span class="stat-label">節省空間</span>
+                        <span class="stat-value" id="savedSpace">-</span>
+                    </div>
                 </div>
             </div>
-        </div>
-        <!-- 隐藏的元素用于兼容 -->
-        <span id="originalHeight" style="display:none;"></span>
-        <span id="compressedHeight" style="display:none;"></span>
-        <div class="keyboard-hints blur">
-            <div class="hint-item">
-                <div class="kbd-group">
-                    <kbd>←</kbd><kbd>→</kbd>
-                </div>
-                <span>切換圖片</span>
-            </div>
-            <div class="hint-item">
-                <div class="kbd-group">
-                    <kbd>Ctrl</kbd><span class="plus">+</span><kbd>V</kbd>
-                </div>
-                <span>貼上上傳</span>
-            </div>
-            <div class="hint-item">
-                <div class="kbd-group">
-                    <kbd>Ctrl</kbd><span class="plus">+</span><kbd>點擊</kbd>
-                </div>
-                <span>批次複製</span>
-            </div>
-            <div class="hint-item">
-                <div class="kbd-group">
-                    <kbd>滾輪</kbd>
-                </div>
-                <span>切換圖片</span>
-            </div>
-            <div class="hint-item">
-                <div class="kbd-group">
-                    <kbd>Esc</kbd>
-                </div>
-                <span>清除圖片</span>
-            </div>
+            
+            <!-- 隐藏的元素用于兼容 -->
+            <span id="originalHeight" style="display:none;"></span>
+            <span id="compressedHeight" style="display:none;"></span>
         </div>
     </main>
     <footer>

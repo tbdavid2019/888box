@@ -302,6 +302,10 @@ export class ImageHandler {
             if (this.dom.videoPreview.src !== imgData.preview) {
                 this.dom.videoPreview.src = imgData.preview;
             }
+            if (this.dom.qualityControlSection) this.dom.qualityControlSection.style.display = 'none';
+            if (this.dom.compressionStatsBox) this.dom.compressionStatsBox.style.display = 'none';
+            if (this.dom.infoBlockAfter) this.dom.infoBlockAfter.style.display = 'none';
+            if (this.dom.infoTitleBefore) this.dom.infoTitleBefore.textContent = '原始影片';
         } else {
             this.dom.videoPreview.style.display = 'none';
             this.dom.videoPreview.src = '';
@@ -309,6 +313,10 @@ export class ImageHandler {
             if (this.dom.imagePreview.src !== imgData.preview) {
                 this.dom.imagePreview.src = imgData.preview;
             }
+            if (this.dom.qualityControlSection) this.dom.qualityControlSection.style.display = 'flex';
+            if (this.dom.compressionStatsBox) this.dom.compressionStatsBox.style.display = 'flex';
+            if (this.dom.infoBlockAfter) this.dom.infoBlockAfter.style.display = 'flex';
+            if (this.dom.infoTitleBefore) this.dom.infoTitleBefore.textContent = '原始圖片';
         }
         
         this.dom.imagePreviewContainer.classList.add('active');

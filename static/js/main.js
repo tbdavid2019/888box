@@ -116,7 +116,13 @@ document.addEventListener('DOMContentLoaded', () => {
         pasteOrUrlInput: document.getElementById('pasteOrUrlInput'),
         thumbnailStrip: document.getElementById('thumbnailStrip'),
         thumbnailScrollContainer: document.getElementById('thumbnailScrollContainer'),
-        uploadContainer: document.querySelector('.upload-container')
+        uploadContainer: document.querySelector('.upload-container'),
+        // New elements for video toggles
+        qualityControlSection: document.getElementById('qualityControlSection'),
+        compressionStatsBox: document.getElementById('compressionStatsBox'),
+        infoTitleBefore: document.getElementById('infoTitleBefore'),
+        infoTitleAfter: document.getElementById('infoTitleAfter'),
+        infoBlockAfter: document.getElementById('infoBlockAfter')
     };
     
     initialize();
