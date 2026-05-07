@@ -1,8 +1,13 @@
 # 888box (原 PixPro)
 
-一款專為個人需求設計的高效媒體託管解決方案，完美分離了「圖片」與「影片」的處理邏輯與介面。支援 AWS S3 等多種儲存後端，並具備自動提取影片 MetaData、封面圖生成及 Podcast RSS 自動同步更新功能。
+一款專為個人或企業需求設計的高效媒體託管解決方案，完美分離了「圖片」與「影片」的處理邏輯與介面。支援 AWS S3 等多種儲存後端，並具備自動提取影片 MetaData、封面圖生成及 Podcast RSS 自動同步更新功能。
 
 ## ✨ 核心功能亮點
+![圖片託管系統](image.png)
+
+![影片託管系統](image-1.png)
+
+![影片後台](image-2.png)
 
 ### 🖼️ 圖片託管系統
 - **多儲存後端**：支援本地、AWS S3、OSS、又拍雲。
@@ -78,4 +83,4 @@ docker compose up --build -d
 
 ## 致謝
 
-感謝原作者：<https://github.com/JLinMr/PixPro>
+感謝[原作者JLinMr](https://github.com/JLinMr/PixPro)

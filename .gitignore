@@ -19,3 +19,4 @@ database.db.*
 # 日志文件
 *.log
 上传日志.txt
+.env.s3

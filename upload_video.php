@@ -65,8 +65,10 @@ try {
     </main>
 
     <script src="static/js/video_app.js?v=<?php echo time(); ?>"></script>
-</body>
-</html>).then(function(names) {
+    <script>
+        function forceClearCache() {
+            if ('caches' in window) {
+                caches.keys().then(function(names) {
                     for (let name of names) caches.delete(name);
                 });
             }
