@@ -24,14 +24,15 @@ if (isset($_GET['logout']) && $_GET['logout'] === 'true') {
 
 // 获取配置和分页数据
 $items_per_page = (int)($pdo->query("SELECT value FROM configs WHERE `key` = 'per_page'")->fetchColumn() ?: 20);
-$total_rows = (int)($pdo->query("SELECT COUNT(id) FROM images")->fetchColumn() ?: 0);
+// 過濾掉影片
+$total_rows = (int)($pdo->query("SELECT COUNT(id) FROM images WHERE url NOT LIKE '%.mp4' AND url NOT LIKE '%.webm' AND url NOT LIKE '%.mov' AND url NOT LIKE '%.mkv'")->fetchColumn() ?: 0);
 
 $total_pages = max(1, ceil($total_rows / $items_per_page));
 $current_page = min(max(1, $_GET['page'] ?? 1), $total_pages);
 
 // 获取图片数据
 $offset = ($current_page - 1) * $items_per_page;
-$stmt = $pdo->prepare("SELECT * FROM images ORDER BY id DESC LIMIT ? OFFSET ?");
+$stmt = $pdo->prepare("SELECT * FROM images WHERE url NOT LIKE '%.mp4' AND url NOT LIKE '%.webm' AND url NOT LIKE '%.mov' AND url NOT LIKE '%.mkv' ORDER BY id DESC LIMIT ? OFFSET ?");
 $stmt->execute([$items_per_page, $offset]);
 $images = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
