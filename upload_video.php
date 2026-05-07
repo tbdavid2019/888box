@@ -41,63 +41,25 @@ try {
         <div class="upload-panel" id="dropZone">
             <div id="uploadPrompt">
                 <div class="icon-upload">📁</div>
-                <h2>拖曳影片檔案至此</h2>
+                <h2>拖曳多部影片檔案至此</h2>
                 <p>或點擊選擇檔案 (支援 mp4, webm, mov, mkv)</p>
-                <input type="file" id="videoInput" accept="video/*" style="display:none;">
+                <input type="file" id="videoInput" accept="video/*" multiple style="display:none;">
             </div>
             
-            <div id="previewArea" style="display:none;">
-                <video id="videoPlayer" controls></video>
-                <div id="fileInfo"></div>
+            <div id="queueArea" style="display:none; text-align: left;">
+                <h3 style="margin-top:0; margin-bottom:20px; border-bottom:1px solid var(--border); padding-bottom:10px;">影片上傳佇列 (依序上傳)</h3>
+                <div id="fileList"></div>
                 
-                <div class="metadata-inputs" style="text-align: left; margin-bottom: 20px;">
-                    <div style="margin-bottom: 10px;">
-                        <label style="display: block; color: var(--text-muted); margin-bottom: 5px;">影片標題 (Podcast Title)</label>
-                        <input type="text" id="videoTitle" placeholder="預設使用檔名" style="width: 100%; padding: 10px; border-radius: 6px; border: 1px solid var(--border); background: var(--bg-dark); color: white; box-sizing: border-box;">
-                    </div>
-                    <div>
-                        <label style="display: block; color: var(--text-muted); margin-bottom: 5px;">影片描述 (Podcast Description)</label>
-                        <textarea id="videoDescription" placeholder="可留空，預設為上傳時間" rows="3" style="width: 100%; padding: 10px; border-radius: 6px; border: 1px solid var(--border); background: var(--bg-dark); color: white; box-sizing: border-box; resize: vertical;"></textarea>
-                    </div>
-                </div>
-
-                <div class="progress-bar-container" id="progressContainer" style="display:none;">
-                    <div class="progress-bar" id="progressBar">0%</div>
-                </div>
-                <div class="action-buttons">
-                    <button id="cancelBtn" class="btn secondary">取消重選</button>
-                    <button id="uploadBtn" class="btn primary">開始上傳影片</button>
+                <div class="action-buttons" style="margin-top: 30px;">
+                    <button id="cancelBtn" class="btn secondary">清空列表</button>
+                    <button id="uploadBtn" class="btn primary">開始依序上傳</button>
                 </div>
             </div>
         </div>
 
-        <div class="result-panel" id="resultPanel" style="display:none;">
-            <div class="success-icon">✅</div>
-            <h3 class="success-title">影片上傳成功！</h3>
-            
-            <div class="result-item">
-                <label>影片連結：</label>
-                <input type="text" id="resVideoUrl" readonly>
-                <button onclick="copyToClipboard('resVideoUrl')">複製</button>
-            </div>
-            <div class="result-item">
-                <label>封面圖連結：</label>
-                <input type="text" id="resThumbUrl" readonly>
-                <button onclick="copyToClipboard('resThumbUrl')">複製</button>
-            </div>
-            
-            <div class="metadata-grid">
-                <div class="meta-item"><span>解析度：</span><b id="resRes"></b></div>
-                <div class="meta-item"><span>影片時長：</span><b id="resDur"></b></div>
-                <div class="meta-item"><span>檔案大小：</span><b id="resSize"></b></div>
-            </div>
-            
-            <div class="rss-notify">
-                <p>🚀 您的影片已自動加入至 Podcast 訂閱中！</p>
-                <a href="/storage/podcast.xml" target="_blank" class="rss-link">🎧 點此查看 Podcast RSS 連結 (XML)</a>
-            </div>
-            
-            <button id="newUploadBtn" class="btn primary mt-10">上傳下一部影片</button>
+        <div class="rss-notify" style="margin-top: 20px;">
+            <p>🚀 上傳的影片將會自動加入至 Podcast 訂閱中！</p>
+            <a href="/storage/podcast.xml" target="_blank" class="rss-link">🎧 點此查看 Podcast RSS 連結 (XML)</a>
         </div>
     </main>
 
