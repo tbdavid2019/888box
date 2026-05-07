@@ -38,8 +38,8 @@ try {
     <header class="video-header">
         <h1>📂 888box 文件託管中心</h1>
         <div class="nav-links">
-            <a href="/">🏠 回到入口頁</a>
-            <a href="/admin/file.php">⚙️ 文件管理</a>
+            <a href="/">🏠 門戶</a>
+            <a href="/admin/file.php" target="_blank">⚙️ 管理後台</a>
         </div>
     </header>
 

@@ -33,8 +33,8 @@ try {
         <h1>🎬 888box 影片託管中心</h1>
         <div class="nav-links">
             <a href="javascript:void(0);" onclick="forceClearCache()">🔄 清除快取並重整</a>
-            <a href="/">🖼️ 切換回圖片上傳</a>
-            <a href="/admin/video.php">⚙️ 管理後台</a>
+            <a href="/">🏠 門戶</a>
+            <a href="/admin/video.php" target="_blank">⚙️ 管理後台</a>
         </div>
     </header>
 

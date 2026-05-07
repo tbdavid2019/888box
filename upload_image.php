@@ -40,24 +40,13 @@ try {
     <link rel="stylesheet" type="text/css" href="static/css/styles.css?v=<?php echo time(); ?>">
 </head>
 <body>
-    <header class="blur" style="width: 100%; max-width: 1200px; display: flex; justify-content: space-between; align-items: center; padding: 0 20px; box-sizing: border-box;">
+    <header class="blur" style="width: 100%; max-width: 1200px; display: flex; justify-content: space-between; align-items: center; padding: 0 20px; box-sizing: border-box; margin: 0 auto 25px auto;">
         <h1 style="margin: 0; font-size: 1.5rem; color: #e5e7eb; padding: 15px 0;">🖼️ 888box 圖片託管中心</h1>
         <div style="display: flex; gap: 15px; align-items: center;">
-            <a href="/" target="_self" title="首頁門戶" class="header-link" style="color: white; text-decoration: none;">🏠 門戶</a>
-            <a href="/admin/" target="_blank" title="後台" class="header-link">
-                <svg class="icon" aria-hidden="true">
-                    <use xlink:href="#icon-Setting"></use>
-                </svg>
-            </a>
+            <a href="/" style="color: white; text-decoration: none;">🏠 門戶</a>
+            <a href="/admin/" target="_blank" style="color: white; text-decoration: none;">⚙️ 管理後台</a>
         </div>
     </header>
-
-    <!-- 影片專屬入口 Banner -->
-    <div style="width: 100%; max-width: 1200px; margin: 0 auto 25px auto; text-align: center; padding: 15px; background: linear-gradient(135deg, #3b82f6, #8b5cf6); border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.2); box-sizing: border-box;">
-        <a href="upload_video.php" style="color: white; font-size: 1.2rem; font-weight: bold; text-decoration: none; display: flex; align-items: center; justify-content: center; gap: 10px;">
-            <span>🎬</span> 點此進入【888box 影片託管中心】 (提供專屬拖曳預覽、獨立操作面板) <span>👉</span>
-        </a>
-    </div>
 
     <main>
         <!-- 左側：上傳區與縮圖 -->
