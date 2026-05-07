@@ -137,8 +137,8 @@ function updatePodcastRSS($videoData, $config) {
         
         // Create new item
         $item = $dom->createElement('item');
-        $item->appendChild($dom->createElement('title', $videoData['filename']));
-        $item->appendChild($dom->createElement('description', 'Uploaded via PixPro on ' . date('Y-m-d H:i:s', $videoData['timestamp'])));
+        $item->appendChild($dom->createElement('title', $videoData['title']));
+        $item->appendChild($dom->createElement('description', $videoData['description']));
         $item->appendChild($dom->createElement('pubDate', date(DATE_RSS, $videoData['timestamp'])));
         
         $enclosure = $dom->createElement('enclosure');
@@ -203,6 +203,14 @@ function updateDailyList($videoData, $config) {
             'resolution' => isset($videoData['metadata']['width']) ? ($videoData['metadata']['width'] . 'x' . $videoData['metadata']['height']) : 'unknown',
             'timestamp' => $videoData['timestamp'],
             'datetime' => date('Y-m-d H:i:s', $videoData['timestamp'])
+        ]);
+        
+        file_put_contents($jsonPath, json_encode($list, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES));
+        flock($fp, LOCK_UN);
+    }
+    fclose($fp);
+}
+' => date('Y-m-d H:i:s', $videoData['timestamp'])
         ]);
         
         file_put_contents($jsonPath, json_encode($list, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES));

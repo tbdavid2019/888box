@@ -49,6 +49,18 @@ try {
             <div id="previewArea" style="display:none;">
                 <video id="videoPlayer" controls></video>
                 <div id="fileInfo"></div>
+                
+                <div class="metadata-inputs" style="text-align: left; margin-bottom: 20px;">
+                    <div style="margin-bottom: 10px;">
+                        <label style="display: block; color: var(--text-muted); margin-bottom: 5px;">影片標題 (Podcast Title)</label>
+                        <input type="text" id="videoTitle" placeholder="預設使用檔名" style="width: 100%; padding: 10px; border-radius: 6px; border: 1px solid var(--border); background: var(--bg-dark); color: white; box-sizing: border-box;">
+                    </div>
+                    <div>
+                        <label style="display: block; color: var(--text-muted); margin-bottom: 5px;">影片描述 (Podcast Description)</label>
+                        <textarea id="videoDescription" placeholder="可留空，預設為上傳時間" rows="3" style="width: 100%; padding: 10px; border-radius: 6px; border: 1px solid var(--border); background: var(--bg-dark); color: white; box-sizing: border-box; resize: vertical;"></textarea>
+                    </div>
+                </div>
+
                 <div class="progress-bar-container" id="progressContainer" style="display:none;">
                     <div class="progress-bar" id="progressBar">0%</div>
                 </div>

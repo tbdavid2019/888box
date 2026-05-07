@@ -233,11 +233,19 @@ $basicSettings = [
         'half_width' => true
     ],
     'max_file_size' => [
-        'label' => '檔案大小',
+        'label' => '圖片大小',
         'type' => 'number',
         'min' => 1,
         'placeholder' => '建議設定為 5',
-        'description' => '單一檔案大小限制（MB）',
+        'description' => '單一圖片大小限制（MB）',
+        'half_width' => true
+    ],
+    'max_video_size' => [
+        'label' => '影片大小',
+        'type' => 'number',
+        'min' => 1,
+        'placeholder' => '建議設定為 500',
+        'description' => '單一影片大小限制（MB）',
         'half_width' => true
     ],
     'site_domain' => [

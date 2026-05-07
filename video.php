@@ -150,18 +150,30 @@ try {
         respondAndExit(['result' => 'error', 'code' => 429, 'message' => $uploadCheck]);
     }
 
+    // 自动数据库迁移：为 images 表加上 title 和 description 栏位 (供后台编辑使用)
+    try {
+        $pdo->exec("ALTER TABLE images ADD COLUMN title VARCHAR(255) DEFAULT ''");
+        $pdo->exec("ALTER TABLE images ADD COLUMN description TEXT DEFAULT ''");
+    } catch (PDOException $e) {
+        // 如果列已存在会抛出异常，忽略即可
+    }
+
     // 4. 处理影片上传 (一次只处理一个文件，或者循环处理)
     $results = [];
     foreach ($_FILES as $file) {
-        // 影片允許最大 500MB
-        $videoMaxFileSize = 500 * 1024 * 1024; 
+        // 获取设定的最大影片大小，如果没有则预设为 500MB
+        $videoMaxFileSizeMB = getConfigValue($pdo, 'max_video_size');
+        if (!$videoMaxFileSizeMB) {
+            $videoMaxFileSizeMB = 500;
+        }
+        $videoMaxFileSize = $videoMaxFileSizeMB * 1024 * 1024; 
 
         if ($file['size'] > $videoMaxFileSize) {
             $limitMB = $videoMaxFileSize / (1024 * 1024);
             respondAndExit(['result' => 'error', 'code' => 413, 'message' => "影片大小超過限制，最大允許 {$limitMB}MB"]);
         }
 
-        $videoData = handleVideoUpload($file, $pdo);
+        $videoData = handleVideoUpload($file, $pdo, $_POST['title'] ?? '', $_POST['description'] ?? '');
         $results[] = $videoData;
     }
 

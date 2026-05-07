@@ -107,8 +107,13 @@ document.addEventListener('DOMContentLoaded', () => {
         cancelBtn.disabled = true;
         progressContainer.style.display = 'block';
         
+        const titleInput = document.getElementById('videoTitle').value.trim();
+        const descInput = document.getElementById('videoDescription').value.trim();
+
         const formData = new FormData();
         formData.append('file', file);
+        if (titleInput) formData.append('title', titleInput);
+        if (descInput) formData.append('description', descInput);
         
         xhr = new XMLHttpRequest();
         xhr.open('POST', 'video.php', true);
@@ -180,6 +185,8 @@ document.addEventListener('DOMContentLoaded', () => {
         previewArea.style.display = 'none';
         videoPlayer.src = '';
         videoInput.value = '';
+        document.getElementById('videoTitle').value = '';
+        document.getElementById('videoDescription').value = '';
         resetProgress();
     }
 
