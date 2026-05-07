@@ -111,6 +111,9 @@ function updatePodcastRSS($videoData, $config) {
         $dom = new DOMDocument('1.0', 'UTF-8');
         $dom->formatOutput = true;
         
+        $xslt = $dom->createProcessingInstruction('xml-stylesheet', 'type="text/xsl" href="/static/css/rss.xsl"');
+        $dom->appendChild($xslt);
+        
         if (file_exists($rssPath)) {
             @$dom->load($rssPath);
         }
@@ -223,6 +226,9 @@ function rebuildVideoRSS($pdo, $config) {
     if (flock($fp, LOCK_EX)) {
         $dom = new DOMDocument('1.0', 'UTF-8');
         $dom->formatOutput = true;
+        
+        $xslt = $dom->createProcessingInstruction('xml-stylesheet', 'type="text/xsl" href="/static/css/rss.xsl"');
+        $dom->appendChild($xslt);
         
         $rss = $dom->createElement('rss');
         $rss->setAttribute('version', '2.0');
