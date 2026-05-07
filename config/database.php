@@ -68,7 +68,30 @@ class Database {
         $stmt->execute($key ? [$key] : []);
         
         $configs = array_column($stmt->fetchAll(PDO::FETCH_ASSOC), 'value', 'key');
-        return $key ? ($configs[$key] ?? null) : $configs;
+        
+        // 允許透過 .env 覆蓋資料庫設定 (例如 .env 中設定 S3_BUCKET 會覆蓋 s3_bucket)
+        if ($key) {
+            $envKey = strtoupper($key);
+            if (isset($_ENV[$envKey])) {
+                return $_ENV[$envKey];
+            }
+            return $configs[$key] ?? null;
+        } else {
+            foreach ($configs as $k => $v) {
+                $envKey = strtoupper($k);
+                if (isset($_ENV[$envKey])) {
+                    $configs[$k] = $_ENV[$envKey];
+                }
+            }
+            // 確保原本資料庫沒有，但 .env 有的 s3_ 開頭設定也被帶入
+            foreach ($_ENV as $envKey => $envVal) {
+                $lowerKey = strtolower($envKey);
+                if (strpos($lowerKey, 's3_') === 0 && !isset($configs[$lowerKey])) {
+                    $configs[$lowerKey] = $envVal;
+                }
+            }
+            return $configs;
+        }
     }
 
     public static function getStorageConfig($type = null) {
