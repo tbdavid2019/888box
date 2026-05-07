@@ -66,6 +66,11 @@ $pagination = renderPagination($current_page, $total_pages);
     <link rel="stylesheet" href="/static/css/fancybox.min.css?v=<?php echo time(); ?>">
 </head>
 <body>
+    <div style="width: 100%; text-align: center; margin-bottom: 20px; padding: 15px; background: linear-gradient(135deg, #3b82f6, #8b5cf6); border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.2);">
+        <a href="/admin/video.php" style="color: white; font-size: 1.2rem; font-weight: bold; text-decoration: none; display: flex; align-items: center; justify-content: center; gap: 10px;">
+            <span>🎬</span> 尋找影片管理？點此進入【影片專屬管理後台】 <span>👉</span>
+        </a>
+    </div>
     <div id="gallery" class="gallery"><?= $images_html ?></div>
     <div class="rightside">
         <a href="/admin/video.php" class="floating-link" title="影片管理" style="background-color: #3b82f6;">
