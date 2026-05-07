@@ -102,7 +102,7 @@ $videos = $stmt->fetchAll(PDO::FETCH_ASSOC);
                     <div class="video-info">
                         <p><strong>標題：</strong> <span class="v-title"><?= htmlspecialchars($video['title'] ?: $video['path']) ?></span></p>
                         <p><strong>描述：</strong> <span class="v-desc"><?= htmlspecialchars($video['description'] ?: '無') ?></span></p>
-                        <p><strong>大小：</strong> <?= number_format($video['size'] / 1024 / 1024, 2) ?> MB</p>
+                        <p><strong>大小：</strong> <?= number_format(floatval($video['size']) / 1024 / 1024, 2) ?> MB</p>
                         <p><strong>上傳時間：</strong> <?= htmlspecialchars($video['created_at']) ?></p>
                     </div>
                     <div class="actions">

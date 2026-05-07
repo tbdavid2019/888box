@@ -57,6 +57,9 @@ function handleVideoUpload($file, $pdo) {
             $thumbUrl = generateFileUrl($storage, $config, $thumbRemotePath, $thumbResult);
         }
         
+        // Capture file size before potential unlink
+        $videoSize = file_exists($localVideoPath) ? filesize($localVideoPath) : 0;
+        
         // Cleanup local files if not using local storage
         if ($storage !== 'local') {
             if (file_exists($localVideoPath)) unlink($localVideoPath);
@@ -68,19 +71,11 @@ function handleVideoUpload($file, $pdo) {
             'thumbnail_url' => $thumbUrl,
             'path' => $videoRemotePath,
             'thumb_path' => $thumbRemotePath,
-            'size' => filesize($storage === 'local' ? $localVideoPath : $localVideoPath), // filesize might fail if unlinked
+            'size' => $videoSize,
             'filename' => $videoFileName,
-            'metadata' => $metadata,
+            'metadata' => $metadata ?: ['duration' => 0, 'width' => 0, 'height' => 0],
             'timestamp' => time()
         ];
-        
-        // Since we might have unlinked, we should get size earlier or handle it
-        if ($storage !== 'local') {
-            // size was already available if we didn't unlink yet, but let's be safe
-            $videoData['size'] = filesize($localVideoPath); 
-        } else {
-            $videoData['size'] = filesize($localVideoPath);
-        }
 
         // 6. Update RSS and JSON (Tasks 4 & 5)
         updatePodcastRSS($videoData, $config);
