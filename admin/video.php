@@ -9,6 +9,14 @@ require_once '../config/database.php';
 $db = Database::getInstance();
 $pdo = $db->getConnection();
 
+// 自動資料庫遷移：為 images 表加上 title 和 description 欄位
+try {
+    $pdo->exec("ALTER TABLE images ADD COLUMN title VARCHAR(255) DEFAULT ''");
+} catch (PDOException $e) {}
+try {
+    $pdo->exec("ALTER TABLE images ADD COLUMN description TEXT DEFAULT ''");
+} catch (PDOException $e) {}
+
 // 撈取影片
 $stmt = $pdo->prepare("SELECT * FROM images WHERE url LIKE '%.mp4' OR url LIKE '%.webm' OR url LIKE '%.mov' OR url LIKE '%.mkv' ORDER BY id DESC");
 $stmt->execute();
