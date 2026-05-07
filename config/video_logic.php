@@ -6,10 +6,14 @@ require_once __DIR__ . '/upload.php';
 /**
  * Handle video upload logic
  */
-function handleVideoUpload($file, $pdo) {
+function handleVideoUpload($file, $pdo, $title = '', $description = '') {
     $config = Database::getConfig($pdo);
     $storage = $config['storage'];
     $user_id = $_SESSION['user_id'] ?? NULL;
+    
+    if (empty($title)) {
+        $title = pathinfo($file['name'], PATHINFO_FILENAME);
+    }
     
     // 1. Validate file
     list($mimeType, $extension) = detectMimeType($file);
@@ -73,6 +77,8 @@ function handleVideoUpload($file, $pdo) {
             'thumb_path' => $thumbRemotePath,
             'size' => $videoSize,
             'filename' => $videoFileName,
+            'title' => $title,
+            'description' => $description,
             'metadata' => $metadata ?: ['duration' => 0, 'width' => 0, 'height' => 0],
             'timestamp' => time()
         ];
@@ -82,8 +88,8 @@ function handleVideoUpload($file, $pdo) {
         updateDailyList($videoData, $config);
         
         // 7. Save to database (optional, but good for consistency)
-        $stmt = $pdo->prepare("INSERT INTO images (url, path, storage, size, upload_ip, user_id) VALUES (?, ?, ?, ?, ?, ?)");
-        $stmt->execute([$videoUrl, $videoRemotePath, $storage, $videoData['size'], getClientIp(), $user_id]);
+        $stmt = $pdo->prepare("INSERT INTO images (url, path, storage, size, upload_ip, user_id, title, description) VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
+        $stmt->execute([$videoUrl, $videoRemotePath, $storage, $videoData['size'], getClientIp(), $user_id, $title, $description]);
 
         return $videoData;
         
