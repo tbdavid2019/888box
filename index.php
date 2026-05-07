@@ -47,14 +47,15 @@ try {
             </svg>
         </a>
     </header>
-    <main>
-        <!-- 影片專屬入口 Banner -->
-        <div style="width: 100%; text-align: center; margin-bottom: 25px; padding: 15px; background: linear-gradient(135deg, #3b82f6, #8b5cf6); border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.2);">
-            <a href="upload_video.php" style="color: white; font-size: 1.2rem; font-weight: bold; text-decoration: none; display: flex; align-items: center; justify-content: center; gap: 10px;">
-                <span>🎬</span> 點此進入【影片專屬上傳區】 (提供專屬拖曳預覽、獨立操作面板) <span>👉</span>
-            </a>
-        </div>
 
+    <!-- 影片專屬入口 Banner -->
+    <div style="width: 100%; max-width: 1200px; margin: 0 auto 25px auto; text-align: center; padding: 15px; background: linear-gradient(135deg, #3b82f6, #8b5cf6); border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.2); box-sizing: border-box;">
+        <a href="upload_video.php" style="color: white; font-size: 1.2rem; font-weight: bold; text-decoration: none; display: flex; align-items: center; justify-content: center; gap: 10px;">
+            <span>🎬</span> 點此進入【影片專屬上傳區】 (提供專屬拖曳預覽、獨立操作面板) <span>👉</span>
+        </a>
+    </div>
+
+    <main>
         <!-- 左側：上傳區與縮圖 -->
         <div class="left-column" style="flex: 1; width: 100%; max-width: 540px;">
             <div class="upload-container blur">
@@ -70,7 +71,7 @@ try {
                             <svg class="icon upload-icon" aria-hidden="true">
                                 <use xlink:href="#icon-up"></use>
                             </svg>
-                            <input type="file" id="imageInput" name="image[]" accept="image/png, image/jpeg, image/webp, image/svg+xml, image/gif, video/mp4, video/webm, video/quicktime" multiple>
+                            <input type="file" id="imageInput" name="image[]" accept="image/png, image/jpeg, image/webp, image/svg+xml, image/gif" multiple>
                             <div id="imagePreviewContainer" class="imagePreviewContainer">
                                 <button id="prevButton" class="nav-button prev-button">
                                     <svg class="icon" aria-hidden="true">
@@ -78,7 +79,6 @@ try {
                                     </svg>
                                 </button>
                                 <img id="imagePreview" class="imagePreview" src="" alt="">
-                                <video id="videoPreview" class="imagePreview" src="" controls style="display:none; max-height: 60vh;"></video>
                                 <button id="nextButton" class="nav-button next-button">
                                     <svg class="icon" aria-hidden="true">
                                         <use xlink:href="#icon-Right-arrow"></use>
@@ -96,7 +96,7 @@ try {
 
                     <!-- 网络图片上传输入框 -->
                     <div class="url-input-section">
-                        <input type="text" id="pasteOrUrlInput" class="pasteOrUrlInput" placeholder="輸入圖片或影片網址即可自動上傳，或使用 Ctrl+V 貼上" title="注意：部分網站設有防盜鏈，可能無法直接下載">
+                        <input type="text" id="pasteOrUrlInput" class="pasteOrUrlInput" placeholder="輸入圖片網址即可自動上傳，或使用 Ctrl+V 貼上" title="注意：部分網站設有防盜鏈，可能無法直接下載">
                     </div>
 
                     <div id="progressContainer" class="progressContainer" style="position: relative; border-radius: 5px; margin-top: 15px;">
@@ -121,7 +121,7 @@ try {
         <!-- 右側：設定、資訊與連結區 -->
         <div class="right-column" style="flex: 1; width: 100%; max-width: 540px; display: flex; flex-direction: column; gap: 20px;">
             <div class="upload-container blur" style="margin-bottom: 0;">
-                <!-- 压缩比率调整 (影片時隱藏) -->
+                <!-- 压缩比率调整 -->
                 <div class="quality-section" id="qualityControlSection">
                     <label for="qualityInput">圖片清晰度 60-100<output id="qualityOutput" class="qualityOutput">60</output></label>
                     <input type="range" id="qualityInput" name="quality" min="60" max="100" value="60" step="1">
@@ -154,13 +154,6 @@ try {
                         </div>
                     </div>
                 </div>
-
-                <div class="system-links" style="margin-top: 20px; text-align: center; border-top: 1px solid var(--border-white-20); padding-top: 15px;">
-                    <a href="/storage/podcast.xml" target="_blank" style="color: var(--link-color); font-weight: bold; font-size: 14px;">
-                        🎧 Podcast RSS 訂閱連結 (XML)
-                    </a>
-                    <p style="font-size: 12px; color: var(--text-gray); margin-top: 5px;">影片上傳完成後，RSS 將自動更新</p>
-                </div>
             </div>
 
             <!-- 图片/影片信息展示 -->
@@ -168,7 +161,7 @@ try {
                 <div class="image-info-block">
                     <div class="info-header">
                         <svg class="icon info-icon" aria-hidden="true"><use xlink:href="#icon-imageUrl"></use></svg>
-                        <h3 id="infoTitleBefore">上傳前</h3>
+                        <h3 id="infoTitleBefore">原始圖片</h3>
                     </div>
                     <div class="info-grid">
                         <div class="info-item">
@@ -184,7 +177,7 @@ try {
                 <div class="image-info-block" id="infoBlockAfter">
                     <div class="info-header">
                         <svg class="icon info-icon" aria-hidden="true"><use xlink:href="#icon-up"></use></svg>
-                        <h3 id="infoTitleAfter">處理後</h3>
+                        <h3 id="infoTitleAfter">壓縮後</h3>
                     </div>
                     <div class="info-grid">
                         <div class="info-item">

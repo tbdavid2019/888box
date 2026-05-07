@@ -6,17 +6,9 @@ export const API = {
         const formData = new FormData();
         formData.append('image', file);
         formData.append('quality', quality);
-        
-        // 判断是否为视频
-        const isVideo = file.type.startsWith('video/');
-        const endpoint = isVideo ? 'video.php' : 'api.php';
-        if (isVideo) {
-            formData.delete('image');
-            formData.append('file', file); // video.php 期望的是 'file'
-        }
 
         const xhr = new XMLHttpRequest();
-        xhr.open('POST', endpoint, true);
+        xhr.open('POST', 'api.php', true);
         xhr.upload.addEventListener('progress', (e) => onProgress(e, imageIndex));
         xhr.onreadystatechange = () => {
             if (xhr.readyState === XMLHttpRequest.DONE) {

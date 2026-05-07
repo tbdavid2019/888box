@@ -293,30 +293,9 @@ export class ImageHandler {
             return;
         }
 
-        const isVideo = imgData.file.type.startsWith('video/');
-
-        if (isVideo) {
-            this.dom.imagePreview.style.display = 'none';
-            this.dom.imagePreview.src = '';
-            this.dom.videoPreview.style.display = 'block';
-            if (this.dom.videoPreview.src !== imgData.preview) {
-                this.dom.videoPreview.src = imgData.preview;
-            }
-            if (this.dom.qualityControlSection) this.dom.qualityControlSection.style.display = 'none';
-            if (this.dom.compressionStatsBox) this.dom.compressionStatsBox.style.display = 'none';
-            if (this.dom.infoBlockAfter) this.dom.infoBlockAfter.style.display = 'none';
-            if (this.dom.infoTitleBefore) this.dom.infoTitleBefore.textContent = '原始影片';
-        } else {
-            this.dom.videoPreview.style.display = 'none';
-            this.dom.videoPreview.src = '';
-            this.dom.imagePreview.style.display = 'block';
-            if (this.dom.imagePreview.src !== imgData.preview) {
-                this.dom.imagePreview.src = imgData.preview;
-            }
-            if (this.dom.qualityControlSection) this.dom.qualityControlSection.style.display = 'flex';
-            if (this.dom.compressionStatsBox) this.dom.compressionStatsBox.style.display = 'flex';
-            if (this.dom.infoBlockAfter) this.dom.infoBlockAfter.style.display = 'flex';
-            if (this.dom.infoTitleBefore) this.dom.infoTitleBefore.textContent = '原始圖片';
+        this.dom.imagePreview.style.display = 'block';
+        if (this.dom.imagePreview.src !== imgData.preview) {
+            this.dom.imagePreview.src = imgData.preview;
         }
         
         this.dom.imagePreviewContainer.classList.add('active');
@@ -463,11 +442,6 @@ export class ImageHandler {
         
         this.dom.imagePreviewContainer.classList.remove('active');
         this.dom.imagePreview.src = '';
-        this.dom.imagePreview.style.display = '';
-        if (this.dom.videoPreview) {
-            this.dom.videoPreview.src = '';
-            this.dom.videoPreview.style.display = 'none';
-        }
         UI.updateCopyButtonsState(false);
         Thumbnails.clear();
     }

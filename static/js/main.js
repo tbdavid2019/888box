@@ -88,7 +88,7 @@ const PreviewState = {
 document.addEventListener('DOMContentLoaded', () => {
     const scriptTag = document.currentScript || document.querySelector('script[src*="script.js"]');
     CONFIG = {
-        allowedTypes: ['image/jpeg', 'image/png', 'image/gif', 'image/webp', 'image/svg+xml', 'video/mp4', 'video/webm', 'video/quicktime'],
+        allowedTypes: ['image/jpeg', 'image/png', 'image/gif', 'image/webp', 'image/svg+xml'],
         maxFileSize: parseInt(scriptTag?.dataset?.maxFileSize) || 0
     };
     
@@ -96,7 +96,6 @@ document.addEventListener('DOMContentLoaded', () => {
     DOM = {
         imageInput: document.getElementById('imageInput'),
         imagePreview: document.getElementById('imagePreview'),
-        videoPreview: document.getElementById('videoPreview'),
         imagePreviewContainer: document.getElementById('imagePreviewContainer'),
         prevButton: document.getElementById('prevButton'),
         nextButton: document.getElementById('nextButton'),
@@ -116,13 +115,7 @@ document.addEventListener('DOMContentLoaded', () => {
         pasteOrUrlInput: document.getElementById('pasteOrUrlInput'),
         thumbnailStrip: document.getElementById('thumbnailStrip'),
         thumbnailScrollContainer: document.getElementById('thumbnailScrollContainer'),
-        uploadContainer: document.querySelector('.upload-container'),
-        // New elements for video toggles
-        qualityControlSection: document.getElementById('qualityControlSection'),
-        compressionStatsBox: document.getElementById('compressionStatsBox'),
-        infoTitleBefore: document.getElementById('infoTitleBefore'),
-        infoTitleAfter: document.getElementById('infoTitleAfter'),
-        infoBlockAfter: document.getElementById('infoBlockAfter')
+        uploadContainer: document.querySelector('.upload-container')
     };
     
     initialize();
