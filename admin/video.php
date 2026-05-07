@@ -35,15 +35,46 @@ $videos = $stmt->fetchAll(PDO::FETCH_ASSOC);
         .video-info { font-size: 14px; color: #aaa; background: #121212; padding: 15px; border-radius: 8px; border: 1px solid #333; }
         .video-info p { margin: 8px 0; word-break: break-all; }
         .video-info strong { color: #fff; }
-        .actions { margin-top: auto; display: flex; justify-content: space-between; align-items: center; }
-        .btn-copy { background: #4CAF50; color: white; border: none; padding: 10px 15px; border-radius: 6px; cursor: pointer; font-weight: bold; }
+        .actions { margin-top: auto; display: flex; justify-content: space-between; align-items: center; gap: 10px; }
+        .btn-copy { background: #4CAF50; color: white; border: none; padding: 10px 15px; border-radius: 6px; cursor: pointer; font-weight: bold; flex: 1; }
+        .btn-edit { background: #2196F3; color: white; border: none; padding: 10px 15px; border-radius: 6px; cursor: pointer; font-weight: bold; flex: 1; }
+        .btn-delete { background: #f44336; color: white; border: none; padding: 10px 15px; border-radius: 6px; cursor: pointer; font-weight: bold; flex: 1; }
         .btn-copy:hover { background: #45a049; }
-        .btn-delete { background: #f44336; color: white; border: none; padding: 10px 15px; border-radius: 6px; cursor: pointer; font-weight: bold; }
+        .btn-edit:hover { background: #1976D2; }
         .btn-delete:hover { background: #d32f2f; }
         .empty-state { text-align: center; color: #888; padding: 80px; font-size: 20px; grid-column: 1 / -1; background: #1e1e1e; border-radius: 12px; border: 1px dashed #555; }
+
+        /* Modal Styles */
+        .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.8); backdrop-filter: blur(5px); }
+        .modal-content { background-color: #1e1e1e; margin: 10% auto; padding: 30px; border: 1px solid #444; width: 90%; max-width: 500px; border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.5); }
+        .modal-header { margin-bottom: 20px; font-size: 20px; font-weight: bold; color: #fff; }
+        .form-group { margin-bottom: 15px; }
+        .form-group label { display: block; margin-bottom: 8px; color: #aaa; }
+        .form-group input, .form-group textarea { width: 100%; padding: 12px; background: #121212; border: 1px solid #333; color: #fff; border-radius: 6px; box-sizing: border-box; }
+        .modal-actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 25px; }
     </style>
 </head>
 <body>
+    <!-- Edit Modal -->
+    <div id="editModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">編輯影片資訊</div>
+            <input type="hidden" id="editId">
+            <div class="form-group">
+                <label>影片標題</label>
+                <input type="text" id="editTitle">
+            </div>
+            <div class="form-group">
+                <label>影片描述</label>
+                <textarea id="editDescription" rows="4"></textarea>
+            </div>
+            <div class="modal-actions">
+                <button class="btn-copy" style="background:#555; flex:none;" onclick="closeModal()">取消</button>
+                <button class="btn-copy" style="flex:none; min-width:100px;" onclick="saveMetadata()">儲存變更</button>
+            </div>
+        </div>
+    </div>
+
     <div class="header" style="max-width: 1400px; margin: 0 auto 30px auto;">
         <h1>🎬 影片專屬管理後台</h1>
         <div class="nav-links">
@@ -61,14 +92,15 @@ $videos = $stmt->fetchAll(PDO::FETCH_ASSOC);
                 <div class="video-card" id="video-<?= $video['id'] ?>">
                     <video src="<?= htmlspecialchars($video['url']) ?>" controls preload="metadata"></video>
                     <div class="video-info">
-                        <p><strong>標題：</strong> <?= htmlspecialchars($video['title'] ?: $video['path']) ?></p>
-                        <p><strong>描述：</strong> <?= htmlspecialchars($video['description'] ?: '無') ?></p>
+                        <p><strong>標題：</strong> <span class="v-title"><?= htmlspecialchars($video['title'] ?: $video['path']) ?></span></p>
+                        <p><strong>描述：</strong> <span class="v-desc"><?= htmlspecialchars($video['description'] ?: '無') ?></span></p>
                         <p><strong>大小：</strong> <?= number_format($video['size'] / 1024 / 1024, 2) ?> MB</p>
                         <p><strong>上傳時間：</strong> <?= htmlspecialchars($video['created_at']) ?></p>
                     </div>
                     <div class="actions">
-                        <button class="btn-copy" onclick="copyUrl('<?= htmlspecialchars($video['url']) ?>')">複製網址</button>
-                        <button class="btn-delete" onclick="deleteVideo(<?= $video['id'] ?>, '<?= htmlspecialchars($video['path']) ?>')">刪除影片</button>
+                        <button class="btn-copy" onclick="copyUrl('<?= htmlspecialchars($video['url']) ?>')">複製</button>
+                        <button class="btn-edit" onclick="openEditModal(<?= $video['id'] ?>)">編輯</button>
+                        <button class="btn-delete" onclick="deleteVideo(<?= $video['id'] ?>, '<?= htmlspecialchars($video['path']) ?>')">刪除</button>
                     </div>
                 </div>
             <?php endforeach; ?>
@@ -76,6 +108,56 @@ $videos = $stmt->fetchAll(PDO::FETCH_ASSOC);
     </div>
 
     <script>
+        function openEditModal(id) {
+            const card = document.getElementById('video-' + id);
+            const title = card.querySelector('.v-title').textContent;
+            const desc = card.querySelector('.v-desc').textContent;
+            
+            document.getElementById('editId').value = id;
+            document.getElementById('editTitle').value = title;
+            document.getElementById('editDescription').value = desc === '無' ? '' : desc;
+            document.getElementById('editModal').style.display = 'block';
+        }
+
+        function closeModal() {
+            document.getElementById('editModal').style.display = 'none';
+        }
+
+        function saveMetadata() {
+            const id = document.getElementById('editId').value;
+            const title = document.getElementById('editTitle').value;
+            const desc = document.getElementById('editDescription').value;
+            
+            const formData = new FormData();
+            formData.append('id', id);
+            formData.append('title', title);
+            formData.append('description', desc);
+            
+            fetch('/api_edit_video.php', {
+                method: 'POST',
+                body: formData
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.result === 'success') {
+                    const card = document.getElementById('video-' + id);
+                    card.querySelector('.v-title').textContent = title;
+                    card.querySelector('.v-desc').textContent = desc || '無';
+                    closeModal();
+                    alert('更新成功，RSS 已同步！');
+                } else {
+                    alert('更新失敗：' + data.message);
+                }
+            })
+            .catch(err => {
+                alert('網路錯誤');
+            });
+        }
+
+        window.onclick = function(event) {
+            if (event.target == document.getElementById('editModal')) closeModal();
+        }
+
         function copyUrl(url) {
             navigator.clipboard.writeText(url).then(() => {
                 alert('網址已複製！');
