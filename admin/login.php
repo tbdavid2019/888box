@@ -97,7 +97,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             display: flex;
             align-items: center;
             justify-content: center;
-            background: url(../static/images/bg.webp) no-repeat 100% 100% / cover fixed;
+            background-color: #2b2b2b;
         }
         
         .login-container {

@@ -10,7 +10,7 @@ body {
     display: flex;
     align-items: center;
     justify-content: center;
-    background: url(../static/images/bg.webp) no-repeat center/cover fixed;
+    background-color: #2b2b2b;
     padding: 20px;
 }
 

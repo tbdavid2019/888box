@@ -61,8 +61,8 @@ $pagination = renderPagination($current_page, $total_pages);
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>管理後台</title>
     <link rel="shortcut icon" href="/static/favicon.svg">
-    <link rel="stylesheet" href="/static/css/admin.css">
-    <link rel="stylesheet" href="/static/css/fancybox.min.css">
+    <link rel="stylesheet" href="/static/css/admin.css?v=<?php echo time(); ?>">
+    <link rel="stylesheet" href="/static/css/fancybox.min.css?v=<?php echo time(); ?>">
 </head>
 <body>
     <div id="gallery" class="gallery"><?= $images_html ?></div>
@@ -89,10 +89,10 @@ $pagination = renderPagination($current_page, $total_pages);
         <div class="modal-content"></div>
     </div>
     <script src="//at.alicdn.com/t/c/font_4623353_hb4c04qfi4u.js"></script>
-    <script src="/static/js/fancybox.umd.min.js"></script>
-    <script src="/static/js/lazyload.min.js"></script>
-    <script src="/static/js/admin.js"></script>
-    <script src="/static/js/settings.js"></script>
+    <script src="/static/js/fancybox.umd.min.js?v=<?php echo time(); ?>"></script>
+    <script src="/static/js/lazyload.min.js?v=<?php echo time(); ?>"></script>
+    <script src="/static/js/admin.js?v=<?php echo time(); ?>"></script>
+    <script src="/static/js/settings.js?v=<?php echo time(); ?>"></script>
 </body>
 </html>
 <?php
