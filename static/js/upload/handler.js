@@ -446,6 +446,3 @@ export class ImageHandler {
         Thumbnails.clear();
     }
 }
-mbnails.clear();
-    }
-}
