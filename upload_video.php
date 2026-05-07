@@ -24,7 +24,7 @@ try {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>影片專屬上傳區 - 888box</title>
+    <title>888box 影片託管中心</title>
     <link rel="shortcut icon" href="static/favicon.svg">
     <link rel="stylesheet" href="static/css/video_ui.css?v=<?php echo time(); ?>">
 </head>

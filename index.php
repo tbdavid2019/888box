@@ -33,7 +33,7 @@ try {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>888box</title>
+    <title>888box 圖片託管中心</title>
     <meta name="keywords" content="檔案託管,影片上傳,高效圖片壓縮,前後台設計,Podcast,自動生成RSS,AWS S3,本機儲存,多格式支援,瀑布流管理,管理後台,自訂壓縮率,尺寸限制">
     <meta name="description" content="一款專為個人需求設計的高效媒體託管解決方案，整合強大的圖片與影片處理功能。提供自訂壓縮率與尺寸設定，有效降低儲存成本。搭配 AWS S3 儲存（支援相容 S3 的各類雲端空間）及彈性的本機儲存選項。特色包含自動提取影片 MetaData、封面圖生成及 Podcast RSS 自動更新功能。">
     <link rel="shortcut icon" href="static/favicon.svg">
@@ -51,7 +51,7 @@ try {
     <!-- 影片專屬入口 Banner -->
     <div style="width: 100%; max-width: 1200px; margin: 0 auto 25px auto; text-align: center; padding: 15px; background: linear-gradient(135deg, #3b82f6, #8b5cf6); border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.2); box-sizing: border-box;">
         <a href="upload_video.php" style="color: white; font-size: 1.2rem; font-weight: bold; text-decoration: none; display: flex; align-items: center; justify-content: center; gap: 10px;">
-            <span>🎬</span> 點此進入【影片專屬上傳區】 (提供專屬拖曳預覽、獨立操作面板) <span>👉</span>
+            <span>🎬</span> 點此進入【888box 影片託管中心】 (提供專屬拖曳預覽、獨立操作面板) <span>👉</span>
         </a>
     </div>
 
