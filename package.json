@@ -1,25 +1,27 @@
 {
   "name": "888box",
-  "version": "3.0",
-  "description": "本库为 888box 图床的静态资源。888box 是一款个人需求的高效图床，集成了强大的图片压缩功能与优雅的前台。后台管理瀑布流展示和 AJAX 刷新，能有效降低存储与带宽成本。",
+  "version": "2026.5.8",
+  "description": "888box 是一款高效的媒體託管解決方案，集成了強大的圖片壓縮與影片處理功能。支援圖片、影片上傳與管理，並具備自動生成 Podcast RSS 饋送、影片封面提取與 MetaData 同步功能。後台採用瀑布流展示與 AJAX 刷新，有效降低存儲與頻寬成本。",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/JLinmr/pixpro.git"
+    "url": "git+https://github.com/tbdavid2019/888box.git"
   },
   "keywords": [
-    "图片上传",
-    "图片管理",
-    "图片展示",
-    "OSS存储",
-    "S3存储",
+    "圖片上傳",
+    "圖片管理",
+    "影片上傳",
+    "影片管理",
+    "Podcast RSS",
+    "S3儲存",
+    "媒體託管",
     "AJAX刷新"
   ],
-  "author": "梦爱吃鱼",
+  "author": "888box Team",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/JLinmr/pixpro/issues"
+    "url": "https://github.com/tbdavid2019/888box/issues"
   },
-  "homepage": "https://github.com/JLinmr/pixpro#readme",
+  "homepage": "https://github.com/tbdavid2019/888box#readme",
   "files": [
     "static",
     "README.md",

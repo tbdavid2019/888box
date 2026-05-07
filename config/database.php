@@ -30,7 +30,7 @@ class Database {
     }
 
     private function connect() {
-        $dbPath = dirname(__DIR__) . '/database.db';
+        $dbPath = dirname(__DIR__) . '/storage/database.db';
         $dbDir = dirname($dbPath);
         
         if (!is_dir($dbDir)) mkdir($dbDir, 0755, true);

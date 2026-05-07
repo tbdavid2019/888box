@@ -83,7 +83,7 @@
 
 ## 3. 安全性修復（GitHub Issue #30）- [已完成核心修復]
 
-來源：<https://github.com/JLinMr/PixPro/issues/30>
+來源：原專案 GitHub Issue #30
 
 ### 目標
 

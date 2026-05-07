@@ -12,7 +12,7 @@ $error = '';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && $step === 1) {
     try {
-        $pdo = new PDO('sqlite:../database.db');
+        $pdo = new PDO('sqlite:../storage/database.db');
         $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
         $pdo->beginTransaction();
         
@@ -190,7 +190,7 @@ if ($step === 0) {
             <form method="POST">
                 <div class="info-message">
                     <p>使用 SQLite 資料庫，無需設定資料庫連線</p>
-                    <p>資料庫檔案將儲存在：database.db</p>
+                    <p>資料庫檔案將儲存在：storage/database.db</p>
                 </div>
                 <?php 
                 $fields = [

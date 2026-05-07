@@ -30,6 +30,7 @@ RUN echo "display_errors = Off" >> /usr/local/etc/php/conf.d/docker-custom.ini \
     && echo "max_execution_time = 600" >> /usr/local/etc/php/conf.d/docker-custom.ini
 
 # 设置权限
+RUN mkdir -p /var/www/html/storage && chown -R www-data:www-data /var/www/html/storage
 RUN chown -R www-data:www-data /var/www/html
 
 # 配置 Apache

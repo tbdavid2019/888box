@@ -50,7 +50,7 @@ if (!empty($_POST['action'])) {
                     ]
                 ]);
                 
-                $response = @file_get_contents('https://api.github.com/repos/JLinMr/PixPro/releases/latest', false, $context);
+                $response = @file_get_contents('https://api.github.com/repos/tbdavid2019/888box/releases/latest', false, $context);
                 if (!$response) throw new Exception('無法連線到 GitHub API');
                 
                 $latestVersion = ltrim(json_decode($response, true)['tag_name'] ?? '', 'v');
@@ -65,14 +65,14 @@ if (!empty($_POST['action'])) {
                     'latest' => $latestVersion,
                     'hasUpdate' => $hasUpdate,
                     'isDev' => $isDev,
-                    'url' => $isDev ? 'https://github.com/JLinMr/PixPro/tree/dev' : 'https://github.com/JLinMr/PixPro/releases/latest',
+                    'url' => $isDev ? 'https://github.com/tbdavid2019/888box/tree/dev' : 'https://github.com/tbdavid2019/888box/releases/latest',
                     'message' => $isDev ? "您正在使用測試版本 V{$currentVersion}" 
                         : ($hasUpdate ? "發現新版本 V{$latestVersion}" : '已是最新版本')
                 ], JSON_UNESCAPED_UNICODE);
                 break;
                 
             case 'optimize_db':
-                $dbPath = dirname(__DIR__) . '/database.db';
+                $dbPath = dirname(__DIR__) . '/storage/database.db';
                 $sizeBefore = filesize($dbPath);
                 
                 $pdo->exec('VACUUM');
@@ -107,6 +107,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     try {
         $pdo->beginTransaction();
         
+        // 更新密碼
+        if (!empty($_POST['new_password'])) {
+            if (empty($_POST['confirm_password'])) throw new Exception('請確認新密碼');
+            if ($_POST['new_password'] !== $_POST['confirm_password']) throw new Exception('兩次輸入的密碼不一致');
+            
+            $stmt = $pdo->prepare("UPDATE users SET password = ? WHERE id = ?");
+            $stmt->execute([password_hash($_POST['new_password'], PASSWORD_DEFAULT), $_SESSION['user_id']]);
+        }
+
         // 更新Token
         if (!empty($_POST['token'])) {
             $stmt = $pdo->prepare("UPDATE users SET token = ? WHERE id = ?");
@@ -133,7 +142,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         // 更新配置
         $stmt = $pdo->prepare("UPDATE configs SET value = ? WHERE `key` = ?");
         foreach ($_POST as $key => $value) {
-            if (!in_array($key, ['submit', 'token'])) {
+            if (!in_array($key, ['submit', 'token', 'new_password', 'confirm_password'])) {
                 // 自动处理域名和endpoint
                 if (!empty($value) && (strpos($key, '_cdn_domain') !== false || strpos($key, '_endpoint') !== false)) {
                     $value = rtrim($value, '/');
@@ -321,6 +330,27 @@ $basicSettings = [
                     <button type="button" class="token-action-btn refresh-token" title="重新產生">
                         <svg class="icon" aria-hidden="true"><use xlink:href="#icon-refresh"></use></svg>
                     </button>
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group form-group-half">
+                    <label for="new_password">修改管理員密碼</label>
+                    <div class="password-wrapper">
+                        <input type="password" name="new_password" id="new_password" placeholder="留空則不修改">
+                        <span class="toggle-password">
+                            <svg class="icon" aria-hidden="true"><use xlink:href="#icon-eye"></use></svg>
+                        </span>
+                    </div>
+                </div>
+                <div class="form-group form-group-half">
+                    <label for="confirm_password">確認新密碼</label>
+                    <div class="password-wrapper">
+                        <input type="password" name="confirm_password" id="confirm_password" placeholder="請再次輸入新密碼">
+                        <span class="toggle-password">
+                            <svg class="icon" aria-hidden="true"><use xlink:href="#icon-eye"></use></svg>
+                        </span>
+                    </div>
                 </div>
             </div>
             

@@ -146,7 +146,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $step === 1) {
         $mysqli->set_charset('utf8mb4');
         
         // 创建 SQLite
-        $sqliteDbPath = __DIR__ . '/database.db';
+        $sqliteDbPath = __DIR__ . '/storage/database.db';
         if (file_exists($sqliteDbPath)) {
             $backup = $sqliteDbPath . '.backup.' . date('YmdHis');
             copy($sqliteDbPath, $backup);

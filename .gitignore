@@ -5,10 +5,16 @@
 # 数据库文件
 database.db
 database.db.*
+storage/database.db
+storage/database.db.*
 *.sql
 
 # 上传的图片和缓存
 /i/
+/storage/i/
+/storage/*.xml
+/storage/*.lock
+/storage/**/*.json
 
 # IDE和编辑器文件
 .idea/

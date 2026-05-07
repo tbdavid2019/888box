@@ -24,7 +24,7 @@ function handleVideoUpload($file, $pdo, $title = '', $description = '') {
     }
     
     // 2. Prepare paths
-    $datePath = 'i/' . date('Y/m/d');
+    $datePath = 'storage/i/' . date('Y/m/d');
     if (!is_dir($datePath) && !mkdir($datePath, 0755, true)) {
         respondAndExit(['result' => 'error', 'code' => 500, 'message' => '無法創建上傳目錄']);
     }
