@@ -116,10 +116,15 @@ class StorageHelper {
      * 创建S3客户端
      */
     private static function createS3Client($config) {
+        $endpoint = $config['s3_endpoint'] ?? '';
+        if ($endpoint && !preg_match('/^https?:\/\//', $endpoint)) {
+            $endpoint = 'https://' . $endpoint;
+        }
+
         return new S3Client([
             'region' => $config['s3_region'],
             'version' => 'latest',
-            'endpoint' => $config['s3_endpoint'],
+            'endpoint' => $endpoint,
             'credentials' => [
                 'key' => $config['s3_access_key_id'],
                 'secret' => $config['s3_access_key_secret'],
