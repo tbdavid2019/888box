@@ -1,5 +1,11 @@
 <?php
 session_status() === PHP_SESSION_NONE && session_start();
+
+if (isset($_SESSION['loggedin']) && $_SESSION['loggedin']) {
+    header('Location: index.php');
+    exit;
+}
+
 require_once '../config/database.php';
 
 $db = Database::getInstance();
@@ -60,8 +66,11 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             }
         }
     }
-    
-    header("Location: " . $_SERVER['REQUEST_URI']);
+    if (isset($_SESSION['loggedin']) && $_SESSION['loggedin']) {
+        header("Location: index.php");
+    } else {
+        header("Location: " . $_SERVER['REQUEST_URI']);
+    }
     exit;
 }
 ?>
