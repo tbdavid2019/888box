@@ -153,11 +153,9 @@ try {
     // 4. 处理影片上传 (一次只处理一个文件，或者循环处理)
     $results = [];
     foreach ($_FILES as $file) {
-        // 验证文件大小 (针对影片可能需要单独的限制，这里先用全局限制)
-        $maxFileSize = getConfigValue($pdo, 'max_file_size'); // 預設可能太小，建議影片可以有更大的限制
-        // 如果是影片，我們可以考慮放大 10 倍，或者單獨配置
-        $videoMaxFileSize = $maxFileSize * 10; 
-        
+        // 影片允許最大 500MB
+        $videoMaxFileSize = 500 * 1024 * 1024; 
+
         if ($file['size'] > $videoMaxFileSize) {
             $limitMB = $videoMaxFileSize / (1024 * 1024);
             respondAndExit(['result' => 'error', 'code' => 413, 'message' => "影片大小超過限制，最大允許 {$limitMB}MB"]);
