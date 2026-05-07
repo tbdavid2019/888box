@@ -56,15 +56,12 @@
 }
 
 html {
-    cursor: url(../../images/alternate.png) 16 16, auto;
 }
 
 a, button, input, #imageUploadBox, .copy-link-display {
-    cursor: url(../../images/link.png) 16 16, pointer;
 }
 
 p, span, h2, label, #pasteOrUrlInput {
-    cursor: url(../../images/text.png) 16 16, text;
 }
 
 a {
@@ -237,30 +234,7 @@ footer span {
     right: 0;
 }
 
-/* ========================================
-   自定义鼠标指针 (#cursor)
-   ======================================== */
-#cursor {
-    position: fixed;
-    width: 16px;
-    height: 16px;
-    background: var(--text-white);
-    border-radius: 25px;
-    opacity: .25;
-    z-index: 10086;
-    pointer-events: none;
-    transition: .2s ease-in-out;
-    transition-property: background, opacity, transform;
-}
-
-#cursor.hidden {
-    opacity: 0;
-}
-
-#cursor.active {
-    opacity: .5;
-    transform: scale(.5);
-}
+/* Custom mouse removed */
 
 /* ========================================
    动画定义

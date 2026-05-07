@@ -80,15 +80,12 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         }
         
         html {
-            cursor: url(../static/images/alternate.png) 16 16, auto;
         }
-        
+
         a, button, input {
-            cursor: url(../static/images/link.png) 16 16, pointer;
         }
-        
-        h2, label {
-            cursor: url(../static/images/text.png) 16 16, text;
+
+        p, span, h2, label {
         }
         
         body {

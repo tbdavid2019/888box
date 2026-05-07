@@ -56,15 +56,12 @@
 }
 
 html, .fancybox__viewport.is-draggable {
-    cursor: url(../../images/alternate.png) 16 16, auto !important;
 }
 
 a, button, input, img, .f-button, .fancybox__viewport.is-dragging {
-    cursor: url(../../images/link.png) 16 16, pointer !important;
 }
 
 p, span, h2, label {
-    cursor: url(../../images/text.png) 16 16, text !important;
 }
 
 ::-webkit-scrollbar { width: 0; }

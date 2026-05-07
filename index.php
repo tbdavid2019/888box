@@ -213,14 +213,23 @@ try {
         <?php endif; ?>
         <div class="icp">
             <span>© <?php echo date('Y'); ?></span>
+            <button class="logo-btn" onclick="forceClearCache()">清除快取並重整</button>
             <button class="logo-btn">站點聲明</button>
             <em class="logotitle blur">本站不保證內容、時效與穩定性。請嚴格遵守相關法律法規，尊重版權、著作權等權利；內容均由使用者自行上傳，所有檔案的用途與性質皆與本站無關，本站對所有檔案合法性概不負責，亦不承擔任何法律責任。</em>
         </div>
     </footer>
     <script type="module" src="static/js/main.js?v=<?php echo time(); ?>" data-max-file-size="<?php echo $maxFileSize; ?>">
     </script>
-    <!-- 引入鼠标指针跟随特效 -->
-    <script type="text/javascript" src="static/js/cursor.js?v=<?php echo time(); ?>" defer data-lazy="true"></script>
+    <script>
+        function forceClearCache() {
+            if ('caches' in window) {
+                caches.keys().then(function(names) {
+                    for (let name of names) caches.delete(name);
+                });
+            }
+            window.location.reload(true);
+        }
+    </script>
     <script src="//at.alicdn.com/t/c/font_4623353_hb4c04qfi4u.js"></script>
 </body>
 </html>
