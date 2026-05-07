@@ -35,8 +35,8 @@
 
 ## 6. Integration and Testing
 
-- [ ] 6.1 Rebuild Docker image and verify FFmpeg installation
-- [ ] 6.2 Test end-to-end upload with metadata extraction and thumbnail generation
-- [ ] 6.3 Verify `podcast.xml` and `videos.json` are updated correctly with rich data
-- [ ] 6.4 Test concurrent uploads to verify file locking prevents corruption
-- [ ] 6.5 Validate generated RSS feed with a podcast validator (e.g., Castos or Podbase)
+- [x] 6.1 Rebuild Docker image and verify FFmpeg installation
+- [x] 6.2 Test end-to-end upload with metadata extraction and thumbnail generation
+- [x] 6.3 Verify `podcast.xml` and `videos.json` are updated correctly with rich data
+- [x] 6.4 Test concurrent uploads to verify file locking prevents corruption
+- [x] 6.5 Validate generated RSS feed with a podcast validator (e.g., Castos or Podbase)
