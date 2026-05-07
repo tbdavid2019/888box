@@ -2,10 +2,11 @@
 
 // API 上传
 export const API = {
-    uploadImage(file, quality, imageIndex, onProgress, onComplete) {
+    uploadImage(file, quality, imageIndex, password, onProgress, onComplete) {
         const formData = new FormData();
         formData.append('image', file);
         formData.append('quality', quality);
+        if (password) formData.append('password', password);
 
         const xhr = new XMLHttpRequest();
         xhr.open('POST', 'api.php', true);

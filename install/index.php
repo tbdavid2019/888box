@@ -40,6 +40,12 @@ function createTableStructure($pdo) {
             storage VARCHAR(50) NOT NULL,
             size INTEGER NOT NULL,
             upload_ip VARCHAR(45) NOT NULL,
+            title VARCHAR(255) NULL,
+            description TEXT NULL,
+            password VARCHAR(255) NULL,
+            view_count INTEGER DEFAULT 0,
+            report_count INTEGER DEFAULT 0,
+            mime_type VARCHAR(100) NULL,
             created_at DATETIME DEFAULT CURRENT_TIMESTAMP
         )",
         "CREATE TABLE IF NOT EXISTS users (
@@ -71,10 +77,15 @@ function initializeConfigs($pdo) {
         ['url_prefix', '', '圖片代理'],
         ['per_page', '20', '每頁顯示數量'],
         ['login_restriction', 'false', '登入保護'],
-        ['max_file_size', '5242880', '最大檔案大小'],
         ['max_uploads_per_day', '50', '每日上傳限制'],
         ['output_format', 'webp', '輸出圖片格式'],
-        ['site_domain', $siteUrl, '網站網域']
+        ['site_domain', $siteUrl, '網站網域'],
+        ['smtp_host', 'smtp.gmail.com', 'SMTP 伺服器'],
+        ['smtp_port', '587', 'SMTP 端口'],
+        ['smtp_user', '', 'SMTP 帳號'],
+        ['smtp_pass', '', 'SMTP 密碼'],
+        ['smtp_tls', 'true', '啟用 TLS'],
+        ['admin_emails', '', '管理員收件信箱']
     ];
 
     $stmt = $pdo->prepare("REPLACE INTO configs (`key`, value, description) VALUES (?, ?, ?)");

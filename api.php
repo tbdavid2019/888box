@@ -215,7 +215,7 @@ try {
         
         // 处理上传
         foreach ($_FILES as $file) {
-            handleUploadedFile($file, $_POST['token'] ?? '', $_SERVER['HTTP_REFERER'] ?? '');
+            handleUploadedFile($file, $_POST['token'] ?? '', $_SERVER['HTTP_REFERER'] ?? '', $_POST['password'] ?? '');
         }
     } elseif ($action === 'list') {
         validateToken();

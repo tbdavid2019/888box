@@ -1,6 +1,6 @@
 document.addEventListener('DOMContentLoaded', () => {
     const dropZone = document.getElementById('dropZone');
-    const videoInput = document.getElementById('videoInput');
+    const fileInput = document.getElementById('fileInput');
     const uploadPrompt = document.getElementById('uploadPrompt');
     const queueArea = document.getElementById('queueArea');
     const fileList = document.getElementById('fileList');
@@ -13,13 +13,13 @@ document.addEventListener('DOMContentLoaded', () => {
     // Trigger file select
     dropZone.addEventListener('click', (e) => {
         if (!isUploading && e.target !== uploadBtn && e.target !== cancelBtn && !e.target.closest('.queue-item')) {
-            videoInput.click();
+            fileInput.click();
         }
     });
 
-    videoInput.addEventListener('change', (e) => {
+    fileInput.addEventListener('change', (e) => {
         handleFiles(e.target.files);
-        videoInput.value = ''; // Reset for next selection
+        fileInput.value = ''; // Reset for next selection
     });
 
     // Drag and Drop
@@ -39,31 +39,14 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!isUploading) handleFiles(e.dataTransfer.files);
     });
 
-    // Paste
-    document.addEventListener('paste', (e) => {
-        if (isUploading) return;
-        const files = [];
-        if (e.clipboardData && e.clipboardData.items) {
-            for (let i = 0; i < e.clipboardData.items.length; i++) {
-                const item = e.clipboardData.items[i];
-                if (item.kind === 'file') {
-                    files.push(item.getAsFile());
-                }
-            }
-        }
-        handleFiles(files);
-    });
-
     function handleFiles(files) {
         if (!files || files.length === 0) return;
         
         let added = false;
         Array.from(files).forEach(file => {
-            const isVideo = file.type.startsWith('video/') || file.name.match(/\.(mp4|webm|mov|mkv|avi)$/i);
-            if (isVideo) {
-                addFileToQueue(file);
-                added = true;
-            }
+            // 檔案過濾（排除圖片影片，因為它們有專屬入口，但也可以選擇全開放）
+            addFileToQueue(file);
+            added = true;
         });
 
         if (added) {
@@ -73,7 +56,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function addFileToQueue(file) {
-        const id = 'vid_' + Math.random().toString(36).substr(2, 9);
+        const id = 'f_' + Math.random().toString(36).substr(2, 9);
         const sizeMB = (file.size / (1024 * 1024)).toFixed(2);
         
         const itemDiv = document.createElement('div');
@@ -89,21 +72,17 @@ document.addEventListener('DOMContentLoaded', () => {
                 <div class="queue-item-status status-pending" id="status_${id}">等待上傳...</div>
             </div>
             <div class="queue-inputs" id="inputs_${id}">
-                <input type="text" id="title_${id}" placeholder="Podcast 標題 (預設使用檔名)">
-                <textarea id="desc_${id}" rows="2" placeholder="Podcast 描述 (可留空)"></textarea>
-                <input type="password" id="pass_${id}" placeholder="存取密碼 (選填)" style="width:100%; padding:8px; border-radius:4px; border:1px solid #444; background:#222; color:#fff; margin-top:5px;">
+                <input type="text" id="title_${id}" placeholder="文件標題 (可留空)">
+                <input type="password" id="pass_${id}" placeholder="存取密碼 (選填)">
+                <textarea id="desc_${id}" rows="2" placeholder="文件描述 (可留空)"></textarea>
             </div>
             <div class="progress-bar-container" style="display:none; margin: 10px 0;" id="progCont_${id}">
                 <div class="progress-bar" id="progBar_${id}">0%</div>
             </div>
-            <div class="queue-result" id="res_${id}">
+            <div class="queue-result" id="res_${id}" style="display:none;">
                 <div class="queue-result-row">
                     <input type="text" id="url_${id}" readonly>
-                    <button onclick="copyToClipboard('url_${id}')">複製影片</button>
-                </div>
-                <div class="queue-result-row">
-                    <input type="text" id="thumb_${id}" readonly placeholder="無封面圖">
-                    <button onclick="copyToClipboard('thumb_${id}')">複製封面</button>
+                    <button onclick="copyToClipboard('url_${id}')">複製連結</button>
                 </div>
             </div>
         `;
@@ -113,7 +92,7 @@ document.addEventListener('DOMContentLoaded', () => {
         uploadQueue.push({
             id: id,
             file: file,
-            status: 'pending' // pending, uploading, success, error
+            status: 'pending'
         });
     }
 
@@ -139,7 +118,6 @@ document.addEventListener('DOMContentLoaded', () => {
         const nextItem = uploadQueue.find(item => item.status === 'pending');
         
         if (!nextItem) {
-            // All done
             isUploading = false;
             uploadBtn.style.display = 'none';
             cancelBtn.textContent = '完成 (清除列表)';
@@ -159,15 +137,10 @@ document.addEventListener('DOMContentLoaded', () => {
         
         const inputsDiv = document.getElementById('inputs_' + id);
         const titleInput = document.getElementById('title_' + id).value.trim();
-        const descInput = document.getElementById('desc_' + id).value.trim();
         const passInput = document.getElementById('pass_' + id).value.trim();
+        const descInput = document.getElementById('desc_' + id).value.trim();
         
-        // Batch values
-        const batchTitle = document.getElementById('batchTitle').value.trim();
-        const batchDesc = document.getElementById('batchDesc').value.trim();
-        const batchPass = document.getElementById('batchPass').value.trim();
-
-        inputsDiv.style.display = 'none'; // Hide inputs during/after upload
+        inputsDiv.style.display = 'none';
         
         const progCont = document.getElementById('progCont_' + id);
         const progBar = document.getElementById('progBar_' + id);
@@ -175,17 +148,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const formData = new FormData();
         formData.append('file', item.file);
-        
-        const finalTitle = titleInput || batchTitle;
-        const finalDesc = descInput || batchDesc;
-        const finalPass = passInput || batchPass;
-
-        if (finalTitle) formData.append('title', finalTitle);
-        if (finalDesc) formData.append('description', finalDesc);
-        if (finalPass) formData.append('password', finalPass);
+        formData.append('action', 'upload_file');
+        if (titleInput) formData.append('title', titleInput);
+        if (passInput) formData.append('password', passInput);
+        if (descInput) formData.append('description', descInput);
         
         const xhr = new XMLHttpRequest();
-        xhr.open('POST', 'video.php', true);
+        xhr.open('POST', 'api_file.php', true); // 我們需要建立這個 API
         
         xhr.upload.addEventListener('progress', (e) => {
             if (e.lengthComputable) {
@@ -207,8 +176,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         
                         const resDiv = document.getElementById('res_' + id);
                         resDiv.style.display = 'flex';
-                        document.getElementById('url_' + id).value = res.data.url;
-                        document.getElementById('thumb_' + id).value = res.data.thumbnail_url || '無封面圖';
+                        document.getElementById('url_' + id).value = res.data.share_url || res.data.url;
                     } else {
                         item.status = 'error';
                         document.getElementById('status_' + id).className = 'queue-item-status status-error';
@@ -224,8 +192,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 document.getElementById('status_' + id).className = 'queue-item-status status-error';
                 document.getElementById('status_' + id).textContent = 'HTTP 錯誤: ' + xhr.status;
             }
-            
-            // Proceed to next
             uploadNextInQueue();
         };
 
@@ -233,9 +199,7 @@ document.addEventListener('DOMContentLoaded', () => {
             progCont.style.display = 'none';
             item.status = 'error';
             document.getElementById('status_' + id).className = 'queue-item-status status-error';
-            document.getElementById('status_' + id).textContent = '網路錯誤，上傳中斷';
-            
-            // Proceed to next even if error
+            document.getElementById('status_' + id).textContent = '網路錯誤';
             uploadNextInQueue();
         };
 

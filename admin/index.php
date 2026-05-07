@@ -120,8 +120,13 @@ function renderImagesList($images) {
         $ip = htmlspecialchars($image['upload_ip']);
         $time = htmlspecialchars($image['created_at']);
         
+        $reportBadge = $image['report_count'] > 0 
+            ? "<div style=\"position: absolute; top: 10px; left: 10px; background: #ff3b30; color: #fff; padding: 2px 6px; border-radius: 4px; font-size: 10px; font-weight: bold; z-index: 10;\">檢舉: {$image['report_count']}</div>" 
+            : "";
+            
         $html .= <<<HTML
         <div class="gallery-item" id="image-{$id}">
+            {$reportBadge}
             <div class="image-wrapper">
                 <div class="image-placeholder"><div class="spinner"></div></div>
                 <img class="lazy" src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-src="{$url}" data-fancybox="gallery">
@@ -136,8 +141,12 @@ function renderImagesList($images) {
             </div>
             <div class="image-info">
                 <p class="info-p">大小：<span>{$size} KB</span></p>
-                <p class="info-p">IP: <span>{$ip}</span></p>
                 <p class="info-p">時間：<span>{$time}</span></p>
+                <p class="info-p">瀏覽：<span>{$image['view_count']} 次</span></p>
+                <div style="display:flex; justify-content: space-between; align-items: center; margin-top:5px;">
+                    <span class="info-p" style="font-size:10px; color:#666;">IP: {$ip}</span>
+                    <a href="/view.php?id={$id}" target="_blank" style="color: #3b82f6; text-decoration:none; font-size:12px;">預覽</a>
+                </div>
             </div>
         </div>
 HTML;

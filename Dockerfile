@@ -13,6 +13,7 @@ RUN apt-get update && apt-get install -y \
     libwebp-dev \
     libsqlite3-dev \
     ffmpeg \
+    python3-minimal \
     && rm -rf /var/lib/apt/lists/*
 
 # 安装 PHP 扩展

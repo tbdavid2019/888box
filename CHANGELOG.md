@@ -2,6 +2,27 @@
 
 All notable changes to this project will be documented in this file.
 
+## [2026.5.9] - 2026-05-08
+
+### ✨ Added
+- **Unified Bento Portal**: Completely redesigned the root `index.php` as a modern, iOS-style Bento Grid portal for unified access to Image, Video, and File centers.
+- **Document Hosting Center (`upload_file.php`)**: Added support for general documents including ZIP, PDF, Word, Excel, Visio, and EPUB.
+- **EPUB Online Reader**: Integrated `epub.js` into the view portal, allowing users to read electronic books directly in the browser.
+- **Unified Security Gatekeeper (`view.php`)**: Implemented a universal asset viewing gateway that handles secure access, analytics, and dynamic rendering for all media types.
+- **Granular Password Protection**: Added the ability to set individual access passwords for images, videos, and files during upload.
+- **Analytics Engine**: Implemented "Real View Count" tracking for all assets, visible in the administrative dashboards.
+- **Reporting System (`api_report.php`)**: Added a user-facing "Report" feature for inappropriate content, integrated with an automated SMTP notification system.
+- **SMTP Notification Backend**: Developed a Python-based SMTP mailer (`scripts/report_mail.py`) to handle high-reliability email alerts to administrators.
+- **Admin Dashboards Consolidation**:
+    - **File Management (`admin/file.php`)**: New dashboard for managing document assets.
+    - **Reporting Statistics**: Added "Reported" status badges and hit-counts to Image, Video, and File admin panels.
+- **Privacy Controls**: Updated the Podcast engine to automatically exclude password-protected videos from the public RSS feed.
+- **Batch Video Metadata**: Added "Global Metadata" inputs to the video upload UI, allowing users to apply a single Title or Password to an entire batch of uploads.
+
+### 💄 Style (UI/UX)
+- **Glassmorphic Design**: Adopted a high-end, semi-transparent design language across the portal and view pages.
+- **Mobile-First Navigation**: Optimized the Bento Grid for touch-screens with "iOS App" inspired layout and responsiveness.
+
 ## [2026.5.8] - 2026-05-08
 
 ### ✨ Added

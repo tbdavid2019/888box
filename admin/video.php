@@ -100,9 +100,14 @@ $videos = $stmt->fetchAll(PDO::FETCH_ASSOC);
                 <div class="video-card" id="video-<?= $video['id'] ?>">
                     <video src="<?= htmlspecialchars($video['url']) ?>" controls preload="metadata"></video>
                     <div class="video-info">
-                        <p><strong>標題：</strong> <span class="v-title"><?= htmlspecialchars($video['title'] ?: $video['path']) ?></span></p>
+                        <p>
+                            <strong>標題：</strong> <span class="v-title"><?= htmlspecialchars($video['title'] ?: $video['path']) ?></span>
+                            <?php if ($video['report_count'] > 0): ?>
+                                <span style="background: #ff3b30; color: #fff; padding: 2px 6px; border-radius: 4px; font-size: 11px; margin-left: 5px;">檢舉: <?= $video['report_count'] ?></span>
+                            <?php endif; ?>
+                        </p>
                         <p><strong>描述：</strong> <span class="v-desc"><?= htmlspecialchars($video['description'] ?: '無') ?></span></p>
-                        <p><strong>大小：</strong> <?= number_format(floatval($video['size']) / 1024 / 1024, 2) ?> MB</p>
+                        <p><strong>大小：</strong> <?= number_format(floatval($video['size']) / 1024 / 1024, 2) ?> MB | <strong>瀏覽:</strong> <?= $video['view_count'] ?></p>
                         <p><strong>上傳時間：</strong> <?= htmlspecialchars($video['created_at']) ?></p>
                     </div>
                     <div class="actions">

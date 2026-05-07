@@ -173,7 +173,7 @@ try {
             respondAndExit(['result' => 'error', 'code' => 413, 'message' => "影片大小超過限制，最大允許 {$limitMB}MB"]);
         }
 
-        $videoData = handleVideoUpload($file, $pdo, $_POST['title'] ?? '', $_POST['description'] ?? '');
+        $videoData = handleVideoUpload($file, $pdo, $_POST['title'] ?? '', $_POST['description'] ?? '', $_POST['password'] ?? '');
         $results[] = $videoData;
     }
 

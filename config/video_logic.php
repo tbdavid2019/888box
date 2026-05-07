@@ -6,7 +6,7 @@ require_once __DIR__ . '/upload.php';
 /**
  * Handle video upload logic
  */
-function handleVideoUpload($file, $pdo, $title = '', $description = '') {
+function handleVideoUpload($file, $pdo, $title = '', $description = '', $password = '') {
     $config = Database::getConfig($pdo);
     $storage = $config['storage'];
     $user_id = $_SESSION['user_id'] ?? NULL;
@@ -84,12 +84,16 @@ function handleVideoUpload($file, $pdo, $title = '', $description = '') {
         ];
 
         // 6. Update RSS and JSON (Tasks 4 & 5)
-        updatePodcastRSS($videoData, $config);
+        // Skip RSS if password is set
+        if (empty($password)) {
+            updatePodcastRSS($videoData, $config);
+        }
         updateDailyList($videoData, $config);
         
         // 7. Save to database (optional, but good for consistency)
-        $stmt = $pdo->prepare("INSERT INTO images (url, path, storage, size, upload_ip, user_id, title, description) VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
-        $stmt->execute([$videoUrl, $videoRemotePath, $storage, $videoData['size'], getClientIp(), $user_id, $title, $description]);
+        $hashedPassword = !empty($password) ? password_hash($password, PASSWORD_DEFAULT) : NULL;
+        $stmt = $pdo->prepare("INSERT INTO images (url, path, storage, size, upload_ip, user_id, title, description, password) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)");
+        $stmt->execute([$videoUrl, $videoRemotePath, $storage, $videoData['size'], getClientIp(), $user_id, $title, $description, $hashedPassword]);
 
         return $videoData;
         
@@ -245,8 +249,8 @@ function rebuildVideoRSS($pdo, $config) {
         $channel->appendChild($dom->createElement('link', generateFileUrl($config['storage'], $config, '', null)));
         $channel->appendChild($dom->createElement('language', 'zh-tw'));
         
-        // Fetch all videos from DB
-        $stmt = $pdo->prepare("SELECT * FROM images WHERE url LIKE '%.mp4' OR url LIKE '%.webm' OR url LIKE '%.mov' OR url LIKE '%.mkv' ORDER BY id DESC");
+        // Fetch all videos from DB (Exclude password protected ones)
+        $stmt = $pdo->prepare("SELECT * FROM images WHERE (url LIKE '%.mp4' OR url LIKE '%.webm' OR url LIKE '%.mov' OR url LIKE '%.mkv') AND (password IS NULL OR password = '') ORDER BY id DESC");
         $stmt->execute();
         $videos = $stmt->fetchAll(PDO::FETCH_ASSOC);
         

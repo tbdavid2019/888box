@@ -186,7 +186,11 @@ function renderFields($fields, $configs) {
                     <span class="label-description"><?= $field['description'] ?></span>
                 <?php endif; ?>
             </label>
-            <?php if ($field['type'] === 'radio'): ?>
+            <?php if ($field['type'] === 'header'): ?>
+                <div class="settings-section-header" style="grid-column: 1 / -1; margin: 20px 0 10px 0; padding-bottom: 10px; border-bottom: 1px solid rgba(255,255,255,0.1);">
+                    <h3 style="color: #fff; margin: 0;"><?= $field['name'] ?></h3>
+                </div>
+            <?php elseif ($field['type'] === 'radio'): ?>
                 <div class="radio-group">
                     <?php foreach($field['options'] as $val => $label): ?>
                         <label>
@@ -263,14 +267,48 @@ $basicSettings = [
         'placeholder' => '例如：https://example.com,http://localhost',
         'description' => '用於驗證上傳，多個網域請用英文逗號分隔，支援萬用字元 "*"'
     ],
-    'output_format' => [
-        'label' => '輸出格式',
-        'type' => 'radio',
         'options' => [
             'original' => '原始格式',
             'webp' => 'WebP',
             'avif' => 'AVIF'
         ]
+    ],
+    'smtp_header' => [
+        'type' => 'header',
+        'name' => '📧 SMTP 與檢舉設定'
+    ],
+    'smtp_host' => [
+        'label' => 'SMTP 伺服器',
+        'type' => 'text',
+        'half_width' => true
+    ],
+    'smtp_port' => [
+        'label' => 'SMTP 端口',
+        'type' => 'number',
+        'half_width' => true
+    ],
+    'smtp_user' => [
+        'label' => 'SMTP 帳號',
+        'type' => 'text',
+        'half_width' => true
+    ],
+    'smtp_pass' => [
+        'label' => 'SMTP 密碼',
+        'type' => 'password',
+        'half_width' => true
+    ],
+    'smtp_tls' => [
+        'label' => '啟用 TLS',
+        'type' => 'radio',
+        'options' => ['true' => '是', 'false' => '否'],
+        'half_width' => true
+    ],
+    'admin_emails' => [
+        'label' => '管理員收件信箱',
+        'type' => 'text',
+        'placeholder' => '多個信箱請用逗點分隔',
+        'description' => '當資產被檢舉時，系統將發送郵件至這些信箱',
+        'half_width' => true
     ]
 ];
 ?>

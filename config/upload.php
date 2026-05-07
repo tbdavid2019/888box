@@ -330,7 +330,7 @@ function validateFile($file) {
 /**
  * 处理上传的文件
  */
-function handleUploadedFile($file, $token, $referer) {
+function handleUploadedFile($file, $token, $referer, $password = '') {
     global $pdo;
     
     $config = Database::getConfig($pdo);
@@ -378,8 +378,9 @@ function handleUploadedFile($file, $token, $referer) {
         $fileUrl = generateFileUrl($storage, $config, $filePath, $result);
         $storagePath = ($storage === 'local') ? $finalFilePath : $filePath;
         
-        $stmt = $pdo->prepare("INSERT INTO images (url, path, storage, size, upload_ip, user_id) VALUES (?, ?, ?, ?, ?, ?)");
-        $stmt->execute([$fileUrl, $storagePath, $storage, $fileSize, getClientIp(), $user_id]);
+        $hashedPassword = !empty($password) ? password_hash($password, PASSWORD_DEFAULT) : NULL;
+        $stmt = $pdo->prepare("INSERT INTO images (url, path, storage, size, upload_ip, user_id, password) VALUES (?, ?, ?, ?, ?, ?, ?)");
+        $stmt->execute([$fileUrl, $storagePath, $storage, $fileSize, getClientIp(), $user_id, $hashedPassword]);
         
         // 记录上传成功日志
         $clientIp = getClientIp();

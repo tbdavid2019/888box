@@ -356,11 +356,13 @@ export class ImageHandler {
     }
 
     uploadAllImages() {
+        const password = document.getElementById('imagePassword')?.value || '';
         this.uploadQueue.forEach(({ file, index }) => {
             const xhr = API.uploadImage(
                 file,
                 this.dom.qualityInput.value,
                 index,
+                password,
                 (e, idx) => this.handleUploadProgress(e, idx),
                 (xhr, idx) => {
                     this.xhrRequests.delete(xhr);

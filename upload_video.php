@@ -49,6 +49,22 @@ try {
             
             <div id="queueArea" style="display:none; text-align: left;">
                 <h3 style="margin-top:0; margin-bottom:20px; border-bottom:1px solid var(--border); padding-bottom:10px;">影片上傳佇列 (依序上傳)</h3>
+                
+                <div class="metadata-form" style="margin-bottom: 25px; background: rgba(255,255,255,0.05); padding: 20px; border-radius: 12px; border: 1px solid var(--border);">
+                    <div style="margin-bottom:15px;">
+                        <label style="display:block; margin-bottom:5px; font-weight:bold;">統一影片標題 (留空則使用檔名)</label>
+                        <input type="text" id="batchTitle" placeholder="例如：我的精彩影片" style="width:100%; padding:10px; border-radius:6px; border:1px solid #444; background:#222; color:#fff;">
+                    </div>
+                    <div style="margin-bottom:15px;">
+                        <label style="display:block; margin-bottom:5px; font-weight:bold;">統一影片描述</label>
+                        <textarea id="batchDesc" rows="3" placeholder="請輸入影片描述..." style="width:100%; padding:10px; border-radius:6px; border:1px solid #444; background:#222; color:#fff;"></textarea>
+                    </div>
+                    <div>
+                        <label style="display:block; margin-bottom:5px; font-weight:bold;">存取密碼 (選填)</label>
+                        <input type="password" id="batchPass" placeholder="設定密碼後，Podcast RSS 將會排除此影片" style="width:100%; padding:10px; border-radius:6px; border:1px solid #444; background:#222; color:#fff;">
+                    </div>
+                </div>
+
                 <div id="fileList"></div>
                 
                 <div class="action-buttons" style="margin-top: 30px;">
