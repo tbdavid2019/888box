@@ -68,17 +68,8 @@ $stats['file'] = $total - $stats['image'] - $stats['video'];
                 <div class="stats-badge"><?= $stats['file'] ?> 份文件</div>
             </div>
         </a>
-
-
-        <!-- 系統管理 -->
-        <a href="/admin/" class="card card-settings">
-            <div>
-                <div class="card-icon">⚙️</div>
-                <h2 class="card-title">系統管理</h2>
-                <p class="card-desc">配置儲存空間、SMTP 及查看舉報統計</p>
-            </div>
-        </a>
     </div>
+
 
     <footer style="margin-top: 60px; color: rgba(255,255,255,0.3); font-size: 0.8rem;">
         &copy; <?= date('Y') ?> 888box. All rights reserved. <br>
