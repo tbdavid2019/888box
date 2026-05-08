@@ -27,6 +27,10 @@
 - **點擊分析**：追蹤每一項資源的「真實點擊次數」。
 - **檢舉系統**：使用者可一鍵舉報異常資源，系統會即時透過 SMTP 發送電子郵件通知管理員。
 - **SMTP 通知**：整合 Python 發信後端，支援多組管理員信箱。
++
++### 🤖 AI 代理人整合 (AI Agent Integration)
++- **動態技能指南 (`skill.php`)**：為 AI 代理人（如 Claude, GPT）提供動態生成的指令文檔，自動識別 Base URL 並在登入狀態下注入 Token。
++- **MCP 支援**：支援 Model Context Protocol，讓 AI 代理人能自動執行上傳、列表查詢及資產清理等任務。
 
 ## 🚀 部署教學 (Deployment)
 
@@ -82,6 +86,7 @@ mkdir -p storage/i && chmod -R 777 storage
 - **⚙️ 圖片管理後台**: `https://<你的網域>/admin/`
 - **⚙️ 影片管理後台**: `https://<你的網域>/admin/video.php`
 - **⚙️ 文件管理後台**: `https://<你的網域>/admin/file.php`
+- **🤖 AI Agent 技能指南**: `https://<你的網域>/skill.php`
 
 ### API 介面 (自動化與機器人)
 若需使用程式或機器人上傳，請在 HTTP Header 帶上 `Authorization: Bearer <Your_Token>`（Token 可於圖片後台設定）。

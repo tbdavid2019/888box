@@ -2,6 +2,17 @@
 
 All notable changes to this project will be documented in this file.
 
+## [2026.5.10] - 2026-05-08
+
+### ✨ Added
+- **AI Agent Skill System (`skill.php`)**: Introduced a dynamic skill documentation endpoint that automatically detects the host domain and protocol (handling reverse proxies). It also injects the user's API token when logged in, making it a zero-configuration "one-click" integration for AI agents.
+- **Unified Management Footer**: Standardized the footer across all administrative dashboards (`admin/index.php`, `admin/video.php`, `admin/file.php`) to match the front-end portal, enabling seamless switching between management modules and quick access to AI Skill docs.
+- **MCP Tooling Support**: Formalized the system as a programmable asset platform, providing specific guidance for Model Context Protocol (MCP) agents to perform automated uploads, listing, and maintenance tasks.
+
+### 🐛 Fixed
+- **Admin Settings Loading Issue**: Resolved a syntax error in `admin/settings.php` caused by a missing array key (`output_format`), which previously caused the settings modal to fail during AJAX loading.
+- **Protocol Detection**: Implemented robust protocol detection in `skill.php` using `X-Forwarded-Proto` headers to ensure correct HTTPS URLs are generated in proxied environments (e.g., Cloudflare/Nginx).
+
 ## [2026.5.9] - 2026-05-08
 
 ### ✨ Added
