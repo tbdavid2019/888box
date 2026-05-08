@@ -262,13 +262,22 @@ export class ImageHandler {
         const effectiveMaxSize = isVideo ? this.config.maxFileSize * 10 : this.config.maxFileSize;
 
         if (effectiveMaxSize > 0 && file.size > effectiveMaxSize) {
-            const maxMB = Math.floor(effectiveMaxSize / (1024 * 1024));
             const typeStr = isVideo ? '影片' : '圖片';
-            UI.showNotification(`${typeStr} ${file.name} 超過大小限制，最大允許 ${maxMB}MB`, 'error');
+            UI.showNotification(`${typeStr} ${file.name} 超過大小限制，最大允許 ${this.formatMaxSize(effectiveMaxSize)}`, 'error');
             return false;
         }
 
         return true;
+    }
+
+    formatMaxSize(bytes) {
+        if (bytes < 1024 * 1024) {
+            return `${Math.max(1, Math.round(bytes / 1024))}KB`;
+        }
+
+        const mb = bytes / (1024 * 1024);
+        const precision = mb < 10 ? 1 : 0;
+        return `${mb.toFixed(precision)}MB`;
     }
 
     loadImagePreview(index) {
