@@ -13,6 +13,7 @@ All notable changes to this project will be documented in this file.
 - **Upload Size Limit Fallbacks**: Fixed image and file uploads treating missing `max_file_size` config as `0`, which caused false upload rejections and `0MB` messaging on older databases.
 - **Core Config Self-Healing**: Added automatic seeding of missing core config rows (`max_file_size`, `max_video_size`, `max_uploads_per_day`, `output_format`, etc.) during runtime bootstrap, install, and migration flows.
 - **Centralized Schema Self-Healing**: Moved legacy SQLite column backfills into `config/database.php`, removed scattered runtime `ALTER TABLE` hacks from video entrypoints, and aligned install/migration table definitions with the current production schema.
+- **Unified Schema Bootstrap Source**: Introduced `config/schema.php` as the single source of truth for core table creation, image-column backfills, config normalization, and default config seeding across runtime bootstrap, web install, shell install, and MySQL-to-SQLite migration.
 - **Legacy Install Script S3 Keys**: Corrected `install.sh` to write `s3_access_key_id` / `s3_access_key_secret` instead of obsolete `s3_key` / `s3_secret`, and aligned prompts with the actual config model.
 - **S3 Bootstrap Script**: Updated `setup_s3.sh` to emit `S3_ACL=public-read` and apply a public-read bucket policy so fresh AWS S3 deployments do not return `AccessDenied` for uploaded assets.
 - **Frontend Size Messaging**: Fixed sub-1MB upload limit messages so they display `KB` or accurate `MB` values instead of `0MB`.

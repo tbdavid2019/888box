@@ -99,7 +99,7 @@ if [ -z "$ADMIN_PASS" ]; then
     exit 1
 fi
 
-echo "⚙️ 正在初始化資料庫與配置..."
+echo "⚙️ 正在初始化資料庫與配置 (共用 config/schema.php bootstrap)..."
 docker exec 888box php -r "
     require '/var/www/html/config/schema.php';
     \$pdo = new PDO('sqlite:/var/www/html/storage/database.db');
@@ -139,6 +139,7 @@ docker exec 888box php -r "
     }
 
     echo \"✅ 管理員 \$ADMIN_USER 已成功初始化。\\n\";
+    echo \"✅ 核心 schema 已透過 config/schema.php 建立完成。\\n\";
     echo \"✅ 儲存配置 (\$STORAGE_TYPE) 已寫入資料庫。\\n\";
 "
 

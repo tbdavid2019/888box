@@ -46,7 +46,8 @@ cd 888box
 2.  **目錄初始化**：建立 `storage/` 並設定正確的權限。
 3.  **配置生成**：產生預設的 `.env` 環境變數檔。
 4.  **容器啟動**：自動編譯與啟動 Docker 容器。
-5.  **互動式設定**：引導你設定第一個**管理員帳號與密碼**。
+5.  **共用 Bootstrap**：透過 `config/schema.php` 建立核心 schema 與基礎設定，不再由不同安裝入口各自維護一套 SQL。
+6.  **互動式設定**：引導你設定第一個**管理員帳號與密碼**。
 
 ### `.env` 範例
 專案現在提供 [.env.example](.env.example)。若你不走互動式安裝，可先複製一份：
@@ -86,6 +87,11 @@ cp .env.example .env
 - **Storage**: SQLite 3 (持久化於 `storage/database.db`)
 - **Dependencies**: FFmpeg, ImageMagick, Composer
 - **Docker**: 支援 x86_64 與 ARM64 (Apple Silicon / AWS Graviton)
+
+### Schema Source Of Truth
+- 核心資料表定義與 bootstrap 邏輯統一放在 [config/schema.php](config/schema.php)
+- `config/database.php`、`install/index.php`、`install.sh`、`migrate.php` 都共用這一份定義
+- 若未來需要新增核心欄位或調整初始化行為，應優先修改 `config/schema.php`
 
 ### 手動管理指令
 - **啟動**：`docker compose up -d`
