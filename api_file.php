@@ -122,7 +122,9 @@ function handleFileUpload($file, $pdo, $config) {
     }
 }
 
-function respondAndExit($data) {
-    echo json_encode($data, JSON_UNESCAPED_UNICODE);
-    exit;
+if (!function_exists('respondAndExit')) {
+    function respondAndExit($data) {
+        echo json_encode($data, JSON_UNESCAPED_UNICODE);
+        exit;
+    }
 }
