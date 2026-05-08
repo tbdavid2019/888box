@@ -69,7 +69,11 @@ function processOldVersionFields($pdo) {
     // 添加新字段
     $addFields = [
         'url_prefix' => ['', '图片代理'],
-        'local_cdn_domain' => ['', '本地CDN域名']
+        'local_cdn_domain' => ['', '本地CDN域名'],
+        'max_uploads_per_day' => ['50', '每日上傳限制'],
+        'max_file_size' => [(string)(100 * 1024 * 1024), '單一圖片大小限制（Bytes）'],
+        'max_video_size' => ['500', '單一影片大小限制（MB）'],
+        'output_format' => ['webp', '輸出圖片格式']
     ];
     
     // 添加表字段 (表名 => [字段定义数组])
@@ -179,6 +183,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $step === 1) {
             $stmt->execute([$row['id'], $row['key'], $row['value'], $row['description'], $row['created_at'], $row['updated_at']]);
             $stats['configs']++;
         }
+
+        // 補齊舊版資料庫缺少的核心設定，避免前後台因缺值而異常
+        $fixDetails = processOldVersionFields($pdo);
         
         // 迁移 images（分批）
         $result = $mysqli->query("SELECT COUNT(*) as total FROM images");
@@ -217,9 +224,6 @@ ENV;
         
         file_put_contents($envFile, $envContent);
         chmod($envFile, 0600);
-        
-        // 处理旧版本字段
-        $fixDetails = processOldVersionFields($pdo);
         
         $mysqli->close();
         

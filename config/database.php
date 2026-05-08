@@ -48,8 +48,48 @@ class Database {
             $this->connection = new PDO('sqlite:' . $dbPath);
             $this->connection->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
             $this->connection->exec('PRAGMA foreign_keys = ON');
+            $this->ensureCoreConfigs();
         } catch (PDOException $e) {
             throw new Exception('数据库连接失败: ' . $e->getMessage());
+        }
+    }
+
+    private function ensureCoreConfigs() {
+        $protocol = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https://' : 'http://';
+        $siteUrl = $protocol . ($_SERVER['HTTP_HOST'] ?? 'localhost');
+
+        $defaults = [
+            'storage' => ['local', '儲存方式'],
+            'url_prefix' => ['', '圖片代理'],
+            'local_cdn_domain' => ['', '本地CDN域名'],
+            'per_page' => ['20', '每頁顯示數量'],
+            'login_restriction' => ['false', '登入保護'],
+            'max_uploads_per_day' => ['50', '每日上傳限制'],
+            'max_file_size' => [(string) (100 * 1024 * 1024), '單一圖片大小限制（Bytes）'],
+            'max_video_size' => ['500', '單一影片大小限制（MB）'],
+            'output_format' => ['webp', '輸出圖片格式'],
+            'site_domain' => [$siteUrl, '網站網域']
+        ];
+
+        $existing = [];
+
+        try {
+            $existing = array_column(
+                $this->connection->query("SELECT `key` FROM configs")->fetchAll(PDO::FETCH_ASSOC),
+                'key'
+            );
+        } catch (Exception $e) {
+            return;
+        }
+
+        $stmt = $this->connection->prepare(
+            "INSERT INTO configs (`key`, value, description) VALUES (?, ?, ?)"
+        );
+
+        foreach ($defaults as $key => $config) {
+            if (!in_array($key, $existing, true)) {
+                $stmt->execute([$key, $config[0], $config[1]]);
+            }
         }
     }
 

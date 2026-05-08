@@ -112,6 +112,9 @@ docker exec 888box php -r "
     // 注入儲存設定
     \$configs = [
         'storage' => '$STORAGE_TYPE',
+        'max_uploads_per_day' => '50',
+        'max_file_size' => '104857600',
+        'max_video_size' => '500',
         's3_key' => '$S3_KEY',
         's3_secret' => '$S3_SECRET',
         's3_region' => '$S3_REGION',
