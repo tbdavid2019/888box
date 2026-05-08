@@ -353,9 +353,12 @@ function handleUploadedFile($file, $token, $referer, $password = '') {
     $ext = $extension ?: (['image/jpeg' => 'jpg', 'image/png' => 'png', 'image/gif' => 'gif', 'image/webp' => 'webp', 'image/svg+xml' => 'svg'][$mimeType] ?? 'jpg');
     $newFilePath = $datePath . '/' . $randomFileName . '.' . $ext;
     
-    if (!move_uploaded_file($file['tmp_name'], $newFilePath)) {
-        respondAndExit(['result' => 'error', 'code' => 500, 'message' => '文件上传失败']);
+    // 根據是否為遠端抓取決定移動方式
+    $moveFunction = isset($_SESSION['use_rename']) ? 'rename' : 'move_uploaded_file';
+    if (!$moveFunction($file['tmp_name'], $newFilePath)) {
+        respondAndExit(['result' => 'error', 'code' => 500, 'message' => '文件儲存失敗']);
     }
+
     
     ini_set('memory_limit', '1024M');
     set_time_limit(300);

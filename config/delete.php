@@ -73,22 +73,47 @@ class ImageDeleter {
     }
 }
 
-// 处理请求
-$database = Database::getInstance();
-$pdo = $database->getConnection();
-
-// 清理之前的输出
-ob_end_clean();
-
-// 设置 JSON 响应头
-header('Content-Type: application/json; charset=utf-8');
-
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $path = $_POST['path'] ?? '';
+/**
+ * 提供給 API 調用的統一刪除函數
+ */
+function deleteAsset($pdo, $idOrPath) {
     $deleter = new ImageDeleter($pdo);
+    
+    // 如果傳入的是數字，先找到路徑
+    if (is_numeric($idOrPath)) {
+        $stmt = $pdo->prepare("SELECT path FROM images WHERE id = ?");
+        $stmt->execute([$idOrPath]);
+        $row = $stmt->fetch(PDO::FETCH_ASSOC);
+        if (!$row) return false;
+        $path = $row['path'];
+    } else {
+        $path = $idOrPath;
+    }
+    
     $result = $deleter->delete($path);
-    echo json_encode($result, JSON_UNESCAPED_UNICODE);
-} else {
-    echo json_encode(['result' => 'error', 'message' => '仅允许 POST 请求。'], JSON_UNESCAPED_UNICODE);
+    return $result['result'] === 'success';
 }
+
+// 只有直接訪問此檔案時才執行以下邏輯
+if (basename($_SERVER['PHP_SELF']) === 'delete.php') {
+    // 處理請求
+    $database = Database::getInstance();
+    $pdo = $database->getConnection();
+
+    // 清理之前的輸出
+    ob_end_clean();
+
+    // 設置 JSON 響應頭
+    header('Content-Type: application/json; charset=utf-8');
+
+    if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+        $path = $_POST['path'] ?? '';
+        $deleter = new ImageDeleter($pdo);
+        $result = $deleter->delete($path);
+        echo json_encode($result, JSON_UNESCAPED_UNICODE);
+    } else {
+        echo json_encode(['result' => 'error', 'message' => '僅允許 POST 請求。'], JSON_UNESCAPED_UNICODE);
+    }
+}
+
 ?>

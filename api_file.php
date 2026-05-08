@@ -1,4 +1,5 @@
 <?php
+/** @deprecated Use api.php instead */
 session_start();
 header('Content-Type: application/json; charset=utf-8');
 
@@ -71,9 +72,11 @@ function handleFileUpload($file, $pdo, $config) {
     $targetPath = $localPath . '/' . $fileName;
     
     // 3. Move file
-    if (!move_uploaded_file($file['tmp_name'], $targetPath)) {
-        respondAndExit(['result' => 'error', 'message' => '檔案移動失敗']);
+    $moveFunction = isset($_SESSION['use_rename']) ? 'rename' : 'move_uploaded_file';
+    if (!$moveFunction($file['tmp_name'], $targetPath)) {
+        respondAndExit(['result' => 'error', 'message' => '檔案儲存失敗']);
     }
+
     
     $fileSize = filesize($targetPath);
     $remotePath = $targetPath;

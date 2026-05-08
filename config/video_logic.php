@@ -34,9 +34,11 @@ function handleVideoUpload($file, $pdo, $title = '', $description = '', $passwor
     $localVideoPath = $datePath . '/' . $videoFileName;
     
     // 3. Move uploaded file
-    if (!move_uploaded_file($file['tmp_name'], $localVideoPath)) {
-        respondAndExit(['result' => 'error', 'code' => 500, 'message' => '影片上傳失敗']);
+    $moveFunction = isset($_SESSION['use_rename']) ? 'rename' : 'move_uploaded_file';
+    if (!$moveFunction($file['tmp_name'], $localVideoPath)) {
+        respondAndExit(['result' => 'error', 'code' => 500, 'message' => '影片儲存失敗']);
     }
+
     
     // 4. Extract metadata and generate thumbnail
     $metadata = VideoHelper::getVideoMetadata($localVideoPath);

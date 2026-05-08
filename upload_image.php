@@ -1,4 +1,5 @@
 <?php
+/** @deprecated Use api.php?action=upload instead */
 session_start();
 
 require_once 'config/database.php';
