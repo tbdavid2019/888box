@@ -48,9 +48,38 @@ class Database {
             $this->connection = new PDO('sqlite:' . $dbPath);
             $this->connection->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
             $this->connection->exec('PRAGMA foreign_keys = ON');
+            $this->ensureCoreSchema();
             $this->ensureCoreConfigs();
         } catch (PDOException $e) {
             throw new Exception('数据库连接失败: ' . $e->getMessage());
+        }
+    }
+
+    private function ensureCoreSchema() {
+        $this->ensureColumns('images', [
+            'title' => "VARCHAR(255) DEFAULT ''",
+            'description' => "TEXT DEFAULT ''",
+            'password' => 'VARCHAR(255) DEFAULT NULL',
+            'view_count' => 'INTEGER DEFAULT 0',
+            'report_count' => 'INTEGER DEFAULT 0',
+            'mime_type' => 'VARCHAR(100) NULL'
+        ]);
+    }
+
+    private function ensureColumns($table, $columns) {
+        $existingColumns = [];
+
+        try {
+            $stmt = $this->connection->query("PRAGMA table_info($table)");
+            $existingColumns = array_column($stmt->fetchAll(PDO::FETCH_ASSOC), 'name');
+        } catch (Exception $e) {
+            return;
+        }
+
+        foreach ($columns as $name => $definition) {
+            if (!in_array($name, $existingColumns, true)) {
+                $this->connection->exec("ALTER TABLE $table ADD COLUMN $name $definition");
+            }
         }
     }
 
