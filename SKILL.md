@@ -2,6 +2,10 @@
 
 This skill allows an AI agent to manage images, videos, and files on the 888box platform using a unified API and MCP server.
 
+## Environment Setup
+- **Base URL**: The domain where this `SKILL.md` file is hosted (e.g., `https://your-domain.com`).
+- **Auth**: Pass the `token` in the POST body or as a Bearer token in the `Authorization` header.
+
 ## Overview
 888box is a programmable asset management platform. You can upload assets via URL, list recent items, and manage Podcast feeds.
 

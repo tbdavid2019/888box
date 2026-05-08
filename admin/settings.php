@@ -267,6 +267,9 @@ $basicSettings = [
         'placeholder' => '例如：https://example.com,http://localhost',
         'description' => '用於驗證上傳，多個網域請用英文逗號分隔，支援萬用字元 "*"'
     ],
+    'output_format' => [
+        'label' => '輸出格式',
+        'type' => 'radio',
         'options' => [
             'original' => '原始格式',
             'webp' => 'WebP',
