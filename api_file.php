@@ -6,9 +6,6 @@ header('Content-Type: application/json; charset=utf-8');
 require_once 'config/database.php';
 require_once 'config/upload.php';
 
-require_once 'config/database.php';
-require_once 'config/upload.php';
-
 
 function handleFileUpload($file, $pdo, $config) {
     $storage = $config['storage'];
@@ -24,6 +21,17 @@ function handleFileUpload($file, $pdo, $config) {
     // 1. Validate file (more relaxed for documents)
     $extension = strtolower(pathinfo($file['name'], PATHINFO_EXTENSION));
     $allowedDocs = ['zip', 'pdf', 'doc', 'docx', 'xls', 'xlsx', 'vsd', 'vsdx', 'epub', 'txt', 'md'];
+
+    $maxFileSize = 0;
+    $stmt = $pdo->prepare("SELECT value FROM configs WHERE `key` = 'max_file_size'");
+    $stmt->execute();
+    if ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+        $maxFileSize = (int)$row['value'];
+    }
+
+    if ($maxFileSize > 0 && $file['size'] > $maxFileSize) {
+        respondAndExit(['result' => 'error', 'message' => '文件大小超過限制，最大允許 ' . formatSizeLimit($maxFileSize)]);
+    }
     
     // Get MIME type more accurately
     $finfo = finfo_open(FILEINFO_MIME_TYPE);
@@ -100,5 +108,16 @@ if (!function_exists('respondAndExit')) {
     function respondAndExit($data) {
         echo json_encode($data, JSON_UNESCAPED_UNICODE);
         exit;
+    }
+}
+
+if (!function_exists('formatSizeLimit')) {
+    function formatSizeLimit($bytes) {
+        if ($bytes < 1024 * 1024) {
+            return max(1, round($bytes / 1024)) . 'KB';
+        }
+
+        $mb = $bytes / (1024 * 1024);
+        return $mb < 10 ? number_format($mb, 1) . 'MB' : number_format($mb, 0) . 'MB';
     }
 }

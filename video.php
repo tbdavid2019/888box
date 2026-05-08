@@ -3,6 +3,7 @@
  * PixPro Video Upload Endpoint
  */
 ob_start();
+session_start();
 
 require_once 'vendor/autoload.php';
 require_once 'config/database.php';
@@ -103,6 +104,10 @@ function validateToken() {
     }
 
     $refererHost = parse_url($_SERVER['HTTP_REFERER'] ?? '', PHP_URL_HOST);
+    $currentHost = parse_url(((!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https://' : 'http://') . ($_SERVER['HTTP_HOST'] ?? ''), PHP_URL_HOST);
+    if (!empty($refererHost) && !empty($currentHost) && strcasecmp($refererHost, $currentHost) === 0) {
+        return;
+    }
     if (isDomainAllowed($refererHost)) return;
     
     respondAndExit(['result' => 'error', 'code' => 403, 'message' => '身分驗證失敗：無效的 Token、尚未登入或網域未授權']);
@@ -125,6 +130,15 @@ function setCorsHeaders() {
     
     header("Access-Control-Allow-Methods: GET, POST, OPTIONS");
     header("Access-Control-Allow-Headers: Content-Type, Authorization");
+}
+
+function formatSizeLimit($bytes) {
+    if ($bytes < 1024 * 1024) {
+        return max(1, round($bytes / 1024)) . 'KB';
+    }
+
+    $mb = $bytes / (1024 * 1024);
+    return $mb < 10 ? number_format($mb, 1) . 'MB' : number_format($mb, 0) . 'MB';
 }
 
 // 设置CORS响应头
@@ -169,8 +183,7 @@ try {
         $videoMaxFileSize = $videoMaxFileSizeMB * 1024 * 1024; 
 
         if ($file['size'] > $videoMaxFileSize) {
-            $limitMB = $videoMaxFileSize / (1024 * 1024);
-            respondAndExit(['result' => 'error', 'code' => 413, 'message' => "影片大小超過限制，最大允許 {$limitMB}MB"]);
+            respondAndExit(['result' => 'error', 'code' => 413, 'message' => '影片大小超過限制，最大允許 ' . formatSizeLimit($videoMaxFileSize)]);
         }
 
         $videoData = handleVideoUpload($file, $pdo, $_POST['title'] ?? '', $_POST['description'] ?? '', $_POST['password'] ?? '');
