@@ -9,12 +9,15 @@ try {
     $pdo = $db->getConnection();
     $config = Database::getConfig($pdo);
     
-    // 获取上传限制配置
-    $maxFileSize = 0;
+    // 获取上传限制配置，缺值時回退到 100MB
+    $maxFileSize = 100 * 1024 * 1024;
     $stmt = $pdo->prepare("SELECT value FROM configs WHERE `key` = 'max_file_size'");
     $stmt->execute();
     if ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
-        $maxFileSize = (int)$row['value'];
+        $configuredMaxFileSize = (int)$row['value'];
+        if ($configuredMaxFileSize > 0) {
+            $maxFileSize = $configuredMaxFileSize;
+        }
     }
     
     // 检查是否需要登录限制

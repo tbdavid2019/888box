@@ -18,10 +18,16 @@ $config = Database::getConfig($pdo);
 /**
  * 从数据库获取配置值
  */
-function getConfigValue($pdo, $key) {
+function getConfigValue($pdo, $key, $default = 0) {
     $stmt = $pdo->prepare("SELECT value FROM configs WHERE `key` = ?");
     $stmt->execute([$key]);
-    return (int)$stmt->fetch(PDO::FETCH_ASSOC)['value'];
+    $row = $stmt->fetch(PDO::FETCH_ASSOC);
+
+    if ($row === false || !isset($row['value']) || $row['value'] === '') {
+        return $default;
+    }
+
+    return (int)$row['value'];
 }
 
 /**
@@ -62,6 +68,15 @@ function respondAndExit($response) {
     header('Content-Type: application/json; charset=utf-8');
     echo json_encode($response, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
     exit;
+}
+
+function formatSizeLimit($bytes) {
+    if ($bytes < 1024 * 1024) {
+        return max(1, round($bytes / 1024)) . 'KB';
+    }
+
+    $mb = $bytes / (1024 * 1024);
+    return $mb < 10 ? number_format($mb, 1) . 'MB' : number_format($mb, 0) . 'MB';
 }
 
 // ============================================
@@ -263,7 +278,7 @@ function handleUploadFromUrl($pdo, $config) {
     curl_close($ch);
 
     // 驗證大小 (限制 100MB 避免伺服器爆掉)
-    $maxFileSize = getConfigValue($pdo, 'max_file_size') ?: (100 * 1024 * 1024);
+    $maxFileSize = getConfigValue($pdo, 'max_file_size', 100 * 1024 * 1024);
     if ($contentLength > $maxFileSize) {
         respondAndExit(['result' => 'error', 'code' => 413, 'message' => '遠端檔案太大']);
     }
@@ -351,11 +366,14 @@ function handleUnifiedUpload($pdo, $config) {
     }
 
     // 驗證檔案大小
-    $maxFileSize = getConfigValue($pdo, 'max_file_size');
+    $maxFileSize = getConfigValue($pdo, 'max_file_size', 100 * 1024 * 1024);
     foreach ($_FILES as $file) {
         if ($file['size'] > $maxFileSize) {
-            $maxFileSizeMB = $maxFileSize / (1024 * 1024);
-            respondAndExit(['result' => 'error', 'code' => 413, 'message' => "文件大小超過限制，最大允許 {$maxFileSizeMB}MB"]);
+            respondAndExit([
+                'result' => 'error',
+                'code' => 413,
+                'message' => '文件大小超過限制，最大允許 ' . formatSizeLimit($maxFileSize)
+            ]);
         }
     }
 

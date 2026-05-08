@@ -22,14 +22,17 @@ function handleFileUpload($file, $pdo, $config) {
     $extension = strtolower(pathinfo($file['name'], PATHINFO_EXTENSION));
     $allowedDocs = ['zip', 'pdf', 'doc', 'docx', 'xls', 'xlsx', 'vsd', 'vsdx', 'epub', 'txt', 'md'];
 
-    $maxFileSize = 0;
+    $maxFileSize = 100 * 1024 * 1024;
     $stmt = $pdo->prepare("SELECT value FROM configs WHERE `key` = 'max_file_size'");
     $stmt->execute();
     if ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
-        $maxFileSize = (int)$row['value'];
+        $configuredMaxFileSize = (int)$row['value'];
+        if ($configuredMaxFileSize > 0) {
+            $maxFileSize = $configuredMaxFileSize;
+        }
     }
 
-    if ($maxFileSize > 0 && $file['size'] > $maxFileSize) {
+    if ($file['size'] > $maxFileSize) {
         respondAndExit(['result' => 'error', 'message' => '文件大小超過限制，最大允許 ' . formatSizeLimit($maxFileSize)]);
     }
     
