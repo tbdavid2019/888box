@@ -25,32 +25,117 @@ if (isset($_SESSION['loggedin']) && $_SESSION['loggedin']) {
     }
 }
 ?>
-# 888box Asset Management Skill
+---
+name: 888box-asset-management
+description: Use when managing 888box assets through the live server API or MCP endpoints. Supports uploading remote assets, listing images/videos/files, reading stats, deleting assets, and checking podcast RSS information. This rendered skill includes the correct live Base URL and token hints for the current 888box deployment.
+---
 
-This skill allows an AI agent to manage images, videos, and files on the 888box platform using a unified API and MCP server.
+# 888box Asset Management
 
 ## Environment Setup
 - **Base URL**: `<?= $baseUrl ?>`
-- **Auth**: Pass the `token` in the POST body or as a Bearer token in the `Authorization` header.
-- **Your Token**: `<?= $tokenDisplay ?>` (Use this token for your requests)
+- **Public Mode**: If this 888box instance has not enabled login restriction, public upload actions can be used without a token.
+- **Token Auth**: For protected actions, pass the `token` in the POST body or as a Bearer token in the `Authorization` header.
+- **Your Token**: `<?= $tokenDisplay ?>`
 
-## Overview
-888box is a programmable asset management platform. You can upload assets via URL, list recent items, and manage Podcast feeds.
+## When To Use
 
-## API Gateway (`/api.php`)
-All requests require a valid `token`.
+Use this skill when the user wants to:
 
-### Actions
-1. **`upload_url`**: Ingest an asset from a remote URL.
-   - Params: `url` (required), `title`, `description`, `password`.
-2. **`list`**: Retrieve a list of assets.
-   - Params: `type` (`image`|`video`|`file`|`all`), `page`.
-3. **`stats`**: Get asset count statistics.
-4. **`delete`**: Remove an asset.
-   - Params: `id`.
+- upload a remote image, video, or file into this 888box instance
+- list recent assets from this server
+- inspect counts or asset stats
+- delete an asset by `id`
+- inspect podcast RSS information for uploaded videos
+- operate against the live 888box deployment without hardcoding the wrong domain
+
+## Workflow
+
+1. Use the live Base URL shown above.
+2. Prefer the unified API at `<?= $baseUrl ?>/api.php`.
+3. For public upload flows, try the request without a token first.
+4. For protected or admin-style operations, authenticate with the provided token.
+5. If MCP tools are available for this server, prefer those tools over raw HTTP calls.
+6. Check JSON responses for `result`.
+   `success` means the call worked.
+   `error` means the call failed and the `message` should be surfaced.
+
+## API Gateway
+
+Primary endpoint:
+
+`<?= $baseUrl ?>/api.php`
+
+Authentication depends on the action:
+
+- `upload` public when login restriction is off
+- `upload_url` public when login restriction is off
+- `stats` public
+- `list` token required
+- `search` token required
+- `delete` token required
+
+### Supported Actions
+
+#### `upload`
+
+Upload local files with multipart form data.
+
+Authentication:
+- public when login restriction is off
+- otherwise token required
+
+#### `upload_url`
+
+Ingest an asset from a remote URL.
+
+Authentication:
+- public when login restriction is off
+- otherwise token required
+
+Parameters:
+- `url` required
+- `title` optional
+- `description` optional
+- `password` optional
+
+#### `list`
+
+Retrieve a list of assets.
+
+Parameters:
+- `type` one of `image`, `video`, `file`, `all`
+- `page` optional
+
+#### `stats`
+
+Get asset count statistics.
+
+#### `delete`
+
+Remove an asset.
+
+Parameters:
+- `id` required
+
+## Example HTTP Requests
+
+### Public Upload From URL
+
+```bash
+curl -X POST '<?= $baseUrl ?>/api.php?action=upload_url' \
+  -d 'url=https://example.com/file.jpg' \
+  -d 'title=Example Asset'
+```
+
+### Authenticated List Assets
+
+```bash
+curl '<?= $baseUrl ?>/api.php?action=list&type=all&page=1&token=<?= $tokenDisplay ?>'
+```
 
 ## MCP Tools
-If you are connected via MCP, use these tools:
+If MCP is connected for this 888box instance, prefer these tools:
 
 - **`upload_asset_by_url`**: Best for transferring assets from other websites.
 - **`list_assets`**: Use this to find IDs for deletion or viewing.
@@ -61,5 +146,5 @@ If you are connected via MCP, use these tools:
 ## Best Practices
 - **Images**: Automatically converted to WebP for optimization.
 - **Videos**: Automatically extracted metadata and generated thumbnails. Added to Podcast RSS if no password is set.
-- **Security**: Always use the provided `token` for authenticated requests.
+- **Security**: Use the provided `token` for protected actions such as listing, searching, deleting, or MCP-driven maintenance.
 - **Error Handling**: Check the `result` field in JSON responses. `error` indicates a failure.

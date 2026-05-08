@@ -19,6 +19,8 @@ All notable changes to this project will be documented in this file.
 - **Frontend Size Messaging**: Fixed sub-1MB upload limit messages so they display `KB` or accurate `MB` values instead of `0MB`.
 - **Image Frontend Config Read**: Fixed `static/js/main.js` so the image frontend reads `data-max-file-size` from the correct module script tag.
 - **Video/File Upload Validation**: Hardened `video.php` and `api_file.php` size-limit and auth-related behavior to stay aligned with the unified upload gateway.
+- **Rendered Skill Format**: Updated `skill.php` to render a standard `SKILL.md`-style document with YAML frontmatter while still injecting the live Base URL and token hints for the current deployment.
+- **Public Skill Auth Guidance**: Corrected `skill.php` and `api.php` so public upload actions match the footer-facing product intent: public upload flows can run without a token when login restriction is off, while admin-style actions remain token-protected.
 
 ### 📝 Docs
 - **README Refresh**: Updated install and S3 sections to document `.env.example`, `setup_s3.sh`, correct S3 variable names, and public-read requirements for AWS S3 buckets.

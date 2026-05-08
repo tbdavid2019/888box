@@ -203,6 +203,18 @@ function setCorsHeaders() {
     header("Access-Control-Allow-Headers: Content-Type, Authorization");
 }
 
+function isPublicActionAllowed($action) {
+    global $config;
+
+    $publicActions = ['upload', 'upload_url', 'stats'];
+    if (!in_array($action, $publicActions, true)) {
+        return false;
+    }
+
+    $loginRestriction = isset($config['login_restriction']) && filter_var($config['login_restriction'], FILTER_VALIDATE_BOOLEAN);
+    return !$loginRestriction;
+}
+
 // ============================================
 // 主流程
 // ============================================
@@ -213,9 +225,8 @@ try {
     // 取得 Action
     $action = $_GET['action'] ?? $_POST['action'] ?? 'upload';
 
-    // 1. 驗證權限 (除某些公開 Action 外)
-    $publicActions = ['stats']; // 未來可以增加
-    if (!in_array($action, $publicActions)) {
+    // 1. 驗證權限
+    if (!isPublicActionAllowed($action)) {
         validateToken();
     }
 
