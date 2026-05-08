@@ -24,7 +24,25 @@ if ! docker compose version &> /dev/null; then
     COMPOSE_CMD="docker-compose"
 fi
 
-# 2. 初始化目錄與權限
+# 2. 詢問儲存設定
+echo "📦 儲存方式設定"
+read -p "❓ 是否使用 S3 儲存 (例如 AWS, Cloudflare R2, MinIO)? [y/N]: " USE_S3
+USE_S3=${USE_S3:-n}
+
+if [[ "$USE_S3" =~ ^[Yy]$ ]]; then
+    STORAGE_TYPE="s3"
+    read -p "🔹 S3 Key: " S3_KEY
+    read -p "🔹 S3 Secret: " S3_SECRET
+    read -p "🔹 S3 Region (例如 us-east-1): " S3_REGION
+    read -p "🔹 S3 Bucket Name: " S3_BUCKET
+    read -p "🔹 S3 Endpoint (若使用 R2/MinIO 請填寫, AWS 留空): " S3_ENDPOINT
+    read -p "🔹 S3 ACL (R2 建議留空, AWS 建議 public-read): " S3_ACL
+else
+    STORAGE_TYPE="local"
+    echo "✅ 將使用本地儲存 (storage/i/)"
+fi
+
+# 3. 初始化目錄與權限
 echo "📂 正在初始化目錄結構..."
 mkdir -p storage/i
 # 嘗試設定權限 (UID 33 是 Docker 內 www-data 的預設值)
@@ -53,18 +71,21 @@ EOF
     chmod 600 .env
 fi
 
-# 4. 啟動容器
-echo "🐳 正在啟動 Docker 容器 (這可能需要幾分鐘來編譯 ARM64/x86 環境)..."
+# 5. 啟動容器
+echo "🐳 正在啟動 Docker 容器..."
 $COMPOSE_CMD up -d --build
+
+# 再次確保權限正確 (透過 Docker 執行，避免宿主機無權限問題)
+echo "🔒 正在修復容器內目錄權限..."
+docker exec 888box chown -R 33:33 /var/www/html/storage
 
 echo "------------------------------------------------"
 echo "✅ 容器已啟動！現在開始設定管理員帳號。"
 
-# 5. 互動式帳號設定
+# 6. 互動式帳號設定
 read -p "👤 請輸入管理員帳號 (預設: admin): " ADMIN_USER
 ADMIN_USER=${ADMIN_USER:-admin}
 
-# 隱藏輸入密碼
 stty -echo
 read -p "🔑 請輸入管理員密碼: " ADMIN_PASS
 stty echo
@@ -75,19 +96,46 @@ if [ -z "$ADMIN_PASS" ]; then
     exit 1
 fi
 
-echo "⚙️ 正在初始化資料庫與帳號..."
+echo "⚙️ 正在初始化資料庫與配置..."
 docker exec 888box php -r "
     \$pdo = new PDO('sqlite:/var/www/html/storage/database.db');
     \$pdo->exec('CREATE TABLE IF NOT EXISTS users (id INTEGER PRIMARY KEY AUTOINCREMENT, username VARCHAR(255) NOT NULL UNIQUE, password VARCHAR(255) NOT NULL, token VARCHAR(32) NOT NULL UNIQUE)');
     \$pdo->exec('CREATE TABLE IF NOT EXISTS images (id INTEGER PRIMARY KEY AUTOINCREMENT, user_id INTEGER, url VARCHAR(255) NOT NULL, path VARCHAR(255) NOT NULL, storage VARCHAR(50) NOT NULL, size INTEGER NOT NULL, upload_ip VARCHAR(45) NOT NULL, created_at DATETIME DEFAULT CURRENT_TIMESTAMP, title VARCHAR(255) DEFAULT \'\', description TEXT DEFAULT \'\', password VARCHAR(255) DEFAULT NULL)');
     \$pdo->exec('CREATE TABLE IF NOT EXISTS configs (id INTEGER PRIMARY KEY AUTOINCREMENT, \"key\" VARCHAR(50) NOT NULL UNIQUE, value TEXT, description VARCHAR(255), created_at DATETIME DEFAULT CURRENT_TIMESTAMP, updated_at DATETIME DEFAULT CURRENT_TIMESTAMP)');
     
+    // 初始化帳號
     \$hashed = password_hash('$ADMIN_PASS', PASSWORD_DEFAULT);
     \$token = bin2hex(random_bytes(16));
     \$stmt = \$pdo->prepare('INSERT OR REPLACE INTO users (username, password, token) VALUES (?, ?, ?)');
     \$stmt->execute(['$ADMIN_USER', \$hashed, \$token]);
+
+    // 注入儲存設定
+    \$configs = [
+        'storage' => '$STORAGE_TYPE',
+        's3_key' => '$S3_KEY',
+        's3_secret' => '$S3_SECRET',
+        's3_region' => '$S3_REGION',
+        's3_bucket' => '$S3_BUCKET',
+        's3_endpoint' => '$S3_ENDPOINT',
+        's3_acl' => '$S3_ACL'
+    ];
+
+    foreach (\$configs as \$k => \$v) {
+        if (\$v !== '') {
+            \$stmt = \$pdo->prepare('INSERT OR REPLACE INTO configs (\"key\", value) VALUES (?, ?)');
+            \$stmt->execute([\$k, \$v]);
+        }
+    }
+    
+    // 建立 RSS 相關鎖定目錄
+    if (!file_exists('/var/www/html/storage/locks')) {
+        mkdir('/var/www/html/storage/locks', 0777, true);
+    }
+
     echo \"✅ 管理員 \$ADMIN_USER 已成功初始化。\\n\";
+    echo \"✅ 儲存配置 (\$STORAGE_TYPE) 已寫入資料庫。\\n\";
 "
+
 
 echo "------------------------------------------------"
 echo "🎉 安裝完成！"
