@@ -56,6 +56,7 @@ class Database {
     }
 
     private function ensureCoreSchema() {
+        $this->normalizeConfigsTable();
         $this->ensureColumns('images', [
             'title' => "VARCHAR(255) DEFAULT ''",
             'description' => "TEXT DEFAULT ''",
@@ -64,6 +65,46 @@ class Database {
             'report_count' => 'INTEGER DEFAULT 0',
             'mime_type' => 'VARCHAR(100) NULL'
         ]);
+    }
+
+    private function normalizeConfigsTable() {
+        $existingColumns = [];
+
+        try {
+            $stmt = $this->connection->query('PRAGMA table_info(configs)');
+            $existingColumns = array_column($stmt->fetchAll(PDO::FETCH_ASSOC), 'name');
+        } catch (Exception $e) {
+            return;
+        }
+
+        if (!in_array('updated_at', $existingColumns, true)) {
+            return;
+        }
+
+        $this->connection->beginTransaction();
+
+        try {
+            $this->connection->exec("
+                CREATE TABLE configs__new (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    `key` VARCHAR(50) NOT NULL UNIQUE,
+                    value TEXT,
+                    description VARCHAR(255),
+                    created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+                )
+            ");
+            $this->connection->exec("
+                INSERT INTO configs__new (id, `key`, value, description, created_at)
+                SELECT id, `key`, value, description, created_at
+                FROM configs
+            ");
+            $this->connection->exec('DROP TABLE configs');
+            $this->connection->exec('ALTER TABLE configs__new RENAME TO configs');
+            $this->connection->commit();
+        } catch (Exception $e) {
+            $this->connection->rollBack();
+            throw $e;
+        }
     }
 
     private function ensureColumns($table, $columns) {

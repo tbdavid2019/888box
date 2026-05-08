@@ -61,11 +61,6 @@ function processOldVersionFields($pdo) {
     // 删除废弃字段
     $deleteFields = ['protocol'];
     
-    // 删除表字段
-    $dropColumns = [
-        'configs' => ['updated_at']
-    ];
-    
     // 添加新字段
     $addFields = [
         'url_prefix' => ['', '图片代理'],
@@ -76,10 +71,16 @@ function processOldVersionFields($pdo) {
         'output_format' => ['webp', '輸出圖片格式']
     ];
     
-    // 添加表字段 (表名 => [字段定义数组])
-    // 字段定义格式: '字段名 类型 约束'
+    // 添加表字段
     $addColumns = [
-        // 示例: 'users' => ['email VARCHAR(255) NOT NULL UNIQUE']
+        'images' => [
+            "title VARCHAR(255) DEFAULT ''",
+            "description TEXT DEFAULT ''",
+            'password VARCHAR(255) DEFAULT NULL',
+            'view_count INTEGER DEFAULT 0',
+            'report_count INTEGER DEFAULT 0',
+            'mime_type VARCHAR(100) NULL'
+        ]
     ];
     
     // 处理重命名字段
@@ -97,16 +98,6 @@ function processOldVersionFields($pdo) {
         if (in_array($field, $existing)) {
             $pdo->prepare("DELETE FROM configs WHERE `key` = ?")->execute([$field]);
             $fixDetails['deleted'][] = $field;
-        }
-    }
-    
-    // 处理删除表字段
-    foreach ($dropColumns as $table => $columns) {
-        foreach ($columns as $column) {
-            try {
-                $pdo->exec("ALTER TABLE $table DROP COLUMN $column");
-                $fixDetails['deleted'][] = "$column (表字段)";
-            } catch (Exception $e) {}
         }
     }
     
@@ -161,9 +152,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $step === 1) {
         $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
         
         // 创建表结构
-        $pdo->exec("CREATE TABLE images (id INTEGER PRIMARY KEY AUTOINCREMENT, user_id INTEGER, url VARCHAR(255) NOT NULL, path VARCHAR(255) NOT NULL, storage VARCHAR(50) NOT NULL, size INTEGER NOT NULL, upload_ip VARCHAR(45) NOT NULL, created_at DATETIME DEFAULT CURRENT_TIMESTAMP)");
+        $pdo->exec("CREATE TABLE images (id INTEGER PRIMARY KEY AUTOINCREMENT, user_id INTEGER NULL, url VARCHAR(255) NOT NULL, path VARCHAR(255) NOT NULL, storage VARCHAR(50) NOT NULL, size INTEGER NOT NULL, upload_ip VARCHAR(45) NOT NULL, created_at DATETIME DEFAULT CURRENT_TIMESTAMP, title VARCHAR(255) DEFAULT '', description TEXT DEFAULT '', password VARCHAR(255) DEFAULT NULL, view_count INTEGER DEFAULT 0, report_count INTEGER DEFAULT 0, mime_type VARCHAR(100) NULL)");
         $pdo->exec("CREATE TABLE users (id INTEGER PRIMARY KEY AUTOINCREMENT, username VARCHAR(255) NOT NULL UNIQUE, password VARCHAR(255) NOT NULL, token VARCHAR(32) NOT NULL UNIQUE)");
-        $pdo->exec("CREATE TABLE configs (id INTEGER PRIMARY KEY AUTOINCREMENT, `key` VARCHAR(50) NOT NULL UNIQUE, value TEXT, description VARCHAR(255), created_at DATETIME DEFAULT CURRENT_TIMESTAMP, updated_at DATETIME DEFAULT CURRENT_TIMESTAMP)");
+        $pdo->exec("CREATE TABLE configs (id INTEGER PRIMARY KEY AUTOINCREMENT, `key` VARCHAR(50) NOT NULL UNIQUE, value TEXT, description VARCHAR(255), created_at DATETIME DEFAULT CURRENT_TIMESTAMP)");
         
         // 迁移数据
         $stats = ['users' => 0, 'configs' => 0, 'images' => 0];
@@ -178,9 +169,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $step === 1) {
         
         // 迁移 configs
         $result = $mysqli->query("SELECT * FROM configs");
-        $stmt = $pdo->prepare("INSERT INTO configs (id, `key`, value, description, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?)");
+        $stmt = $pdo->prepare("INSERT INTO configs (id, `key`, value, description, created_at) VALUES (?, ?, ?, ?, ?)");
         while ($row = $result->fetch_assoc()) {
-            $stmt->execute([$row['id'], $row['key'], $row['value'], $row['description'], $row['created_at'], $row['updated_at']]);
+            $stmt->execute([$row['id'], $row['key'], $row['value'], $row['description'], $row['created_at']]);
             $stats['configs']++;
         }
 
@@ -191,14 +182,29 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $step === 1) {
         $result = $mysqli->query("SELECT COUNT(*) as total FROM images");
         $total = $result->fetch_assoc()['total'];
         
-        $stmt = $pdo->prepare("INSERT INTO images (id, user_id, url, path, storage, size, upload_ip, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
+        $stmt = $pdo->prepare("INSERT INTO images (id, user_id, url, path, storage, size, upload_ip, created_at, title, description, password, view_count, report_count, mime_type) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
         $batchSize = 1000;
         
         for ($offset = 0; $offset < $total; $offset += $batchSize) {
             $result = $mysqli->query("SELECT * FROM images ORDER BY id LIMIT $batchSize OFFSET $offset");
             $pdo->beginTransaction();
             while ($row = $result->fetch_assoc()) {
-                $stmt->execute([$row['id'], $row['user_id'], $row['url'], $row['path'], $row['storage'], $row['size'], $row['upload_ip'], $row['created_at']]);
+                $stmt->execute([
+                    $row['id'],
+                    $row['user_id'],
+                    $row['url'],
+                    $row['path'],
+                    $row['storage'],
+                    $row['size'],
+                    $row['upload_ip'],
+                    $row['created_at'],
+                    $row['title'] ?? '',
+                    $row['description'] ?? '',
+                    $row['password'] ?? null,
+                    $row['view_count'] ?? 0,
+                    $row['report_count'] ?? 0,
+                    $row['mime_type'] ?? null
+                ]);
                 $stats['images']++;
             }
             $pdo->commit();

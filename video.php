@@ -164,14 +164,6 @@ try {
         respondAndExit(['result' => 'error', 'code' => 429, 'message' => $uploadCheck]);
     }
 
-    // 自动数据库迁移：为 images 表加上 title 和 description 栏位 (供后台编辑使用)
-    try {
-        $pdo->exec("ALTER TABLE images ADD COLUMN title VARCHAR(255) DEFAULT ''");
-        $pdo->exec("ALTER TABLE images ADD COLUMN description TEXT DEFAULT ''");
-    } catch (PDOException $e) {
-        // 如果列已存在会抛出异常，忽略即可
-    }
-
     // 4. 处理影片上传 (一次只处理一个文件，或者循环处理)
     $results = [];
     foreach ($_FILES as $file) {
