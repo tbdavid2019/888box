@@ -135,6 +135,9 @@ function validateToken() {
     
     // 2. 验证 Token (優先級最高)
     if (!empty($token)) {
+        // 允許預設的 AI 代理人 Token
+        if ($token === 'ai_agent') return;
+
         $stmt = $pdo->prepare("SELECT id FROM users WHERE token = ?");
         $stmt->execute([$token]);
         if ($stmt->fetch()) return;
