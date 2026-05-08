@@ -96,6 +96,18 @@ $files = $stmt->fetchAll(PDO::FETCH_ASSOC);
         <?php endif; ?>
     </div>
 
+    <footer style="margin-top: 40px; padding: 20px; text-align: center; color: #888; font-size: 0.9rem; border-top: 1px solid rgba(255,255,255,0.05);">
+        <div style="margin-bottom: 15px; display: flex; justify-content: center; gap: 20px; flex-wrap: wrap;">
+            <a href="index.php" style="color: #bbb; text-decoration: none;">🖼️ 圖片管理</a>
+            <a href="video.php" style="color: #bbb; text-decoration: none;">🎬 影片管理</a>
+            <a href="file.php" style="color: #bbb; text-decoration: none;">📂 文件管理</a>
+            <a href="/skill.php" target="_blank" style="color: #bbb; text-decoration: none;">🤖 AI Agent Skills</a>
+        </div>
+        <div>
+            <span>© <?php echo date('Y'); ?> 888box</span> | 
+            <span>Created by <a href="https://david888.com" target="_blank" style="color: #bbb; text-decoration: none; font-weight: bold;">DAVID888</a></span>
+        </div>
+    </footer>
     <script>
         function deleteFile(id, path) {
             if (!confirm('確定要永久刪除此文件嗎？')) return;

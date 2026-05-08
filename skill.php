@@ -2,7 +2,7 @@
 header('Content-Type: text/markdown; charset=utf-8');
 
 // Determine Base URL
-$protocol = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? "https://" : "http://";
+$protocol = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off' || ($_SERVER['HTTP_X_FORWARDED_PROTO'] ?? '') === 'https') ? "https://" : "http://";
 $host = $_SERVER['HTTP_HOST'];
 $baseUrl = $protocol . $host;
 

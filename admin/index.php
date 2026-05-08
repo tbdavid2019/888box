@@ -97,6 +97,18 @@ $pagination = renderPagination($current_page, $total_pages);
     <div id="settings-modal" class="modal">
         <div class="modal-content"></div>
     </div>
+    <footer style="margin-top: 40px; padding: 20px; text-align: center; color: #888; font-size: 0.9rem; border-top: 1px solid rgba(255,255,255,0.05);">
+        <div style="margin-bottom: 15px; display: flex; justify-content: center; gap: 20px; flex-wrap: wrap;">
+            <a href="index.php" style="color: #bbb; text-decoration: none;">🖼️ 圖片管理</a>
+            <a href="video.php" style="color: #bbb; text-decoration: none;">🎬 影片管理</a>
+            <a href="file.php" style="color: #bbb; text-decoration: none;">📂 文件管理</a>
+            <a href="/skill.php" target="_blank" style="color: #bbb; text-decoration: none;">🤖 AI Agent Skills</a>
+        </div>
+        <div>
+            <span>© <?php echo date('Y'); ?> 888box</span> | 
+            <span>Created by <a href="https://david888.com" target="_blank" style="color: #bbb; text-decoration: none; font-weight: bold;">DAVID888</a></span>
+        </div>
+    </footer>
     <script src="//at.alicdn.com/t/c/font_4623353_hb4c04qfi4u.js"></script>
     <script src="/static/js/fancybox.umd.min.js?v=<?php echo time(); ?>"></script>
     <script src="/static/js/lazyload.min.js?v=<?php echo time(); ?>"></script>
