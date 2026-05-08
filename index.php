@@ -74,7 +74,7 @@ $stats['file'] = $total - $stats['image'] - $stats['video'];
     <footer style="margin-top: 60px; color: rgba(255,255,255,0.3); font-size: 0.8rem;">
         &copy; <?= date('Y') ?> 888box. All rights reserved. <br>
         Created by <a href="https://david888.com" target="_blank" style="color: rgba(255,255,255,0.5); text-decoration: none; font-weight: bold;">DAVID888</a> | 
-        <a href="/SKILL.md" target="_blank" style="color: rgba(255,255,255,0.5); text-decoration: none;">AI Agent Skills</a>
+        <a href="/skill.php" target="_blank" style="color: rgba(255,255,255,0.5); text-decoration: none;">AI Agent Skills</a>
     </footer>
 
 </body>
