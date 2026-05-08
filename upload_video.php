@@ -80,6 +80,25 @@ try {
         </div>
     </main>
 
+    <footer style="margin-top: 40px; padding: 20px; text-align: center; color: #888; font-size: 0.9rem;">
+        <?php if (($_ENV['DEMO_MODE'] ?? 'false') === 'true'): ?>
+        <div style="padding: 10px; margin: 0 auto 20px auto; max-width: 800px; border-radius: 10px; font-size: 15px; font-weight: bold; backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); border: 1px solid rgb(255 255 255 / 20%); background: rgb(255 60 60 / 30%); animation: fadeIn 0.5s ease-in-out forwards;">⚠️ 示範站點 - 所有檔案皆為公開可見且可能被刪除</div>
+        <?php endif; ?>
+        
+        <div style="margin-bottom: 15px; display: flex; justify-content: center; gap: 20px; flex-wrap: wrap;">
+            <a href="upload_image.php" style="color: #bbb; text-decoration: none;">🖼️ 圖片託管</a>
+            <a href="upload_video.php" style="color: #bbb; text-decoration: none;">🎬 影片託管</a>
+            <a href="upload_file.php" style="color: #bbb; text-decoration: none;">📂 文件託管</a>
+        </div>
+        <div>
+            <span>© <?php echo date('Y'); ?> 888box</span> | 
+            <a href="javascript:void(0);" onclick="forceClearCache()" style="color: #888; text-decoration: none;">清除快取並重整</a>
+        </div>
+        <div style="margin-top: 10px; font-size: 0.8rem; color: #666; max-width: 800px; margin-left: auto; margin-right: auto; line-height: 1.5;">
+            本站不保證內容、時效與穩定性。請嚴格遵守相關法律法規，尊重版權、著作權等權利；內容均由使用者自行上傳，本站對所有檔案合法性概不負責，亦不承擔任何法律責任。
+        </div>
+    </footer>
+
     <script src="static/js/video_app.js?v=<?php echo time(); ?>"></script>
     <script>
         function forceClearCache() {
