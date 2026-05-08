@@ -55,7 +55,8 @@ session_start();
     </div>
 
     <footer style="margin-top: 60px; color: rgba(255,255,255,0.3); font-size: 0.8rem;">
-        &copy; <?= date('Y') ?> 888box. All rights reserved.
+        &copy; <?= date('Y') ?> 888box. All rights reserved. <br>
+        Created by <a href="https://david888.com" target="_blank" style="color: rgba(255,255,255,0.5); text-decoration: none; font-weight: bold;">DAVID888</a>
     </footer>
 </body>
 </html>

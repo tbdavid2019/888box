@@ -92,6 +92,7 @@ try {
         </div>
         <div>
             <span>© <?php echo date('Y'); ?> 888box</span> | 
+            <span>Created by <a href="https://david888.com" target="_blank" style="color: #bbb; text-decoration: none; font-weight: bold;">DAVID888</a></span> | 
             <a href="javascript:void(0);" onclick="forceClearCache()" style="color: #888; text-decoration: none;">清除快取並重整</a>
         </div>
         <div style="margin-top: 10px; font-size: 0.8rem; color: #666; max-width: 800px; margin-left: auto; margin-right: auto; line-height: 1.5;">
