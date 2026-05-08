@@ -68,7 +68,10 @@ function handleFileUpload($file, $pdo, $config) {
     
     try {
         // 4. Upload to remote storage if needed
-        $result = StorageHelper::upload($storage, $config, $targetPath, $remotePath);
+        $result = StorageHelper::upload($storage, $config, $targetPath, $remotePath, [
+            'content_type' => $mimeType,
+            'content_disposition' => 'inline; filename="' . addcslashes($file['name'], '"\\') . '"'
+        ]);
         $fileUrl = generateFileUrl($storage, $config, $remotePath, $result);
         
         if ($storage !== 'local') {

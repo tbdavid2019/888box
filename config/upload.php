@@ -371,7 +371,10 @@ function handleUploadedFile($file, $token, $referer, $password = '') {
     $filePath = $datePath . '/' . basename($finalFilePath);
     
     try {
-        $result = StorageHelper::upload($storage, $config, $finalFilePath, $filePath);
+        $result = StorageHelper::upload($storage, $config, $finalFilePath, $filePath, [
+            'content_type' => mime_content_type($finalFilePath) ?: $mimeType,
+            'content_disposition' => 'inline; filename="' . addcslashes(basename($filePath), '"\\') . '"'
+        ]);
         
         if ($storage !== 'local') {
             if (file_exists($finalFilePath)) unlink($finalFilePath);

@@ -17,7 +17,7 @@ class StorageHelper {
     /**
      * 上传文件到指定存储
      */
-    public static function upload($storage, $config, $localFilePath, $remotePath) {
+    public static function upload($storage, $config, $localFilePath, $remotePath, $options = []) {
         switch ($storage) {
             case 'local':
                 // 本地存储不需要额外操作，文件已经在本地
@@ -35,6 +35,14 @@ class StorageHelper {
                     'Key' => $remotePath,
                     'SourceFile' => $localFilePath,
                 ];
+
+                if (!empty($options['content_type'])) {
+                    $params['ContentType'] = $options['content_type'];
+                }
+
+                if (!empty($options['content_disposition'])) {
+                    $params['ContentDisposition'] = $options['content_disposition'];
+                }
                 
                 // 只有在設定了 ACL 且不為空時才加入
                 if (!empty($config['s3_acl'])) {

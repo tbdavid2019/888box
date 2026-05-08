@@ -53,13 +53,19 @@ function handleVideoUpload($file, $pdo, $title = '', $description = '', $passwor
         $thumbRemotePath = $datePath . '/' . $thumbFileName;
         
         // Upload Video
-        $videoResult = StorageHelper::upload($storage, $config, $localVideoPath, $videoRemotePath);
+        $videoResult = StorageHelper::upload($storage, $config, $localVideoPath, $videoRemotePath, [
+            'content_type' => $mimeType,
+            'content_disposition' => 'inline; filename="' . addcslashes($videoFileName, '"\\') . '"'
+        ]);
         $videoUrl = generateFileUrl($storage, $config, $videoRemotePath, $videoResult);
         
         // Upload Thumbnail if generated
         $thumbUrl = '';
         if ($thumbSuccess) {
-            $thumbResult = StorageHelper::upload($storage, $config, $localThumbPath, $thumbRemotePath);
+            $thumbResult = StorageHelper::upload($storage, $config, $localThumbPath, $thumbRemotePath, [
+                'content_type' => 'image/jpeg',
+                'content_disposition' => 'inline; filename="' . addcslashes($thumbFileName, '"\\') . '"'
+            ]);
             $thumbUrl = generateFileUrl($storage, $config, $thumbRemotePath, $thumbResult);
         }
         

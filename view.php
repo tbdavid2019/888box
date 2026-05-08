@@ -2,6 +2,68 @@
 session_start();
 require_once 'config/database.php';
 
+function outputInlinePdf($asset) {
+    $fileName = basename($asset['path'] ?: ($asset['title'] ?: 'document.pdf'));
+    $fileSize = (int)($asset['size'] ?? 0);
+
+    header('Content-Type: application/pdf');
+    header('Content-Disposition: inline; filename="' . addcslashes($fileName, '"\\') . '"');
+    header('X-Content-Type-Options: nosniff');
+    if ($fileSize > 0) {
+        header('Content-Length: ' . $fileSize);
+    }
+
+    $storage = $asset['storage'] ?? 'local';
+    if ($storage === 'local') {
+        $localPath = __DIR__ . '/' . ltrim($asset['path'], '/');
+        if (!is_file($localPath)) {
+            http_response_code(404);
+            exit('PDF 檔案不存在');
+        }
+
+        readfile($localPath);
+        exit;
+    }
+
+    $url = $asset['url'] ?? '';
+    if (!$url) {
+        http_response_code(404);
+        exit('PDF 連結不存在');
+    }
+
+    if (function_exists('curl_init')) {
+        $output = fopen('php://output', 'wb');
+        $ch = curl_init($url);
+        curl_setopt_array($ch, [
+            CURLOPT_FILE => $output,
+            CURLOPT_FOLLOWLOCATION => true,
+            CURLOPT_FAILONERROR => true,
+            CURLOPT_CONNECTTIMEOUT => 15,
+            CURLOPT_TIMEOUT => 120,
+        ]);
+        $success = curl_exec($ch);
+        $hasError = ($success === false);
+        curl_close($ch);
+        fclose($output);
+
+        if ($hasError) {
+            http_response_code(502);
+            exit('PDF 預覽載入失敗');
+        }
+
+        exit;
+    }
+
+    $content = @file_get_contents($url);
+    if ($content === false) {
+        http_response_code(502);
+        exit('PDF 預覽載入失敗');
+    }
+
+    echo $content;
+    exit;
+}
+
 $id = $_GET['id'] ?? '';
 if (empty($id)) {
     die("缺少資源 ID");
@@ -37,8 +99,12 @@ try {
     }
     
     // 3. 增加瀏覽次數 (僅在授權後或無密碼時)
-    if ($isAuthorized) {
+    if ($isAuthorized && !isset($_GET['pdf_inline'])) {
         $pdo->prepare("UPDATE images SET view_count = view_count + 1 WHERE id = ?")->execute([$id]);
+    }
+
+    if ($isAuthorized && isset($_GET['pdf_inline'])) {
+        outputInlinePdf($asset);
     }
     
 } catch (Exception $e) {
@@ -124,7 +190,7 @@ if (strpos($mime, 'image/') !== false || in_array($ext, ['jpg', 'jpeg', 'png', '
                 <?php elseif ($type === 'video'): ?>
                     <video src="<?= htmlspecialchars($url) ?>" controls autoplay></video>
                 <?php elseif ($type === 'pdf'): ?>
-                    <iframe src="<?= htmlspecialchars($url) ?>"></iframe>
+                    <iframe src="/view.php?id=<?= urlencode((string)$id) ?>&pdf_inline=1"></iframe>
                 <?php elseif ($type === 'epub'): ?>
                     <div id="epub-viewer"></div>
                     <script src="https://cdnjs.cloudflare.com/ajax/libs/epub.js/0.3.88/epub.min.js"></script>
