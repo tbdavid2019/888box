@@ -48,6 +48,35 @@ cd 888box
 4.  **容器啟動**：自動編譯與啟動 Docker 容器。
 5.  **互動式設定**：引導你設定第一個**管理員帳號與密碼**。
 
+### `.env` 範例
+專案現在提供 [.env.example](.env.example)。若你不走互動式安裝，可先複製一份：
+
+```bash
+cp .env.example .env
+```
+
+### S3 快速說明
+- `install.sh` 目前使用的 S3 參數名稱為 `S3_ACCESS_KEY_ID` / `S3_ACCESS_KEY_SECRET` / `S3_BUCKET` / `S3_REGION` / `S3_ENDPOINT` / `S3_CDN_DOMAIN` / `S3_ACL`
+- 若使用 AWS S3 並希望上傳後可直接公開讀取，通常需要：
+  - `S3_ACL=public-read`
+  - bucket 具備公開讀取 policy (`s3:GetObject` on `arn:aws:s3:::your-bucket/*`)
+- 若使用 Cloudflare R2 等不建議 ACL 的 Provider，`S3_ACL` 可留空，但你仍需自行處理對外讀取策略
+
+### 建立 S3 Bucket
+若你要快速建立一個新的 AWS S3 bucket 與對應金鑰，可使用：
+
+```bash
+./setup_s3.sh
+```
+
+該腳本目前會：
+- 建立 bucket
+- 建立 IAM user 與 access key
+- 關閉 bucket 的 public access block 限制
+- 設定 `BucketOwnerPreferred`
+- 寫入公開讀取 bucket policy
+- 產生 `.env.s3`，內含 `S3_ACCESS_KEY_ID`、`S3_ACCESS_KEY_SECRET`、`S3_CDN_DOMAIN`、`S3_ACL=public-read`
+
 ---
 
 ## 🛠️ 開發與架構
@@ -63,6 +92,7 @@ cd 888box
 - **停止**：`docker compose stop`
 - **更新代碼**：`git pull && docker compose restart`
 - **重構環境**：`docker compose up -d --build` (當 Dockerfile 有變動時)
+- **同步環境變數後重啟**：若修改 `.env` 的儲存設定，建議執行 `docker compose restart`
 - **手動建立/重設管理員帳號**：
   若未執行安裝腳本，可透過此指令建立帳號（請替換 `YOUR_USER` 與 `YOUR_PASS`）：
   ```bash

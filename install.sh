@@ -31,11 +31,12 @@ USE_S3=${USE_S3:-n}
 
 if [[ "$USE_S3" =~ ^[Yy]$ ]]; then
     STORAGE_TYPE="s3"
-    read -p "🔹 S3 Key: " S3_KEY
-    read -p "🔹 S3 Secret: " S3_SECRET
+    read -p "🔹 S3 Access Key ID: " S3_ACCESS_KEY_ID
+    read -p "🔹 S3 Access Key Secret: " S3_ACCESS_KEY_SECRET
     read -p "🔹 S3 Region (例如 us-east-1): " S3_REGION
     read -p "🔹 S3 Bucket Name: " S3_BUCKET
     read -p "🔹 S3 Endpoint (若使用 R2/MinIO 請填寫, AWS 留空): " S3_ENDPOINT
+    read -p "🔹 S3 CDN Domain (選填，例如 https://cdn.example.com): " S3_CDN_DOMAIN
     read -p "🔹 S3 ACL (R2 建議留空, AWS 建議 public-read): " S3_ACL
 else
     STORAGE_TYPE="local"
@@ -62,11 +63,13 @@ ALLOW_PASSWORD_RESET = false
 
 # S3 儲存設定 (選填)
 # STORAGE = local
-# S3_KEY = 
-# S3_SECRET = 
+# S3_ACCESS_KEY_ID =
+# S3_ACCESS_KEY_SECRET =
 # S3_REGION = 
 # S3_BUCKET = 
 # S3_ENDPOINT = 
+# S3_CDN_DOMAIN =
+# S3_ACL =
 EOF
     chmod 600 .env
 fi
@@ -115,11 +118,12 @@ docker exec 888box php -r "
         'max_uploads_per_day' => '50',
         'max_file_size' => '104857600',
         'max_video_size' => '500',
-        's3_key' => '$S3_KEY',
-        's3_secret' => '$S3_SECRET',
+        's3_access_key_id' => '$S3_ACCESS_KEY_ID',
+        's3_access_key_secret' => '$S3_ACCESS_KEY_SECRET',
         's3_region' => '$S3_REGION',
         's3_bucket' => '$S3_BUCKET',
         's3_endpoint' => '$S3_ENDPOINT',
+        's3_cdn_domain' => '$S3_CDN_DOMAIN',
         's3_acl' => '$S3_ACL'
     ];
 

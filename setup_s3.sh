@@ -42,6 +42,22 @@ aws s3api put-bucket-ownership-controls \
     --bucket $BUCKET_NAME \
     --ownership-controls="Rules=[{ObjectOwnership=BucketOwnerPreferred}]"
 
+echo "Applying public read bucket policy"
+aws s3api put-bucket-policy \
+    --bucket $BUCKET_NAME \
+    --policy "{
+      \"Version\": \"2012-10-17\",
+      \"Statement\": [
+        {
+          \"Sid\": \"PublicReadGetObject\",
+          \"Effect\": \"Allow\",
+          \"Principal\": \"*\",
+          \"Action\": \"s3:GetObject\",
+          \"Resource\": \"arn:aws:s3:::$BUCKET_NAME/*\"
+        }
+      ]
+    }"
+
 # Write securely to a local file
 echo "STORAGE=s3" > .env.s3
 echo "S3_ENDPOINT=s3.ap-northeast-1.amazonaws.com" >> .env.s3
@@ -50,5 +66,6 @@ echo "S3_BUCKET=$BUCKET_NAME" >> .env.s3
 echo "S3_ACCESS_KEY_ID=$ACCESS_KEY" >> .env.s3
 echo "S3_ACCESS_KEY_SECRET=$SECRET_KEY" >> .env.s3
 echo "S3_CDN_DOMAIN=https://$BUCKET_NAME.s3.ap-northeast-1.amazonaws.com" >> .env.s3
+echo "S3_ACL=public-read" >> .env.s3
 
 echo "S3 Setup Complete!"

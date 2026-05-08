@@ -2,6 +2,25 @@
 
 All notable changes to this project will be documented in this file.
 
+## [2026.5.11] - 2026-05-08
+
+### ✨ Added
+- **Per-Frontend Upload History**: Added browser `localStorage` history for `upload_image.php`, `upload_video.php`, and `upload_file.php`, with per-page recent upload UI, copy/open actions, and clear-history controls.
+- **Environment Template**: Added `.env.example` covering local, S3, OSS, UpYun, upload limits, and SMTP-related variables.
+
+### 🐛 Fixed
+- **Image Upload Auth Regression**: Fixed `api.php` same-origin image uploads failing with `身分驗證無效` by restoring session-aware validation and allowing same-host referers.
+- **Upload Size Limit Fallbacks**: Fixed image and file uploads treating missing `max_file_size` config as `0`, which caused false upload rejections and `0MB` messaging on older databases.
+- **Core Config Self-Healing**: Added automatic seeding of missing core config rows (`max_file_size`, `max_video_size`, `max_uploads_per_day`, `output_format`, etc.) during runtime bootstrap, install, and migration flows.
+- **Legacy Install Script S3 Keys**: Corrected `install.sh` to write `s3_access_key_id` / `s3_access_key_secret` instead of obsolete `s3_key` / `s3_secret`, and aligned prompts with the actual config model.
+- **S3 Bootstrap Script**: Updated `setup_s3.sh` to emit `S3_ACL=public-read` and apply a public-read bucket policy so fresh AWS S3 deployments do not return `AccessDenied` for uploaded assets.
+- **Frontend Size Messaging**: Fixed sub-1MB upload limit messages so they display `KB` or accurate `MB` values instead of `0MB`.
+- **Image Frontend Config Read**: Fixed `static/js/main.js` so the image frontend reads `data-max-file-size` from the correct module script tag.
+- **Video/File Upload Validation**: Hardened `video.php` and `api_file.php` size-limit and auth-related behavior to stay aligned with the unified upload gateway.
+
+### 📝 Docs
+- **README Refresh**: Updated install and S3 sections to document `.env.example`, `setup_s3.sh`, correct S3 variable names, and public-read requirements for AWS S3 buckets.
+
 ## [2026.5.10] - 2026-05-08
 
 ### ✨ Added
