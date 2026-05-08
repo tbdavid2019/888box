@@ -87,7 +87,7 @@ const PreviewState = {
 
 // 页面加载完成后初始化
 document.addEventListener('DOMContentLoaded', () => {
-    const scriptTag = document.currentScript || document.querySelector('script[src*="script.js"]');
+    const scriptTag = document.querySelector('script[src*="static/js/main.js"]');
     CONFIG = {
         allowedTypes: ['image/jpeg', 'image/png', 'image/gif', 'image/webp', 'image/svg+xml'],
         maxFileSize: parseInt(scriptTag?.dataset?.maxFileSize) || 0
