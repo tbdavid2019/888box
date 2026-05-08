@@ -394,6 +394,13 @@ export class ImageHandler {
         if (response.data?.url) {
             UI.uploadedCount++;
             this.previewState.setUploadedUrl(imageIndex, response.data);
+            window.UploadHistory.add('image', {
+                url: response.data.url,
+                previewUrl: response.data.url,
+                filename: this.previewState.images[imageIndex]?.file?.name || response.data.url.split('/').pop(),
+                createdAt: new Date().toISOString()
+            });
+            window.dispatchEvent(new CustomEvent('image-upload-history-updated'));
             Thumbnails.updateStatus(imageIndex, 'completed');
             
             if (imageIndex === this.previewState.currentIndex) {

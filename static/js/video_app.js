@@ -6,9 +6,21 @@ document.addEventListener('DOMContentLoaded', () => {
     const fileList = document.getElementById('fileList');
     const uploadBtn = document.getElementById('uploadBtn');
     const cancelBtn = document.getElementById('cancelBtn');
+    const historySection = document.getElementById('videoHistorySection');
+    const historyList = document.getElementById('videoHistoryList');
+    const historyEmpty = document.getElementById('videoHistoryEmpty');
+    const clearHistoryBtn = document.getElementById('clearVideoHistoryBtn');
 
     let uploadQueue = [];
     let isUploading = false;
+
+    renderVideoHistory();
+
+    clearHistoryBtn.addEventListener('click', () => {
+        window.UploadHistory.clear('video');
+        renderVideoHistory();
+        alert('已清除影片最近上傳紀錄');
+    });
 
     // Trigger file select
     dropZone.addEventListener('click', (e) => {
@@ -209,6 +221,15 @@ document.addEventListener('DOMContentLoaded', () => {
                         resDiv.style.display = 'flex';
                         document.getElementById('url_' + id).value = res.data.url;
                         document.getElementById('thumb_' + id).value = res.data.thumbnail_url || '無封面圖';
+
+                        window.UploadHistory.add('video', {
+                            url: res.data.url,
+                            thumbnailUrl: res.data.thumbnail_url || '',
+                            title: finalTitle || item.file.name,
+                            filename: item.file.name,
+                            createdAt: new Date().toISOString()
+                        });
+                        renderVideoHistory();
                     } else {
                         item.status = 'error';
                         document.getElementById('status_' + id).className = 'queue-item-status status-error';
@@ -248,4 +269,103 @@ document.addEventListener('DOMContentLoaded', () => {
         document.execCommand('copy');
         alert('已複製連結！');
     };
+
+    function renderVideoHistory() {
+        const entries = window.UploadHistory.load('video');
+        historyList.innerHTML = '';
+
+        if (entries.length === 0) {
+            historySection.hidden = true;
+            historyEmpty.style.display = 'block';
+            return;
+        }
+
+        historySection.hidden = false;
+        historyEmpty.style.display = 'none';
+
+        entries.forEach((entry) => {
+            const item = document.createElement('article');
+            item.className = 'history-item';
+
+            if (entry.thumbnailUrl) {
+                const img = document.createElement('img');
+                img.className = 'history-thumb';
+                img.src = entry.thumbnailUrl;
+                img.alt = entry.title || entry.filename || 'video thumbnail';
+                item.appendChild(img);
+            } else {
+                const fallback = document.createElement('div');
+                fallback.className = 'history-thumb-fallback';
+                fallback.textContent = '🎬';
+                item.appendChild(fallback);
+            }
+
+            const content = document.createElement('div');
+            content.className = 'history-content';
+
+            const title = document.createElement('p');
+            title.className = 'history-title';
+            title.textContent = entry.title || entry.filename || '未命名影片';
+
+            const link = document.createElement('a');
+            link.className = 'history-link';
+            link.href = entry.url;
+            link.target = '_blank';
+            link.rel = 'noopener noreferrer';
+            link.textContent = entry.url;
+
+            const meta = document.createElement('div');
+            meta.className = 'history-meta';
+            meta.textContent = formatTimestamp(entry.createdAt);
+
+            const actions = document.createElement('div');
+            actions.className = 'history-actions';
+
+            const copyBtn = document.createElement('button');
+            copyBtn.type = 'button';
+            copyBtn.className = 'history-action copy';
+            copyBtn.textContent = '複製';
+            copyBtn.addEventListener('click', () => copyUrl(entry.url, '已複製影片連結！'));
+
+            const openLink = document.createElement('a');
+            openLink.className = 'history-action open';
+            openLink.href = entry.url;
+            openLink.target = '_blank';
+            openLink.rel = 'noopener noreferrer';
+            openLink.textContent = '開啟';
+
+            actions.appendChild(copyBtn);
+            actions.appendChild(openLink);
+
+            content.appendChild(title);
+            content.appendChild(link);
+            content.appendChild(meta);
+            content.appendChild(actions);
+            item.appendChild(content);
+            historyList.appendChild(item);
+        });
+    }
+
+    function formatTimestamp(createdAt) {
+        const date = new Date(createdAt);
+        if (Number.isNaN(date.getTime())) {
+            return '時間未知';
+        }
+        return date.toLocaleString('zh-Hant-TW', {
+            year: 'numeric',
+            month: '2-digit',
+            day: '2-digit',
+            hour: '2-digit',
+            minute: '2-digit'
+        });
+    }
+
+    function copyUrl(url, successMessage) {
+        navigator.clipboard.writeText(url).then(() => {
+            alert(successMessage);
+        }).catch((err) => {
+            console.error('複製失敗', err);
+            alert('複製失敗，請稍後再試');
+        });
+    }
 });

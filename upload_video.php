@@ -79,6 +79,15 @@ try {
             <p>🚀 上傳的影片將會自動加入至 Podcast 訂閱中！</p>
             <a href="/storage/podcast.xml" target="_blank" class="rss-link">🎧 點此查看 Podcast RSS 連結 (XML)</a>
         </div>
+
+        <section id="videoHistorySection" class="history-panel" hidden>
+            <div class="history-header">
+                <h3>最近上傳</h3>
+                <button type="button" id="clearVideoHistoryBtn" class="history-clear-btn">清除紀錄</button>
+            </div>
+            <div id="videoHistoryEmpty" class="history-empty">目前還沒有最近上傳紀錄</div>
+            <div id="videoHistoryList" class="history-list"></div>
+        </section>
     </main>
 
     <footer style="margin-top: 40px; padding: 20px; text-align: center; color: #888; font-size: 0.9rem;">
@@ -102,6 +111,7 @@ try {
         </div>
     </footer>
 
+    <script src="static/js/upload_history.js?v=<?php echo time(); ?>"></script>
     <script src="static/js/video_app.js?v=<?php echo time(); ?>"></script>
     <script>
         function forceClearCache() {

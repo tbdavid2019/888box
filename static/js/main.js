@@ -5,6 +5,7 @@ import { ImageHandler } from './upload/handler.js';
 let CONFIG = null;
 let DOM = null;
 let imageHandler = null;
+const IMAGE_HISTORY_TYPE = 'image';
 
 // 图片预览状态管理
 const PreviewState = {
@@ -115,7 +116,11 @@ document.addEventListener('DOMContentLoaded', () => {
         pasteOrUrlInput: document.getElementById('pasteOrUrlInput'),
         thumbnailStrip: document.getElementById('thumbnailStrip'),
         thumbnailScrollContainer: document.getElementById('thumbnailScrollContainer'),
-        uploadContainer: document.querySelector('.upload-container')
+        uploadContainer: document.querySelector('.upload-container'),
+        historySection: document.getElementById('imageHistorySection'),
+        historyList: document.getElementById('imageHistoryList'),
+        historyEmpty: document.getElementById('imageHistoryEmpty'),
+        clearHistoryBtn: document.getElementById('clearImageHistoryBtn')
     };
     
     initialize();
@@ -127,9 +132,11 @@ function initialize() {
     
     imageHandler.setupEventListeners();
     setupNavigationListeners();
+    setupHistoryListeners();
     loadSavedQuality();
     UI.updateCopyButtonsState(false);
     UI.updateLinkDisplays(null); // 初始化显示示例内容
+    renderImageHistory();
 }
 
 // 设置导航监听器
@@ -154,5 +161,105 @@ function loadSavedQuality() {
     if (savedQuality) {
         DOM.qualityInput.value = savedQuality;
         DOM.qualityOutput.textContent = savedQuality;
+    }
+}
+
+function setupHistoryListeners() {
+    DOM.clearHistoryBtn?.addEventListener('click', () => {
+        window.UploadHistory.clear(IMAGE_HISTORY_TYPE);
+        renderImageHistory();
+        UI.showNotification('已清除圖片最近上傳紀錄');
+    });
+
+    window.addEventListener('image-upload-history-updated', renderImageHistory);
+}
+
+function renderImageHistory() {
+    const entries = window.UploadHistory.load(IMAGE_HISTORY_TYPE);
+
+    DOM.historyList.innerHTML = '';
+
+    if (entries.length === 0) {
+        DOM.historySection.hidden = true;
+        DOM.historyEmpty.style.display = 'block';
+        return;
+    }
+
+    DOM.historySection.hidden = false;
+    DOM.historyEmpty.style.display = 'none';
+
+    entries.forEach((entry) => {
+        const item = document.createElement('article');
+        item.className = 'image-history-item';
+
+        const thumb = document.createElement('img');
+        thumb.className = 'image-history-thumb';
+        thumb.src = entry.previewUrl || entry.url;
+        thumb.alt = entry.filename || 'recent image';
+
+        const title = document.createElement('div');
+        title.className = 'image-history-title';
+        title.textContent = entry.filename || '未命名圖片';
+
+        const link = document.createElement('a');
+        link.className = 'image-history-link';
+        link.href = entry.url;
+        link.target = '_blank';
+        link.rel = 'noopener noreferrer';
+        link.textContent = entry.url;
+
+        const meta = document.createElement('div');
+        meta.className = 'image-history-meta';
+        meta.textContent = formatTimestamp(entry.createdAt);
+
+        const actions = document.createElement('div');
+        actions.className = 'image-history-actions';
+
+        const copyBtn = document.createElement('button');
+        copyBtn.type = 'button';
+        copyBtn.className = 'image-history-btn';
+        copyBtn.textContent = '複製';
+        copyBtn.addEventListener('click', () => copyHistoryUrl(entry.url));
+
+        const openLink = document.createElement('a');
+        openLink.className = 'image-history-open';
+        openLink.href = entry.url;
+        openLink.target = '_blank';
+        openLink.rel = 'noopener noreferrer';
+        openLink.textContent = '開啟';
+
+        actions.appendChild(copyBtn);
+        actions.appendChild(openLink);
+
+        item.appendChild(thumb);
+        item.appendChild(title);
+        item.appendChild(link);
+        item.appendChild(meta);
+        item.appendChild(actions);
+        DOM.historyList.appendChild(item);
+    });
+}
+
+function formatTimestamp(createdAt) {
+    const date = new Date(createdAt);
+    if (Number.isNaN(date.getTime())) {
+        return '時間未知';
+    }
+    return date.toLocaleString('zh-Hant-TW', {
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit'
+    });
+}
+
+async function copyHistoryUrl(url) {
+    try {
+        await navigator.clipboard.writeText(url);
+        UI.showNotification('已複製圖片連結');
+    } catch (error) {
+        console.error('複製失敗:', error);
+        UI.showNotification('複製失敗，請再試一次', 'error');
     }
 }

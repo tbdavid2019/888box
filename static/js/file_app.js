@@ -6,9 +6,21 @@ document.addEventListener('DOMContentLoaded', () => {
     const fileList = document.getElementById('fileList');
     const uploadBtn = document.getElementById('uploadBtn');
     const cancelBtn = document.getElementById('cancelBtn');
+    const historySection = document.getElementById('fileHistorySection');
+    const historyList = document.getElementById('fileHistoryList');
+    const historyEmpty = document.getElementById('fileHistoryEmpty');
+    const clearHistoryBtn = document.getElementById('clearFileHistoryBtn');
 
     let uploadQueue = [];
     let isUploading = false;
+
+    renderFileHistory();
+
+    clearHistoryBtn.addEventListener('click', () => {
+        window.UploadHistory.clear('file');
+        renderFileHistory();
+        alert('已清除文件最近上傳紀錄');
+    });
 
     // Trigger file select
     dropZone.addEventListener('click', (e) => {
@@ -177,6 +189,16 @@ document.addEventListener('DOMContentLoaded', () => {
                         const resDiv = document.getElementById('res_' + id);
                         resDiv.style.display = 'flex';
                         document.getElementById('url_' + id).value = res.data.share_url || res.data.url;
+
+                        window.UploadHistory.add('file', {
+                            shareUrl: res.data.share_url || '',
+                            url: res.data.url || '',
+                            title: titleInput || item.file.name,
+                            filename: item.file.name,
+                            mimeType: item.file.type || '',
+                            createdAt: new Date().toISOString()
+                        });
+                        renderFileHistory();
                     } else {
                         item.status = 'error';
                         document.getElementById('status_' + id).className = 'queue-item-status status-error';
@@ -212,4 +234,105 @@ document.addEventListener('DOMContentLoaded', () => {
         document.execCommand('copy');
         alert('已複製連結！');
     };
+
+    function renderFileHistory() {
+        const entries = window.UploadHistory.load('file');
+        historyList.innerHTML = '';
+
+        if (entries.length === 0) {
+            historySection.hidden = true;
+            historyEmpty.style.display = 'block';
+            return;
+        }
+
+        historySection.hidden = false;
+        historyEmpty.style.display = 'none';
+
+        entries.forEach((entry) => {
+            const item = document.createElement('article');
+            item.className = 'history-item';
+
+            const fallback = document.createElement('div');
+            fallback.className = 'history-thumb-fallback';
+            fallback.textContent = fileGlyph(entry.filename);
+            item.appendChild(fallback);
+
+            const content = document.createElement('div');
+            content.className = 'history-content';
+
+            const title = document.createElement('p');
+            title.className = 'history-title';
+            title.textContent = entry.title || entry.filename || '未命名文件';
+
+            const link = document.createElement('a');
+            link.className = 'history-link';
+            link.href = entry.url;
+            link.target = '_blank';
+            link.rel = 'noopener noreferrer';
+            link.textContent = entry.url;
+
+            const meta = document.createElement('div');
+            meta.className = 'history-meta';
+            meta.textContent = formatTimestamp(entry.createdAt);
+
+            const actions = document.createElement('div');
+            actions.className = 'history-actions';
+
+            const copyBtn = document.createElement('button');
+            copyBtn.type = 'button';
+            copyBtn.className = 'history-action copy';
+            copyBtn.textContent = '複製';
+            copyBtn.addEventListener('click', () => copyUrl(entry.url, '已複製文件連結！'));
+
+            const openLink = document.createElement('a');
+            openLink.className = 'history-action open';
+            openLink.href = entry.url;
+            openLink.target = '_blank';
+            openLink.rel = 'noopener noreferrer';
+            openLink.textContent = '開啟';
+
+            actions.appendChild(copyBtn);
+            actions.appendChild(openLink);
+
+            content.appendChild(title);
+            content.appendChild(link);
+            content.appendChild(meta);
+            content.appendChild(actions);
+            item.appendChild(content);
+            historyList.appendChild(item);
+        });
+    }
+
+    function fileGlyph(filename) {
+        const lowerName = (filename || '').toLowerCase();
+        if (lowerName.endsWith('.pdf')) return 'PDF';
+        if (lowerName.endsWith('.doc') || lowerName.endsWith('.docx')) return 'DOC';
+        if (lowerName.endsWith('.xls') || lowerName.endsWith('.xlsx')) return 'XLS';
+        if (lowerName.endsWith('.zip')) return 'ZIP';
+        if (lowerName.endsWith('.epub')) return 'EPUB';
+        return 'FILE';
+    }
+
+    function formatTimestamp(createdAt) {
+        const date = new Date(createdAt);
+        if (Number.isNaN(date.getTime())) {
+            return '時間未知';
+        }
+        return date.toLocaleString('zh-Hant-TW', {
+            year: 'numeric',
+            month: '2-digit',
+            day: '2-digit',
+            hour: '2-digit',
+            minute: '2-digit'
+        });
+    }
+
+    function copyUrl(url, successMessage) {
+        navigator.clipboard.writeText(url).then(() => {
+            alert(successMessage);
+        }).catch((err) => {
+            console.error('複製失敗', err);
+            alert('複製失敗，請稍後再試');
+        });
+    }
 });

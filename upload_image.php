@@ -39,6 +39,127 @@ try {
     <meta name="description" content="一款專為個人需求設計的高效媒體託管解決方案，整合強大的圖片與影片處理功能。提供自訂壓縮率與尺寸設定，有效降低儲存成本。搭配 AWS S3 儲存（支援相容 S3 的各類雲端空間）及彈性的本機儲存選項。特色包含自動提取影片 MetaData、封面圖生成及 Podcast RSS 自動更新功能。">
     <link rel="shortcut icon" href="static/favicon.svg">
     <link rel="stylesheet" type="text/css" href="static/css/styles.css?v=<?php echo time(); ?>">
+    <style>
+        .image-history-panel {
+            width: 100%;
+            max-width: 1200px;
+            margin: 24px auto 0;
+            padding: 0 20px;
+            box-sizing: border-box;
+        }
+
+        .image-history-card {
+            border-radius: 20px;
+            padding: 24px;
+        }
+
+        .image-history-card[hidden] {
+            display: none;
+        }
+
+        .image-history-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 16px;
+            margin-bottom: 16px;
+        }
+
+        .image-history-header h3 {
+            margin: 0;
+            color: #e5e7eb;
+        }
+
+        .image-history-clear {
+            border: 1px solid rgba(255,255,255,0.2);
+            background: rgba(255,255,255,0.06);
+            color: #cbd5e1;
+            border-radius: 999px;
+            padding: 8px 14px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        .image-history-empty {
+            color: rgba(255,255,255,0.65);
+            text-align: center;
+            padding: 20px 12px 8px;
+        }
+
+        .image-history-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 16px;
+        }
+
+        .image-history-item {
+            padding: 14px;
+            border-radius: 16px;
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.08);
+        }
+
+        .image-history-thumb {
+            width: 100%;
+            aspect-ratio: 1 / 1;
+            object-fit: cover;
+            border-radius: 12px;
+            display: block;
+            background: rgba(0,0,0,0.2);
+            margin-bottom: 12px;
+        }
+
+        .image-history-title {
+            color: #f8fafc;
+            font-weight: bold;
+            margin-bottom: 8px;
+            word-break: break-word;
+        }
+
+        .image-history-link {
+            display: block;
+            color: #93c5fd;
+            text-decoration: none;
+            font-size: 0.9rem;
+            word-break: break-all;
+            margin-bottom: 8px;
+        }
+
+        .image-history-meta {
+            color: rgba(255,255,255,0.65);
+            font-size: 0.82rem;
+            margin-bottom: 12px;
+        }
+
+        .image-history-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .image-history-btn,
+        .image-history-open {
+            flex: 1;
+            border-radius: 999px;
+            padding: 8px 12px;
+            text-align: center;
+            text-decoration: none;
+            font-weight: bold;
+            font-size: 0.9rem;
+            cursor: pointer;
+        }
+
+        .image-history-btn {
+            border: none;
+            background: #3b82f6;
+            color: #fff;
+        }
+
+        .image-history-open {
+            border: 1px solid rgba(255,255,255,0.15);
+            background: rgba(255,255,255,0.04);
+            color: #e5e7eb;
+        }
+    </style>
 </head>
 <body>
     <header class="blur" style="width: 100%; max-width: 1200px; display: flex; justify-content: space-between; align-items: center; padding: 0 20px; box-sizing: border-box; margin: 0 auto 25px auto;">
@@ -207,6 +328,16 @@ try {
             <span id="compressedHeight" style="display:none;"></span>
         </div>
     </main>
+    <section class="image-history-panel">
+        <div id="imageHistorySection" class="image-history-card blur" hidden>
+            <div class="image-history-header">
+                <h3>最近上傳</h3>
+                <button type="button" id="clearImageHistoryBtn" class="image-history-clear">清除紀錄</button>
+            </div>
+            <div id="imageHistoryEmpty" class="image-history-empty">目前還沒有最近上傳紀錄</div>
+            <div id="imageHistoryList" class="image-history-list"></div>
+        </div>
+    </section>
     <footer style="margin-top: 40px; padding: 20px; text-align: center; color: #888; font-size: 0.9rem;">
         <?php if (($_ENV['DEMO_MODE'] ?? 'false') === 'true'): ?>
         <div style="padding: 10px; margin: 0 auto 20px auto; max-width: 800px; border-radius: 10px; font-size: 15px; font-weight: bold; backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); border: 1px solid rgb(255 255 255 / 20%); background: rgb(255 60 60 / 30%); animation: fadeIn 0.5s ease-in-out forwards;">⚠️ 示範站點 - 所有檔案皆為公開可見且可能被刪除</div>
@@ -227,6 +358,7 @@ try {
             本站不保證內容、時效與穩定性。請嚴格遵守相關法律法規，尊重版權、著作權等權利；內容均由使用者自行上傳，本站對所有檔案合法性概不負責，亦不承擔任何法律責任。
         </div>
     </footer>
+    <script src="static/js/upload_history.js?v=<?php echo time(); ?>"></script>
     <script type="module" src="static/js/main.js?v=<?php echo time(); ?>" data-max-file-size="<?php echo $maxFileSize; ?>">
     </script>
     <script>

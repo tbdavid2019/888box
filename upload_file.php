@@ -67,6 +67,15 @@ try {
         <div class="info-notify" style="margin-top: 20px;">
             <p>💡 您可以為上傳的每個檔案單獨設置存取密碼。</p>
         </div>
+
+        <section id="fileHistorySection" class="history-panel" hidden>
+            <div class="history-header">
+                <h3>最近上傳</h3>
+                <button type="button" id="clearFileHistoryBtn" class="history-clear-btn">清除紀錄</button>
+            </div>
+            <div id="fileHistoryEmpty" class="history-empty">目前還沒有最近上傳紀錄</div>
+            <div id="fileHistoryList" class="history-list"></div>
+        </section>
     </main>
 
     <footer style="margin-top: 40px; padding: 20px; text-align: center; color: #888; font-size: 0.9rem;">
@@ -91,6 +100,7 @@ try {
     </footer>
 
     <!-- 重用或修改影片上傳的 JS 邏輯 -->
+    <script src="static/js/upload_history.js?v=<?php echo time(); ?>"></script>
     <script src="static/js/file_app.js?v=<?php echo time(); ?>"></script>
     <script>
         function forceClearCache() {
