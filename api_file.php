@@ -6,35 +6,9 @@ header('Content-Type: application/json; charset=utf-8');
 require_once 'config/database.php';
 require_once 'config/upload.php';
 
-try {
-    $db = Database::getInstance();
-    $pdo = $db->getConnection();
-    $config = Database::getConfig($pdo);
-    
-    // 檢查是否需要登入限制
-    if ($config && 
-        isset($config['login_restriction']) && 
-        filter_var($config['login_restriction'], FILTER_VALIDATE_BOOLEAN) && 
-        (!isset($_SESSION['loggedin']) || !$_SESSION['loggedin'])) {
-        respondAndExit(['result' => 'error', 'message' => '未登入，無權限']);
-    }
+require_once 'config/database.php';
+require_once 'config/upload.php';
 
-    if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-        $action = $_POST['action'] ?? '';
-        
-        if ($action === 'upload_file') {
-            if (!isset($_FILES['file'])) {
-                respondAndExit(['result' => 'error', 'message' => '未選擇檔案']);
-            }
-            
-            handleFileUpload($_FILES['file'], $pdo, $config);
-        } else {
-            respondAndExit(['result' => 'error', 'message' => '未知操作']);
-        }
-    }
-} catch (Exception $e) {
-    respondAndExit(['result' => 'error', 'message' => $e->getMessage()]);
-}
 
 function handleFileUpload($file, $pdo, $config) {
     $storage = $config['storage'];
