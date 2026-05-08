@@ -110,19 +110,38 @@ function handleVideoUpload($file, $pdo, $title = '', $description = '', $passwor
  */
 function updatePodcastRSS($videoData, $config) {
     $rssPath = 'storage/podcast.xml';
-    if (!is_dir('storage')) mkdir('storage', 0755, true);
+    if (!is_dir('storage')) {
+        if (!mkdir('storage', 0755, true)) {
+            logMessage("無法建立 storage 目錄");
+            return false;
+        }
+    }
     
     $lockFile = $rssPath . '.lock';
     $fp = fopen($lockFile, "w+");
+    if (!$fp) {
+        logMessage("無法建立鎖定檔案: $lockFile");
+        return false;
+    }
+
     if (flock($fp, LOCK_EX)) {
         $dom = new DOMDocument('1.0', 'UTF-8');
         $dom->formatOutput = true;
+        $dom->preserveWhiteSpace = false;
         
         $xslt = $dom->createProcessingInstruction('xml-stylesheet', 'type="text/xsl" href="/static/css/rss.xsl"');
         $dom->appendChild($xslt);
         
-        if (file_exists($rssPath)) {
-            @$dom->load($rssPath);
+        if (file_exists($rssPath) && filesize($rssPath) > 0) {
+            libxml_use_internal_errors(true);
+            if (!$dom->load($rssPath)) {
+                logMessage("XML 載入失敗，重建中... " . implode(", ", libxml_get_errors()));
+                libxml_clear_errors();
+                // 重新初始化
+                $dom = new DOMDocument('1.0', 'UTF-8');
+                $dom->formatOutput = true;
+                $dom->appendChild($xslt);
+            }
         }
         
         $rss = $dom->getElementsByTagName('rss')->item(0);
@@ -141,20 +160,20 @@ function updatePodcastRSS($videoData, $config) {
             
             $channel->appendChild($dom->createElement('title', '888box Video Podcast'));
             $channel->appendChild($dom->createElement('description', 'Automatically generated video podcast from 888box uploads.'));
-            $channel->appendChild($dom->createElement('link', generateFileUrl($config['storage'], $config, '', null)));
+            $channel->appendChild($dom->createElement('link', 'https://' . $_SERVER['HTTP_HOST']));
             $channel->appendChild($dom->createElement('language', 'zh-tw'));
         }
         
         // Create new item
         $item = $dom->createElement('item');
-        $item->appendChild($dom->createElement('title', $videoData['title']));
-        $item->appendChild($dom->createElement('description', $videoData['description']));
+        $item->appendChild($dom->createElement('title', htmlspecialchars($videoData['title'])));
+        $item->appendChild($dom->createElement('description', htmlspecialchars($videoData['description'])));
         $item->appendChild($dom->createElement('pubDate', date(DATE_RSS, $videoData['timestamp'])));
         
         $enclosure = $dom->createElement('enclosure');
         $enclosure->setAttribute('url', $videoData['url']);
         $enclosure->setAttribute('length', $videoData['size']);
-        $enclosure->setAttribute('type', 'video/mp4'); // Defaulting to mp4, could be more dynamic
+        $enclosure->setAttribute('type', 'video/mp4'); 
         $item->appendChild($enclosure);
         
         if (!empty($videoData['thumbnail_url'])) {
@@ -170,7 +189,7 @@ function updatePodcastRSS($videoData, $config) {
         
         $item->appendChild($dom->createElement('guid', $videoData['url']));
         
-        // Insert at the beginning of channel (after channel metadata)
+        // Insert at the beginning of channel
         $items = $channel->getElementsByTagName('item');
         if ($items->length > 0) {
             $channel->insertBefore($item, $items->item(0));
@@ -178,7 +197,10 @@ function updatePodcastRSS($videoData, $config) {
             $channel->appendChild($item);
         }
         
-        $dom->save($rssPath);
+        if ($dom->save($rssPath) === false) {
+            logMessage("無法儲存 RSS 檔案: $rssPath");
+        }
+        
         flock($fp, LOCK_UN);
     }
     fclose($fp);
@@ -226,10 +248,20 @@ function updateDailyList($videoData, $config) {
  */
 function rebuildVideoRSS($pdo, $config) {
     $rssPath = 'storage/podcast.xml';
-    if (!is_dir('storage')) mkdir('storage', 0755, true);
+    if (!is_dir('storage')) {
+        if (!mkdir('storage', 0755, true)) {
+            logMessage("無法建立 storage 目錄");
+            return false;
+        }
+    }
     
     $lockFile = $rssPath . '.lock';
     $fp = fopen($lockFile, "w+");
+    if (!$fp) {
+        logMessage("無法建立鎖定檔案: $lockFile");
+        return false;
+    }
+
     if (flock($fp, LOCK_EX)) {
         $dom = new DOMDocument('1.0', 'UTF-8');
         $dom->formatOutput = true;
@@ -248,7 +280,7 @@ function rebuildVideoRSS($pdo, $config) {
         
         $channel->appendChild($dom->createElement('title', '888box Video Podcast'));
         $channel->appendChild($dom->createElement('description', 'Automatically generated video podcast from 888box uploads.'));
-        $channel->appendChild($dom->createElement('link', generateFileUrl($config['storage'], $config, '', null)));
+        $channel->appendChild($dom->createElement('link', 'https://' . $_SERVER['HTTP_HOST']));
         $channel->appendChild($dom->createElement('language', 'zh-tw'));
         
         // Fetch all videos from DB (Exclude password protected ones)
@@ -276,7 +308,10 @@ function rebuildVideoRSS($pdo, $config) {
             $channel->appendChild($item);
         }
         
-        $dom->save($rssPath);
+        if ($dom->save($rssPath) === false) {
+            logMessage("無法儲存 RSS 檔案: $rssPath");
+        }
+        
         flock($fp, LOCK_UN);
     }
     fclose($fp);

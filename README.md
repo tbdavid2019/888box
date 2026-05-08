@@ -1,112 +1,73 @@
 # 888box
 ![alt text](image-3.png)
+![Banner](static/favicon.svg)
+
 一款專業級、全方位的媒體與文件託管解決方案。採用全新的 **Bento Grid** 門戶設計，將「圖片」、「影片」與「文件」完美整合，並具備強大的安全性、分析與舉報系統。支援 AWS S3 等多種儲存後端，具備自動提取 MetaData、Podcast RSS 同步、EPUB 線上閱讀及點擊次數追蹤等功能。
 
 ## ✨ 核心功能亮點
 
-### 🏛️ 統一資產門戶 (Bento Grid Portal)
-- **iOS 風格設計**：全新的入口首頁，採用現代化 Bento Layout，適配手機與桌機。
-- **一站式管理**：快速切換圖片、影片與文件託管中心。
-
-### 🖼️ 圖片託管系統
-- **智慧壓縮**：自動轉換為 WebP 格式，大幅節省儲存與頻寬。
-- **安全存取**：支援為單張圖片設定存取密碼。
-- **瀑布流管理**：獨立的圖片管理後台，支援批次操作與 Token 驗證。
+### 🖼️ 圖片託管中心
+- **極速上傳**：支援拖曳、剪貼簿貼上上傳，具備強大的圖片壓縮與格式轉換（WebP）功能。
+- **智能處理**：自動校正 JPEG 方向，保留/移除 Exif 資訊。
 
 ### 🎬 影片與 Podcast 系統
-- **MetaData 提取**：自動透過 FFmpeg 提取時長、解析度，並生成封面圖。
-- **Podcast RSS 同步**：自動生成符合 iTunes 規範的 `podcast.xml`；修改或刪除影片時即時更新。
-- **隱私控制**：設有密碼保護的影片會自動從公開 RSS 饋送中移除。
+- **自動化 RSS**：上傳影片後自動生成相容 iTunes 的 Podcast RSS (`podcast.xml`)，支援主流播客 App 訂閱。
+- **MetaData 提取**：自動擷取影片長度、解析度、碼率，並於第 1 秒處自動生成預覽縮圖。
 
-### 📂 文件託管中心 (全新)
+### 📂 文件託管中心
 - **萬用支援**：支援 ZIP, PDF, Word, Excel, Visio 等多種文件格式。
 - **EPUB 閱讀器**：內建 `epub.js` 支援，電子書可直接線上閱讀，無需下載。
 ![alt text](image-4.png)
+
 ### 🛡️ 安全、分析與舉報
 - **通用 Gatekeeper**：所有資源均可設定存取密碼，透過毛玻璃 UI 進行驗證。
 - **點擊分析**：追蹤每一項資源的「真實點擊次數」。
-- **檢舉系統**：使用者可一鍵舉報異常資源，系統會即時透過 SMTP 發送電子郵件通知管理員。
-- **SMTP 通知**：整合 Python 發信後端，支援多組管理員信箱。
-+
-+### 🤖 AI 代理人整合 (AI Agent Integration)
-+- **動態技能指南 (`skill.php`)**：為 AI 代理人（如 Claude, GPT）提供動態生成的指令文檔，自動識別 Base URL 並在登入狀態下注入 Token。
-+- **MCP 支援**：支援 Model Context Protocol，讓 AI 代理人能自動執行上傳、列表查詢及資產清理等任務。
+- **舉報系統**：內建舉報功能，方便管理違規內容。
 
-## 🚀 部署教學 (Deployment)
+### 🤖 AI 代理人整合 (AI Agent Integration)
+- **動態技能指南 (`skill.php`)**：為 AI 代理人（如 Claude, GPT）提供動態生成的指令文檔，自動識別 Base URL 並在登入狀態下注入 Token。
+- **MCP 支援**：支援 Model Context Protocol，讓 AI 代理人能自動執行上傳、列表查詢及資產清理等任務。
 
-強烈建議使用 Docker 進行部署，以確保環境一致性（特別是需要底層編譯 FFmpeg 以支援影片解析）。
+---
 
-### 1. 系統需求
-- Docker & Docker Compose
-- Nginx 或其他反向代理伺服器（可選，建議配置 HTTPS）
+## 🚀 快速開始
 
-### 2. 安裝步驟
+### 推薦安裝方式 (一鍵腳本)
+只要你的伺服器具備 Docker 與 Git，執行以下指令即可完成安裝：
 
 ```bash
 git clone https://github.com/tbdavid2019/888box.git
 cd 888box
-
-# 2. 構建並啟動容器 (首次啟動會自動編譯 FFmpeg 與 PHP 擴展，並解除 PHP 檔案大小限制至 500MB)
-docker compose up --build -d
-
-# 3. 初始化權限 (重要)
-# 由於容器內以 www-data 執行，需確保宿主機上的 storage 目錄可寫
-mkdir -p storage/i
-chmod -R 777 storage
-
-# 4. 如果未來需要重置環境或清理舊代碼快取，請執行：
-# docker compose down
-# docker volume rm 888box_888box-data
-# docker compose up --build -d
+./install.sh
 ```
 
-```
-git clone https://github.com/tbdavid2019/888box.git
-cd 888box
-docker compose up --build -d
-mkdir -p storage/i && chmod -R 777 storage
-
-```
-
-### 3. 初始化設定
-啟動後，請打開瀏覽器訪問安裝頁面進行資料庫與管理員設定：
-- **安裝 URL**: `http://<你的網域或IP>:6767/install`
+**該腳本會自動完成：**
+1.  **環境檢查**：確保 Docker 正常運作。
+2.  **目錄初始化**：建立 `storage/` 並設定正確的權限。
+3.  **配置生成**：產生預設的 `.env` 環境變數檔。
+4.  **容器啟動**：自動編譯與啟動 Docker 容器。
+5.  **互動式設定**：引導你設定第一個**管理員帳號與密碼**。
 
 ---
 
-## 📖 使用教學與路由 (Usage & URLs)
+## 🛠️ 開發與架構
 
-安裝完成後，系統將分為兩大獨立區塊：
+- **Backend**: PHP 8.1+ (Apache)
+- **Frontend**: Vanilla JS (ES Modules)
+- **Storage**: SQLite 3 (持久化於 `storage/database.db`)
+- **Dependencies**: FFmpeg, ImageMagick, Composer
+- **Docker**: 支援 x86_64 與 ARM64 (Apple Silicon / AWS Graviton)
 
-### 網頁介面 (人類使用者)
-- **🏛️ 統一資產門戶 (Portal)**: `https://<你的網域>/`
-- **🖼️ 圖片託管中心**: `https://<你的網域>/upload_image.php`
-- **🎬 影片託管中心**: `https://<你的網域>/upload_video.php`
-- **📂 文件託管中心**: `https://<你的網域>/upload_file.php`
-- **⚙️ 圖片管理後台**: `https://<你的網域>/admin/`
-- **⚙️ 影片管理後台**: `https://<你的網域>/admin/video.php`
-- **⚙️ 文件管理後台**: `https://<你的網域>/admin/file.php`
-- **🤖 AI Agent 技能指南**: `https://<你的網域>/skill.php`
+### 手動管理指令
+- **啟動**：`docker compose up -d`
+- **停止**：`docker compose stop`
+- **更新代碼**：`git pull && docker compose restart`
+- **重構環境**：`docker compose up -d --build` (當 Dockerfile 有變動時)
+- **手動建立/重設管理員帳號**：
+  若未執行安裝腳本，可透過此指令建立帳號（請替換 `YOUR_USER` 與 `YOUR_PASS`）：
+  ```bash
+  docker exec -it 888box php -r "$u='YOUR_USER'; $p='YOUR_PASS'; $pdo = new PDO('sqlite:/var/www/html/storage/database.db'); $h = password_hash($p, PASSWORD_DEFAULT); $t = bin2hex(random_bytes(16)); $stmt = $pdo->prepare('INSERT OR REPLACE INTO users (username, password, token) VALUES (?, ?, ?)'); $stmt->execute([$u, $h, $t]); echo \"User $u created.\n\";"
+  ```
 
-### API 介面 (自動化與機器人)
-若需使用程式或機器人上傳，請在 HTTP Header 帶上 `Authorization: Bearer <Your_Token>`（Token 可於圖片後台設定）。
-
-- **影片專用上傳 Endpoint**: `https://<你的網域>/video.php`
-  - Method: `POST`
-  - Body (form-data): `file=@your_video.mp4` (可選填欄位: `title`, `description`)
-  - 成功回傳: JSON，包含影片 URL、封面圖 URL、時長等 MetaData。
-- **圖片專用上傳 Endpoint**: `https://<你的網域>/api.php`
-  - Method: `POST`
-  - Body (form-data): `image=@your_image.jpg`
-
-### 🎧 公開資源與 RSS 訂閱
-系統會自動彙整你上傳的影片，產生下列公開資源供外部讀取：
-
-- **Podcast RSS 訂閱**: `https://<你的網域>/storage/podcast.xml`
-  - 可直接將此網址貼入 Apple Podcasts, Spotify 或其他 Podcast 播放器中訂閱。任何刪除或標題修改都會即時反應在此檔案中。
-- **每日影片 JSON**: `https://<你的網域>/storage/YYYY-MM-DD/videos.json`
-  - 提供給自動化系統（如 Telegram Bot, Webhook）抓取當日更新的影片清單。
-
-## 致謝
-
-感謝[原作者JLinMr](https://github.com/JLinMr/PixPro) 的啟發。
+## 📄 授權協議
+本專案採用 AGPL-3.0 授權協議。詳見 [LICENSE](LICENSE) 檔案。

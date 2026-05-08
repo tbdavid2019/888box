@@ -30,12 +30,18 @@ class StorageHelper {
                 
             case 's3':
                 $client = self::createS3Client($config);
-                $result = $client->putObject([
+                $params = [
                     'Bucket' => $config['s3_bucket'],
                     'Key' => $remotePath,
                     'SourceFile' => $localFilePath,
-                    'ACL' => 'public-read',
-                ]);
+                ];
+                
+                // 只有在設定了 ACL 且不為空時才加入
+                if (!empty($config['s3_acl'])) {
+                    $params['ACL'] = $config['s3_acl'];
+                }
+                
+                $result = $client->putObject($params);
                 return $result;
                 
             case 'upyun':

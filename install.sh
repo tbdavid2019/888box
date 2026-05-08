@@ -1,0 +1,95 @@
+#!/bin/bash
+
+# 888box 一鍵安裝腳本
+# 適用於 Linux (x86_64 / arm64)
+
+set -e
+
+echo "🚀 歡迎使用 888box 一鍵安裝腳本"
+echo "------------------------------------------------"
+
+# 1. 檢查環境
+if ! command -v docker &> /dev/null; then
+    echo "❌ 錯誤: 未偵測到 Docker，請先安裝 Docker。"
+    exit 1
+fi
+
+if ! docker compose version &> /dev/null && ! docker-compose version &> /dev/null; then
+    echo "❌ 錯誤: 未偵測到 Docker Compose，請先安裝。"
+    exit 1
+fi
+
+COMPOSE_CMD="docker compose"
+if ! docker compose version &> /dev/null; then
+    COMPOSE_CMD="docker-compose"
+fi
+
+# 2. 初始化目錄與權限
+echo "📂 正在初始化目錄結構..."
+mkdir -p storage/i
+# 嘗試設定權限 (UID 33 是 Docker 內 www-data 的預設值)
+if [ "$EUID" -eq 0 ]; then
+    chown -R 33:33 storage
+else
+    echo "⚠️ 警告: 非 root 執行，請確保 storage/ 目錄具備寫入權限 (建議 chown -R 33:33 storage)"
+fi
+
+# 3. 準備 .env
+if [ ! -f .env ]; then
+    echo "📝 正在產生預設 .env 配置..."
+    cat > .env <<EOF
+# 888box 配置
+DEMO_MODE = false
+ALLOW_PASSWORD_RESET = false
+
+# S3 儲存設定 (選填)
+# STORAGE = local
+# S3_KEY = 
+# S3_SECRET = 
+# S3_REGION = 
+# S3_BUCKET = 
+# S3_ENDPOINT = 
+EOF
+    chmod 600 .env
+fi
+
+# 4. 啟動容器
+echo "🐳 正在啟動 Docker 容器 (這可能需要幾分鐘來編譯 ARM64/x86 環境)..."
+$COMPOSE_CMD up -d --build
+
+echo "------------------------------------------------"
+echo "✅ 容器已啟動！現在開始設定管理員帳號。"
+
+# 5. 互動式帳號設定
+read -p "👤 請輸入管理員帳號 (預設: admin): " ADMIN_USER
+ADMIN_USER=${ADMIN_USER:-admin}
+
+# 隱藏輸入密碼
+stty -echo
+read -p "🔑 請輸入管理員密碼: " ADMIN_PASS
+stty echo
+echo ""
+
+if [ -z "$ADMIN_PASS" ]; then
+    echo "❌ 錯誤: 密碼不能為空！"
+    exit 1
+fi
+
+echo "⚙️ 正在初始化資料庫與帳號..."
+docker exec 888box php -r "
+    \$pdo = new PDO('sqlite:/var/www/html/storage/database.db');
+    \$pdo->exec('CREATE TABLE IF NOT EXISTS users (id INTEGER PRIMARY KEY AUTOINCREMENT, username VARCHAR(255) NOT NULL UNIQUE, password VARCHAR(255) NOT NULL, token VARCHAR(32) NOT NULL UNIQUE)');
+    \$pdo->exec('CREATE TABLE IF NOT EXISTS images (id INTEGER PRIMARY KEY AUTOINCREMENT, user_id INTEGER, url VARCHAR(255) NOT NULL, path VARCHAR(255) NOT NULL, storage VARCHAR(50) NOT NULL, size INTEGER NOT NULL, upload_ip VARCHAR(45) NOT NULL, created_at DATETIME DEFAULT CURRENT_TIMESTAMP, title VARCHAR(255) DEFAULT \'\', description TEXT DEFAULT \'\', password VARCHAR(255) DEFAULT NULL)');
+    \$pdo->exec('CREATE TABLE IF NOT EXISTS configs (id INTEGER PRIMARY KEY AUTOINCREMENT, \"key\" VARCHAR(50) NOT NULL UNIQUE, value TEXT, description VARCHAR(255), created_at DATETIME DEFAULT CURRENT_TIMESTAMP, updated_at DATETIME DEFAULT CURRENT_TIMESTAMP)');
+    
+    \$hashed = password_hash('$ADMIN_PASS', PASSWORD_DEFAULT);
+    \$token = bin2hex(random_bytes(16));
+    \$stmt = \$pdo->prepare('INSERT OR REPLACE INTO users (username, password, token) VALUES (?, ?, ?)');
+    \$stmt->execute(['$ADMIN_USER', \$hashed, \$token]);
+    echo \"✅ 管理員 \$ADMIN_USER 已成功初始化。\\n\";
+"
+
+echo "------------------------------------------------"
+echo "🎉 安裝完成！"
+echo "🌐 存取位址: http://your-ip:6767/admin"
+echo "👉 建議立即進入後台進行更詳細的設定。"

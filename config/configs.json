@@ -118,6 +118,15 @@
           "placeholder": "例如：cdn.example.com（自动添加https://）",
           "half_width": true,
           "description": "S3的CDN加速域名"
+        },
+        {
+          "key": "s3_acl",
+          "name": "S3 ACL",
+          "type": "text",
+          "default": "",
+          "placeholder": "例如：public-read (留空則不設定)",
+          "half_width": true,
+          "description": "上傳時設定的存取控制 (ACL)，部分 Provider (如 R2) 建議留空"
         }
       ]
     },
