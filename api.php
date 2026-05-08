@@ -1,5 +1,6 @@
 <?php
 ob_start();
+session_start();
 
 require_once 'vendor/autoload.php';
 require_once 'config/database.php';
@@ -156,6 +157,10 @@ function validateToken() {
 
     // 5. 驗證網域 (僅作為公開模式下的基本過濾)
     $refererHost = parse_url($_SERVER['HTTP_REFERER'] ?? '', PHP_URL_HOST);
+    $currentHost = parse_url(((!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https://' : 'http://') . ($_SERVER['HTTP_HOST'] ?? ''), PHP_URL_HOST);
+    if (!empty($refererHost) && !empty($currentHost) && strcasecmp($refererHost, $currentHost) === 0) {
+        return;
+    }
     if (isDomainAllowed($refererHost)) return;
     
     respondAndExit(['result' => 'error', 'code' => 403, 'message' => '身分驗證失敗：無效的 Token、尚未登入或網域未授權']);
