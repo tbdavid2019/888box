@@ -2,6 +2,8 @@
 error_reporting(E_ALL);
 ini_set('display_errors', 0);
 
+require_once '../config/schema.php';
+
 if (file_exists('../.env')) {
     header('Location: /');
     exit;
@@ -31,57 +33,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $step === 1) {
 }
 
 function createTableStructure($pdo) {
-    $tables = [
-        "CREATE TABLE IF NOT EXISTS images (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            user_id INTEGER NULL,
-            url VARCHAR(255) NOT NULL,
-            path VARCHAR(255) NOT NULL,
-            storage VARCHAR(50) NOT NULL,
-            size INTEGER NOT NULL,
-            upload_ip VARCHAR(45) NOT NULL,
-            title VARCHAR(255) NULL,
-            description TEXT NULL,
-            password VARCHAR(255) NULL,
-            view_count INTEGER DEFAULT 0,
-            report_count INTEGER DEFAULT 0,
-            mime_type VARCHAR(100) NULL,
-            created_at DATETIME DEFAULT CURRENT_TIMESTAMP
-        )",
-        "CREATE TABLE IF NOT EXISTS users (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            username VARCHAR(255) NOT NULL UNIQUE,
-            password VARCHAR(255) NOT NULL,
-            token VARCHAR(32) NOT NULL UNIQUE
-        )",
-        "CREATE TABLE IF NOT EXISTS configs (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            `key` VARCHAR(50) NOT NULL UNIQUE,
-            value TEXT,
-            description VARCHAR(255),
-            created_at DATETIME DEFAULT CURRENT_TIMESTAMP
-        )"
-    ];
-    
-    foreach ($tables as $sql) {
-        $pdo->exec($sql);
-    }
+    createCoreTables($pdo);
 }
 
 function initializeConfigs($pdo) {
     $protocol = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https://' : 'http://';
     $siteUrl = $protocol . $_SERVER['HTTP_HOST'];
-    
-    $configs = [
-        ['storage', 'local', '儲存方式'],
-        ['url_prefix', '', '圖片代理'],
-        ['per_page', '20', '每頁顯示數量'],
-        ['login_restriction', 'false', '登入保護'],
-        ['max_uploads_per_day', '50', '每日上傳限制'],
-        ['max_file_size', (string)(100 * 1024 * 1024), '單一圖片大小限制（Bytes）'],
-        ['max_video_size', '500', '單一影片大小限制（MB）'],
-        ['output_format', 'webp', '輸出圖片格式'],
-        ['site_domain', $siteUrl, '網站網域'],
+
+    seedCoreConfigs($pdo, $siteUrl);
+
+    $extraConfigs = [
         ['smtp_host', 'smtp.gmail.com', 'SMTP 伺服器'],
         ['smtp_port', '587', 'SMTP 端口'],
         ['smtp_user', '', 'SMTP 帳號'],
@@ -91,7 +52,7 @@ function initializeConfigs($pdo) {
     ];
 
     $stmt = $pdo->prepare("REPLACE INTO configs (`key`, value, description) VALUES (?, ?, ?)");
-    foreach ($configs as $config) {
+    foreach ($extraConfigs as $config) {
         $stmt->execute($config);
     }
 }

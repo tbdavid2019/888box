@@ -101,10 +101,9 @@ fi
 
 echo "⚙️ 正在初始化資料庫與配置..."
 docker exec 888box php -r "
+    require '/var/www/html/config/schema.php';
     \$pdo = new PDO('sqlite:/var/www/html/storage/database.db');
-    \$pdo->exec('CREATE TABLE IF NOT EXISTS users (id INTEGER PRIMARY KEY AUTOINCREMENT, username VARCHAR(255) NOT NULL UNIQUE, password VARCHAR(255) NOT NULL, token VARCHAR(32) NOT NULL UNIQUE)');
-    \$pdo->exec('CREATE TABLE IF NOT EXISTS images (id INTEGER PRIMARY KEY AUTOINCREMENT, user_id INTEGER NULL, url VARCHAR(255) NOT NULL, path VARCHAR(255) NOT NULL, storage VARCHAR(50) NOT NULL, size INTEGER NOT NULL, upload_ip VARCHAR(45) NOT NULL, created_at DATETIME DEFAULT CURRENT_TIMESTAMP, title VARCHAR(255) DEFAULT \'\', description TEXT DEFAULT \'\', password VARCHAR(255) DEFAULT NULL, view_count INTEGER DEFAULT 0, report_count INTEGER DEFAULT 0, mime_type VARCHAR(100) NULL)');
-    \$pdo->exec('CREATE TABLE IF NOT EXISTS configs (id INTEGER PRIMARY KEY AUTOINCREMENT, \"key\" VARCHAR(50) NOT NULL UNIQUE, value TEXT, description VARCHAR(255), created_at DATETIME DEFAULT CURRENT_TIMESTAMP)');
+    createCoreTables(\$pdo);
     
     // 初始化帳號
     \$hashed = password_hash('$ADMIN_PASS', PASSWORD_DEFAULT);

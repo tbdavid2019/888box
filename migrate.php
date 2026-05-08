@@ -11,6 +11,8 @@ error_reporting(E_ALL);
 ini_set('display_errors', 0);
 set_time_limit(0);
 
+require_once __DIR__ . '/config/schema.php';
+
 $step = isset($_GET['step']) ? (int)$_GET['step'] : 0;
 $error = '';
 $success = '';
@@ -51,6 +53,8 @@ function checkEnvironment() {
 function processOldVersionFields($pdo) {
     $existing = array_column($pdo->query("SELECT `key` FROM configs")->fetchAll(PDO::FETCH_ASSOC), 'key');
     $fixDetails = ['renamed' => [], 'deleted' => [], 'added' => []];
+    $protocol = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https://' : 'http://';
+    $siteUrl = $protocol . ($_SERVER['HTTP_HOST'] ?? 'localhost');
         
     // 重命名字段
     $renameFields = [
@@ -62,25 +66,15 @@ function processOldVersionFields($pdo) {
     $deleteFields = ['protocol'];
     
     // 添加新字段
-    $addFields = [
-        'url_prefix' => ['', '图片代理'],
-        'local_cdn_domain' => ['', '本地CDN域名'],
-        'max_uploads_per_day' => ['50', '每日上傳限制'],
-        'max_file_size' => [(string)(100 * 1024 * 1024), '單一圖片大小限制（Bytes）'],
-        'max_video_size' => ['500', '單一影片大小限制（MB）'],
-        'output_format' => ['webp', '輸出圖片格式']
-    ];
+    $addFields = getCoreConfigDefaults($siteUrl);
     
     // 添加表字段
     $addColumns = [
-        'images' => [
-            "title VARCHAR(255) DEFAULT ''",
-            "description TEXT DEFAULT ''",
-            'password VARCHAR(255) DEFAULT NULL',
-            'view_count INTEGER DEFAULT 0',
-            'report_count INTEGER DEFAULT 0',
-            'mime_type VARCHAR(100) NULL'
-        ]
+        'images' => array_map(
+            fn ($name, $definition) => $name . ' ' . $definition,
+            array_keys(getCoreImageColumns()),
+            getCoreImageColumns()
+        )
     ];
     
     // 处理重命名字段
@@ -152,9 +146,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $step === 1) {
         $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
         
         // 创建表结构
-        $pdo->exec("CREATE TABLE images (id INTEGER PRIMARY KEY AUTOINCREMENT, user_id INTEGER NULL, url VARCHAR(255) NOT NULL, path VARCHAR(255) NOT NULL, storage VARCHAR(50) NOT NULL, size INTEGER NOT NULL, upload_ip VARCHAR(45) NOT NULL, created_at DATETIME DEFAULT CURRENT_TIMESTAMP, title VARCHAR(255) DEFAULT '', description TEXT DEFAULT '', password VARCHAR(255) DEFAULT NULL, view_count INTEGER DEFAULT 0, report_count INTEGER DEFAULT 0, mime_type VARCHAR(100) NULL)");
-        $pdo->exec("CREATE TABLE users (id INTEGER PRIMARY KEY AUTOINCREMENT, username VARCHAR(255) NOT NULL UNIQUE, password VARCHAR(255) NOT NULL, token VARCHAR(32) NOT NULL UNIQUE)");
-        $pdo->exec("CREATE TABLE configs (id INTEGER PRIMARY KEY AUTOINCREMENT, `key` VARCHAR(50) NOT NULL UNIQUE, value TEXT, description VARCHAR(255), created_at DATETIME DEFAULT CURRENT_TIMESTAMP)");
+        createCoreTables($pdo);
         
         // 迁移数据
         $stats = ['users' => 0, 'configs' => 0, 'images' => 0];
