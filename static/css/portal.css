@@ -1,13 +1,18 @@
 :root {
-    --bg-color: #0a0a0c;
-    --card-bg: rgba(255, 255, 255, 0.05);
-    --card-border: rgba(255, 255, 255, 0.1);
-    --text-primary: #ffffff;
-    --text-secondary: rgba(255, 255, 255, 0.6);
-    --accent-blue: #007aff;
-    --accent-purple: #af52de;
-    --accent-orange: #ff9500;
-    --accent-green: #34c759;
+    --bg-color: #1a1b26;
+    --bg-elevated: #24283b;
+    --card-bg: rgba(36, 40, 59, 0.78);
+    --card-hover-bg: rgba(41, 46, 66, 0.92);
+    --card-border: rgba(122, 162, 247, 0.16);
+    --card-border-strong: rgba(122, 162, 247, 0.34);
+    --text-primary: #c0caf5;
+    --text-secondary: rgba(169, 177, 214, 0.76);
+    --accent-blue: #7aa2f7;
+    --accent-cyan: #7dcfff;
+    --accent-purple: #bb9af7;
+    --accent-orange: #e0af68;
+    --accent-green: #9ece6a;
+    --shadow-color: rgba(12, 14, 24, 0.45);
 }
 
 * {
@@ -18,7 +23,10 @@
 }
 
 body {
-    background-color: var(--bg-color);
+    background:
+        radial-gradient(circle at top, rgba(122, 162, 247, 0.16), transparent 34%),
+        radial-gradient(circle at 85% 15%, rgba(187, 154, 247, 0.14), transparent 28%),
+        linear-gradient(180deg, #1f2335 0%, var(--bg-color) 28%, #16161e 100%);
     color: var(--text-primary);
     min-height: 100vh;
     display: flex;
@@ -35,7 +43,7 @@ body {
 .header h1 {
     font-size: 3rem;
     font-weight: 800;
-    background: linear-gradient(135deg, #fff 0%, #888 100%);
+    background: linear-gradient(135deg, #c0caf5 0%, #7aa2f7 48%, #bb9af7 100%);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     letter-spacing: -1px;
@@ -73,9 +81,9 @@ body {
 
 .card:hover {
     transform: translateY(-8px) scale(1.02);
-    background: rgba(255, 255, 255, 0.08);
-    border-color: rgba(255, 255, 255, 0.2);
-    box-shadow: 0 20px 40px rgba(0,0,0,0.4);
+    background: var(--card-hover-bg);
+    border-color: var(--card-border-strong);
+    box-shadow: 0 20px 40px var(--shadow-color);
 }
 
 .card-icon {
@@ -97,22 +105,22 @@ body {
 /* Specific Card Layouts */
 .card-images {
     grid-column: span 2;
-    background: linear-gradient(135deg, rgba(0, 122, 255, 0.1) 0%, transparent 100%);
+    background: linear-gradient(135deg, rgba(122, 162, 247, 0.18) 0%, rgba(125, 207, 255, 0.04) 100%);
 }
 
 .card-videos {
     grid-column: span 2;
-    background: linear-gradient(135deg, rgba(175, 82, 222, 0.1) 0%, transparent 100%);
+    background: linear-gradient(135deg, rgba(187, 154, 247, 0.18) 0%, rgba(122, 162, 247, 0.04) 100%);
 }
 
 .card-files {
     grid-column: span 2;
-    background: linear-gradient(135deg, rgba(52, 199, 89, 0.1) 0%, transparent 100%);
+    background: linear-gradient(135deg, rgba(158, 206, 106, 0.18) 0%, rgba(125, 207, 255, 0.04) 100%);
 }
 
 .card-settings {
     grid-column: span 2;
-    background: linear-gradient(135deg, rgba(255, 149, 0, 0.1) 0%, transparent 100%);
+    background: linear-gradient(135deg, rgba(224, 175, 104, 0.18) 0%, rgba(187, 154, 247, 0.04) 100%);
 }
 
 /* Mobile Responsiveness */

@@ -22,12 +22,26 @@ $stats['file'] = $total - $stats['image'] - $stats['video'];
     <link rel="stylesheet" href="/static/css/portal.css">
     <style>
         .stats-badge {
-            background: rgba(255,255,255,0.1);
+            background: rgba(122, 162, 247, 0.14);
+            border: 1px solid rgba(122, 162, 247, 0.18);
+            color: var(--text-primary);
             padding: 2px 8px;
             border-radius: 10px;
             font-size: 0.75rem;
             margin-top: 10px;
             display: inline-block;
+        }
+
+        .portal-footer {
+            margin-top: 60px;
+            color: var(--text-secondary);
+            font-size: 0.8rem;
+        }
+
+        .portal-footer a {
+            color: rgba(125, 207, 255, 0.72);
+            text-decoration: none;
+            font-weight: bold;
         }
     </style>
 </head>
@@ -71,10 +85,10 @@ $stats['file'] = $total - $stats['image'] - $stats['video'];
     </div>
 
 
-    <footer style="margin-top: 60px; color: rgba(255,255,255,0.3); font-size: 0.8rem;">
+    <footer class="portal-footer">
         &copy; <?= date('Y') ?> 888box. All rights reserved. <br>
-        Created by <a href="https://david888.com" target="_blank" style="color: rgba(255,255,255,0.5); text-decoration: none; font-weight: bold;">DAVID888</a> | 
-        <a href="/skill.php" target="_blank" style="color: rgba(255,255,255,0.5); text-decoration: none;">AI Agent Skills</a>
+        Created by <a href="https://david888.com" target="_blank">DAVID888</a> | 
+        <a href="/skill.php" target="_blank">AI Agent Skills</a>
     </footer>
 
 </body>

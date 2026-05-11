@@ -43,6 +43,15 @@ try {
     <link rel="shortcut icon" href="static/favicon.svg">
     <link rel="stylesheet" type="text/css" href="static/css/styles.css?v=<?php echo time(); ?>">
     <style>
+        :root {
+            --page-muted: #7f88b2;
+            --page-text: #c0caf5;
+            --page-surface: rgba(36, 40, 59, 0.72);
+            --page-surface-strong: rgba(41, 46, 66, 0.82);
+            --page-border: rgba(122, 162, 247, 0.18);
+            --page-link: #7dcfff;
+        }
+
         .image-history-panel {
             width: 100%;
             max-width: 1200px;
@@ -70,13 +79,13 @@ try {
 
         .image-history-header h3 {
             margin: 0;
-            color: #e5e7eb;
+            color: var(--page-text);
         }
 
         .image-history-clear {
-            border: 1px solid rgba(255,255,255,0.2);
-            background: rgba(255,255,255,0.06);
-            color: #cbd5e1;
+            border: 1px solid var(--page-border);
+            background: var(--page-surface);
+            color: var(--page-text);
             border-radius: 999px;
             padding: 8px 14px;
             cursor: pointer;
@@ -84,7 +93,7 @@ try {
         }
 
         .image-history-empty {
-            color: rgba(255,255,255,0.65);
+            color: var(--page-muted);
             text-align: center;
             padding: 20px 12px 8px;
         }
@@ -98,8 +107,8 @@ try {
         .image-history-item {
             padding: 14px;
             border-radius: 16px;
-            background: rgba(255,255,255,0.05);
-            border: 1px solid rgba(255,255,255,0.08);
+            background: var(--page-surface);
+            border: 1px solid var(--page-border);
         }
 
         .image-history-thumb {
@@ -108,12 +117,12 @@ try {
             object-fit: cover;
             border-radius: 12px;
             display: block;
-            background: rgba(0,0,0,0.2);
+            background: rgba(22, 22, 30, 0.48);
             margin-bottom: 12px;
         }
 
         .image-history-title {
-            color: #f8fafc;
+            color: var(--page-text);
             font-weight: bold;
             margin-bottom: 8px;
             word-break: break-word;
@@ -121,7 +130,7 @@ try {
 
         .image-history-link {
             display: block;
-            color: #93c5fd;
+            color: var(--page-link);
             text-decoration: none;
             font-size: 0.9rem;
             word-break: break-all;
@@ -129,7 +138,7 @@ try {
         }
 
         .image-history-meta {
-            color: rgba(255,255,255,0.65);
+            color: var(--page-muted);
             font-size: 0.82rem;
             margin-bottom: 12px;
         }
@@ -153,20 +162,43 @@ try {
 
         .image-history-btn {
             border: none;
-            background: #3b82f6;
-            color: #fff;
+            background: #7aa2f7;
+            color: #1a1b26;
         }
 
         .image-history-open {
-            border: 1px solid rgba(255,255,255,0.15);
-            background: rgba(255,255,255,0.04);
-            color: #e5e7eb;
+            border: 1px solid var(--page-border);
+            background: rgba(31, 35, 53, 0.72);
+            color: var(--page-text);
+        }
+
+        .page-footer {
+            margin-top: 40px;
+            padding: 20px;
+            text-align: center;
+            color: var(--page-muted);
+            font-size: 0.9rem;
+        }
+
+        .page-footer a {
+            color: var(--page-link);
+            text-decoration: none;
+        }
+
+        .page-footer .legal-note {
+            margin-top: 10px;
+            font-size: 0.8rem;
+            color: #565f89;
+            max-width: 800px;
+            margin-left: auto;
+            margin-right: auto;
+            line-height: 1.5;
         }
     </style>
 </head>
 <body>
     <header class="blur" style="width: 100%; max-width: 1200px; display: flex; justify-content: space-between; align-items: center; padding: 0 20px; box-sizing: border-box; margin: 0 auto 25px auto;">
-        <h1 style="margin: 0; font-size: 1.5rem; color: #e5e7eb; padding: 15px 0;">🖼️ 888box 圖片託管中心</h1>
+        <h1 style="margin: 0; font-size: 1.5rem; color: var(--page-text); padding: 15px 0;">🖼️ 888box 圖片託管中心</h1>
         <div style="display: flex; gap: 15px; align-items: center;">
             <a href="/" style="color: white; text-decoration: none;">🏠 門戶</a>
             <a href="/admin/" target="_blank" style="color: white; text-decoration: none;">⚙️ 管理後台</a>
@@ -247,8 +279,8 @@ try {
 
                 <!-- 存取密碼 -->
                 <div class="password-section" style="margin-top: 15px; display: flex; flex-direction: column; gap: 8px;">
-                    <label for="imagePassword" style="font-weight: bold; color: #e5e7eb; font-size: 0.9rem;">設定存取密碼 (選填)</label>
-                    <input type="password" id="imagePassword" name="password" placeholder="留空則公開" style="width: 100%; padding: 10px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.2); background: rgba(0,0,0,0.2); color: white; box-sizing: border-box;">
+                    <label for="imagePassword" style="font-weight: bold; color: var(--page-text); font-size: 0.9rem;">設定存取密碼 (選填)</label>
+                    <input type="password" id="imagePassword" name="password" placeholder="留空則公開" style="width: 100%; padding: 10px; border-radius: 8px; border: 1px solid var(--page-border); background: rgba(22,22,30,0.48); color: var(--page-text); box-sizing: border-box;">
                 </div>
 
                 <!-- 复制按钮区域 -->
@@ -341,23 +373,23 @@ try {
             <div id="imageHistoryList" class="image-history-list"></div>
         </div>
     </section>
-    <footer style="margin-top: 40px; padding: 20px; text-align: center; color: #888; font-size: 0.9rem;">
+    <footer class="page-footer">
         <?php if (($_ENV['DEMO_MODE'] ?? 'false') === 'true'): ?>
         <div style="padding: 10px; margin: 0 auto 20px auto; max-width: 800px; border-radius: 10px; font-size: 15px; font-weight: bold; backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); border: 1px solid rgb(255 255 255 / 20%); background: rgb(255 60 60 / 30%); animation: fadeIn 0.5s ease-in-out forwards;">⚠️ 示範站點 - 所有檔案皆為公開可見且可能被刪除</div>
         <?php endif; ?>
         
         <div style="margin-bottom: 15px; display: flex; justify-content: center; gap: 20px; flex-wrap: wrap;">
-            <a href="upload_image.php" style="color: #bbb; text-decoration: none;">🖼️ 圖片託管</a>
-            <a href="upload_video.php" style="color: #bbb; text-decoration: none;">🎬 影片託管</a>
-            <a href="upload_file.php" style="color: #bbb; text-decoration: none;">📂 文件託管</a>
+            <a href="upload_image.php">🖼️ 圖片託管</a>
+            <a href="upload_video.php">🎬 影片託管</a>
+            <a href="upload_file.php">📂 文件託管</a>
         </div>
         <div>
             <span>© <?php echo date('Y'); ?> 888box</span> | 
-            <span>Created by <a href="https://david888.com" target="_blank" style="color: #bbb; text-decoration: none; font-weight: bold;">DAVID888</a></span> | 
-            <a href="javascript:void(0);" onclick="forceClearCache()" style="color: #888; text-decoration: none;">清除快取並重整</a> | 
-            <a href="/skill.php" target="_blank" style="color: #888; text-decoration: none;">AI Agent Skills</a>
+            <span>Created by <a href="https://david888.com" target="_blank" style="font-weight: bold;">DAVID888</a></span> | 
+            <a href="javascript:void(0);" onclick="forceClearCache()">清除快取並重整</a> | 
+            <a href="/skill.php" target="_blank">AI Agent Skills</a>
         </div>
-        <div style="margin-top: 10px; font-size: 0.8rem; color: #666; max-width: 800px; margin-left: auto; margin-right: auto; line-height: 1.5;">
+        <div class="legal-note">
             本站不保證內容、時效與穩定性。請嚴格遵守相關法律法規，尊重版權、著作權等權利；內容均由使用者自行上傳，本站對所有檔案合法性概不負責，亦不承擔任何法律責任。
         </div>
     </footer>

@@ -1,19 +1,27 @@
 :root {
-    --bg-dark: #121212;
-    --panel-bg: #1e1e1e;
-    --primary: #3b82f6;
-    --primary-hover: #2563eb;
-    --text-main: #f3f4f6;
-    --text-muted: #9ca3af;
-    --border: #374151;
-    --success: #10b981;
+    --bg-dark: #1a1b26;
+    --panel-bg: #24283b;
+    --primary: #7aa2f7;
+    --primary-hover: #7dcfff;
+    --primary-soft: rgba(122, 162, 247, 0.16);
+    --accent: #bb9af7;
+    --text-main: #c0caf5;
+    --text-muted: #7f88b2;
+    --border: #414868;
+    --success: #9ece6a;
+    --warning: #e0af68;
+    --danger: #f7768e;
+    --surface-deep: #16161e;
 }
 
 body {
     margin: 0; 
     padding: 0;
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-    background-color: var(--bg-dark);
+    background:
+        radial-gradient(circle at top, rgba(122, 162, 247, 0.16), transparent 32%),
+        radial-gradient(circle at 85% 15%, rgba(187, 154, 247, 0.12), transparent 26%),
+        linear-gradient(180deg, #1f2335 0%, var(--bg-dark) 40%, var(--surface-deep) 100%);
     color: var(--text-main);
     display: flex; 
     flex-direction: column; 
@@ -36,7 +44,7 @@ body {
 .video-header h1 { 
     margin: 0; 
     font-size: 1.5rem; 
-    color: #e5e7eb;
+    color: var(--text-main);
 }
 
 .nav-links a { 
@@ -59,7 +67,7 @@ body {
 }
 
 .upload-panel, .result-panel {
-    background-color: var(--panel-bg);
+    background: linear-gradient(135deg, rgba(36, 40, 59, 0.94), rgba(31, 35, 53, 0.92));
     border-radius: 16px;
     padding: 50px 40px;
     border: 2px dashed var(--border);
@@ -70,7 +78,7 @@ body {
 
 .upload-panel.dragover {
     border-color: var(--primary);
-    background-color: #252f3f;
+    background-color: #292e42;
     transform: scale(1.02);
 }
 
@@ -115,7 +123,7 @@ body {
 
 .progress-bar {
     height: 100%; 
-    background: linear-gradient(90deg, var(--primary), #60a5fa); 
+    background: linear-gradient(90deg, var(--primary), var(--primary-hover), var(--accent)); 
     width: 0%;
     transition: width 0.2s; 
     font-size: 12px; 
@@ -143,7 +151,7 @@ body {
 .btn.primary { 
     background: var(--primary); 
     color: white; 
-    box-shadow: 0 4px 6px rgba(59, 130, 246, 0.3);
+    box-shadow: 0 10px 24px rgba(122, 162, 247, 0.24);
 }
 
 .btn.primary:hover:not(:disabled) { 
@@ -158,7 +166,7 @@ body {
 }
 
 .btn.secondary:hover:not(:disabled) { 
-    background: var(--border); 
+    background: rgba(65, 72, 104, 0.64); 
 }
 
 .btn:disabled {
@@ -252,8 +260,8 @@ body {
 }
 
 .rss-notify {
-    background: rgba(16, 185, 129, 0.1);
-    border: 1px solid rgba(16, 185, 129, 0.3);
+    background: rgba(158, 206, 106, 0.08);
+    border: 1px solid rgba(158, 206, 106, 0.24);
     padding: 20px;
     border-radius: 8px;
     margin-top: 20px;
@@ -261,7 +269,7 @@ body {
 
 .rss-notify p {
     margin-top: 0;
-    color: #34d399;
+    color: var(--success);
     font-weight: bold;
 }
 
@@ -270,14 +278,14 @@ body {
     color: white; 
     font-weight: bold; 
     text-decoration: none;
-    background: #059669;
+    background: linear-gradient(135deg, var(--primary), var(--accent));
     padding: 10px 20px;
     border-radius: 6px;
     transition: background 0.2s;
 }
 
 .rss-link:hover {
-    background: #047857;
+    background: linear-gradient(135deg, var(--primary-hover), var(--accent));
 }
 
 .mt-10 { 
@@ -321,9 +329,9 @@ body {
 }
 
 .status-pending { color: var(--text-muted); }
-.status-uploading { color: #f59e0b; }
+.status-uploading { color: var(--warning); }
 .status-success { color: var(--success); }
-.status-error { color: #ef4444; }
+.status-error { color: var(--danger); }
 
 .queue-inputs {
     display: flex;
@@ -342,7 +350,7 @@ body {
 }
 
 .queue-result {
-    background: rgba(16, 185, 129, 0.1);
+    background: rgba(158, 206, 106, 0.08);
     padding: 10px;
     border-radius: 6px;
     display: none;
@@ -438,8 +446,8 @@ body {
     height: 84px;
     border-radius: 12px;
     flex-shrink: 0;
-    background: #0f172a;
-    border: 1px solid rgba(255,255,255,0.08);
+    background: #1f2335;
+    border: 1px solid rgba(122, 162, 247, 0.12);
 }
 
 .history-thumb {

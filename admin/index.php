@@ -66,14 +66,14 @@ $pagination = renderPagination($current_page, $total_pages);
     <link rel="stylesheet" href="/static/css/fancybox.min.css?v=<?php echo time(); ?>">
 </head>
 <body>
-    <div style="width: 100%; text-align: center; margin-bottom: 20px; padding: 15px; background: linear-gradient(135deg, #3b82f6, #8b5cf6); border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.2);">
+    <div style="width: 100%; text-align: center; margin-bottom: 20px; padding: 15px; background: linear-gradient(135deg, #7aa2f7, #bb9af7); border-radius: 12px; box-shadow: 0 10px 24px rgba(122,162,247,0.2);">
         <a href="/admin/video.php" style="color: white; font-size: 1.2rem; font-weight: bold; text-decoration: none; display: flex; align-items: center; justify-content: center; gap: 10px;">
             <span>🎬</span> 尋找影片管理？點此進入【影片專屬管理後台】 <span>👉</span>
         </a>
     </div>
     <div id="gallery" class="gallery"><?= $images_html ?></div>
     <div class="rightside">
-        <a href="/admin/video.php" class="floating-link" title="影片管理" style="background-color: #3b82f6;">
+        <a href="/admin/video.php" class="floating-link" title="影片管理" style="background-color: #7aa2f7;">
             <svg class="icon" aria-hidden="true" style="fill: white;"><use xlink:href="#icon-Right-arrow"></use></svg>
         </a>
         <a href="/" class="floating-link" title="返回首頁">
@@ -97,16 +97,16 @@ $pagination = renderPagination($current_page, $total_pages);
     <div id="settings-modal" class="modal">
         <div class="modal-content"></div>
     </div>
-    <footer style="margin-top: 40px; padding: 20px; text-align: center; color: #888; font-size: 0.9rem; border-top: 1px solid rgba(255,255,255,0.05);">
+    <footer style="margin-top: 40px; padding: 20px; text-align: center; color: #7f88b2; font-size: 0.9rem; border-top: 1px solid rgba(122,162,247,0.12);">
         <div style="margin-bottom: 15px; display: flex; justify-content: center; gap: 20px; flex-wrap: wrap;">
-            <a href="index.php" style="color: #bbb; text-decoration: none;">🖼️ 圖片管理</a>
-            <a href="video.php" style="color: #bbb; text-decoration: none;">🎬 影片管理</a>
-            <a href="file.php" style="color: #bbb; text-decoration: none;">📂 文件管理</a>
-            <a href="/skill.php" target="_blank" style="color: #bbb; text-decoration: none;">🤖 AI Agent Skills</a>
+            <a href="index.php" style="color: #7dcfff; text-decoration: none;">🖼️ 圖片管理</a>
+            <a href="video.php" style="color: #7dcfff; text-decoration: none;">🎬 影片管理</a>
+            <a href="file.php" style="color: #7dcfff; text-decoration: none;">📂 文件管理</a>
+            <a href="/skill.php" target="_blank" style="color: #7dcfff; text-decoration: none;">🤖 AI Agent Skills</a>
         </div>
         <div>
             <span>© <?php echo date('Y'); ?> 888box</span> | 
-            <span>Created by <a href="https://david888.com" target="_blank" style="color: #bbb; text-decoration: none; font-weight: bold;">DAVID888</a></span>
+            <span>Created by <a href="https://david888.com" target="_blank" style="color: #7dcfff; text-decoration: none; font-weight: bold;">DAVID888</a></span>
         </div>
     </footer>
     <script src="//at.alicdn.com/t/c/font_4623353_hb4c04qfi4u.js"></script>
@@ -133,7 +133,7 @@ function renderImagesList($images) {
         $time = htmlspecialchars($image['created_at']);
         
         $reportBadge = $image['report_count'] > 0 
-            ? "<div style=\"position: absolute; top: 10px; left: 10px; background: #ff3b30; color: #fff; padding: 2px 6px; border-radius: 4px; font-size: 10px; font-weight: bold; z-index: 10;\">檢舉: {$image['report_count']}</div>" 
+            ? "<div style=\"position: absolute; top: 10px; left: 10px; background: #f7768e; color: #1a1b26; padding: 2px 6px; border-radius: 4px; font-size: 10px; font-weight: bold; z-index: 10;\">檢舉: {$image['report_count']}</div>" 
             : "";
             
         $html .= <<<HTML
@@ -156,8 +156,8 @@ function renderImagesList($images) {
                 <p class="info-p">時間：<span>{$time}</span></p>
                 <p class="info-p">瀏覽：<span>{$image['view_count']} 次</span></p>
                 <div style="display:flex; justify-content: space-between; align-items: center; margin-top:5px;">
-                    <span class="info-p" style="font-size:10px; color:#666;">IP: {$ip}</span>
-                    <a href="/view.php?id={$id}" target="_blank" style="color: #3b82f6; text-decoration:none; font-size:12px;">預覽</a>
+                    <span class="info-p" style="font-size:10px; color:#565f89;">IP: {$ip}</span>
+                    <a href="/view.php?id={$id}" target="_blank" style="color: #7aa2f7; text-decoration:none; font-size:12px;">預覽</a>
                 </div>
             </div>
         </div>
