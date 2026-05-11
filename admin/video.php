@@ -23,34 +23,34 @@ $videos = $stmt->fetchAll(PDO::FETCH_ASSOC);
     <title>影片管理後台 - 888box</title>
     <link rel="shortcut icon" href="/static/favicon.svg">
     <style>
-        body { background-color: #2b2b2b; color: #eee; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; margin: 0; padding: 20px; }
-        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; border-bottom: 1px solid #444; padding-bottom: 20px; }
-        .header h1 { margin: 0; font-size: 24px; color: #fff; }
-        .nav-links a { color: #54a2c2; text-decoration: none; margin-left: 15px; font-weight: bold; }
-        .nav-links a:hover { color: #f45873; }
+        body { background: radial-gradient(circle at top, rgba(122, 162, 247, 0.14), transparent 32%), linear-gradient(180deg, #1f2335 0%, #1a1b26 42%, #16161e 100%); color: #c0caf5; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; margin: 0; padding: 20px; }
+        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; border-bottom: 1px solid #414868; padding-bottom: 20px; }
+        .header h1 { margin: 0; font-size: 24px; color: #c0caf5; }
+        .nav-links a { color: #7dcfff; text-decoration: none; margin-left: 15px; font-weight: bold; }
+        .nav-links a:hover { color: #bb9af7; }
         .video-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 25px; max-width: 1400px; margin: 0 auto; }
-        .video-card { background: #1e1e1e; border: 1px solid #444; border-radius: 12px; padding: 20px; display: flex; flex-direction: column; gap: 15px; box-shadow: 0 4px 6px rgba(0,0,0,0.3); transition: transform 0.2s; }
-        .video-card:hover { transform: translateY(-5px); border-color: #666; }
+        .video-card { background: rgba(36, 40, 59, 0.94); border: 1px solid #414868; border-radius: 12px; padding: 20px; display: flex; flex-direction: column; gap: 15px; box-shadow: 0 10px 24px rgba(15, 18, 32, 0.28); transition: transform 0.2s, border-color 0.2s; }
+        .video-card:hover { transform: translateY(-5px); border-color: #7aa2f7; }
         .video-card video { width: 100%; border-radius: 8px; background: #000; box-shadow: 0 2px 8px rgba(0,0,0,0.5); }
-        .video-info { font-size: 14px; color: #aaa; background: #121212; padding: 15px; border-radius: 8px; border: 1px solid #333; }
+        .video-info { font-size: 14px; color: #a9b1d6; background: rgba(26, 27, 38, 0.72); padding: 15px; border-radius: 8px; border: 1px solid #414868; }
         .video-info p { margin: 8px 0; word-break: break-all; }
-        .video-info strong { color: #fff; }
+        .video-info strong { color: #c0caf5; }
         .actions { margin-top: auto; display: flex; justify-content: space-between; align-items: center; gap: 10px; }
-        .btn-copy { background: #4CAF50; color: white; border: none; padding: 10px 15px; border-radius: 6px; cursor: pointer; font-weight: bold; flex: 1; }
-        .btn-edit { background: #2196F3; color: white; border: none; padding: 10px 15px; border-radius: 6px; cursor: pointer; font-weight: bold; flex: 1; }
-        .btn-delete { background: #f44336; color: white; border: none; padding: 10px 15px; border-radius: 6px; cursor: pointer; font-weight: bold; flex: 1; }
-        .btn-copy:hover { background: #45a049; }
-        .btn-edit:hover { background: #1976D2; }
-        .btn-delete:hover { background: #d32f2f; }
-        .empty-state { text-align: center; color: #888; padding: 80px; font-size: 20px; grid-column: 1 / -1; background: #1e1e1e; border-radius: 12px; border: 1px dashed #555; }
+        .btn-copy { background: #7aa2f7; color: #1a1b26; border: none; padding: 10px 15px; border-radius: 6px; cursor: pointer; font-weight: bold; flex: 1; }
+        .btn-edit { background: #bb9af7; color: #1a1b26; border: none; padding: 10px 15px; border-radius: 6px; cursor: pointer; font-weight: bold; flex: 1; }
+        .btn-delete { background: #f7768e; color: #1a1b26; border: none; padding: 10px 15px; border-radius: 6px; cursor: pointer; font-weight: bold; flex: 1; }
+        .btn-copy:hover { background: #7dcfff; }
+        .btn-edit:hover { background: #c0caf5; }
+        .btn-delete:hover { background: #ff9eaf; }
+        .empty-state { text-align: center; color: #7f88b2; padding: 80px; font-size: 20px; grid-column: 1 / -1; background: rgba(36, 40, 59, 0.94); border-radius: 12px; border: 1px dashed #565f89; }
 
         /* Modal Styles */
         .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.8); backdrop-filter: blur(5px); }
-        .modal-content { background-color: #1e1e1e; margin: 10% auto; padding: 30px; border: 1px solid #444; width: 90%; max-width: 500px; border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.5); }
-        .modal-header { margin-bottom: 20px; font-size: 20px; font-weight: bold; color: #fff; }
+        .modal-content { background-color: #24283b; margin: 10% auto; padding: 30px; border: 1px solid #414868; width: 90%; max-width: 500px; border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.5); }
+        .modal-header { margin-bottom: 20px; font-size: 20px; font-weight: bold; color: #c0caf5; }
         .form-group { margin-bottom: 15px; }
-        .form-group label { display: block; margin-bottom: 8px; color: #aaa; }
-        .form-group input, .form-group textarea { width: 100%; padding: 12px; background: #121212; border: 1px solid #333; color: #fff; border-radius: 6px; box-sizing: border-box; }
+        .form-group label { display: block; margin-bottom: 8px; color: #a9b1d6; }
+        .form-group input, .form-group textarea { width: 100%; padding: 12px; background: rgba(26, 27, 38, 0.72); border: 1px solid #414868; color: #c0caf5; border-radius: 6px; box-sizing: border-box; }
         .modal-actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 25px; }
     </style>
 </head>
@@ -69,7 +69,7 @@ $videos = $stmt->fetchAll(PDO::FETCH_ASSOC);
                 <textarea id="editDescription" rows="4"></textarea>
             </div>
             <div class="modal-actions">
-                <button class="btn-copy" style="background:#555; flex:none;" onclick="closeModal()">取消</button>
+                <button class="btn-copy" style="background:#565f89; color:#c0caf5; flex:none;" onclick="closeModal()">取消</button>
                 <button class="btn-copy" style="flex:none; min-width:100px;" onclick="saveMetadata()">儲存變更</button>
             </div>
         </div>
@@ -95,7 +95,7 @@ $videos = $stmt->fetchAll(PDO::FETCH_ASSOC);
                         <p>
                             <strong>標題：</strong> <span class="v-title"><?= htmlspecialchars($video['title'] ?: $video['path']) ?></span>
                             <?php if ($video['report_count'] > 0): ?>
-                                <span style="background: #ff3b30; color: #fff; padding: 2px 6px; border-radius: 4px; font-size: 11px; margin-left: 5px;">檢舉: <?= $video['report_count'] ?></span>
+                                <span style="background: #f7768e; color: #1a1b26; padding: 2px 6px; border-radius: 4px; font-size: 11px; margin-left: 5px;">檢舉: <?= $video['report_count'] ?></span>
                             <?php endif; ?>
                         </p>
                         <p><strong>描述：</strong> <span class="v-desc"><?= htmlspecialchars($video['description'] ?: '無') ?></span></p>
@@ -112,16 +112,16 @@ $videos = $stmt->fetchAll(PDO::FETCH_ASSOC);
         <?php endif; ?>
     </div>
 
-    <footer style="margin-top: 40px; padding: 20px; text-align: center; color: #888; font-size: 0.9rem; border-top: 1px solid rgba(255,255,255,0.05);">
+    <footer style="margin-top: 40px; padding: 20px; text-align: center; color: #7f88b2; font-size: 0.9rem; border-top: 1px solid rgba(122,162,247,0.12);">
         <div style="margin-bottom: 15px; display: flex; justify-content: center; gap: 20px; flex-wrap: wrap;">
-            <a href="index.php" style="color: #bbb; text-decoration: none;">🖼️ 圖片管理</a>
-            <a href="video.php" style="color: #bbb; text-decoration: none;">🎬 影片管理</a>
-            <a href="file.php" style="color: #bbb; text-decoration: none;">📂 文件管理</a>
-            <a href="/skill.php" target="_blank" style="color: #bbb; text-decoration: none;">🤖 AI Agent Skills</a>
+            <a href="index.php" style="color: #7dcfff; text-decoration: none;">🖼️ 圖片管理</a>
+            <a href="video.php" style="color: #7dcfff; text-decoration: none;">🎬 影片管理</a>
+            <a href="file.php" style="color: #7dcfff; text-decoration: none;">📂 文件管理</a>
+            <a href="/skill.php" target="_blank" style="color: #7dcfff; text-decoration: none;">🤖 AI Agent Skills</a>
         </div>
         <div>
             <span>© <?php echo date('Y'); ?> 888box</span> | 
-            <span>Created by <a href="https://david888.com" target="_blank" style="color: #bbb; text-decoration: none; font-weight: bold;">DAVID888</a></span>
+            <span>Created by <a href="https://david888.com" target="_blank" style="color: #7dcfff; text-decoration: none; font-weight: bold;">DAVID888</a></span>
         </div>
     </footer>
     <script>

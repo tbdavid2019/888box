@@ -30,7 +30,7 @@ try {
     <link rel="stylesheet" href="static/css/video_ui.css?v=<?php echo time(); ?>"> <!-- 重用影片中心的 CSS 以保持風格一致 -->
     <style>
         :root {
-            --accent: #34c759; /* 文件中心使用綠色調 */
+            --accent: #7dcfff;
         }
         .file-icon { font-size: 3rem; margin-bottom: 20px; color: var(--accent); }
     </style>

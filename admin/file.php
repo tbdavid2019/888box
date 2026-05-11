@@ -27,27 +27,27 @@ $files = $stmt->fetchAll(PDO::FETCH_ASSOC);
     <title>文件管理後台 - 888box</title>
     <link rel="shortcut icon" href="/static/favicon.svg">
     <style>
-        body { background-color: #1a1a1a; color: #eee; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; margin: 0; padding: 20px; }
-        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; border-bottom: 1px solid #333; padding-bottom: 20px; }
-        .header h1 { margin: 0; font-size: 24px; color: #fff; }
-        .nav-links a { color: #34c759; text-decoration: none; margin-left: 15px; font-weight: bold; }
+        body { background: radial-gradient(circle at top, rgba(122, 162, 247, 0.14), transparent 32%), linear-gradient(180deg, #1f2335 0%, #1a1b26 42%, #16161e 100%); color: #c0caf5; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; margin: 0; padding: 20px; }
+        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; border-bottom: 1px solid #414868; padding-bottom: 20px; }
+        .header h1 { margin: 0; font-size: 24px; color: #c0caf5; }
+        .nav-links a { color: #7dcfff; text-decoration: none; margin-left: 15px; font-weight: bold; }
         .nav-links a:hover { text-decoration: underline; }
         .file-list { max-width: 1200px; margin: 0 auto; }
-        .file-item { background: #242424; border: 1px solid #333; border-radius: 12px; padding: 20px; margin-bottom: 15px; display: flex; align-items: center; gap: 20px; transition: border-color 0.2s; }
-        .file-item:hover { border-color: #444; }
-        .file-icon { font-size: 2rem; width: 60px; height: 60px; background: #333; display: flex; align-items: center; justify-content: center; border-radius: 12px; }
+        .file-item { background: rgba(36, 40, 59, 0.94); border: 1px solid #414868; border-radius: 12px; padding: 20px; margin-bottom: 15px; display: flex; align-items: center; gap: 20px; transition: border-color 0.2s; }
+        .file-item:hover { border-color: #7aa2f7; }
+        .file-icon { font-size: 2rem; width: 60px; height: 60px; background: rgba(26, 27, 38, 0.72); display: flex; align-items: center; justify-content: center; border-radius: 12px; }
         .file-info { flex: 1; min-width: 0; }
-        .file-info h3 { margin: 0 0 5px 0; font-size: 18px; color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-        .file-info p { margin: 0; font-size: 14px; color: #888; }
+        .file-info h3 { margin: 0 0 5px 0; font-size: 18px; color: #c0caf5; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .file-info p { margin: 0; font-size: 14px; color: #7f88b2; }
         .badge { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 12px; font-weight: bold; margin-left: 5px; }
-        .badge-report { background: #ff3b30; color: #fff; }
-        .badge-pass { background: #ff9500; color: #fff; }
+        .badge-report { background: #f7768e; color: #1a1b26; }
+        .badge-pass { background: #e0af68; color: #1a1b26; }
         .actions { display: flex; gap: 10px; }
         .btn { padding: 8px 16px; border-radius: 6px; border: none; cursor: pointer; font-weight: bold; transition: opacity 0.2s; }
         .btn:hover { opacity: 0.8; }
-        .btn-view { background: #34c759; color: #fff; }
-        .btn-delete { background: #ff3b30; color: #fff; }
-        .empty-state { text-align: center; color: #555; padding: 100px; font-size: 1.2rem; }
+        .btn-view { background: #7aa2f7; color: #1a1b26; }
+        .btn-delete { background: #f7768e; color: #1a1b26; }
+        .empty-state { text-align: center; color: #7f88b2; padding: 100px; font-size: 1.2rem; }
     </style>
 </head>
 <body>
@@ -96,16 +96,16 @@ $files = $stmt->fetchAll(PDO::FETCH_ASSOC);
         <?php endif; ?>
     </div>
 
-    <footer style="margin-top: 40px; padding: 20px; text-align: center; color: #888; font-size: 0.9rem; border-top: 1px solid rgba(255,255,255,0.05);">
+    <footer style="margin-top: 40px; padding: 20px; text-align: center; color: #7f88b2; font-size: 0.9rem; border-top: 1px solid rgba(122,162,247,0.12);">
         <div style="margin-bottom: 15px; display: flex; justify-content: center; gap: 20px; flex-wrap: wrap;">
-            <a href="index.php" style="color: #bbb; text-decoration: none;">🖼️ 圖片管理</a>
-            <a href="video.php" style="color: #bbb; text-decoration: none;">🎬 影片管理</a>
-            <a href="file.php" style="color: #bbb; text-decoration: none;">📂 文件管理</a>
-            <a href="/skill.php" target="_blank" style="color: #bbb; text-decoration: none;">🤖 AI Agent Skills</a>
+            <a href="index.php" style="color: #7dcfff; text-decoration: none;">🖼️ 圖片管理</a>
+            <a href="video.php" style="color: #7dcfff; text-decoration: none;">🎬 影片管理</a>
+            <a href="file.php" style="color: #7dcfff; text-decoration: none;">📂 文件管理</a>
+            <a href="/skill.php" target="_blank" style="color: #7dcfff; text-decoration: none;">🤖 AI Agent Skills</a>
         </div>
         <div>
             <span>© <?php echo date('Y'); ?> 888box</span> | 
-            <span>Created by <a href="https://david888.com" target="_blank" style="color: #bbb; text-decoration: none; font-weight: bold;">DAVID888</a></span>
+            <span>Created by <a href="https://david888.com" target="_blank" style="color: #7dcfff; text-decoration: none; font-weight: bold;">DAVID888</a></span>
         </div>
     </footer>
     <script>

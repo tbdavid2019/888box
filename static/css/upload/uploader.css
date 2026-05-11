@@ -286,7 +286,7 @@
 }
 
 .thumbnail-status.completed {
-    background: var(--success-color);
+    background: var(--primary-color);
 }
 
 .thumbnail-status.error {
