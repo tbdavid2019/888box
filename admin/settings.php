@@ -241,7 +241,7 @@ $basicSettings = [
         'label' => '每日限制',
         'type' => 'number',
         'min' => 1,
-        'placeholder' => '建議設定為 50',
+        'placeholder' => '建議設定為 100',
         'description' => '每日上傳次數限制',
         'half_width' => true
     ],

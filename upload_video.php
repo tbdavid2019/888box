@@ -66,11 +66,16 @@ try {
                     </div>
                 </div>
 
+                <div class="action-buttons action-buttons-top">
+                    <button type="button" class="btn secondary" data-video-action="clear">清空列表</button>
+                    <button type="button" class="btn primary" data-video-action="upload">開始依序上傳</button>
+                </div>
+
                 <div id="fileList"></div>
-                
-                <div class="action-buttons" style="margin-top: 30px;">
-                    <button id="cancelBtn" class="btn secondary">清空列表</button>
-                    <button id="uploadBtn" class="btn primary">開始依序上傳</button>
+
+                <div class="action-buttons action-buttons-bottom">
+                    <button type="button" class="btn secondary" data-video-action="clear">清空列表</button>
+                    <button type="button" class="btn primary" data-video-action="upload">開始依序上傳</button>
                 </div>
             </div>
         </div>

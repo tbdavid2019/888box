@@ -22,6 +22,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $id = $_POST['id'] ?? '';
     $title = $_POST['title'] ?? '';
     $description = $_POST['description'] ?? '';
+    $passwordAction = $_POST['password_action'] ?? 'keep';
+    $newPassword = $_POST['password'] ?? '';
     
     if (empty($id)) {
         ob_end_clean();
@@ -30,9 +32,27 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
     
     try {
-        // 更新資料庫
-        $stmt = $pdo->prepare("UPDATE images SET title = ?, description = ? WHERE id = ?");
-        $stmt->execute([$title, $description, $id]);
+        $fields = [
+            'title = ?',
+            'description = ?'
+        ];
+        $params = [$title, $description];
+
+        if ($passwordAction === 'set') {
+            if (trim($newPassword) === '') {
+                throw new Exception('請輸入新的存取密碼');
+            }
+            $fields[] = 'password = ?';
+            $params[] = password_hash($newPassword, PASSWORD_DEFAULT);
+        } elseif ($passwordAction === 'clear') {
+            $fields[] = 'password = NULL';
+        } elseif ($passwordAction !== 'keep') {
+            throw new Exception('無效的密碼操作');
+        }
+
+        $params[] = $id;
+        $stmt = $pdo->prepare("UPDATE images SET " . implode(', ', $fields) . " WHERE id = ?");
+        $stmt->execute($params);
         
         // 重建 RSS (確保標題描述同步)
         require_once 'config/video_logic.php';

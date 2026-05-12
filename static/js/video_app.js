@@ -4,8 +4,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const uploadPrompt = document.getElementById('uploadPrompt');
     const queueArea = document.getElementById('queueArea');
     const fileList = document.getElementById('fileList');
-    const uploadBtn = document.getElementById('uploadBtn');
-    const cancelBtn = document.getElementById('cancelBtn');
+    const uploadBtns = Array.from(document.querySelectorAll('[data-video-action="upload"]'));
+    const cancelBtns = Array.from(document.querySelectorAll('[data-video-action="clear"]'));
     const historySection = document.getElementById('videoHistorySection');
     const historyList = document.getElementById('videoHistoryList');
     const historyEmpty = document.getElementById('videoHistoryEmpty');
@@ -22,9 +22,33 @@ document.addEventListener('DOMContentLoaded', () => {
         alert('已清除影片最近上傳紀錄');
     });
 
+    function setUploadButtonsDisabled(disabled) {
+        uploadBtns.forEach((button) => {
+            button.disabled = disabled;
+        });
+    }
+
+    function setCancelButtonsDisabled(disabled) {
+        cancelBtns.forEach((button) => {
+            button.disabled = disabled;
+        });
+    }
+
+    function setUploadButtonsDisplay(display) {
+        uploadBtns.forEach((button) => {
+            button.style.display = display;
+        });
+    }
+
+    function setCancelButtonsText(text) {
+        cancelBtns.forEach((button) => {
+            button.textContent = text;
+        });
+    }
+
     // Trigger file select
     dropZone.addEventListener('click', (e) => {
-        if (!isUploading && e.target !== uploadBtn && e.target !== cancelBtn && !e.target.closest('.queue-item')) {
+        if (!isUploading && !e.target.closest('[data-video-action]') && !e.target.closest('.queue-item')) {
             videoInput.click();
         }
     });
@@ -81,6 +105,10 @@ document.addEventListener('DOMContentLoaded', () => {
         if (added) {
             uploadPrompt.style.display = 'none';
             queueArea.style.display = 'block';
+            setUploadButtonsDisplay('');
+            setUploadButtonsDisabled(false);
+            setCancelButtonsDisabled(false);
+            setCancelButtonsText('清空列表');
         }
     }
 
@@ -129,22 +157,30 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    cancelBtn.addEventListener('click', (e) => {
-        e.stopPropagation();
-        if (isUploading) return;
-        uploadQueue = [];
-        fileList.innerHTML = '';
-        uploadPrompt.style.display = 'block';
-        queueArea.style.display = 'none';
+    cancelBtns.forEach((button) => {
+        button.addEventListener('click', (e) => {
+            e.stopPropagation();
+            if (isUploading) return;
+            uploadQueue = [];
+            fileList.innerHTML = '';
+            uploadPrompt.style.display = 'block';
+            queueArea.style.display = 'none';
+            setUploadButtonsDisplay('');
+            setUploadButtonsDisabled(false);
+            setCancelButtonsDisabled(false);
+            setCancelButtonsText('清空列表');
+        });
     });
 
-    uploadBtn.addEventListener('click', (e) => {
-        e.stopPropagation();
-        if (isUploading || uploadQueue.length === 0) return;
-        isUploading = true;
-        uploadBtn.disabled = true;
-        cancelBtn.disabled = true;
-        uploadNextInQueue();
+    uploadBtns.forEach((button) => {
+        button.addEventListener('click', (e) => {
+            e.stopPropagation();
+            if (isUploading || uploadQueue.length === 0) return;
+            isUploading = true;
+            setUploadButtonsDisabled(true);
+            setCancelButtonsDisabled(true);
+            uploadNextInQueue();
+        });
     });
 
     function uploadNextInQueue() {
@@ -153,9 +189,9 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!nextItem) {
             // All done
             isUploading = false;
-            uploadBtn.style.display = 'none';
-            cancelBtn.textContent = '完成 (清除列表)';
-            cancelBtn.disabled = false;
+            setUploadButtonsDisplay('none');
+            setCancelButtonsText('完成 (清除列表)');
+            setCancelButtonsDisabled(false);
             return;
         }
 

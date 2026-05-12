@@ -3,6 +3,28 @@
 require_once __DIR__ . '/video_helper.php';
 require_once __DIR__ . '/upload.php';
 
+function resolvePodcastSiteUrl($config) {
+    $configuredDomains = array_filter(array_map('trim', explode(',', $config['site_domain'] ?? '')));
+    foreach ($configuredDomains as $domain) {
+        if ($domain === '*') {
+            continue;
+        }
+
+        if (preg_match('/^https?:\/\//i', $domain)) {
+            return rtrim($domain, '/');
+        }
+
+        return 'https://' . rtrim($domain, '/');
+    }
+
+    if (!empty($_SERVER['HTTP_HOST'])) {
+        $scheme = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https' : 'http';
+        return $scheme . '://' . $_SERVER['HTTP_HOST'];
+    }
+
+    return 'http://localhost';
+}
+
 /**
  * Handle video upload logic
  */
@@ -91,17 +113,16 @@ function handleVideoUpload($file, $pdo, $title = '', $description = '', $passwor
             'timestamp' => time()
         ];
 
-        // 6. Update RSS and JSON (Tasks 4 & 5)
-        // Skip RSS if password is set
-        if (empty($password)) {
-            updatePodcastRSS($videoData, $config);
-        }
-        updateDailyList($videoData, $config);
-        
-        // 7. Save to database (optional, but good for consistency)
+        // 6. Save to database first, then rebuild RSS from DB as the source of truth
         $hashedPassword = !empty($password) ? password_hash($password, PASSWORD_DEFAULT) : NULL;
         $stmt = $pdo->prepare("INSERT INTO images (url, path, storage, size, upload_ip, user_id, title, description, password) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)");
         $stmt->execute([$videoUrl, $videoRemotePath, $storage, $videoData['size'], getClientIp(), $user_id, $title, $description, $hashedPassword]);
+
+        // 7. Update RSS and JSON
+        if (empty($password)) {
+            rebuildVideoRSS($pdo, $config);
+        }
+        updateDailyList($videoData, $config);
 
         return $videoData;
         
@@ -166,7 +187,7 @@ function updatePodcastRSS($videoData, $config) {
             
             $channel->appendChild($dom->createElement('title', '888box Video Podcast'));
             $channel->appendChild($dom->createElement('description', 'Automatically generated video podcast from 888box uploads.'));
-            $channel->appendChild($dom->createElement('link', 'https://' . $_SERVER['HTTP_HOST']));
+            $channel->appendChild($dom->createElement('link', resolvePodcastSiteUrl($config)));
             $channel->appendChild($dom->createElement('language', 'zh-tw'));
         }
         
@@ -286,7 +307,7 @@ function rebuildVideoRSS($pdo, $config) {
         
         $channel->appendChild($dom->createElement('title', '888box Video Podcast'));
         $channel->appendChild($dom->createElement('description', 'Automatically generated video podcast from 888box uploads.'));
-        $channel->appendChild($dom->createElement('link', 'https://' . $_SERVER['HTTP_HOST']));
+        $channel->appendChild($dom->createElement('link', resolvePodcastSiteUrl($config)));
         $channel->appendChild($dom->createElement('language', 'zh-tw'));
         
         // Fetch all videos from DB (Exclude password protected ones)

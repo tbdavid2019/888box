@@ -136,6 +136,15 @@ body {
     display: flex;
     justify-content: center;
     gap: 15px;
+    flex-wrap: wrap;
+}
+
+.action-buttons-top {
+    margin-bottom: 24px;
+}
+
+.action-buttons-bottom {
+    margin-top: 30px;
 }
 
 .btn {
@@ -521,6 +530,14 @@ body {
 }
 
 @media (max-width: 640px) {
+    .action-buttons {
+        flex-direction: column;
+    }
+
+    .action-buttons .btn {
+        width: 100%;
+    }
+
     .history-item {
         align-items: flex-start;
         flex-direction: column;

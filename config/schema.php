@@ -52,7 +52,7 @@ function getCoreConfigDefaults($siteUrl) {
         'local_cdn_domain' => ['', '本地CDN域名'],
         'per_page' => ['20', '每頁顯示數量'],
         'login_restriction' => ['false', '登入保護'],
-        'max_uploads_per_day' => ['50', '每日上傳限制'],
+        'max_uploads_per_day' => ['100', '每日上傳限制'],
         'max_file_size' => [(string) (100 * 1024 * 1024), '單一圖片大小限制（Bytes）'],
         'max_video_size' => ['500', '單一影片大小限制（MB）'],
         'output_format' => ['webp', '輸出圖片格式'],
