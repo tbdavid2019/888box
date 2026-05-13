@@ -9,14 +9,17 @@
 ### 🖼️ 圖片託管中心
 - **極速上傳**：支援拖曳、剪貼簿貼上上傳，具備強大的圖片壓縮與格式轉換（WebP）功能。
 - **智能處理**：自動校正 JPEG 方向，保留/移除 Exif 資訊。
+- **本機進度統計**：顯示本批成功上傳數，並在目前瀏覽器記錄圖片的今日與累計上傳數量。
 
 ### 🎬 影片與 Podcast 系統
 - **自動化 RSS**：上傳影片後自動生成相容 iTunes 的 Podcast RSS (`podcast.xml`)，支援主流播客 App 訂閱。
 - **MetaData 提取**：自動擷取影片長度、解析度、碼率，並於第 1 秒處自動生成預覽縮圖。
+- **批次進度可視化**：影片佇列頁面會顯示本批成功數，以及這台裝置在目前瀏覽器中的今日/累計影片上傳數。
 
 ### 📂 文件託管中心
 - **萬用支援**：支援 ZIP, PDF, Word, Excel, Visio 等多種文件格式。
 - **EPUB 閱讀器**：內建 `epub.js` 支援，電子書可直接線上閱讀，無需下載。
+- **本機上傳計數**：文件上傳頁面會在不依賴後端資料庫的情況下，顯示本批成功數與裝置端的今日/累計上傳數。
 ![alt text](image-4.png)
 
 ### 🛡️ 安全、分析與舉報
@@ -126,6 +129,12 @@ cp .env.example .env
    ```bash
    docker exec -it 888box php -r '$pdo = new PDO("sqlite:/var/www/html/storage/database.db"); echo $pdo->query("SELECT value FROM configs WHERE key = '\''max_uploads_per_day'\'' LIMIT 1")->fetchColumn(), PHP_EOL;'
    ```
+
+### 前端本機統計說明
+- `upload_image.php`、`upload_video.php`、`upload_file.php` 都會顯示「本批成功」、「今日上傳」、「累計上傳」。
+- 「本批成功」只統計目前這一批 queue 中成功完成的項目，清空列表或重新建立新 queue 後會重新計算。
+- 「今日上傳」與「累計上傳」儲存在瀏覽器 `localStorage`，只對目前裝置與目前瀏覽器有效，不會跨裝置同步。
+- 若使用者清除瀏覽器資料、改用其他瀏覽器、或從其他 API / 後台入口上傳，這些本機統計不會保留或合併。
 
 ## 📄 授權協議
 本專案採用 AGPL-3.0 授權協議。詳見 [LICENSE](LICENSE) 檔案。

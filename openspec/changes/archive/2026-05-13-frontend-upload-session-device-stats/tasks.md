@@ -24,6 +24,6 @@
 
 ## 5. Verification
 
-- [ ] 5.1 Verify that successful uploads update session, daily, and total counts for image, video, and file frontends.
-- [ ] 5.2 Verify that failed, canceled, or aborted uploads do not increment session or device-local stats.
-- [ ] 5.3 Verify that starting a new queue run resets only the current session summary while keeping device-local totals intact.
+- [x] 5.1 Verify that successful uploads update session, daily, and total counts for image, video, and file frontends.
+- [x] 5.2 Verify that failed, canceled, or aborted uploads do not increment session or device-local stats.
+- [x] 5.3 Verify that starting a new queue run resets only the current session summary while keeping device-local totals intact.

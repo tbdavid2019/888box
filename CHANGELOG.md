@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file.
 
+## [2026.5.13] - 2026-05-13
+
+### ✨ Added
+- **Queue Session Upload Stats**: Added per-batch success counters to the image, video, and file upload frontends so operators can immediately see how many items in the current queue run have completed successfully.
+- **Device-Local Upload Totals**: Added browser `localStorage` counters for daily and cumulative uploads on each public upload frontend, tracked separately for images, videos, and files on the current device/browser.
+
+### 📝 Docs
+- **Frontend Upload Stats Proposal**: Added and completed the OpenSpec change artifacts for `frontend-upload-session-device-stats`, documenting the client-side session and device-local stats behavior.
+
 ## [2026.5.12] - 2026-05-13
 
 ### 🐛 Fixed
