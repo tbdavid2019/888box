@@ -2,6 +2,20 @@
 
 All notable changes to this project will be documented in this file.
 
+## [2026.5.12] - 2026-05-13
+
+### 🐛 Fixed
+- **Video Upload Queue UI Overflow**: Fixed the legacy video upload page so the `開始依序上傳` action remains reachable even when the queue grows beyond 5 items or the viewport is narrow.
+- **Video Password Admin Controls**: Added admin-side edit/remove password controls for uploaded videos, closing a gap where password-protected assets could not be adjusted after upload.
+- **Podcast RSS Rebuild Reliability**: Changed video publish flow to rebuild `storage/podcast.xml` from the current database state instead of incrementally appending only, reducing feed drift on long-running deployments.
+- **Podcast RSS Base URL Fallback**: Hardened RSS generation so site links no longer degrade to invalid placeholders like `https://` when rebuilds run without a normal browser host context.
+- **Podcast RSS Permission Recovery**: Documented and reinforced the expectation that `storage/database.db`, `storage/podcast.xml`, and `storage/podcast.xml.lock` must remain writable by container user `www-data`, which is critical for live RSS updates.
+- **Legacy SQLite Asset Flags**: Added runtime/install/migration self-healing for `images.is_video` and `images.is_file`, with backfill logic for older databases that predate the unified asset model.
+- **Install Default Upload Cap**: Updated installation/bootstrap defaults so fresh deployments now seed `max_uploads_per_day=100` instead of `50`.
+
+### 📝 Docs
+- **Deployment Permission Notes**: Expanded `README.md` to explain Docker ownership expectations for `storage/`, how to diagnose `podcast.xml` permission regressions, and when to use `docker compose up -d --build` during upgrades.
+
 ## [2026.5.11] - 2026-05-08
 
 ### ✨ Added

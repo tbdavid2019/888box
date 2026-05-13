@@ -47,10 +47,12 @@ fi
 echo "📂 正在初始化目錄結構..."
 mkdir -p storage/i
 # 嘗試設定權限 (UID 33 是 Docker 內 www-data 的預設值)
+# podcast.xml / podcast.xml.lock / database.db 都會落在 storage/ 下，必須保持 www-data 可寫
 if [ "$EUID" -eq 0 ]; then
     chown -R 33:33 storage
 else
     echo "⚠️ 警告: 非 root 執行，請確保 storage/ 目錄具備寫入權限 (建議 chown -R 33:33 storage)"
+    echo "⚠️ 若 storage/database.db、storage/podcast.xml 或 storage/podcast.xml.lock 被 root 擁有，影片上傳後 RSS 可能無法更新。"
 fi
 
 # 3. 準備 .env
@@ -80,6 +82,7 @@ $COMPOSE_CMD up -d --build
 
 # 再次確保權限正確 (透過 Docker 執行，避免宿主機無權限問題)
 echo "🔒 正在修復容器內目錄權限..."
+echo "   目標: 確保 storage/database.db、podcast.xml、podcast.xml.lock 最終由 www-data 可寫"
 docker exec 888box chown -R 33:33 /var/www/html/storage
 
 echo "------------------------------------------------"

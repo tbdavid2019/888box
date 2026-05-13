@@ -49,6 +49,21 @@ cd 888box
 5.  **共用 Bootstrap**：透過 `config/schema.php` 建立核心 schema 與基礎設定，不再由不同安裝入口各自維護一套 SQL。
 6.  **互動式設定**：引導你設定第一個**管理員帳號與密碼**。
 
+### 安裝與升級注意事項
+- Docker 容器內實際寫入 `storage/` 的使用者是 `www-data`（UID/GID 33），包含 `storage/database.db`、`storage/podcast.xml`、`storage/podcast.xml.lock`。
+- 若你在宿主機用 `root` 手動重建 RSS、複製檔案、或直接覆寫 `storage/` 內容，可能會把檔案 owner 改成 `root:root`，進而導致後續影片上傳成功但 RSS 無法更新。
+- `install.sh` 會先在宿主機嘗試 `chown -R 33:33 storage`，容器啟動後也會再執行一次 `docker exec 888box chown -R 33:33 /var/www/html/storage`，目的是把 writable 檔案統一交回 `www-data`。
+- 若既有站台出現 RSS 停止更新，可優先檢查：
+  ```bash
+  docker exec 888box sh -lc 'stat -c "%U:%G %a %n" /var/www/html/storage/database.db /var/www/html/storage/podcast.xml /var/www/html/storage/podcast.xml.lock'
+  ```
+- 若 owner 不是 `www-data:www-data`，可修正為：
+  ```bash
+  docker exec 888box chown -R 33:33 /var/www/html/storage
+  ```
+- 專案目前預設 `max_uploads_per_day` 為 `100`。`install.sh` 會在新安裝時寫入這個值，但既有部署若資料庫裡已經有舊值（例如 `50`），升級程式碼後不會自動覆蓋，需另外更新 `configs` 表或從後台設定頁修改。
+- 舊版 SQLite 若缺少 `images.is_video`、`images.is_file`，現在會在 runtime / install / migration 流程中由 `config/schema.php` 自動補欄位並回填既有資料，不需要手動執行 `ALTER TABLE`。
+
 ### `.env` 範例
 專案現在提供 [.env.example](.env.example)。若你不走互動式安裝，可先複製一份：
 
@@ -92,6 +107,8 @@ cp .env.example .env
 - 核心資料表定義與 bootstrap 邏輯統一放在 [config/schema.php](config/schema.php)
 - `config/database.php`、`install/index.php`、`install.sh`、`migrate.php` 都共用這一份定義
 - 若未來需要新增核心欄位或調整初始化行為，應優先修改 `config/schema.php`
+- `images` 表除了圖片，也承載影片與一般檔案；目前透過 `mime_type`、`is_video`、`is_file` 區分資產類型
+- 既有資料庫若缺少這些旗標欄位，`ensureCoreSchema()` 會自動補齊並回填舊資料，避免不同部署之間 schema 漂移
 
 ### 手動管理指令
 - **啟動**：`docker compose up -d`
@@ -99,11 +116,16 @@ cp .env.example .env
 - **更新代碼**：`git pull && docker compose restart`
 - **重構環境**：`docker compose up -d --build` (當 Dockerfile 有變動時)
 - **同步環境變數後重啟**：若修改 `.env` 的儲存設定，建議執行 `docker compose restart`
+- **部署 schema / Dockerfile 變更**：若更新包含 migration、自動補欄位或容器權限調整，建議使用 `git pull && docker compose up -d --build`
 - **手動建立/重設管理員帳號**：
   若未執行安裝腳本，可透過此指令建立帳號（請替換 `YOUR_USER` 與 `YOUR_PASS`）：
   ```bash
   docker exec -it 888box php -r "$u='YOUR_USER'; $p='YOUR_PASS'; $pdo = new PDO('sqlite:/var/www/html/storage/database.db'); $h = password_hash($p, PASSWORD_DEFAULT); $t = bin2hex(random_bytes(16)); $stmt = $pdo->prepare('INSERT OR REPLACE INTO users (username, password, token) VALUES (?, ?, ?)'); $stmt->execute([$u, $h, $t]); echo \"User $u created.\n\";"
   ```
+- **檢查每日上傳限制**：
+   ```bash
+   docker exec -it 888box php -r '$pdo = new PDO("sqlite:/var/www/html/storage/database.db"); echo $pdo->query("SELECT value FROM configs WHERE key = '\''max_uploads_per_day'\'' LIMIT 1")->fetchColumn(), PHP_EOL;'
+   ```
 
 ## 📄 授權協議
 本專案採用 AGPL-3.0 授權協議。詳見 [LICENSE](LICENSE) 檔案。
