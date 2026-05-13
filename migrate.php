@@ -201,6 +201,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $step === 1) {
             }
             $pdo->commit();
         }
+
+        // 依目前 repo 的核心 schema 再做一次補欄位與旗標回填，確保舊站升級後結構一致
+        ensureCoreSchema($pdo);
         
         // 更新 .env
         $envBackup = $envFile . '.mysql.backup.' . date('YmdHis');

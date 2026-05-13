@@ -16,7 +16,9 @@ function getCoreTableSql() {
             password VARCHAR(255) DEFAULT NULL,
             view_count INTEGER DEFAULT 0,
             report_count INTEGER DEFAULT 0,
-            mime_type VARCHAR(100) NULL
+            mime_type VARCHAR(100) NULL,
+            is_video INTEGER DEFAULT 0,
+            is_file INTEGER DEFAULT 0
         )",
         'users' => "CREATE TABLE IF NOT EXISTS users (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -41,8 +43,42 @@ function getCoreImageColumns() {
         'password' => 'VARCHAR(255) DEFAULT NULL',
         'view_count' => 'INTEGER DEFAULT 0',
         'report_count' => 'INTEGER DEFAULT 0',
-        'mime_type' => 'VARCHAR(100) NULL'
+        'mime_type' => 'VARCHAR(100) NULL',
+        'is_video' => 'INTEGER DEFAULT 0',
+        'is_file' => 'INTEGER DEFAULT 0'
     ];
+}
+
+function getVideoAssetConditionSql() {
+    return "("
+        . "LOWER(COALESCE(mime_type, '')) LIKE 'video/%'"
+        . " OR LOWER(COALESCE(url, '')) LIKE '%.mp4'"
+        . " OR LOWER(COALESCE(url, '')) LIKE '%.webm'"
+        . " OR LOWER(COALESCE(url, '')) LIKE '%.mov'"
+        . " OR LOWER(COALESCE(url, '')) LIKE '%.mkv'"
+        . " OR LOWER(COALESCE(path, '')) LIKE '%.mp4'"
+        . " OR LOWER(COALESCE(path, '')) LIKE '%.webm'"
+        . " OR LOWER(COALESCE(path, '')) LIKE '%.mov'"
+        . " OR LOWER(COALESCE(path, '')) LIKE '%.mkv'"
+        . ")";
+}
+
+function getImageAssetConditionSql() {
+    return "("
+        . "LOWER(COALESCE(mime_type, '')) LIKE 'image/%'"
+        . " OR LOWER(COALESCE(url, '')) LIKE '%.jpg'"
+        . " OR LOWER(COALESCE(url, '')) LIKE '%.jpeg'"
+        . " OR LOWER(COALESCE(url, '')) LIKE '%.png'"
+        . " OR LOWER(COALESCE(url, '')) LIKE '%.gif'"
+        . " OR LOWER(COALESCE(url, '')) LIKE '%.webp'"
+        . " OR LOWER(COALESCE(url, '')) LIKE '%.svg'"
+        . " OR LOWER(COALESCE(path, '')) LIKE '%.jpg'"
+        . " OR LOWER(COALESCE(path, '')) LIKE '%.jpeg'"
+        . " OR LOWER(COALESCE(path, '')) LIKE '%.png'"
+        . " OR LOWER(COALESCE(path, '')) LIKE '%.gif'"
+        . " OR LOWER(COALESCE(path, '')) LIKE '%.webp'"
+        . " OR LOWER(COALESCE(path, '')) LIKE '%.svg'"
+        . ")";
 }
 
 function getCoreConfigDefaults($siteUrl) {
@@ -124,8 +160,29 @@ function normalizeConfigsTable($pdo) {
 }
 
 function ensureCoreSchema($pdo) {
+    createCoreTables($pdo);
     normalizeConfigsTable($pdo);
     ensureColumns($pdo, 'images', getCoreImageColumns());
+    backfillAssetFlags($pdo);
+}
+
+function backfillAssetFlags($pdo) {
+    $videoCondition = getVideoAssetConditionSql();
+    $imageCondition = getImageAssetConditionSql();
+
+    $pdo->exec("
+        UPDATE images
+        SET
+            is_video = CASE
+                WHEN $videoCondition THEN 1
+                ELSE 0
+            END,
+            is_file = CASE
+                WHEN $videoCondition THEN 0
+                WHEN $imageCondition THEN 0
+                ELSE 1
+            END
+    ");
 }
 
 function seedCoreConfigs($pdo, $siteUrl) {

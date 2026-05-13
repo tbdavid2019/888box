@@ -79,7 +79,7 @@ function handleFileUpload($file, $pdo, $config) {
         }
         
         // 5. Save to database
-        $stmt = $pdo->prepare("INSERT INTO images (url, path, storage, size, upload_ip, user_id, title, description, password, mime_type) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+        $stmt = $pdo->prepare("INSERT INTO images (url, path, storage, size, upload_ip, user_id, title, description, password, mime_type, is_video, is_file) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
         $stmt->execute([
             $fileUrl, 
             $remotePath, 
@@ -90,7 +90,9 @@ function handleFileUpload($file, $pdo, $config) {
             $title, 
             $description, 
             !empty($password) ? password_hash($password, PASSWORD_DEFAULT) : NULL,
-            $mimeType
+            $mimeType,
+            0,
+            1
         ]);
         
         $dbId = $pdo->lastInsertId();

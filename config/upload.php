@@ -385,8 +385,8 @@ function handleUploadedFile($file, $token, $referer, $password = '') {
         $storagePath = ($storage === 'local') ? $finalFilePath : $filePath;
         
         $hashedPassword = !empty($password) ? password_hash($password, PASSWORD_DEFAULT) : NULL;
-        $stmt = $pdo->prepare("INSERT INTO images (url, path, storage, size, upload_ip, user_id, password) VALUES (?, ?, ?, ?, ?, ?, ?)");
-        $stmt->execute([$fileUrl, $storagePath, $storage, $fileSize, getClientIp(), $user_id, $hashedPassword]);
+        $stmt = $pdo->prepare("INSERT INTO images (url, path, storage, size, upload_ip, user_id, password, mime_type, is_video, is_file) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+        $stmt->execute([$fileUrl, $storagePath, $storage, $fileSize, getClientIp(), $user_id, $hashedPassword, $mimeType, 0, 0]);
         
         // 记录上传成功日志
         $clientIp = getClientIp();
