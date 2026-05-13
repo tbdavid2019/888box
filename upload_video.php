@@ -78,6 +78,27 @@ try {
                     <button type="button" class="btn primary" data-video-action="upload">開始依序上傳</button>
                 </div>
             </div>
+
+            <section class="session-stats-panel">
+                <div class="session-stats-header">
+                    <h3>本機上傳統計</h3>
+                    <span class="session-stats-note">僅限此裝置瀏覽器</span>
+                </div>
+                <div class="session-stats-grid">
+                    <div class="session-stat-card">
+                        <span class="session-stat-label">本批成功</span>
+                        <strong id="videoSessionCount" class="session-stat-value">0 / 0</strong>
+                    </div>
+                    <div class="session-stat-card">
+                        <span class="session-stat-label">今日上傳</span>
+                        <strong id="videoDailyCount" class="session-stat-value">0</strong>
+                    </div>
+                    <div class="session-stat-card">
+                        <span class="session-stat-label">累計上傳</span>
+                        <strong id="videoTotalCount" class="session-stat-value">0</strong>
+                    </div>
+                </div>
+            </section>
         </div>
 
         <div class="rss-notify" style="margin-top: 20px;">
@@ -117,6 +138,7 @@ try {
     </footer>
 
     <script src="static/js/upload_history.js?v=<?php echo time(); ?>"></script>
+    <script src="static/js/upload_stats.js?v=<?php echo time(); ?>"></script>
     <script src="static/js/video_app.js?v=<?php echo time(); ?>"></script>
     <script>
         function forceClearCache() {

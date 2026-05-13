@@ -10,10 +10,16 @@ document.addEventListener('DOMContentLoaded', () => {
     const historyList = document.getElementById('videoHistoryList');
     const historyEmpty = document.getElementById('videoHistoryEmpty');
     const clearHistoryBtn = document.getElementById('clearVideoHistoryBtn');
+    const sessionCount = document.getElementById('videoSessionCount');
+    const dailyCount = document.getElementById('videoDailyCount');
+    const totalCount = document.getElementById('videoTotalCount');
 
     let uploadQueue = [];
     let isUploading = false;
+    let sessionSuccessCount = 0;
+    let sessionTotalCount = 0;
 
+    renderVideoStats();
     renderVideoHistory();
 
     clearHistoryBtn.addEventListener('click', () => {
@@ -48,7 +54,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Trigger file select
     dropZone.addEventListener('click', (e) => {
-        if (!isUploading && !e.target.closest('[data-video-action]') && !e.target.closest('.queue-item')) {
+        if (!isUploading && !e.target.closest('[data-video-action]') && !e.target.closest('.queue-item') && !e.target.closest('.session-stats-panel')) {
             videoInput.click();
         }
     });
@@ -105,10 +111,12 @@ document.addEventListener('DOMContentLoaded', () => {
         if (added) {
             uploadPrompt.style.display = 'none';
             queueArea.style.display = 'block';
+            sessionTotalCount = uploadQueue.length;
             setUploadButtonsDisplay('');
             setUploadButtonsDisabled(false);
             setCancelButtonsDisabled(false);
             setCancelButtonsText('清空列表');
+            renderVideoStats();
         }
     }
 
@@ -162,6 +170,8 @@ document.addEventListener('DOMContentLoaded', () => {
             e.stopPropagation();
             if (isUploading) return;
             uploadQueue = [];
+            sessionSuccessCount = 0;
+            sessionTotalCount = 0;
             fileList.innerHTML = '';
             uploadPrompt.style.display = 'block';
             queueArea.style.display = 'none';
@@ -169,6 +179,7 @@ document.addEventListener('DOMContentLoaded', () => {
             setUploadButtonsDisabled(false);
             setCancelButtonsDisabled(false);
             setCancelButtonsText('清空列表');
+            renderVideoStats();
         });
     });
 
@@ -177,8 +188,11 @@ document.addEventListener('DOMContentLoaded', () => {
             e.stopPropagation();
             if (isUploading || uploadQueue.length === 0) return;
             isUploading = true;
+            sessionSuccessCount = 0;
+            sessionTotalCount = uploadQueue.length;
             setUploadButtonsDisabled(true);
             setCancelButtonsDisabled(true);
+            renderVideoStats();
             uploadNextInQueue();
         });
     });
@@ -257,6 +271,8 @@ document.addEventListener('DOMContentLoaded', () => {
                         resDiv.style.display = 'flex';
                         document.getElementById('url_' + id).value = res.data.url;
                         document.getElementById('thumb_' + id).value = res.data.thumbnail_url || '無封面圖';
+                        sessionSuccessCount++;
+                        window.UploadStats.increment('video');
 
                         window.UploadHistory.add('video', {
                             url: res.data.url,
@@ -265,6 +281,7 @@ document.addEventListener('DOMContentLoaded', () => {
                             filename: item.file.name,
                             createdAt: new Date().toISOString()
                         });
+                        renderVideoStats();
                         renderVideoHistory();
                     } else {
                         item.status = 'error';
@@ -380,6 +397,13 @@ document.addEventListener('DOMContentLoaded', () => {
             item.appendChild(content);
             historyList.appendChild(item);
         });
+    }
+
+    function renderVideoStats() {
+        const summary = window.UploadStats.getSummary('video');
+        sessionCount.textContent = `${sessionSuccessCount} / ${sessionTotalCount}`;
+        dailyCount.textContent = String(summary.today || 0);
+        totalCount.textContent = String(summary.total || 0);
     }
 
     function formatTimestamp(createdAt) {

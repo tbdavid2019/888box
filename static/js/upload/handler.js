@@ -131,6 +131,8 @@ export class ImageHandler {
             this.previewState.addImage(file);
             this.uploadQueue.push({ file, index });
         });
+
+        this.emitStatsUpdated();
         
         this.loadImagePreview(0);
         
@@ -166,6 +168,7 @@ export class ImageHandler {
             if (file && this.validateFile(file)) {
                 this.previewState.addImage(file);
                 this.uploadQueue.push({ file, index: 0 });
+                this.emitStatsUpdated();
                 this.loadImagePreview(0);
                 this.showPreview(0);
                 
@@ -204,6 +207,11 @@ export class ImageHandler {
         this.previewState.clear();
         this.uploadQueue = [];
         UI.uploadedCount = 0;
+        this.emitStatsUpdated();
+    }
+
+    emitStatsUpdated() {
+        window.dispatchEvent(new CustomEvent('image-upload-stats-updated'));
     }
 
     createThumbnails() {
@@ -403,6 +411,7 @@ export class ImageHandler {
         if (response.data?.url) {
             UI.uploadedCount++;
             this.previewState.setUploadedUrl(imageIndex, response.data);
+            window.UploadStats.increment('image');
             window.UploadHistory.add('image', {
                 url: response.data.url,
                 previewUrl: response.data.url,
@@ -410,6 +419,7 @@ export class ImageHandler {
                 createdAt: new Date().toISOString()
             });
             window.dispatchEvent(new CustomEvent('image-upload-history-updated'));
+            this.emitStatsUpdated();
             Thumbnails.updateStatus(imageIndex, 'completed');
             
             if (imageIndex === this.previewState.currentIndex) {
@@ -456,11 +466,13 @@ export class ImageHandler {
         
         this.previewState.clear();
         this.uploadQueue = [];
+        UI.uploadedCount = 0;
         clearTimeout(this.urlInputTimeout);
         
         this.dom.imagePreviewContainer.classList.remove('active');
         this.dom.imagePreview.src = '';
         UI.updateCopyButtonsState(false);
         Thumbnails.clear();
+        this.emitStatsUpdated();
     }
 }

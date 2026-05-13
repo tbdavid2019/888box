@@ -10,10 +10,16 @@ document.addEventListener('DOMContentLoaded', () => {
     const historyList = document.getElementById('fileHistoryList');
     const historyEmpty = document.getElementById('fileHistoryEmpty');
     const clearHistoryBtn = document.getElementById('clearFileHistoryBtn');
+    const sessionCount = document.getElementById('fileSessionCount');
+    const dailyCount = document.getElementById('fileDailyCount');
+    const totalCount = document.getElementById('fileTotalCount');
 
     let uploadQueue = [];
     let isUploading = false;
+    let sessionSuccessCount = 0;
+    let sessionTotalCount = 0;
 
+    renderFileStats();
     renderFileHistory();
 
     clearHistoryBtn.addEventListener('click', () => {
@@ -24,7 +30,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Trigger file select
     dropZone.addEventListener('click', (e) => {
-        if (!isUploading && e.target !== uploadBtn && e.target !== cancelBtn && !e.target.closest('.queue-item')) {
+        if (!isUploading && e.target !== uploadBtn && e.target !== cancelBtn && !e.target.closest('.queue-item') && !e.target.closest('.session-stats-panel')) {
             fileInput.click();
         }
     });
@@ -64,6 +70,8 @@ document.addEventListener('DOMContentLoaded', () => {
         if (added) {
             uploadPrompt.style.display = 'none';
             queueArea.style.display = 'block';
+            sessionTotalCount = uploadQueue.length;
+            renderFileStats();
         }
     }
 
@@ -112,17 +120,23 @@ document.addEventListener('DOMContentLoaded', () => {
         e.stopPropagation();
         if (isUploading) return;
         uploadQueue = [];
+        sessionSuccessCount = 0;
+        sessionTotalCount = 0;
         fileList.innerHTML = '';
         uploadPrompt.style.display = 'block';
         queueArea.style.display = 'none';
+        renderFileStats();
     });
 
     uploadBtn.addEventListener('click', (e) => {
         e.stopPropagation();
         if (isUploading || uploadQueue.length === 0) return;
         isUploading = true;
+        sessionSuccessCount = 0;
+        sessionTotalCount = uploadQueue.length;
         uploadBtn.disabled = true;
         cancelBtn.disabled = true;
+        renderFileStats();
         uploadNextInQueue();
     });
 
@@ -189,6 +203,8 @@ document.addEventListener('DOMContentLoaded', () => {
                         const resDiv = document.getElementById('res_' + id);
                         resDiv.style.display = 'flex';
                         document.getElementById('url_' + id).value = res.data.share_url || res.data.url;
+                        sessionSuccessCount++;
+                        window.UploadStats.increment('file');
 
                         window.UploadHistory.add('file', {
                             shareUrl: res.data.share_url || '',
@@ -198,6 +214,7 @@ document.addEventListener('DOMContentLoaded', () => {
                             mimeType: item.file.type || '',
                             createdAt: new Date().toISOString()
                         });
+                        renderFileStats();
                         renderFileHistory();
                     } else {
                         item.status = 'error';
@@ -301,6 +318,13 @@ document.addEventListener('DOMContentLoaded', () => {
             item.appendChild(content);
             historyList.appendChild(item);
         });
+    }
+
+    function renderFileStats() {
+        const summary = window.UploadStats.getSummary('file');
+        sessionCount.textContent = `${sessionSuccessCount} / ${sessionTotalCount}`;
+        dailyCount.textContent = String(summary.today || 0);
+        totalCount.textContent = String(summary.total || 0);
     }
 
     function fileGlyph(filename) {

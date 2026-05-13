@@ -395,6 +395,61 @@ body {
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
 }
 
+.session-stats-panel {
+    margin-top: 24px;
+    padding: 18px 20px;
+    border-radius: 14px;
+    background: rgba(22, 22, 30, 0.56);
+    border: 1px solid rgba(122, 162, 247, 0.16);
+    text-align: left;
+}
+
+.session-stats-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 14px;
+}
+
+.session-stats-header h3 {
+    margin: 0;
+    font-size: 1rem;
+    color: var(--text-main);
+}
+
+.session-stats-note {
+    color: var(--text-muted);
+    font-size: 0.82rem;
+}
+
+.session-stats-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 12px;
+}
+
+.session-stat-card {
+    padding: 14px;
+    border-radius: 12px;
+    background: rgba(31, 35, 53, 0.88);
+    border: 1px solid rgba(122, 162, 247, 0.12);
+}
+
+.session-stat-label {
+    display: block;
+    margin-bottom: 6px;
+    color: var(--text-muted);
+    font-size: 0.85rem;
+}
+
+.session-stat-value {
+    display: block;
+    color: var(--text-main);
+    font-size: 1.2rem;
+    font-weight: 700;
+}
+
 .history-panel[hidden] {
     display: none;
 }
@@ -541,6 +596,10 @@ body {
     .history-item {
         align-items: flex-start;
         flex-direction: column;
+    }
+
+    .session-stats-grid {
+        grid-template-columns: 1fr;
     }
 
     .history-thumb,

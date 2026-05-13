@@ -194,6 +194,62 @@ try {
             margin-right: auto;
             line-height: 1.5;
         }
+
+        .image-stats-card {
+            border-radius: 20px;
+            padding: 24px;
+        }
+
+        .image-stats-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+
+        .image-stats-header h3 {
+            margin: 0;
+            color: var(--page-text);
+        }
+
+        .image-stats-note {
+            color: var(--page-muted);
+            font-size: 0.82rem;
+        }
+
+        .image-stats-grid {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 12px;
+        }
+
+        .image-stat-item {
+            border-radius: 16px;
+            padding: 16px;
+            background: var(--page-surface);
+            border: 1px solid var(--page-border);
+        }
+
+        .image-stat-label {
+            display: block;
+            color: var(--page-muted);
+            font-size: 0.85rem;
+            margin-bottom: 6px;
+        }
+
+        .image-stat-value {
+            display: block;
+            color: var(--page-text);
+            font-size: 1.2rem;
+            font-weight: bold;
+        }
+
+        @media (max-width: 840px) {
+            .image-stats-grid {
+                grid-template-columns: 1fr;
+            }
+        }
     </style>
 </head>
 <body>
@@ -312,6 +368,27 @@ try {
                 </div>
             </div>
 
+            <section class="image-stats-card blur">
+                <div class="image-stats-header">
+                    <h3>本機上傳統計</h3>
+                    <span class="image-stats-note">僅限此裝置瀏覽器</span>
+                </div>
+                <div class="image-stats-grid">
+                    <div class="image-stat-item">
+                        <span class="image-stat-label">本批成功</span>
+                        <strong id="imageSessionCount" class="image-stat-value">0 / 0</strong>
+                    </div>
+                    <div class="image-stat-item">
+                        <span class="image-stat-label">今日上傳</span>
+                        <strong id="imageDailyCount" class="image-stat-value">0</strong>
+                    </div>
+                    <div class="image-stat-item">
+                        <span class="image-stat-label">累計上傳</span>
+                        <strong id="imageTotalCount" class="image-stat-value">0</strong>
+                    </div>
+                </div>
+            </section>
+
             <!-- 图片/影片信息展示 -->
             <div id="imageInfo" class="imageInfo blur" style="margin-bottom: 0;">
                 <div class="image-info-block">
@@ -394,6 +471,7 @@ try {
         </div>
     </footer>
     <script src="static/js/upload_history.js?v=<?php echo time(); ?>"></script>
+    <script src="static/js/upload_stats.js?v=<?php echo time(); ?>"></script>
     <script type="module" src="static/js/main.js?v=<?php echo time(); ?>" data-max-file-size="<?php echo $maxFileSize; ?>">
     </script>
     <script>

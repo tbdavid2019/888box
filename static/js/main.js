@@ -120,7 +120,10 @@ document.addEventListener('DOMContentLoaded', () => {
         historySection: document.getElementById('imageHistorySection'),
         historyList: document.getElementById('imageHistoryList'),
         historyEmpty: document.getElementById('imageHistoryEmpty'),
-        clearHistoryBtn: document.getElementById('clearImageHistoryBtn')
+        clearHistoryBtn: document.getElementById('clearImageHistoryBtn'),
+        sessionCount: document.getElementById('imageSessionCount'),
+        dailyCount: document.getElementById('imageDailyCount'),
+        totalCount: document.getElementById('imageTotalCount')
     };
     
     initialize();
@@ -136,6 +139,7 @@ function initialize() {
     loadSavedQuality();
     UI.updateCopyButtonsState(false);
     UI.updateLinkDisplays(null); // 初始化显示示例内容
+    renderImageStats();
     renderImageHistory();
 }
 
@@ -172,6 +176,16 @@ function setupHistoryListeners() {
     });
 
     window.addEventListener('image-upload-history-updated', renderImageHistory);
+    window.addEventListener('image-upload-stats-updated', renderImageStats);
+}
+
+function renderImageStats() {
+    const summary = window.UploadStats.getSummary(IMAGE_HISTORY_TYPE);
+    const sessionTotal = PreviewState.images.length;
+
+    DOM.sessionCount.textContent = `${UI.uploadedCount} / ${sessionTotal}`;
+    DOM.dailyCount.textContent = String(summary.today || 0);
+    DOM.totalCount.textContent = String(summary.total || 0);
 }
 
 function renderImageHistory() {
