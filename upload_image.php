@@ -336,7 +336,7 @@ try {
                 <!-- 存取密碼 -->
                 <div class="password-section" style="margin-top: 15px; display: flex; flex-direction: column; gap: 8px;">
                     <label for="imagePassword" style="font-weight: bold; color: var(--page-text); font-size: 0.9rem;">設定存取密碼 (選填)</label>
-                    <input type="password" id="imagePassword" name="password" placeholder="留空則公開" style="width: 100%; padding: 10px; border-radius: 8px; border: 1px solid var(--page-border); background: rgba(22,22,30,0.48); color: var(--page-text); box-sizing: border-box;">
+                    <input type="password" id="imagePassword" name="password" placeholder="留空則公開" style="width: 100%; padding: 10px; border-radius: 8px; border: 1px solid var(--page-border); background: rgba(22,22,30,0.48); color: var(--page-text); box-sizing: border-box;" autocomplete="new-password">
                 </div>
 
                 <!-- 复制按钮区域 -->

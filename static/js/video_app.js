@@ -139,7 +139,7 @@ document.addEventListener('DOMContentLoaded', () => {
             <div class="queue-inputs" id="inputs_${id}">
                 <input type="text" id="title_${id}" placeholder="Podcast 標題 (預設使用檔名)">
                 <textarea id="desc_${id}" rows="2" placeholder="Podcast 描述 (可留空)"></textarea>
-                <input type="password" id="pass_${id}" placeholder="存取密碼 (選填)" style="width:100%; padding:8px; border-radius:4px; border:1px solid #444; background:#222; color:#fff; margin-top:5px;">
+                <input type="password" id="pass_${id}" placeholder="存取密碼 (選填)" style="width:100%; padding:8px; border-radius:4px; border:1px solid #444; background:#222; color:#fff; margin-top:5px;" autocomplete="new-password">
             </div>
             <div class="progress-bar-container" style="display:none; margin: 10px 0;" id="progCont_${id}">
                 <div class="progress-bar" id="progBar_${id}">0%</div>

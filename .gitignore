@@ -26,3 +26,6 @@ storage/database.db.*
 *.log
 上传日志.txt
 .env.s3
+
+# 本機部署筆記
+DEPLOYMENT.local.md

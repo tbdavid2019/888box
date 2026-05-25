@@ -83,7 +83,7 @@ $videos = $stmt->fetchAll(PDO::FETCH_ASSOC);
                     <option value="set">設定新密碼</option>
                     <option value="clear">移除密碼保護</option>
                 </select>
-                <input type="password" id="editPassword" placeholder="輸入新的存取密碼" style="margin-top: 10px; display: none;">
+                <input type="password" id="editPassword" placeholder="輸入新的存取密碼" style="margin-top: 10px; display: none;" autocomplete="new-password">
                 <div class="password-help">變更密碼保護會影響該影片是否出現在 Podcast RSS。</div>
             </div>
             <div class="modal-actions">

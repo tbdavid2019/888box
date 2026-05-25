@@ -203,7 +203,7 @@ function renderFields($fields, $configs) {
             <?php elseif ($field['type'] === 'password'): ?>
                 <div class="password-wrapper">
                     <input type="password" name="<?= $key ?>" id="<?= $key ?>" value="<?= $value ?>"
-                           placeholder="<?= $field['placeholder'] ?? '' ?>">
+                           placeholder="<?= $field['placeholder'] ?? '' ?>" autocomplete="new-password">
                     <span class="toggle-password">
                         <svg class="icon" aria-hidden="true"><use xlink:href="#icon-eye"></use></svg>
                     </span>
@@ -378,7 +378,7 @@ $basicSettings = [
                 <div class="form-group form-group-half">
                     <label for="new_password">修改管理員密碼</label>
                     <div class="password-wrapper">
-                        <input type="password" name="new_password" id="new_password" placeholder="留空則不修改">
+                        <input type="password" name="new_password" id="new_password" placeholder="留空則不修改" autocomplete="new-password">
                         <span class="toggle-password">
                             <svg class="icon" aria-hidden="true"><use xlink:href="#icon-eye"></use></svg>
                         </span>
@@ -387,7 +387,7 @@ $basicSettings = [
                 <div class="form-group form-group-half">
                     <label for="confirm_password">確認新密碼</label>
                     <div class="password-wrapper">
-                        <input type="password" name="confirm_password" id="confirm_password" placeholder="請再次輸入新密碼">
+                        <input type="password" name="confirm_password" id="confirm_password" placeholder="請再次輸入新密碼" autocomplete="new-password">
                         <span class="toggle-password">
                             <svg class="icon" aria-hidden="true"><use xlink:href="#icon-eye"></use></svg>
                         </span>

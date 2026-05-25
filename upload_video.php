@@ -62,7 +62,7 @@ try {
                     </div>
                     <div>
                         <label style="display:block; margin-bottom:5px; font-weight:bold;">存取密碼 (選填)</label>
-                        <input type="password" id="batchPass" placeholder="設定密碼後，Podcast RSS 將會排除此影片" style="width:100%; padding:10px; border-radius:6px; border:1px solid #444; background:#222; color:#fff;">
+                        <input type="password" id="batchPass" placeholder="設定密碼後，Podcast RSS 將會排除此影片" style="width:100%; padding:10px; border-radius:6px; border:1px solid #444; background:#222; color:#fff;" autocomplete="new-password">
                     </div>
                 </div>
 
