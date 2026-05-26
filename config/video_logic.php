@@ -4,6 +4,11 @@ require_once __DIR__ . '/video_helper.php';
 require_once __DIR__ . '/upload.php';
 
 function resolvePodcastSiteUrl($config) {
+    if (!empty($_SERVER['HTTP_HOST'])) {
+        $scheme = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https' : 'http';
+        return $scheme . '://' . $_SERVER['HTTP_HOST'];
+    }
+
     $configuredDomains = array_filter(array_map('trim', explode(',', $config['site_domain'] ?? '')));
     foreach ($configuredDomains as $domain) {
         if ($domain === '*') {
@@ -15,11 +20,6 @@ function resolvePodcastSiteUrl($config) {
         }
 
         return 'https://' . rtrim($domain, '/');
-    }
-
-    if (!empty($_SERVER['HTTP_HOST'])) {
-        $scheme = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https' : 'http';
-        return $scheme . '://' . $_SERVER['HTTP_HOST'];
     }
 
     return 'http://localhost';
