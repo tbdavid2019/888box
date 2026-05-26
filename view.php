@@ -156,7 +156,7 @@ if ($asset['is_audio'] == 1 || strpos($mime, 'audio/') !== false || in_array($ex
         .viewer-box { width: 100%; min-height: 300px; display: flex; justify-content: center; align-items: center; background: #000; border-radius: 12px; overflow: hidden; }
         .viewer-box img { max-width: 100%; height: auto; }
         .viewer-box video { width: 100%; }
-        .viewer-box iframe { width: 100%; height: 600px; border: none; }
+        .viewer-box iframe, .viewer-box object, .viewer-box embed, #epub-viewer { width: 100%; height: 600px; border: none; display: block; }
         .password-gate { text-align: center; padding: 60px 20px; }
         .password-gate input { padding: 12px; border-radius: 8px; border: 1px solid #444; background: #222; color: #fff; width: 240px; margin-bottom: 20px; }
         .password-gate button { padding: 12px 30px; border-radius: 8px; border: none; background: #007aff; color: #fff; font-weight: bold; cursor: pointer; }
@@ -279,7 +279,7 @@ if ($asset['is_audio'] == 1 || strpos($mime, 'audio/') !== false || in_array($ex
                         });
                     </script>
                 <?php elseif ($type === 'pdf'): ?>
-                    <iframe src="/view.php?id=<?= urlencode((string)$id) ?>&pdf_inline=1"></iframe>
+                    <embed src="/view.php?id=<?= urlencode((string)$id) ?>&pdf_inline=1" type="application/pdf" width="100%" height="600px">
                 <?php elseif ($type === 'epub'): ?>
                     <div id="epub-viewer"></div>
                     <script src="https://cdnjs.cloudflare.com/ajax/libs/epub.js/0.3.88/epub.min.js"></script>

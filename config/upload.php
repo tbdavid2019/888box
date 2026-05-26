@@ -33,32 +33,38 @@ function getClientIp() {
  * 根据存储类型生成文件URL
  */
 function generateFileUrl($storage, $config, $filePath, $s3Result = null) {
-    // 确定基础域名
-    if ($storage === 'local') {
-        $domain = $config['local_cdn_domain'] ?: ('https://' . $_SERVER['HTTP_HOST']);
-    } elseif ($storage === 'oss') {
-        $domain = $config['oss_cdn_domain'] ?: $config['oss_endpoint'];
-    } elseif ($storage === 's3') {
-        if ($config['s3_cdn_domain']) {
-            $domain = $config['s3_cdn_domain'];
-        } elseif (isset($s3Result['ObjectURL'])) {
-            $domain = $s3Result['ObjectURL'];
-        } else {
-            $domain = $config['s3_endpoint'];
-        }
-    } elseif ($storage === 'upyun') {
-        if (empty($config['upyun_cdn_domain'])) {
-            throw new Exception("又拍云必须配置CDN域名");
-        }
-        $domain = $config['upyun_cdn_domain'];
-    } else {
-        throw new Exception("未知的存储类型: {$storage}");
+    // 優先使用當前的網站域名，使所有上傳的資源（圖片、影片、音訊、文件）均顯示為本地域名 URL，以隱藏 S3/OSS 等後台端點
+    $domain = 'https://' . ($_SERVER['HTTP_HOST'] ?? 'localhost');
+    
+    // 如果是 local 且配置了 local_cdn_domain，則使用該 CDN 域名
+    if ($storage === 'local' && !empty($config['local_cdn_domain'])) {
+        $domain = $config['local_cdn_domain'];
     }
     
-    // S3 的 ObjectURL 已经包含完整路径
-    $url = (isset($s3Result['ObjectURL']) && !$config['s3_cdn_domain']) 
-        ? $domain 
-        : $domain . '/' . $filePath;
+    $url = $domain . '/' . $filePath;
+    
+    // 如果沒有 HTTP_HOST (例如 CLI 執行環境)，則回退到 S3/OSS/Upyun 的原始生成邏輯
+    if (empty($_SERVER['HTTP_HOST'])) {
+        if ($storage === 'local') {
+            $domain = $config['local_cdn_domain'] ?: 'http://localhost';
+        } elseif ($storage === 'oss') {
+            $domain = $config['oss_cdn_domain'] ?: $config['oss_endpoint'];
+        } elseif ($storage === 's3') {
+            if ($config['s3_cdn_domain']) {
+                $domain = $config['s3_cdn_domain'];
+            } elseif (isset($s3Result['ObjectURL'])) {
+                $domain = $s3Result['ObjectURL'];
+            } else {
+                $domain = $config['s3_endpoint'];
+            }
+        } elseif ($storage === 'upyun') {
+            $domain = $config['upyun_cdn_domain'] ?: 'http://localhost';
+        }
+        
+        $url = (isset($s3Result['ObjectURL']) && !$config['s3_cdn_domain']) 
+            ? $domain 
+            : $domain . '/' . $filePath;
+    }
     
     // 处理 url_prefix
     if (!empty($config['url_prefix'])) {
