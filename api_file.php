@@ -6,6 +6,50 @@ header('Content-Type: application/json; charset=utf-8');
 require_once 'config/database.php';
 require_once 'config/upload.php';
 
+if (realpath(__FILE__) === realpath($_SERVER['SCRIPT_FILENAME'])) {
+    try {
+        $db = Database::getInstance();
+        $pdo = $db->getConnection();
+        $config = Database::getConfig($pdo);
+        
+        // 檢查是否需要登入限制
+        $loginRestriction = isset($config['login_restriction']) && filter_var($config['login_restriction'], FILTER_VALIDATE_BOOLEAN);
+        if ($loginRestriction) {
+            $token = $_POST['token'] ?? '';
+            if (preg_match('/Bearer\s+(.*)$/i', $_SERVER['HTTP_AUTHORIZATION'] ?? '', $matches)) {
+                $token = $matches[1];
+            }
+            
+            $authenticated = false;
+            if (!empty($token)) {
+                $stmt = $pdo->prepare("SELECT id FROM users WHERE token = ?");
+                $stmt->execute([$token]);
+                if ($stmt->fetch()) $authenticated = true;
+            }
+            if (isset($_SESSION['loggedin']) && $_SESSION['loggedin'] === true) {
+                $authenticated = true;
+            }
+            
+            if (!$authenticated) {
+                respondAndExit(['result' => 'error', 'message' => '未登入或 Token 無效，無權限']);
+            }
+        }
+
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            $action = $_POST['action'] ?? '';
+            if ($action === 'upload_file') {
+                if (!isset($_FILES['file'])) {
+                    respondAndExit(['result' => 'error', 'message' => '未選擇檔案']);
+                }
+                handleFileUpload($_FILES['file'], $pdo, $config);
+            } else {
+                respondAndExit(['result' => 'error', 'message' => '未知操作']);
+            }
+        }
+    } catch (Exception $e) {
+        respondAndExit(['result' => 'error', 'message' => $e->getMessage()]);
+    }
+}
 
 function handleFileUpload($file, $pdo, $config) {
     $storage = $config['storage'];
