@@ -114,7 +114,7 @@ try {
 }
 
 // 判定資源類型
-$url = $asset['url'];
+$url = getMaskedUrl($asset['url'], $asset['path']);
 $mime = $asset['mime_type'] ?: '';
 $ext = strtolower(pathinfo($url, PATHINFO_EXTENSION));
 
