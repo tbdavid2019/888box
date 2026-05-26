@@ -444,10 +444,12 @@ function handleUnifiedList($pdo, $type) {
     $assets = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
     foreach ($assets as &$asset) {
+        $asset['url'] = getMaskedUrl($asset['url'], $asset['path']);
         $asset['share_url'] = (isset($asset['mime_type']) && strpos($asset['mime_type'], 'image/') === false) 
             ? 'https://' . $_SERVER['HTTP_HOST'] . '/view.php?id=' . $asset['id']
             : $asset['url'];
     }
+
 
     $totalCount = (int)$pdo->query("SELECT COUNT(*) FROM images WHERE $where")->fetchColumn();
     $totalPages = ceil($totalCount / $limit);
@@ -491,10 +493,12 @@ function handleUnifiedSearch($pdo, $query) {
     $assets = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
     foreach ($assets as &$asset) {
+        $asset['url'] = getMaskedUrl($asset['url'], $asset['path']);
         $asset['share_url'] = (isset($asset['mime_type']) && strpos($asset['mime_type'], 'image/') === false)
             ? 'https://' . $_SERVER['HTTP_HOST'] . '/view.php?id=' . $asset['id']
             : $asset['url'];
     }
+
 
     respondAndExit([
         'result' => 'success',

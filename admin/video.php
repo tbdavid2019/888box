@@ -16,6 +16,10 @@ $stmt = $pdo->prepare("SELECT * FROM images WHERE url LIKE '%.mp4' OR url LIKE '
 $stmt->execute();
 $videos = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
+foreach ($videos as &$video) {
+    $video['url'] = getMaskedUrl($video['url'], $video['path']);
+}
+unset($video);
 ?>
 <!DOCTYPE html>
 <html lang="zh-Hant">

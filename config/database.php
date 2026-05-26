@@ -112,3 +112,16 @@ class Database {
     public function __clone() {}
     public function __wakeup() {}
 }
+
+/**
+ * 根據路徑生成統一的本地域名遮罩 URL，以隱藏 S3/OSS 等外部雲端儲存端點
+ */
+function getMaskedUrl($url, $path) {
+    if (empty($path)) {
+        return $url;
+    }
+    $cleanPath = ltrim($path, '/');
+    $domain = 'https://' . ($_SERVER['HTTP_HOST'] ?? 'localhost');
+    return $domain . '/' . $cleanPath;
+}
+

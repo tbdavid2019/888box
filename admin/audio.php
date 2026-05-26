@@ -16,6 +16,10 @@ $stmt = $pdo->prepare("SELECT * FROM images WHERE is_audio = 1 ORDER BY id DESC"
 $stmt->execute();
 $audios = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
+foreach ($audios as &$audio) {
+    $audio['url'] = getMaskedUrl($audio['url'], $audio['path']);
+}
+unset($audio);
 ?>
 <!DOCTYPE html>
 <html lang="zh-Hant">

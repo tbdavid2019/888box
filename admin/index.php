@@ -38,6 +38,11 @@ $stmt = $pdo->prepare("SELECT * FROM images WHERE is_video = 0 AND is_audio = 0 
 $stmt->execute([$items_per_page, $offset]);
 $images = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
+foreach ($images as &$image) {
+    $image['url'] = getMaskedUrl($image['url'], $image['path']);
+}
+unset($image);
+
 // 处理AJAX请求
 if (!empty($_SERVER['HTTP_X_REQUESTED_WITH']) && 
     strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) === 'xmlhttprequest') {
