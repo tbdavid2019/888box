@@ -2,6 +2,19 @@
 
 All notable changes to this project will be documented in this file.
 
+## [2026.5.26] - 2026-05-26
+
+### ✨ Added
+- **Audio Center ("聲音大廳")**: Full-featured audio hosting support for `mp3`, `wav`, `aac`, `ogg`, `m4a`, `flac` as a first-class asset type, complete with drag-and-drop batches, metadata extraction, dynamic revolving CD visualizer player in `view.php`, dedicated administrative dashboard (`admin/audio.php`), and automated `storage/podcast_audio.xml` iTunes podcast feeds.
+- **Pantone Theme Engine**: Added unified themes color presets registry (`config/themes.php` and `config/theme_helper.php`) featuring sleek dark Pantone 2026 Middle East Dart gold/cream/blue colors, instantly toggleable via Admin settings.
+- **Cloud Storage Local-Domain Masking**: Implemented secure asset routing proxy (`get_file.php` + `storage/.htaccess` rewrite engine) to hide direct cloud S3/OSS/Upyun bucket endpoints. All copied links and download buttons dynamically mask to use the active production domain (e.g. `https://box.david888.com/storage/...`), seamlessly fetching or redirecting behind the scenes.
+- **Dynamic Asset Masking Overrides**: Integrated `getMaskedUrl()` across all index, video, file, and audio administrative dashboards and unified search/list APIs (`api.php`) to ensure historical items and direct clicks strictly copy clean local domain URLs.
+
+### 🐛 Fixed
+- **Dynamic Podcast Return Links**: Fixed podcast XML feeds (`podcast.xml` and `podcast_audio.xml`) rendering loopbacks like `127.0.0.1:6767` for the "返回主站點" (Return to Main Site) link by prioritizing the browser request's dynamic `$_SERVER['HTTP_HOST']`.
+- **PDF & EPUB Viewers Repair**: Upgraded PDF preview embedding from standard `<iframe>` (blocked by clickjacking safety policies) to `<embed>` tags, and declared explicit block dimensions inside the details viewport to resolve collapsing black screen blocks.
+- **Document Upload ("伺服器回應異常") Fix**: Restored proper standalone entry wrappers (`realpath(__FILE__)`) and rearranged helper function locations inside `api_file.php` to prevent fatal undefined function errors.
+
 ## [2026.5.13] - 2026-05-13
 
 ### ✨ Added
