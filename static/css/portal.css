@@ -118,6 +118,11 @@ body {
     background: linear-gradient(135deg, rgba(158, 206, 106, 0.18) 0%, rgba(125, 207, 255, 0.04) 100%);
 }
 
+.card-audios {
+    grid-column: span 2;
+    background: linear-gradient(135deg, rgba(255, 215, 0, 0.18) 0%, rgba(187, 154, 247, 0.04) 100%);
+}
+
 .card-settings {
     grid-column: span 2;
     background: linear-gradient(135deg, rgba(224, 175, 104, 0.18) 0%, rgba(187, 154, 247, 0.04) 100%);

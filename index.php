@@ -1,16 +1,17 @@
 <?php
 session_start();
 require_once 'config/database.php';
+require_once 'config/theme_helper.php';
 $db = Database::getInstance();
 $pdo = $db->getConnection();
 
 // 獲取統計數據
 $stats = [
-    'image' => (int)$pdo->query("SELECT COUNT(*) FROM images WHERE url LIKE '%.jpg' OR url LIKE '%.jpeg' OR url LIKE '%.png' OR url LIKE '%.gif' OR url LIKE '%.webp' OR url LIKE '%.svg'")->fetchColumn(),
-    'video' => (int)$pdo->query("SELECT COUNT(*) FROM images WHERE url LIKE '%.mp4' OR url LIKE '%.webm' OR url LIKE '%.mov' OR url LIKE '%.mkv'")->fetchColumn(),
+    'image' => (int)$pdo->query("SELECT COUNT(*) FROM images WHERE is_video = 0 AND is_audio = 0 AND is_file = 0")->fetchColumn(),
+    'video' => (int)$pdo->query("SELECT COUNT(*) FROM images WHERE is_video = 1")->fetchColumn(),
+    'audio' => (int)$pdo->query("SELECT COUNT(*) FROM images WHERE is_audio = 1")->fetchColumn(),
+    'file' => (int)$pdo->query("SELECT COUNT(*) FROM images WHERE is_file = 1")->fetchColumn(),
 ];
-$total = (int)$pdo->query("SELECT COUNT(*) FROM images")->fetchColumn();
-$stats['file'] = $total - $stats['image'] - $stats['video'];
 ?>
 <!DOCTYPE html>
 <html lang="zh-Hant">
@@ -20,6 +21,7 @@ $stats['file'] = $total - $stats['image'] - $stats['video'];
     <title>888box - 統一資產管理</title>
     <link rel="shortcut icon" href="/static/favicon.svg">
     <link rel="stylesheet" href="/static/css/portal.css">
+    <?php renderThemeStyles($pdo); ?>
     <style>
         .stats-badge {
             background: rgba(122, 162, 247, 0.14);
@@ -80,6 +82,16 @@ $stats['file'] = $total - $stats['image'] - $stats['video'];
                 <h2 class="card-title">文件託管</h2>
                 <p class="card-desc">支援 ZIP, PDF, Word 及 EPUB 線上閱讀</p>
                 <div class="stats-badge"><?= $stats['file'] ?> 份文件</div>
+            </div>
+        </a>
+
+        <!-- 聲音大廳 -->
+        <a href="/upload_audio.php" class="card card-audios">
+            <div>
+                <div class="card-icon">🎙️</div>
+                <h2 class="card-title">聲音大廳</h2>
+                <p class="card-desc">支援 MP3/WAV 上傳與 Podcast RSS 訂閱</p>
+                <div class="stats-badge"><?= $stats['audio'] ?> 首音訊</div>
             </div>
         </a>
     </div>

@@ -350,6 +350,10 @@ function processAsset($file, $pdo, $config, $mimeType) {
             // 修改 handleVideoUpload 以支援 rename
             $videoData = handleVideoUpload($file, $pdo, $_POST['title'] ?? '', $_POST['description'] ?? '', $_POST['password'] ?? '');
             respondAndExit(['result' => 'success', 'code' => 200, 'data' => $videoData]);
+        } elseif (strpos($mimeType, 'audio/') === 0) {
+            require_once 'config/audio_logic.php';
+            $audioData = handleAudioUpload($file, $pdo, $_POST['title'] ?? '', $_POST['description'] ?? '', $_POST['password'] ?? '');
+            respondAndExit(['result' => 'success', 'code' => 200, 'data' => $audioData]);
         } else {
             require_once 'api_file.php';
             handleFileUpload($file, $pdo, $config);
@@ -400,6 +404,11 @@ function handleUnifiedUpload($pdo, $config) {
             require_once 'config/video_logic.php';
             $videoData = handleVideoUpload($file, $pdo, $_POST['title'] ?? '', $_POST['description'] ?? '', $_POST['password'] ?? '');
             respondAndExit(['result' => 'success', 'code' => 200, 'data' => $videoData]);
+        } elseif (strpos($mimeType, 'audio/') === 0) {
+            // 音訊處理
+            require_once 'config/audio_logic.php';
+            $audioData = handleAudioUpload($file, $pdo, $_POST['title'] ?? '', $_POST['description'] ?? '', $_POST['password'] ?? '');
+            respondAndExit(['result' => 'success', 'code' => 200, 'data' => $audioData]);
         } else {
             // 文件處理
             require_once 'api_file.php'; // 暫時借用 api_file.php 的邏輯
@@ -419,11 +428,13 @@ function handleUnifiedList($pdo, $type) {
     $where = "1=1";
     $params = [];
     if ($type === 'image') {
-        $where = "(url LIKE '%.jpg' OR url LIKE '%.jpeg' OR url LIKE '%.png' OR url LIKE '%.gif' OR url LIKE '%.webp' OR url LIKE '%.svg')";
+        $where = "is_video = 0 AND is_audio = 0 AND is_file = 0";
     } elseif ($type === 'video') {
-        $where = "(url LIKE '%.mp4' OR url LIKE '%.webm' OR url LIKE '%.mov' OR url LIKE '%.mkv')";
+        $where = "is_video = 1";
+    } elseif ($type === 'audio') {
+        $where = "is_audio = 1";
     } elseif ($type === 'file') {
-        $where = "NOT (url LIKE '%.jpg' OR url LIKE '%.jpeg' OR url LIKE '%.png' OR url LIKE '%.gif' OR url LIKE '%.webp' OR url LIKE '%.svg' OR url LIKE '%.mp4' OR url LIKE '%.webm' OR url LIKE '%.mov' OR url LIKE '%.mkv')";
+        $where = "is_file = 1";
     }
 
     $stmt = $pdo->prepare("SELECT * FROM images WHERE $where ORDER BY created_at DESC LIMIT ? OFFSET ?");
@@ -461,12 +472,28 @@ function handleUnifiedSearch($pdo, $query) {
         respondAndExit(['result' => 'error', 'code' => 400, 'message' => '搜尋內容不能為空']);
     }
 
-    $stmt = $pdo->prepare("SELECT * FROM images WHERE path LIKE ? OR url LIKE ? OR title LIKE ? ORDER BY created_at DESC LIMIT 50");
-    $stmt->execute(["%$query%", "%$query%", "%$query%"]);
+    $type = $_GET['type'] ?? 'all';
+    $where = "(path LIKE ? OR url LIKE ? OR title LIKE ?)";
+    $params = ["%$query%", "%$query%", "%$query%"];
+
+    if ($type === 'image') {
+        $where .= " AND is_video = 0 AND is_audio = 0 AND is_file = 0";
+    } elseif ($type === 'video') {
+        $where .= " AND is_video = 1";
+    } elseif ($type === 'audio') {
+        $where .= " AND is_audio = 1";
+    } elseif ($type === 'file') {
+        $where .= " AND is_file = 1";
+    }
+
+    $stmt = $pdo->prepare("SELECT * FROM images WHERE $where ORDER BY created_at DESC LIMIT 50");
+    $stmt->execute($params);
     $assets = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
     foreach ($assets as &$asset) {
-        $asset['share_url'] = $asset['url'];
+        $asset['share_url'] = (isset($asset['mime_type']) && strpos($asset['mime_type'], 'image/') === false)
+            ? 'https://' . $_SERVER['HTTP_HOST'] . '/view.php?id=' . $asset['id']
+            : $asset['url'];
     }
 
     respondAndExit([
@@ -483,10 +510,11 @@ function handleUnifiedSearch($pdo, $query) {
 function handleGetStats($pdo) {
     $stats = [
         'total' => (int)$pdo->query("SELECT COUNT(*) FROM images")->fetchColumn(),
-        'image' => (int)$pdo->query("SELECT COUNT(*) FROM images WHERE url LIKE '%.jpg' OR url LIKE '%.jpeg' OR url LIKE '%.png' OR url LIKE '%.gif' OR url LIKE '%.webp' OR url LIKE '%.svg'")->fetchColumn(),
-        'video' => (int)$pdo->query("SELECT COUNT(*) FROM images WHERE url LIKE '%.mp4' OR url LIKE '%.webm' OR url LIKE '%.mov' OR url LIKE '%.mkv'")->fetchColumn(),
+        'image' => (int)$pdo->query("SELECT COUNT(*) FROM images WHERE is_video = 0 AND is_audio = 0 AND is_file = 0")->fetchColumn(),
+        'video' => (int)$pdo->query("SELECT COUNT(*) FROM images WHERE is_video = 1")->fetchColumn(),
+        'audio' => (int)$pdo->query("SELECT COUNT(*) FROM images WHERE is_audio = 1")->fetchColumn(),
+        'file' => (int)$pdo->query("SELECT COUNT(*) FROM images WHERE is_file = 1")->fetchColumn(),
     ];
-    $stats['file'] = $stats['total'] - $stats['image'] - $stats['video'];
 
     respondAndExit([
         'result' => 'success',

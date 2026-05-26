@@ -27,7 +27,13 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
 }
 
 try {
-    rebuildVideoRSS($pdo, $config);
+    $type = $_POST['type'] ?? 'video';
+    if ($type === 'audio') {
+        require_once 'config/audio_logic.php';
+        rebuildAudioRSS($pdo, $config);
+    } else {
+        rebuildVideoRSS($pdo, $config);
+    }
 
     ob_end_clean();
     header('Content-Type: application/json; charset=utf-8');

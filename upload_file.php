@@ -2,6 +2,8 @@
 /** @deprecated Use api.php?action=upload instead */
 session_start();
 require_once 'config/database.php';
+require_once 'config/theme_helper.php';
+
 
 try {
     $db = Database::getInstance();
@@ -28,6 +30,8 @@ try {
     <title>888box 文件託管中心</title>
     <link rel="shortcut icon" href="static/favicon.svg">
     <link rel="stylesheet" href="static/css/video_ui.css?v=<?php echo time(); ?>"> <!-- 重用影片中心的 CSS 以保持風格一致 -->
+    <?php renderThemeStyles($pdo); ?>
+
     <style>
         :root {
             --accent: #7dcfff;

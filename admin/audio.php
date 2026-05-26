@@ -11,10 +11,10 @@ require_once '../config/theme_helper.php';
 $db = Database::getInstance();
 $pdo = $db->getConnection();
 
-// 撈取影片
-$stmt = $pdo->prepare("SELECT * FROM images WHERE url LIKE '%.mp4' OR url LIKE '%.webm' OR url LIKE '%.mov' OR url LIKE '%.mkv' ORDER BY id DESC");
+// 撈取音訊
+$stmt = $pdo->prepare("SELECT * FROM images WHERE is_audio = 1 ORDER BY id DESC");
 $stmt->execute();
-$videos = $stmt->fetchAll(PDO::FETCH_ASSOC);
+$audios = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
 ?>
 <!DOCTYPE html>
@@ -22,7 +22,7 @@ $videos = $stmt->fetchAll(PDO::FETCH_ASSOC);
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>影片管理後台 - 888box</title>
+    <title>音訊管理後台 - 888box</title>
     <link rel="shortcut icon" href="/static/favicon.svg">
     <?php renderThemeStyles($pdo); ?>
     <style>
@@ -36,7 +36,9 @@ $videos = $stmt->fetchAll(PDO::FETCH_ASSOC);
         .video-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 25px; max-width: 1400px; margin: 0 auto; }
         .video-card { background: rgba(36, 40, 59, 0.94); border: 1px solid #414868; border-radius: 12px; padding: 20px; display: flex; flex-direction: column; gap: 15px; box-shadow: 0 10px 24px rgba(15, 18, 32, 0.28); transition: transform 0.2s, border-color 0.2s; }
         .video-card:hover { transform: translateY(-5px); border-color: #7aa2f7; }
-        .video-card video { width: 100%; border-radius: 8px; background: #000; box-shadow: 0 2px 8px rgba(0,0,0,0.5); }
+        .audio-container { display: flex; flex-direction: column; align-items: center; justify-content: center; background: #000; padding: 20px 10px; border-radius: 8px; border: 1px solid #222; }
+        .audio-visualizer-icon { font-size: 48px; margin-bottom: 15px; }
+        .video-card audio { width: 100%; }
         .video-info { font-size: 14px; color: #a9b1d6; background: rgba(26, 27, 38, 0.72); padding: 15px; border-radius: 8px; border: 1px solid #414868; }
         .video-info p { margin: 8px 0; word-break: break-all; }
         .video-info strong { color: #c0caf5; }
@@ -67,15 +69,15 @@ $videos = $stmt->fetchAll(PDO::FETCH_ASSOC);
     <!-- Edit Modal -->
     <div id="editModal" class="modal">
         <div class="modal-content">
-            <div class="modal-header">編輯影片資訊</div>
+            <div class="modal-header">編輯音訊資訊</div>
             <input type="hidden" id="editId">
             <input type="hidden" id="editHasPassword">
             <div class="form-group">
-                <label>影片標題</label>
+                <label>音訊標題</label>
                 <input type="text" id="editTitle">
             </div>
             <div class="form-group">
-                <label>影片描述</label>
+                <label>音訊描述</label>
                 <textarea id="editDescription" rows="4"></textarea>
             </div>
             <div class="form-group">
@@ -87,7 +89,7 @@ $videos = $stmt->fetchAll(PDO::FETCH_ASSOC);
                     <option value="clear">移除密碼保護</option>
                 </select>
                 <input type="password" id="editPassword" placeholder="輸入新的存取密碼" style="margin-top: 10px; display: none;" autocomplete="new-password">
-                <div class="password-help">變更密碼保護會影響該影片是否出現在 Podcast RSS。</div>
+                <div class="password-help">變更密碼保護會影響該音訊是否出現在 Podcast RSS。</div>
             </div>
             <div class="modal-actions">
                 <button class="btn-copy" style="background:#565f89; color:#c0caf5; flex:none;" onclick="closeModal()">取消</button>
@@ -97,42 +99,45 @@ $videos = $stmt->fetchAll(PDO::FETCH_ASSOC);
     </div>
 
     <div class="header" style="max-width: 1400px; margin: 0 auto 30px auto;">
-        <h1>🎬 影片專屬管理後台</h1>
+        <h1>🎙️ 音訊專屬管理後台</h1>
         <div class="nav-links">
             <a href="/admin/">🖼️ 圖片管理後台</a>
-            <a href="/upload_video.php">➕ 上傳新影片</a>
-            <a href="/storage/podcast.xml" target="_blank">🎧 Podcast RSS</a>
+            <a href="/upload_audio.php">➕ 上傳新音訊</a>
+            <a href="/storage/podcast_audio.xml" target="_blank">🎧 Podcast RSS</a>
             <button type="button" onclick="rebuildPodcast()">🔁 重建 RSS</button>
         </div>
     </div>
 
     <div class="video-grid">
-        <?php if (empty($videos)): ?>
-            <div class="empty-state">目前沒有影片</div>
+        <?php if (empty($audios)): ?>
+            <div class="empty-state">目前沒有音訊</div>
         <?php else: ?>
-            <?php foreach ($videos as $video): ?>
-                <div class="video-card" id="video-<?= $video['id'] ?>" data-has-password="<?= empty($video['password']) ? '0' : '1' ?>">
-                    <video src="<?= htmlspecialchars($video['url']) ?>" controls preload="metadata"></video>
+            <?php foreach ($audios as $audio): ?>
+                <div class="video-card" id="audio-<?= $audio['id'] ?>" data-has-password="<?= empty($audio['password']) ? '0' : '1' ?>">
+                    <div class="audio-container">
+                        <div class="audio-visualizer-icon">🎙️</div>
+                        <audio src="<?= htmlspecialchars($audio['url']) ?>" controls preload="metadata"></audio>
+                    </div>
                     <div class="video-info">
                         <p>
-                            <strong>標題：</strong> <span class="v-title"><?= htmlspecialchars($video['title'] ?: $video['path']) ?></span>
-                            <?php if ($video['report_count'] > 0): ?>
-                                <span style="background: #f7768e; color: #1a1b26; padding: 2px 6px; border-radius: 4px; font-size: 11px; margin-left: 5px;">檢舉: <?= $video['report_count'] ?></span>
+                            <strong>標題：</strong> <span class="v-title"><?= htmlspecialchars($audio['title'] ?: $audio['path']) ?></span>
+                            <?php if ($audio['report_count'] > 0): ?>
+                                <span style="background: #f7768e; color: #1a1b26; padding: 2px 6px; border-radius: 4px; font-size: 11px; margin-left: 5px;">檢舉: <?= $audio['report_count'] ?></span>
                             <?php endif; ?>
                         </p>
-                        <p><strong>描述：</strong> <span class="v-desc"><?= htmlspecialchars($video['description'] ?: '無') ?></span></p>
-                        <p><strong>大小：</strong> <?= number_format(floatval($video['size']) / 1024 / 1024, 2) ?> MB | <strong>瀏覽:</strong> <?= $video['view_count'] ?></p>
-                        <p><strong>上傳時間：</strong> <?= htmlspecialchars($video['created_at']) ?></p>
+                        <p><strong>描述：</strong> <span class="v-desc"><?= htmlspecialchars($audio['description'] ?: '無') ?></span></p>
+                        <p><strong>大小：</strong> <?= number_format(floatval($audio['size']) / 1024 / 1024, 2) ?> MB | <strong>瀏覽:</strong> <?= $audio['view_count'] ?></p>
+                        <p><strong>上傳時間：</strong> <?= htmlspecialchars($audio['created_at']) ?></p>
                         <div class="video-meta-badges">
-                            <?php if (!empty($video['password'])): ?>
+                            <?php if (!empty($audio['password'])): ?>
                                 <span class="video-badge password">密碼保護中</span>
                             <?php endif; ?>
                         </div>
                     </div>
                     <div class="actions">
-                        <button class="btn-copy" onclick="copyUrl('<?= htmlspecialchars($video['url']) ?>')">複製</button>
-                        <button class="btn-edit" onclick="openEditModal(<?= $video['id'] ?>)">編輯</button>
-                        <button class="btn-delete" onclick="deleteVideo(<?= $video['id'] ?>, '<?= htmlspecialchars($video['path']) ?>')">刪除</button>
+                        <button class="btn-copy" onclick="copyUrl('<?= htmlspecialchars($audio['url']) ?>')">複製</button>
+                        <button class="btn-edit" onclick="openEditModal(<?= $audio['id'] ?>)">編輯</button>
+                        <button class="btn-delete" onclick="deleteAudio(<?= $audio['id'] ?>, '<?= htmlspecialchars($audio['path']) ?>')">刪除</button>
                     </div>
                 </div>
             <?php endforeach; ?>
@@ -143,6 +148,7 @@ $videos = $stmt->fetchAll(PDO::FETCH_ASSOC);
         <div style="margin-bottom: 15px; display: flex; justify-content: center; gap: 20px; flex-wrap: wrap;">
             <a href="index.php" style="color: #7dcfff; text-decoration: none;">🖼️ 圖片管理</a>
             <a href="video.php" style="color: #7dcfff; text-decoration: none;">🎬 影片管理</a>
+            <a href="audio.php" style="color: #7dcfff; text-decoration: none;">🎙️ 音訊管理</a>
             <a href="file.php" style="color: #7dcfff; text-decoration: none;">📂 文件管理</a>
             <a href="/skill.php" target="_blank" style="color: #7dcfff; text-decoration: none;">🤖 AI Agent Skills</a>
         </div>
@@ -153,7 +159,7 @@ $videos = $stmt->fetchAll(PDO::FETCH_ASSOC);
     </footer>
     <script>
         function openEditModal(id) {
-            const card = document.getElementById('video-' + id);
+            const card = document.getElementById('audio-' + id);
             const title = card.querySelector('.v-title').textContent;
             const desc = card.querySelector('.v-desc').textContent;
             const hasPassword = card.dataset.hasPassword === '1';
@@ -194,14 +200,14 @@ $videos = $stmt->fetchAll(PDO::FETCH_ASSOC);
                 formData.append('password', password);
             }
             
-            fetch('/api_edit_video.php', {
+            fetch('/api_edit_audio.php', {
                 method: 'POST',
                 body: formData
             })
             .then(res => res.json())
             .then(data => {
                 if (data.result === 'success') {
-                    const card = document.getElementById('video-' + id);
+                    const card = document.getElementById('audio-' + id);
                     card.querySelector('.v-title').textContent = title;
                     card.querySelector('.v-desc').textContent = desc || '無';
                     const hasPassword = passwordAction === 'set' ? true : (passwordAction === 'clear' ? false : card.dataset.hasPassword === '1');
@@ -242,21 +248,21 @@ $videos = $stmt->fetchAll(PDO::FETCH_ASSOC);
             });
         }
 
-        function deleteVideo(id, path) {
-            if (!confirm('確定要刪除這部影片嗎？（將會同步從 RSS 中移除）')) return;
+        function deleteAudio(id, path) {
+            if (!confirm('確定要刪除這首音訊嗎？（將會同步從 RSS 中移除）')) return;
             
             const formData = new FormData();
             formData.append('id', id);
             formData.append('path', path);
             
-            fetch('/api_delete_video.php', {
+            fetch('/api_delete_audio.php', {
                 method: 'POST',
                 body: formData
             })
             .then(res => res.json())
             .then(data => {
                 if (data.result === 'success') {
-                    const card = document.getElementById('video-' + id);
+                    const card = document.getElementById('audio-' + id);
                     if (card) {
                         card.style.opacity = '0';
                         setTimeout(() => card.remove(), 300);
@@ -275,8 +281,12 @@ $videos = $stmt->fetchAll(PDO::FETCH_ASSOC);
         function rebuildPodcast() {
             if (!confirm('確定要依目前資料庫內容重建 Podcast RSS 嗎？')) return;
 
+            const formData = new FormData();
+            formData.append('type', 'audio');
+
             fetch('/api_rebuild_podcast.php', {
-                method: 'POST'
+                method: 'POST',
+                body: formData
             })
             .then(res => res.json())
             .then(data => {

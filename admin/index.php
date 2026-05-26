@@ -8,6 +8,8 @@ if (!isset($_SESSION['loggedin']) || !$_SESSION['loggedin']) {
 }
 
 require_once '../config/database.php';
+require_once '../config/theme_helper.php';
+
 require 'pagination.php';
 
 $db = Database::getInstance();
@@ -24,15 +26,15 @@ if (isset($_GET['logout']) && $_GET['logout'] === 'true') {
 
 // 获取配置和分页数据
 $items_per_page = (int)($pdo->query("SELECT value FROM configs WHERE `key` = 'per_page'")->fetchColumn() ?: 20);
-// 過濾掉影片
-$total_rows = (int)($pdo->query("SELECT COUNT(id) FROM images WHERE url NOT LIKE '%.mp4' AND url NOT LIKE '%.webm' AND url NOT LIKE '%.mov' AND url NOT LIKE '%.mkv'")->fetchColumn() ?: 0);
+// 過濾掉影片、音訊與文件，僅保留圖片
+$total_rows = (int)($pdo->query("SELECT COUNT(id) FROM images WHERE is_video = 0 AND is_audio = 0 AND is_file = 0")->fetchColumn() ?: 0);
 
 $total_pages = max(1, ceil($total_rows / $items_per_page));
 $current_page = min(max(1, $_GET['page'] ?? 1), $total_pages);
 
 // 获取图片数据
 $offset = ($current_page - 1) * $items_per_page;
-$stmt = $pdo->prepare("SELECT * FROM images WHERE url NOT LIKE '%.mp4' AND url NOT LIKE '%.webm' AND url NOT LIKE '%.mov' AND url NOT LIKE '%.mkv' ORDER BY id DESC LIMIT ? OFFSET ?");
+$stmt = $pdo->prepare("SELECT * FROM images WHERE is_video = 0 AND is_audio = 0 AND is_file = 0 ORDER BY id DESC LIMIT ? OFFSET ?");
 $stmt->execute([$items_per_page, $offset]);
 $images = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
@@ -64,6 +66,7 @@ $pagination = renderPagination($current_page, $total_pages);
     <link rel="shortcut icon" href="/static/favicon.svg">
     <link rel="stylesheet" href="/static/css/admin.css?v=<?php echo time(); ?>">
     <link rel="stylesheet" href="/static/css/fancybox.min.css?v=<?php echo time(); ?>">
+    <?php renderThemeStyles($pdo); ?>
 </head>
 <body>
     <div style="width: 100%; text-align: center; margin-bottom: 20px; padding: 15px; background: linear-gradient(135deg, #7aa2f7, #bb9af7); border-radius: 12px; box-shadow: 0 10px 24px rgba(122,162,247,0.2);">
@@ -101,6 +104,7 @@ $pagination = renderPagination($current_page, $total_pages);
         <div style="margin-bottom: 15px; display: flex; justify-content: center; gap: 20px; flex-wrap: wrap;">
             <a href="index.php" style="color: #7dcfff; text-decoration: none;">🖼️ 圖片管理</a>
             <a href="video.php" style="color: #7dcfff; text-decoration: none;">🎬 影片管理</a>
+            <a href="audio.php" style="color: #7dcfff; text-decoration: none;">🎙️ 音訊管理</a>
             <a href="file.php" style="color: #7dcfff; text-decoration: none;">📂 文件管理</a>
             <a href="/skill.php" target="_blank" style="color: #7dcfff; text-decoration: none;">🤖 AI Agent Skills</a>
         </div>

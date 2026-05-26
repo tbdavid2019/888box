@@ -66,12 +66,12 @@ function handleRequest($request, $pdo) {
                     ],
                     [
                         'name' => 'list_assets',
-                        'description' => 'List recently uploaded assets (images, videos, files)',
+                        'description' => 'List recently uploaded assets (images, videos, audios, files)',
                         'inputSchema' => [
                             'type' => 'object',
                             'properties' => [
                                 'token' => ['type' => 'string', 'description' => 'API Token'],
-                                'type' => ['type' => 'string', 'enum' => ['all', 'image', 'video', 'file'], 'description' => 'Type of assets to list'],
+                                'type' => ['type' => 'string', 'enum' => ['all', 'image', 'video', 'audio', 'file'], 'description' => 'Type of assets to list'],
                                 'page' => ['type' => 'integer', 'description' => 'Page number']
                             ],
                             'required' => ['token']
@@ -90,7 +90,7 @@ function handleRequest($request, $pdo) {
                     ],
                     [
                         'name' => 'get_podcast_info',
-                        'description' => 'Get the current Podcast RSS feed URL and status',
+                        'description' => 'Get the current Podcast RSS feed URLs (video & audio) and status',
                         'inputSchema' => [
                             'type' => 'object',
                             'properties' => [
@@ -101,11 +101,12 @@ function handleRequest($request, $pdo) {
                     ],
                     [
                         'name' => 'rebuild_podcast_rss',
-                        'description' => 'Force a rebuild of the Podcast RSS feed from the database',
+                        'description' => 'Force a rebuild of the Podcast RSS feeds from the database',
                         'inputSchema' => [
                             'type' => 'object',
                             'properties' => [
-                                'token' => ['type' => 'string', 'description' => 'API Token']
+                                'token' => ['type' => 'string', 'description' => 'API Token'],
+                                'type' => ['type' => 'string', 'enum' => ['video', 'audio'], 'description' => 'Type of Podcast to rebuild (video/audio, default: video)']
                             ],
                             'required' => ['token']
                         ]
@@ -149,11 +150,13 @@ function handleRequest($request, $pdo) {
                 $offset = ($page - 1) * $limit;
                 $where = "1=1";
                 if ($type === 'image') {
-                    $where = "(url LIKE '%.jpg' OR url LIKE '%.jpeg' OR url LIKE '%.png' OR url LIKE '%.gif' OR url LIKE '%.webp' OR url LIKE '%.svg')";
+                    $where = "is_video = 0 AND is_audio = 0 AND is_file = 0";
                 } elseif ($type === 'video') {
-                    $where = "(url LIKE '%.mp4' OR url LIKE '%.webm' OR url LIKE '%.mov' OR url LIKE '%.mkv')";
+                    $where = "is_video = 1";
+                } elseif ($type === 'audio') {
+                    $where = "is_audio = 1";
                 } elseif ($type === 'file') {
-                    $where = "NOT (url LIKE '%.jpg' OR url LIKE '%.jpeg' OR url LIKE '%.png' OR url LIKE '%.gif' OR url LIKE '%.webp' OR url LIKE '%.svg' OR url LIKE '%.mp4' OR url LIKE '%.webm' OR url LIKE '%.mov' OR url LIKE '%.mkv')";
+                    $where = "is_file = 1";
                 }
 
                 $stmt = $pdo->prepare("SELECT * FROM images WHERE $where ORDER BY created_at DESC LIMIT ? OFFSET ?");
@@ -195,10 +198,11 @@ function handleRequest($request, $pdo) {
             if ($toolName === 'get_stats') {
                 $stats = [
                     'total' => (int)$pdo->query("SELECT COUNT(*) FROM images")->fetchColumn(),
-                    'image' => (int)$pdo->query("SELECT COUNT(*) FROM images WHERE url LIKE '%.jpg' OR url LIKE '%.jpeg' OR url LIKE '%.png' OR url LIKE '%.gif' OR url LIKE '%.webp' OR url LIKE '%.svg'")->fetchColumn(),
-                    'video' => (int)$pdo->query("SELECT COUNT(*) FROM images WHERE url LIKE '%.mp4' OR url LIKE '%.webm' OR url LIKE '%.mov' OR url LIKE '%.mkv'")->fetchColumn(),
+                    'image' => (int)$pdo->query("SELECT COUNT(*) FROM images WHERE is_video = 0 AND is_audio = 0 AND is_file = 0")->fetchColumn(),
+                    'video' => (int)$pdo->query("SELECT COUNT(*) FROM images WHERE is_video = 1")->fetchColumn(),
+                    'audio' => (int)$pdo->query("SELECT COUNT(*) FROM images WHERE is_audio = 1")->fetchColumn(),
+                    'file' => (int)$pdo->query("SELECT COUNT(*) FROM images WHERE is_file = 1")->fetchColumn(),
                 ];
-                $stats['file'] = $stats['total'] - $stats['image'] - $stats['video'];
 
                 return [
                     'content' => [
@@ -209,21 +213,29 @@ function handleRequest($request, $pdo) {
 
             if ($toolName === 'get_podcast_info') {
                 $config = Database::getConfig($pdo);
-                $rssUrl = 'https://' . $_SERVER['HTTP_HOST'] . '/storage/podcast.xml';
+                $host = $_SERVER['HTTP_HOST'] ?? 'box.david888.com';
+                $rssVideoUrl = 'https://' . $host . '/storage/podcast.xml';
+                $rssAudioUrl = 'https://' . $host . '/storage/podcast_audio.xml';
                 return [
                     'content' => [
-                        ['type' => 'text', 'text' => "Podcast Info:\nRSS Feed: $rssUrl\nStorage: " . $config['storage']]
+                        ['type' => 'text', 'text' => "Podcast Info:\nVideo RSS Feed: $rssVideoUrl\nAudio RSS Feed: $rssAudioUrl\nStorage: " . $config['storage']]
                     ]
                 ];
             }
 
             if ($toolName === 'rebuild_podcast_rss') {
-                require_once 'config/video_logic.php';
+                $type = $args['type'] ?? 'video';
                 $config = Database::getConfig($pdo);
-                rebuildVideoRSS($pdo, $config);
+                if ($type === 'audio') {
+                    require_once 'config/audio_logic.php';
+                    rebuildAudioRSS($pdo, $config);
+                } else {
+                    require_once 'config/video_logic.php';
+                    rebuildVideoRSS($pdo, $config);
+                }
                 return [
                     'content' => [
-                        ['type' => 'text', 'text' => "Podcast RSS feed has been rebuilt successfully."]
+                        ['type' => 'text', 'text' => "Podcast " . ucfirst($type) . " RSS feed has been rebuilt successfully."]
                     ]
                 ];
             }

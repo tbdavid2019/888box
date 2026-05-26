@@ -1,6 +1,8 @@
 <?php
 session_start();
 require_once 'config/database.php';
+require_once 'config/theme_helper.php';
+
 
 function outputInlinePdf($asset) {
     $fileName = basename($asset['path'] ?: ($asset['title'] ?: 'document.pdf'));
@@ -117,10 +119,12 @@ $mime = $asset['mime_type'] ?: '';
 $ext = strtolower(pathinfo($url, PATHINFO_EXTENSION));
 
 $type = 'other';
-if (strpos($mime, 'image/') !== false || in_array($ext, ['jpg', 'jpeg', 'png', 'gif', 'webp', 'svg'])) {
-    $type = 'image';
-} elseif (strpos($mime, 'video/') !== false || in_array($ext, ['mp4', 'webm', 'mov', 'mkv'])) {
+if ($asset['is_audio'] == 1 || strpos($mime, 'audio/') !== false || in_array($ext, ['mp3', 'wav', 'aac', 'ogg', 'm4a', 'flac'])) {
+    $type = 'audio';
+} elseif ($asset['is_video'] == 1 || strpos($mime, 'video/') !== false || in_array($ext, ['mp4', 'webm', 'mov', 'mkv'])) {
     $type = 'video';
+} elseif (strpos($mime, 'image/') !== false || in_array($ext, ['jpg', 'jpeg', 'png', 'gif', 'webp', 'svg'])) {
+    $type = 'image';
 } elseif ($ext === 'pdf') {
     $type = 'pdf';
 } elseif ($ext === 'epub') {
@@ -135,6 +139,7 @@ if (strpos($mime, 'image/') !== false || in_array($ext, ['jpg', 'jpeg', 'png', '
     <title><?= htmlspecialchars($asset['title'] ?: '資源檢視') ?> - 888box</title>
     <link rel="shortcut icon" href="/static/favicon.svg">
     <link rel="stylesheet" href="/static/css/portal.css">
+    <?php renderThemeStyles($pdo); ?>
     <style>
         body { padding: 20px; }
         .view-container { 
@@ -160,6 +165,66 @@ if (strpos($mime, 'image/') !== false || in_array($ext, ['jpg', 'jpeg', 'png', '
         .download-box { margin-top: 30px; text-align: center; }
         .btn-download { display: inline-block; padding: 15px 40px; background: #34c759; color: #fff; text-decoration: none; border-radius: 12px; font-weight: bold; }
         #epub-viewer { width: 100%; height: 600px; background: #fff; color: #000; }
+        
+        /* Audio Preview Specific Styles */
+        .audio-preview-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            padding: 40px;
+            background: #111;
+            border-radius: 12px;
+        }
+        .cd-disk {
+            width: 180px;
+            height: 180px;
+            border-radius: 50%;
+            background: radial-gradient(circle, #333 15%, #000 40%, #222 75%, #000 100%);
+            border: 5px solid #222;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.5), inset 0 0 10px rgba(255,255,255,0.2);
+            position: relative;
+            margin-bottom: 30px;
+            animation: spin 8s linear infinite;
+            animation-play-state: paused;
+            transition: transform 0.5s;
+        }
+        .cd-disk::before {
+            content: '';
+            position: absolute;
+            top: 5%; left: 5%; right: 5%; bottom: 5%;
+            border-radius: 50%;
+            border: 2px dashed rgba(255,255,255,0.08);
+        }
+        .cd-disk::after {
+            content: '';
+            position: absolute;
+            top: 20%; left: 20%; right: 20%; bottom: 20%;
+            border-radius: 50%;
+            border: 1px dashed rgba(255,255,255,0.05);
+        }
+        .cd-center {
+            position: absolute;
+            top: 50%; left: 50%;
+            transform: translate(-50%, -50%);
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: #1a1b26;
+            border: 4px solid var(--accent-blue, #7aa2f7);
+            box-shadow: 0 0 5px rgba(0,0,0,0.5);
+            z-index: 2;
+        }
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+        #audioPlayer {
+            width: 100%;
+            max-width: 400px;
+            border-radius: 30px;
+        }
     </style>
 </head>
 <body>
@@ -189,6 +254,30 @@ if (strpos($mime, 'image/') !== false || in_array($ext, ['jpg', 'jpeg', 'png', '
                     <img src="<?= htmlspecialchars($url) ?>" alt="Image">
                 <?php elseif ($type === 'video'): ?>
                     <video src="<?= htmlspecialchars($url) ?>" controls autoplay></video>
+                <?php elseif ($type === 'audio'): ?>
+                    <div class="audio-preview-container">
+                        <div class="cd-disk" id="cdDisk">
+                            <div class="cd-center"></div>
+                        </div>
+                        <audio id="audioPlayer" src="<?= htmlspecialchars($url) ?>" controls autoplay></audio>
+                    </div>
+                    <script>
+                        document.addEventListener('DOMContentLoaded', () => {
+                            const audio = document.getElementById('audioPlayer');
+                            const cd = document.getElementById('cdDisk');
+                            if (audio && cd) {
+                                audio.addEventListener('play', () => {
+                                    cd.style.animationPlayState = 'running';
+                                });
+                                audio.addEventListener('pause', () => {
+                                    cd.style.animationPlayState = 'paused';
+                                });
+                                audio.addEventListener('ended', () => {
+                                    cd.style.animationPlayState = 'paused';
+                                });
+                            }
+                        });
+                    </script>
                 <?php elseif ($type === 'pdf'): ?>
                     <iframe src="/view.php?id=<?= urlencode((string)$id) ?>&pdf_inline=1"></iframe>
                 <?php elseif ($type === 'epub'): ?>

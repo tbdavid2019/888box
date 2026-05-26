@@ -261,6 +261,14 @@ $basicSettings = [
         'description' => '單一影片大小限制（MB）',
         'half_width' => true
     ],
+    'max_audio_size' => [
+        'label' => '音訊大小',
+        'type' => 'number',
+        'min' => 1,
+        'placeholder' => '建議設定為 100',
+        'description' => '單一音訊大小限制（MB）',
+        'half_width' => true
+    ],
     'site_domain' => [
         'label' => '網站網域',
         'type' => 'text',
@@ -274,6 +282,14 @@ $basicSettings = [
             'original' => '原始格式',
             'webp' => 'WebP',
             'avif' => 'AVIF'
+        ]
+    ],
+    'active_theme' => [
+        'label' => '全站配色主題',
+        'type' => 'radio',
+        'options' => [
+            'default' => '預設暗黑 (Tokyo Night)',
+            'middle_east_dart' => 'Middle East Dart (潘通2026)'
         ]
     ],
     'smtp_header' => [

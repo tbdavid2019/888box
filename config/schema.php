@@ -18,7 +18,8 @@ function getCoreTableSql() {
             report_count INTEGER DEFAULT 0,
             mime_type VARCHAR(100) NULL,
             is_video INTEGER DEFAULT 0,
-            is_file INTEGER DEFAULT 0
+            is_file INTEGER DEFAULT 0,
+            is_audio INTEGER DEFAULT 0
         )",
         'users' => "CREATE TABLE IF NOT EXISTS users (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -45,7 +46,8 @@ function getCoreImageColumns() {
         'report_count' => 'INTEGER DEFAULT 0',
         'mime_type' => 'VARCHAR(100) NULL',
         'is_video' => 'INTEGER DEFAULT 0',
-        'is_file' => 'INTEGER DEFAULT 0'
+        'is_file' => 'INTEGER DEFAULT 0',
+        'is_audio' => 'INTEGER DEFAULT 0'
     ];
 }
 
@@ -81,6 +83,24 @@ function getImageAssetConditionSql() {
         . ")";
 }
 
+function getAudioAssetConditionSql() {
+    return "("
+        . "LOWER(COALESCE(mime_type, '')) LIKE 'audio/%'"
+        . " OR LOWER(COALESCE(url, '')) LIKE '%.mp3'"
+        . " OR LOWER(COALESCE(url, '')) LIKE '%.wav'"
+        . " OR LOWER(COALESCE(url, '')) LIKE '%.aac'"
+        . " OR LOWER(COALESCE(url, '')) LIKE '%.ogg'"
+        . " OR LOWER(COALESCE(url, '')) LIKE '%.m4a'"
+        . " OR LOWER(COALESCE(url, '')) LIKE '%.flac'"
+        . " OR LOWER(COALESCE(path, '')) LIKE '%.mp3'"
+        . " OR LOWER(COALESCE(path, '')) LIKE '%.wav'"
+        . " OR LOWER(COALESCE(path, '')) LIKE '%.aac'"
+        . " OR LOWER(COALESCE(path, '')) LIKE '%.ogg'"
+        . " OR LOWER(COALESCE(path, '')) LIKE '%.m4a'"
+        . " OR LOWER(COALESCE(path, '')) LIKE '%.flac'"
+        . ")";
+}
+
 function getCoreConfigDefaults($siteUrl) {
     return [
         'storage' => ['local', '儲存方式'],
@@ -91,8 +111,10 @@ function getCoreConfigDefaults($siteUrl) {
         'max_uploads_per_day' => ['100', '每日上傳限制'],
         'max_file_size' => [(string) (100 * 1024 * 1024), '單一圖片大小限制（Bytes）'],
         'max_video_size' => ['500', '單一影片大小限制（MB）'],
+        'max_audio_size' => ['100', '單一音訊大小限制（MB）'],
         'output_format' => ['webp', '輸出圖片格式'],
-        'site_domain' => [$siteUrl, '網站網域']
+        'site_domain' => [$siteUrl, '網站網域'],
+        'active_theme' => ['middle_east_dart', '當前配色主題']
     ];
 }
 
@@ -169,6 +191,7 @@ function ensureCoreSchema($pdo) {
 function backfillAssetFlags($pdo) {
     $videoCondition = getVideoAssetConditionSql();
     $imageCondition = getImageAssetConditionSql();
+    $audioCondition = getAudioAssetConditionSql();
 
     $pdo->exec("
         UPDATE images
@@ -177,9 +200,14 @@ function backfillAssetFlags($pdo) {
                 WHEN $videoCondition THEN 1
                 ELSE 0
             END,
+            is_audio = CASE
+                WHEN $audioCondition THEN 1
+                ELSE 0
+            END,
             is_file = CASE
                 WHEN $videoCondition THEN 0
                 WHEN $imageCondition THEN 0
+                WHEN $audioCondition THEN 0
                 ELSE 1
             END
     ");

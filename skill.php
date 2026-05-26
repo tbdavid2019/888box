@@ -27,7 +27,7 @@ if (isset($_SESSION['loggedin']) && $_SESSION['loggedin']) {
 ?>
 ---
 name: 888box-asset-management
-description: Use when managing 888box assets through the live server API or MCP endpoints. Supports uploading remote assets, listing images/videos/files, reading stats, deleting assets, and checking podcast RSS information. This rendered skill includes the correct live Base URL and token hints for the current 888box deployment.
+description: Use when managing 888box assets through the live server API or MCP endpoints. Supports uploading remote assets, listing images/videos/audios/files, reading stats, deleting assets, and checking podcast RSS information. This rendered skill includes the correct live Base URL and token hints for the current 888box deployment.
 ---
 
 # 888box Asset Management
@@ -42,11 +42,11 @@ description: Use when managing 888box assets through the live server API or MCP 
 
 Use this skill when the user wants to:
 
-- upload a remote image, video, or file into this 888box instance
+- upload a remote image, video, audio, or file into this 888box instance
 - list recent assets from this server
 - inspect counts or asset stats
 - delete an asset by `id`
-- inspect podcast RSS information for uploaded videos
+- inspect podcast RSS information for uploaded videos or audios
 - operate against the live 888box deployment without hardcoding the wrong domain
 
 ## Workflow
@@ -104,7 +104,7 @@ Parameters:
 Retrieve a list of assets.
 
 Parameters:
-- `type` one of `image`, `video`, `file`, `all`
+- `type` one of `image`, `video`, `audio`, `file`, `all`
 - `page` optional
 
 #### `stats`
@@ -140,11 +140,12 @@ If MCP is connected for this 888box instance, prefer these tools:
 - **`upload_asset_by_url`**: Best for transferring assets from other websites.
 - **`list_assets`**: Use this to find IDs for deletion or viewing.
 - **`get_stats`**: Check storage usage and counts.
-- **`get_podcast_info`**: Retrieve the RSS feed for your videos.
-- **`rebuild_podcast_rss`**: Run this if the RSS feed seems out of sync.
+- **`get_podcast_info`**: Retrieve the RSS feeds for your videos or audios.
+- **`rebuild_podcast_rss`**: Run this with the type parameter if the RSS feed seems out of sync.
 
 ## Best Practices
 - **Images**: Automatically converted to WebP for optimization.
-- **Videos**: Automatically extracted metadata and generated thumbnails. Added to Podcast RSS if no password is set.
+- **Videos**: Automatically extracted metadata and generated thumbnails. Added to Video Podcast RSS (`/storage/podcast.xml`) if no password is set.
+- **Audios**: Automatically extracted duration and bitrate metadata. Added to Audio Podcast RSS (`/storage/podcast_audio.xml`) if no password is set.
 - **Security**: Use the provided `token` for protected actions such as listing, searching, deleting, or MCP-driven maintenance.
 - **Error Handling**: Check the `result` field in JSON responses. `error` indicates a failure.

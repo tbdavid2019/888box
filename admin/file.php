@@ -6,15 +6,13 @@ if (!isset($_SESSION['loggedin']) || !$_SESSION['loggedin']) {
 }
 
 require_once '../config/database.php';
+require_once '../config/theme_helper.php';
+
 $db = Database::getInstance();
 $pdo = $db->getConnection();
 
-// 撈取文件 (排除圖片和影片)
-// 我們利用 mime_type 欄位來過濾，或者排除常見影片後綴
-$stmt = $pdo->prepare("SELECT * FROM images WHERE 
-    (mime_type LIKE 'application/%' OR mime_type LIKE 'text/%') 
-    AND url NOT LIKE '%.mp4' AND url NOT LIKE '%.webm' AND url NOT LIKE '%.mov' AND url NOT LIKE '%.mkv'
-    ORDER BY id DESC");
+// 撈取文件 (排除圖片、影片和音訊，即 is_file = 1)
+$stmt = $pdo->prepare("SELECT * FROM images WHERE is_file = 1 ORDER BY id DESC");
 $stmt->execute();
 $files = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
@@ -26,6 +24,7 @@ $files = $stmt->fetchAll(PDO::FETCH_ASSOC);
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>文件管理後台 - 888box</title>
     <link rel="shortcut icon" href="/static/favicon.svg">
+    <?php renderThemeStyles($pdo); ?>
     <style>
         body { background: radial-gradient(circle at top, rgba(122, 162, 247, 0.14), transparent 32%), linear-gradient(180deg, #1f2335 0%, #1a1b26 42%, #16161e 100%); color: #c0caf5; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; margin: 0; padding: 20px; }
         .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; border-bottom: 1px solid #414868; padding-bottom: 20px; }
@@ -57,6 +56,7 @@ $files = $stmt->fetchAll(PDO::FETCH_ASSOC);
             <a href="/">🏠 返回首頁</a>
             <a href="/admin/index.php">🖼️ 圖片管理</a>
             <a href="/admin/video.php">🎬 影片管理</a>
+            <a href="/admin/audio.php">🎙️ 音訊管理</a>
             <a href="/upload_file.php">➕ 上傳文件</a>
         </div>
     </div>
@@ -100,6 +100,7 @@ $files = $stmt->fetchAll(PDO::FETCH_ASSOC);
         <div style="margin-bottom: 15px; display: flex; justify-content: center; gap: 20px; flex-wrap: wrap;">
             <a href="index.php" style="color: #7dcfff; text-decoration: none;">🖼️ 圖片管理</a>
             <a href="video.php" style="color: #7dcfff; text-decoration: none;">🎬 影片管理</a>
+            <a href="audio.php" style="color: #7dcfff; text-decoration: none;">🎙️ 音訊管理</a>
             <a href="file.php" style="color: #7dcfff; text-decoration: none;">📂 文件管理</a>
             <a href="/skill.php" target="_blank" style="color: #7dcfff; text-decoration: none;">🤖 AI Agent Skills</a>
         </div>

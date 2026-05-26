@@ -291,7 +291,13 @@ function detectMimeType($file) {
         'webm' => 'video/webm',
         'mov' => 'video/quicktime',
         'avi' => 'video/x-msvideo',
-        'mkv' => 'video/x-matroska'
+        'mkv' => 'video/x-matroska',
+        'mp3' => 'audio/mpeg',
+        'wav' => 'audio/wav',
+        'aac' => 'audio/aac',
+        'ogg' => 'audio/ogg',
+        'm4a' => 'audio/mp4',
+        'flac' => 'audio/flac'
     ];
     
     $mimeType = $mimeTypes[$extension] ?? 'application/octet-stream';
