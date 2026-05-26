@@ -6,6 +6,24 @@ header('Content-Type: application/json; charset=utf-8');
 require_once 'config/database.php';
 require_once 'config/upload.php';
 
+if (!function_exists('respondAndExit')) {
+    function respondAndExit($data) {
+        echo json_encode($data, JSON_UNESCAPED_UNICODE);
+        exit;
+    }
+}
+
+if (!function_exists('formatSizeLimit')) {
+    function formatSizeLimit($bytes) {
+        if ($bytes < 1024 * 1024) {
+            return max(1, round($bytes / 1024)) . 'KB';
+        }
+
+        $mb = $bytes / (1024 * 1024);
+        return $mb < 10 ? number_format($mb, 1) . 'MB' : number_format($mb, 0) . 'MB';
+    }
+}
+
 if (realpath(__FILE__) === realpath($_SERVER['SCRIPT_FILENAME'])) {
     try {
         $db = Database::getInstance();
@@ -156,20 +174,3 @@ function handleFileUpload($file, $pdo, $config) {
     }
 }
 
-if (!function_exists('respondAndExit')) {
-    function respondAndExit($data) {
-        echo json_encode($data, JSON_UNESCAPED_UNICODE);
-        exit;
-    }
-}
-
-if (!function_exists('formatSizeLimit')) {
-    function formatSizeLimit($bytes) {
-        if ($bytes < 1024 * 1024) {
-            return max(1, round($bytes / 1024)) . 'KB';
-        }
-
-        $mb = $bytes / (1024 * 1024);
-        return $mb < 10 ? number_format($mb, 1) . 'MB' : number_format($mb, 0) . 'MB';
-    }
-}
