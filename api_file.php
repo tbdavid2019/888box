@@ -135,6 +135,7 @@ function handleFileUpload($file, $pdo, $config) {
             'content_disposition' => 'inline; filename="' . addcslashes($file['name'], '"\\') . '"'
         ]);
         $fileUrl = generateFileUrl($storage, $config, $remotePath, $result);
+        $publicFileUrl = generatePublicFileUrl($storage, $config, $remotePath, $fileUrl);
         
         if ($storage !== 'local') {
             if (file_exists($targetPath)) unlink($targetPath);
@@ -164,7 +165,7 @@ function handleFileUpload($file, $pdo, $config) {
             'result' => 'success',
             'data' => [
                 'id' => $dbId,
-                'url' => $fileUrl,
+                'url' => $publicFileUrl,
                 'share_url' => 'https://' . $_SERVER['HTTP_HOST'] . '/view.php?id=' . $dbId
             ]
         ]);
@@ -173,4 +174,3 @@ function handleFileUpload($file, $pdo, $config) {
         respondAndExit(['result' => 'error', 'message' => '處理失敗: ' . $e->getMessage()]);
     }
 }
-

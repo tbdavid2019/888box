@@ -2,9 +2,10 @@
 session_start();
 require_once 'config/database.php';
 require_once 'config/theme_helper.php';
+require_once 'config/upload.php';
 
 
-function outputInlinePdf($asset) {
+function outputInlinePdf($asset, $config) {
     $fileName = basename($asset['path'] ?: ($asset['title'] ?: 'document.pdf'));
     $fileSize = (int)($asset['size'] ?? 0);
 
@@ -27,7 +28,7 @@ function outputInlinePdf($asset) {
         exit;
     }
 
-    $url = $asset['url'] ?? '';
+    $url = resolveAssetOriginUrl($asset, $config);
     if (!$url) {
         http_response_code(404);
         exit('PDF 連結不存在');
@@ -106,7 +107,7 @@ try {
     }
 
     if ($isAuthorized && isset($_GET['pdf_inline'])) {
-        outputInlinePdf($asset);
+        outputInlinePdf($asset, $config);
     }
     
 } catch (Exception $e) {

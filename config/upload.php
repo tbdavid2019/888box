@@ -30,48 +30,109 @@ function getClientIp() {
 }
 
 /**
- * 根据存储类型生成文件URL
+ * 正規化 URL base，確保有協議且不帶尾斜線
+ */
+function normalizeUrlBase($baseUrl, $defaultScheme = 'https://') {
+    if (empty($baseUrl)) {
+        return '';
+    }
+
+    if (!preg_match('/^https?:\/\//i', $baseUrl)) {
+        $baseUrl = $defaultScheme . ltrim($baseUrl, '/');
+    }
+
+    return rtrim($baseUrl, '/');
+}
+
+/**
+ * 根據存儲配置生成實際來源 URL
  */
 function generateFileUrl($storage, $config, $filePath, $s3Result = null) {
-    // 優先使用當前的網站域名，使所有上傳的資源（圖片、影片、音訊、文件）均顯示為本地域名 URL，以隱藏 S3/OSS 等後台端點
-    $domain = 'https://' . ($_SERVER['HTTP_HOST'] ?? 'localhost');
-    
-    // 如果是 local 且配置了 local_cdn_domain，則使用該 CDN 域名
-    if ($storage === 'local' && !empty($config['local_cdn_domain'])) {
-        $domain = $config['local_cdn_domain'];
-    }
-    
-    $url = $domain . '/' . $filePath;
-    
-    // 如果沒有 HTTP_HOST (例如 CLI 執行環境)，則回退到 S3/OSS/Upyun 的原始生成邏輯
-    if (empty($_SERVER['HTTP_HOST'])) {
-        if ($storage === 'local') {
-            $domain = $config['local_cdn_domain'] ?: 'http://localhost';
-        } elseif ($storage === 'oss') {
-            $domain = $config['oss_cdn_domain'] ?: $config['oss_endpoint'];
-        } elseif ($storage === 's3') {
-            if ($config['s3_cdn_domain']) {
-                $domain = $config['s3_cdn_domain'];
-            } elseif (isset($s3Result['ObjectURL'])) {
-                $domain = $s3Result['ObjectURL'];
-            } else {
-                $domain = $config['s3_endpoint'];
-            }
-        } elseif ($storage === 'upyun') {
-            $domain = $config['upyun_cdn_domain'] ?: 'http://localhost';
+    $cleanPath = ltrim($filePath, '/');
+
+    if ($storage === 'local') {
+        $domain = !empty($config['local_cdn_domain'])
+            ? normalizeUrlBase($config['local_cdn_domain'])
+            : 'https://' . ($_SERVER['HTTP_HOST'] ?? 'localhost');
+        $url = $domain . '/' . $cleanPath;
+    } elseif ($storage === 'oss') {
+        $domain = !empty($config['oss_cdn_domain'])
+            ? normalizeUrlBase($config['oss_cdn_domain'])
+            : normalizeUrlBase($config['oss_endpoint'] ?? '');
+        $url = $domain ? ($domain . '/' . $cleanPath) : '';
+    } elseif ($storage === 's3') {
+        if (!empty($config['s3_cdn_domain'])) {
+            $url = normalizeUrlBase($config['s3_cdn_domain']) . '/' . $cleanPath;
+        } elseif (isset($s3Result['ObjectURL']) && !empty($s3Result['ObjectURL'])) {
+            $url = (string)$s3Result['ObjectURL'];
+        } else {
+            $domain = normalizeUrlBase($config['s3_endpoint'] ?? '');
+            $url = $domain ? ($domain . '/' . $cleanPath) : '';
         }
-        
-        $url = (isset($s3Result['ObjectURL']) && !$config['s3_cdn_domain']) 
-            ? $domain 
-            : $domain . '/' . $filePath;
+    } elseif ($storage === 'upyun') {
+        $domain = normalizeUrlBase($config['upyun_cdn_domain'] ?? '');
+        $url = $domain ? ($domain . '/' . $cleanPath) : '';
+    } else {
+        $url = '';
     }
-    
+
     // 处理 url_prefix
     if (!empty($config['url_prefix'])) {
         $urlWithoutProtocol = preg_replace('/^https?:\/\//', '', $url);
         return $config['url_prefix'] . '/' . $urlWithoutProtocol;
     }
-    
+
+    return $url;
+}
+
+/**
+ * 生成對外顯示用網址，優先使用本站遮罩 URL
+ */
+function generatePublicFileUrl($storage, $config, $filePath, $originUrl = '') {
+    $cleanPath = ltrim($filePath, '/');
+
+    if ($storage === 'local' && !empty($config['local_cdn_domain'])) {
+        return normalizeUrlBase($config['local_cdn_domain']) . '/' . $cleanPath;
+    }
+
+    if (!empty($_SERVER['HTTP_HOST'])) {
+        return 'https://' . $_SERVER['HTTP_HOST'] . '/' . $cleanPath;
+    }
+
+    return $originUrl ?: generateFileUrl($storage, $config, $filePath);
+}
+
+/**
+ * 判斷資料庫中的 URL 是否誤存成目前站台的遮罩網址
+ */
+function isMaskedStorageUrl($url, $filePath) {
+    if (empty($url) || empty($filePath) || empty($_SERVER['HTTP_HOST'])) {
+        return false;
+    }
+
+    $parsed = parse_url($url);
+    $host = $parsed['host'] ?? '';
+    $path = $parsed['path'] ?? '';
+
+    return $host === $_SERVER['HTTP_HOST'] && $path === '/' . ltrim($filePath, '/');
+}
+
+/**
+ * 解析資產實際來源 URL，兼容早期誤存的遮罩網址
+ */
+function resolveAssetOriginUrl($asset, $config) {
+    $storage = $asset['storage'] ?? 'local';
+    $path = $asset['path'] ?? '';
+    $url = $asset['url'] ?? '';
+
+    if ($storage === 'local') {
+        return $url;
+    }
+
+    if (empty($url) || isMaskedStorageUrl($url, $path)) {
+        return generateFileUrl($storage, $config, $path);
+    }
+
     return $url;
 }
 
@@ -394,6 +455,7 @@ function handleUploadedFile($file, $token, $referer, $password = '') {
         }
         
         $fileUrl = generateFileUrl($storage, $config, $filePath, $result);
+        $publicFileUrl = generatePublicFileUrl($storage, $config, $filePath, $fileUrl);
         $storagePath = ($storage === 'local') ? $finalFilePath : $filePath;
         
         $hashedPassword = !empty($password) ? password_hash($password, PASSWORD_DEFAULT) : NULL;
@@ -403,8 +465,8 @@ function handleUploadedFile($file, $token, $referer, $password = '') {
         // 记录上传成功日志
         $clientIp = getClientIp();
         logMessage("上传成功 | IP: {$clientIp} | 存储: {$storage} | URL: {$fileUrl}");
-        
-        generateUploadResponse($fileUrl, $storagePath, $finalFilePath, $fileSize, $dimensions['width'], $dimensions['height']);
+
+        generateUploadResponse($publicFileUrl, $storagePath, $finalFilePath, $fileSize, $dimensions['width'], $dimensions['height']);
     } catch (Exception $e) {
         // 记录上传失败日志
         $clientIp = getClientIp();

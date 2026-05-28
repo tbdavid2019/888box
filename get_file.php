@@ -59,7 +59,7 @@ try {
     }
     
     // For S3/OSS/Upyun, redirect to the secure remote URL
-    $url = $asset['url'];
+    $url = resolveAssetOriginUrl($asset, $config);
     if (empty($url)) {
         http_response_code(404);
         exit('URL not found');

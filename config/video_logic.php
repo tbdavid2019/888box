@@ -80,6 +80,7 @@ function handleVideoUpload($file, $pdo, $title = '', $description = '', $passwor
             'content_disposition' => 'inline; filename="' . addcslashes($videoFileName, '"\\') . '"'
         ]);
         $videoUrl = generateFileUrl($storage, $config, $videoRemotePath, $videoResult);
+        $publicVideoUrl = generatePublicFileUrl($storage, $config, $videoRemotePath, $videoUrl);
         
         // Upload Thumbnail if generated
         $thumbUrl = '';
@@ -89,6 +90,9 @@ function handleVideoUpload($file, $pdo, $title = '', $description = '', $passwor
                 'content_disposition' => 'inline; filename="' . addcslashes($thumbFileName, '"\\') . '"'
             ]);
             $thumbUrl = generateFileUrl($storage, $config, $thumbRemotePath, $thumbResult);
+            $publicThumbUrl = generatePublicFileUrl($storage, $config, $thumbRemotePath, $thumbUrl);
+        } else {
+            $publicThumbUrl = '';
         }
         
         // Capture file size before potential unlink
@@ -101,8 +105,8 @@ function handleVideoUpload($file, $pdo, $title = '', $description = '', $passwor
         }
         
         $videoData = [
-            'url' => $videoUrl,
-            'thumbnail_url' => $thumbUrl,
+            'url' => $publicVideoUrl,
+            'thumbnail_url' => $publicThumbUrl,
             'path' => $videoRemotePath,
             'thumb_path' => $thumbRemotePath,
             'size' => $videoSize,
@@ -322,16 +326,17 @@ function rebuildVideoRSS($pdo, $config) {
             $item->appendChild($dom->createElement('pubDate', date(DATE_RSS, strtotime($video['created_at']))));
             
             $enclosure = $dom->createElement('enclosure');
-            $enclosure->setAttribute('url', $video['url']);
+            $publicUrl = getMaskedUrl($video['url'], $video['path']);
+            $enclosure->setAttribute('url', $publicUrl);
             $enclosure->setAttribute('length', $video['size']);
             // A basic check for mime type based on extension
             $type = 'video/mp4';
-            if (strpos($video['url'], '.webm') !== false) $type = 'video/webm';
-            elseif (strpos($video['url'], '.mov') !== false) $type = 'video/quicktime';
+            if (strpos($publicUrl, '.webm') !== false) $type = 'video/webm';
+            elseif (strpos($publicUrl, '.mov') !== false) $type = 'video/quicktime';
             $enclosure->setAttribute('type', $type);
             $item->appendChild($enclosure);
             
-            $item->appendChild($dom->createElement('guid', $video['url']));
+            $item->appendChild($dom->createElement('guid', $publicUrl));
             $channel->appendChild($item);
         }
         

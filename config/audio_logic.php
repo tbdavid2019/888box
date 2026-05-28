@@ -51,6 +51,7 @@ function handleAudioUpload($file, $pdo, $title = '', $description = '', $passwor
             'content_disposition' => 'inline; filename="' . addcslashes($audioFileName, '"\\') . '"'
         ]);
         $audioUrl = generateFileUrl($storage, $config, $audioRemotePath, $audioResult);
+        $publicAudioUrl = generatePublicFileUrl($storage, $config, $audioRemotePath, $audioUrl);
         
         // Capture file size before potential unlink
         $audioSize = file_exists($localAudioPath) ? filesize($localAudioPath) : 0;
@@ -61,7 +62,7 @@ function handleAudioUpload($file, $pdo, $title = '', $description = '', $passwor
         }
         
         $audioData = [
-            'url' => $audioUrl,
+            'url' => $publicAudioUrl,
             'path' => $audioRemotePath,
             'size' => $audioSize,
             'filename' => $audioFileName,
@@ -142,7 +143,8 @@ function rebuildAudioRSS($pdo, $config) {
             $item->appendChild($dom->createElement('pubDate', date(DATE_RSS, strtotime($audio['created_at']))));
             
             $enclosure = $dom->createElement('enclosure');
-            $enclosure->setAttribute('url', $audio['url']);
+            $publicUrl = getMaskedUrl($audio['url'], $audio['path']);
+            $enclosure->setAttribute('url', $publicUrl);
             $enclosure->setAttribute('length', $audio['size']);
             
             // Map mime-type
@@ -150,7 +152,7 @@ function rebuildAudioRSS($pdo, $config) {
             $enclosure->setAttribute('type', $mime);
             $item->appendChild($enclosure);
             
-            $item->appendChild($dom->createElement('guid', $audio['url']));
+            $item->appendChild($dom->createElement('guid', $publicUrl));
             $channel->appendChild($item);
         }
         
