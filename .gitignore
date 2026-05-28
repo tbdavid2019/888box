@@ -29,3 +29,4 @@ storage/database.db.*
 
 # 本機部署筆記
 DEPLOYMENT.local.md
+HOSTS_MAINTENANCE.local.md

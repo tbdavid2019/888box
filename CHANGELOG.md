@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file.
 
+## [2026.5.28] - 2026-05-28
+
+### 🐛 Fixed
+- **Masked Storage Redirect Loop**: Fixed a critical production regression where cloud-backed assets could enter infinite redirects (`ERR_TOO_MANY_REDIRECTS`) because the database `images.url` field was incorrectly storing the public masked `/storage/...` URL instead of the true remote origin URL.
+- **Origin/Public URL Separation**: Split runtime handling so uploads now persist the real upstream storage URL for `s3`, `oss`, and `upyun`, while public responses and admin copy links still expose the local masked domain URL.
+- **Legacy Bad-Data Compatibility**: Hardened `get_file.php` and PDF inline preview flows to detect and recover from previously stored masked URLs, preventing older production rows from continuing to self-redirect after deployment.
+
+### 📝 Docs
+- **Production Maintenance Notes**: Documented the current operational differences across the four production hosts in a local-only maintenance note and excluded that note from git tracking.
+
 ## [2026.5.26] - 2026-05-26
 
 ### ✨ Added
