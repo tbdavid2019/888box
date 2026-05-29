@@ -6,10 +6,13 @@ if (!isset($_SESSION['loggedin']) || !$_SESSION['loggedin']) {
 }
 
 require_once '../config/database.php';
+require_once '../config/rss.php';
 require_once '../config/theme_helper.php';
 
 $db = Database::getInstance();
 $pdo = $db->getConnection();
+$config = Database::getConfig($pdo);
+$videoRssUrl = buildRssUrl('video', $config, true);
 
 // 撈取影片
 $stmt = $pdo->prepare("SELECT * FROM images WHERE url LIKE '%.mp4' OR url LIKE '%.webm' OR url LIKE '%.mov' OR url LIKE '%.mkv' ORDER BY id DESC");
@@ -105,7 +108,7 @@ unset($video);
         <div class="nav-links">
             <a href="/admin/">🖼️ 圖片管理後台</a>
             <a href="/upload_video.php">➕ 上傳新影片</a>
-            <a href="/storage/podcast.xml" target="_blank">🎧 Podcast RSS</a>
+            <a href="<?= htmlspecialchars($videoRssUrl) ?>" target="_blank">🎧 Podcast RSS</a>
             <button type="button" onclick="rebuildPodcast()">🔁 重建 RSS</button>
         </div>
     </div>

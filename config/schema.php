@@ -114,7 +114,9 @@ function getCoreConfigDefaults($siteUrl) {
         'max_audio_size' => ['100', '單一音訊大小限制（MB）'],
         'output_format' => ['webp', '輸出圖片格式'],
         'site_domain' => [$siteUrl, '網站網域'],
-        'active_theme' => ['middle_east_dart', '當前配色主題']
+        'active_theme' => ['middle_east_dart', '當前配色主題'],
+        'rss_token_enabled' => ['false', 'RSS Token 保護'],
+        'rss_token' => ['', 'RSS Token']
     ];
 }
 

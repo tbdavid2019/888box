@@ -50,6 +50,9 @@ document.addEventListener('DOMContentLoaded', () => {
     const initializeSettingsForm = () => {
         const settingsForm = document.getElementById('settings-form');
         const tokenInput = document.getElementById('token-input');
+        const rssTokenInput = document.getElementById('rss-token-input');
+        const rssVideoPreview = document.getElementById('rss-video-preview');
+        const rssAudioPreview = document.getElementById('rss-audio-preview');
 
         const updateStorageSettings = () => {
             const selectedStorage = document.querySelector('input[name="storage"]:checked');
@@ -57,6 +60,21 @@ document.addEventListener('DOMContentLoaded', () => {
             
             document.querySelectorAll('[id$="-settings"]').forEach(panel => panel.style.display = 'none');
             document.getElementById(`${selectedStorage.value}-settings`)?.style.setProperty('display', 'block');
+        };
+
+        const updateRssPreviewUrls = () => {
+            const rssEnabled = document.querySelector('input[name="rss_token_enabled"]:checked')?.value === 'true';
+            const rssToken = rssTokenInput?.value || '';
+
+            [
+                {input: rssVideoPreview, publicUrl: rssVideoPreview?.dataset.publicUrl || ''},
+                {input: rssAudioPreview, publicUrl: rssAudioPreview?.dataset.publicUrl || ''}
+            ].forEach(({input, publicUrl}) => {
+                if (!input) return;
+                input.value = rssEnabled && rssToken
+                    ? `${publicUrl}?rss_token=${encodeURIComponent(rssToken)}`
+                    : publicUrl;
+            });
         };
 
         document.querySelector('.copy-token')?.addEventListener('click', () => {
@@ -68,6 +86,19 @@ document.addEventListener('DOMContentLoaded', () => {
         document.querySelector('.refresh-token')?.addEventListener('click', () => {
             tokenInput.value = generateRandomToken(32);
             UI.showNotification('Token 已重新產生', 'success');
+        });
+
+        document.querySelector('.copy-rss-token')?.addEventListener('click', () => {
+            if (rssTokenInput?.value) {
+                navigator.clipboard.writeText(rssTokenInput.value).then(() => UI.showNotification('RSS Token 已複製', 'success'));
+            }
+        });
+
+        document.querySelector('.refresh-rss-token')?.addEventListener('click', () => {
+            if (!rssTokenInput) return;
+            rssTokenInput.value = generateRandomToken(48);
+            updateRssPreviewUrls();
+            UI.showNotification('RSS Token 已重新產生', 'success');
         });
 
         // 密码显示/隐藏
@@ -85,8 +116,12 @@ document.addEventListener('DOMContentLoaded', () => {
         });
 
         updateStorageSettings();
+        updateRssPreviewUrls();
         document.querySelectorAll('input[name="storage"]').forEach(input => 
             input.addEventListener('change', updateStorageSettings)
+        );
+        document.querySelectorAll('input[name="rss_token_enabled"]').forEach(input =>
+            input.addEventListener('change', updateRssPreviewUrls)
         );
 
         settingsForm?.addEventListener('submit', async (e) => {
@@ -107,6 +142,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 
                 const {message, success} = await response.json();
                 UI.showNotification(message, success ? 'success' : 'error');
+                if (success) updateRssPreviewUrls();
             } catch (error) {
                 console.error('Error saving settings:', error);
                 UI.showNotification('儲存設定失敗', 'error');

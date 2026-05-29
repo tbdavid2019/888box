@@ -9,6 +9,7 @@
 require_once 'vendor/autoload.php';
 require_once 'config/database.php';
 require_once 'config/upload.php';
+require_once 'config/rss.php';
 
 // 初始化数据库
 $db = Database::getInstance();
@@ -213,12 +214,12 @@ function handleRequest($request, $pdo) {
 
             if ($toolName === 'get_podcast_info') {
                 $config = Database::getConfig($pdo);
-                $host = $_SERVER['HTTP_HOST'] ?? 'box.david888.com';
-                $rssVideoUrl = 'https://' . $host . '/storage/podcast.xml';
-                $rssAudioUrl = 'https://' . $host . '/storage/podcast_audio.xml';
+                $rssVideoUrl = buildRssUrl('video', $config, true);
+                $rssAudioUrl = buildRssUrl('audio', $config, true);
+                $rssMode = isRssTokenEnabled($config) ? 'token-protected' : 'public';
                 return [
                     'content' => [
-                        ['type' => 'text', 'text' => "Podcast Info:\nVideo RSS Feed: $rssVideoUrl\nAudio RSS Feed: $rssAudioUrl\nStorage: " . $config['storage']]
+                        ['type' => 'text', 'text' => "Podcast Info:\nVideo RSS Feed: $rssVideoUrl\nAudio RSS Feed: $rssAudioUrl\nRSS Mode: $rssMode\nStorage: " . $config['storage']]
                     ]
                 ];
             }
@@ -280,4 +281,3 @@ while ($line = fgets(STDIN)) {
     
     echo json_encode($response, JSON_UNESCAPED_UNICODE) . "\n";
 }
-

@@ -1,3 +1,7 @@
 RewriteEngine On
+RewriteRule ^podcast\.xml$ /rss.php?type=video [L,QSA]
+RewriteRule ^podcast_audio\.xml$ /rss.php?type=audio [L,QSA]
+RewriteRule ^podcast(_audio)?\.internal\.xml$ - [F,L]
+RewriteRule ^podcast(_audio)?\.internal\.xml\.lock$ - [F,L]
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteRule ^(.*)$ /get_file.php?path=$1 [L,QSA]

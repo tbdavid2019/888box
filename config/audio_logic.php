@@ -2,6 +2,7 @@
 require_once __DIR__ . '/video_helper.php';
 require_once __DIR__ . '/upload.php';
 require_once __DIR__ . '/video_logic.php'; // Reuse resolvePodcastSiteUrl
+require_once __DIR__ . '/rss.php';
 
 /**
  * Handle audio upload logic
@@ -95,7 +96,7 @@ function handleAudioUpload($file, $pdo, $title = '', $description = '', $passwor
  * Rebuild Audio Podcast RSS Feed from database
  */
 function rebuildAudioRSS($pdo, $config) {
-    $rssPath = 'storage/podcast_audio.xml';
+    $rssPath = getRssCachePath('audio');
     if (!is_dir('storage')) {
         if (!mkdir('storage', 0755, true)) {
             logMessage("無法建立 storage 目錄");
@@ -103,7 +104,7 @@ function rebuildAudioRSS($pdo, $config) {
         }
     }
     
-    $lockFile = $rssPath . '.lock';
+    $lockFile = getRssLockPath('audio');
     $fp = fopen($lockFile, "w+");
     if (!$fp) {
         logMessage("無法建立鎖定檔案: $lockFile");
@@ -159,6 +160,8 @@ function rebuildAudioRSS($pdo, $config) {
         if ($dom->save($rssPath) === false) {
             logMessage("無法儲存 RSS 檔案: $rssPath");
         }
+
+        cleanupLegacyPublicRssFiles();
         
         flock($fp, LOCK_UN);
     }

@@ -47,12 +47,12 @@ fi
 echo "📂 正在初始化目錄結構..."
 mkdir -p storage/i
 # 嘗試設定權限 (UID 33 是 Docker 內 www-data 的預設值)
-# podcast.xml / podcast.xml.lock / database.db 都會落在 storage/ 下，必須保持 www-data 可寫
+# RSS 內部快取 / lock 檔與 database.db 都會落在 storage/ 下，必須保持 www-data 可寫
 if [ "$EUID" -eq 0 ]; then
     chown -R 33:33 storage
 else
     echo "⚠️ 警告: 非 root 執行，請確保 storage/ 目錄具備寫入權限 (建議 chown -R 33:33 storage)"
-    echo "⚠️ 若 storage/database.db、storage/podcast.xml 或 storage/podcast.xml.lock 被 root 擁有，影片上傳後 RSS 可能無法更新。"
+    echo "⚠️ 若 storage/database.db、storage/podcast.internal.xml 或 storage/podcast.internal.xml.lock 被 root 擁有，RSS 可能無法更新。"
 fi
 
 # 3. 準備 .env

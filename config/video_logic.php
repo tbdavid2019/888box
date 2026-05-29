@@ -2,6 +2,7 @@
 
 require_once __DIR__ . '/video_helper.php';
 require_once __DIR__ . '/upload.php';
+require_once __DIR__ . '/rss.php';
 
 function resolvePodcastSiteUrl($config) {
     if (!empty($_SERVER['HTTP_HOST'])) {
@@ -140,7 +141,7 @@ function handleVideoUpload($file, $pdo, $title = '', $description = '', $passwor
  * Update Podcast RSS Feed with flock
  */
 function updatePodcastRSS($videoData, $config) {
-    $rssPath = 'storage/podcast.xml';
+    $rssPath = getRssCachePath('video');
     if (!is_dir('storage')) {
         if (!mkdir('storage', 0755, true)) {
             logMessage("無法建立 storage 目錄");
@@ -148,7 +149,7 @@ function updatePodcastRSS($videoData, $config) {
         }
     }
     
-    $lockFile = $rssPath . '.lock';
+    $lockFile = getRssLockPath('video');
     $fp = fopen($lockFile, "w+");
     if (!$fp) {
         logMessage("無法建立鎖定檔案: $lockFile");
@@ -231,6 +232,8 @@ function updatePodcastRSS($videoData, $config) {
         if ($dom->save($rssPath) === false) {
             logMessage("無法儲存 RSS 檔案: $rssPath");
         }
+
+        cleanupLegacyPublicRssFiles();
         
         flock($fp, LOCK_UN);
     }
@@ -278,7 +281,7 @@ function updateDailyList($videoData, $config) {
  * Rebuild Podcast RSS Feed from database
  */
 function rebuildVideoRSS($pdo, $config) {
-    $rssPath = 'storage/podcast.xml';
+    $rssPath = getRssCachePath('video');
     if (!is_dir('storage')) {
         if (!mkdir('storage', 0755, true)) {
             logMessage("無法建立 storage 目錄");
@@ -286,7 +289,7 @@ function rebuildVideoRSS($pdo, $config) {
         }
     }
     
-    $lockFile = $rssPath . '.lock';
+    $lockFile = getRssLockPath('video');
     $fp = fopen($lockFile, "w+");
     if (!$fp) {
         logMessage("無法建立鎖定檔案: $lockFile");
@@ -343,6 +346,8 @@ function rebuildVideoRSS($pdo, $config) {
         if ($dom->save($rssPath) === false) {
             logMessage("無法儲存 RSS 檔案: $rssPath");
         }
+
+        cleanupLegacyPublicRssFiles();
         
         flock($fp, LOCK_UN);
     }

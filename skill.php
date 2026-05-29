@@ -9,8 +9,11 @@ $baseUrl = $protocol . $host;
 // Optional: Fetch token if session exists (convenience for the user's own agent)
 session_start();
 $tokenDisplay = "YOUR_API_TOKEN";
+$videoRssPath = '/storage/podcast.xml';
+$audioRssPath = '/storage/podcast_audio.xml';
 if (isset($_SESSION['loggedin']) && $_SESSION['loggedin']) {
     require_once 'config/database.php';
+    require_once 'config/rss.php';
     try {
         $db = Database::getInstance();
         $pdo = $db->getConnection();
@@ -20,6 +23,10 @@ if (isset($_SESSION['loggedin']) && $_SESSION['loggedin']) {
         if ($row && !empty($row['token'])) {
             $tokenDisplay = $row['token'];
         }
+
+        $config = Database::getConfig($pdo);
+        $videoRssPath = buildRssUrl('video', $config, true);
+        $audioRssPath = buildRssUrl('audio', $config, true);
     } catch (Exception $e) {
         // Silently fail to guest mode
     }
@@ -145,7 +152,7 @@ If MCP is connected for this 888box instance, prefer these tools:
 
 ## Best Practices
 - **Images**: Automatically converted to WebP for optimization.
-- **Videos**: Automatically extracted metadata and generated thumbnails. Added to Video Podcast RSS (`/storage/podcast.xml`) if no password is set.
-- **Audios**: Automatically extracted duration and bitrate metadata. Added to Audio Podcast RSS (`/storage/podcast_audio.xml`) if no password is set.
+- **Videos**: Automatically extracted metadata and generated thumbnails. Added to Video Podcast RSS (`<?= $videoRssPath ?>`) if no password is set.
+- **Audios**: Automatically extracted duration and bitrate metadata. Added to Audio Podcast RSS (`<?= $audioRssPath ?>`) if no password is set.
 - **Security**: Use the provided `token` for protected actions such as listing, searching, deleting, or MCP-driven maintenance.
 - **Error Handling**: Check the `result` field in JSON responses. `error` indicates a failure.

@@ -6,10 +6,13 @@ if (!isset($_SESSION['loggedin']) || !$_SESSION['loggedin']) {
 }
 
 require_once '../config/database.php';
+require_once '../config/rss.php';
 require_once '../config/theme_helper.php';
 
 $db = Database::getInstance();
 $pdo = $db->getConnection();
+$config = Database::getConfig($pdo);
+$audioRssUrl = buildRssUrl('audio', $config, true);
 
 // 撈取音訊
 $stmt = $pdo->prepare("SELECT * FROM images WHERE is_audio = 1 ORDER BY id DESC");
@@ -107,7 +110,7 @@ unset($audio);
         <div class="nav-links">
             <a href="/admin/">🖼️ 圖片管理後台</a>
             <a href="/upload_audio.php">➕ 上傳新音訊</a>
-            <a href="/storage/podcast_audio.xml" target="_blank">🎧 Podcast RSS</a>
+            <a href="<?= htmlspecialchars($audioRssUrl) ?>" target="_blank">🎧 Podcast RSS</a>
             <button type="button" onclick="rebuildPodcast()">🔁 重建 RSS</button>
         </div>
     </div>

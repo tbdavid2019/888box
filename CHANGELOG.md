@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file.
 
+## [2026.5.29] - 2026-05-29
+
+### ✨ Added
+- **RSS Token Protection Controls**: Added admin-side RSS access controls in `admin/settings.php`, including a public/token-protected mode switch, independent RSS token generation/regeneration, and preview URLs for both video and audio podcast feeds.
+- **Token-Aware RSS Gateway**: Added `rss.php` plus new `storage/.htaccess` routing so `/storage/podcast.xml` and `/storage/podcast_audio.xml` now flow through a PHP gateway that can enforce `rss_token` validation without changing the external feed URLs.
+
+### 🐛 Fixed
+- **Public RSS Bypass Risk**: Moved RSS rebuild output from directly exposed XML files to internal cache files (`storage/podcast.internal.xml` and `storage/podcast_audio.internal.xml`), preventing legacy direct-file access from bypassing the new RSS token protection mode.
+- **Podcast URL Consistency**: Updated admin RSS links, MCP podcast info output, and rendered `skill.php` guidance to return the correct tokenized RSS URLs when RSS protection is enabled.
+
 ## [2026.5.28] - 2026-05-28
 
 ### 🐛 Fixed

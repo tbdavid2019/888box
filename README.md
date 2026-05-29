@@ -58,12 +58,12 @@ cd 888box
 6.  **互動式設定**：引導你設定第一個**管理員帳號與密碼**。
 
 ### 安裝與升級注意事項
-- Docker 容器內實際寫入 `storage/` 的使用者是 `www-data`（UID/GID 33），包含 `storage/database.db`、`storage/podcast.xml`、`storage/podcast.xml.lock`。
+- Docker 容器內實際寫入 `storage/` 的使用者是 `www-data`（UID/GID 33），包含 `storage/database.db`、`storage/podcast.internal.xml`、`storage/podcast.internal.xml.lock`、`storage/podcast_audio.internal.xml`、`storage/podcast_audio.internal.xml.lock`。
 - 若你在宿主機用 `root` 手動重建 RSS、複製檔案、或直接覆寫 `storage/` 內容，可能會把檔案 owner 改成 `root:root`，進而導致後續影片上傳成功但 RSS 無法更新。
 - `install.sh` 會先在宿主機嘗試 `chown -R 33:33 storage`，容器啟動後也會再執行一次 `docker exec 888box chown -R 33:33 /var/www/html/storage`，目的是把 writable 檔案統一交回 `www-data`。
 - 若既有站台出現 RSS 停止更新，可優先檢查：
   ```bash
-  docker exec 888box sh -lc 'stat -c "%U:%G %a %n" /var/www/html/storage/database.db /var/www/html/storage/podcast.xml /var/www/html/storage/podcast.xml.lock'
+  docker exec 888box sh -lc 'stat -c "%U:%G %a %n" /var/www/html/storage/database.db /var/www/html/storage/podcast.internal.xml /var/www/html/storage/podcast.internal.xml.lock /var/www/html/storage/podcast_audio.internal.xml /var/www/html/storage/podcast_audio.internal.xml.lock'
   ```
 - 若 owner 不是 `www-data:www-data`，可修正為：
   ```bash

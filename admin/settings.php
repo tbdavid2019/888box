@@ -12,6 +12,7 @@ if (empty($_SERVER['HTTP_X_REQUESTED_WITH']) ||
 }
 
 require_once '../config/database.php';
+require_once '../config/rss.php';
 $db = Database::getInstance();
 $pdo = $db->getConnection();
 $demoMode = ($_ENV['DEMO_MODE'] ?? 'false') === 'true';
@@ -141,6 +142,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         
         // 更新配置
         $stmt = $pdo->prepare("UPDATE configs SET value = ? WHERE `key` = ?");
+
+        if (($_POST['rss_token_enabled'] ?? 'false') === 'true' && empty($_POST['rss_token'])) {
+            $_POST['rss_token'] = generateRssToken();
+        }
+
         foreach ($_POST as $key => $value) {
             if (!in_array($key, ['submit', 'token', 'new_password', 'confirm_password'])) {
                 // 自动处理域名和endpoint
@@ -154,6 +160,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $stmt->execute([$value, $key]);
             }
         }
+
+        cleanupLegacyPublicRssFiles();
         
         $pdo->commit();
         exit(json_encode(['success' => true, 'message' => '設定已更新']));
@@ -169,6 +177,18 @@ $storageConfigs = json_decode(file_get_contents('../config/configs.json'), true)
 $stmt = $pdo->prepare("SELECT token FROM users WHERE id = ?");
 $stmt->execute([$_SESSION['user_id']]);
 $userToken = $stmt->fetch(PDO::FETCH_ASSOC)['token'] ?? '';
+$rssToken = $configs['rss_token']['value'] ?? '';
+$rssTokenEnabled = ($configs['rss_token_enabled']['value'] ?? 'false') === 'true';
+$videoRssPreviewUrl = buildRssUrl('video', [
+    'site_domain' => $configs['site_domain']['value'] ?? '',
+    'rss_token_enabled' => $rssTokenEnabled ? 'true' : 'false',
+    'rss_token' => $rssToken,
+], true);
+$audioRssPreviewUrl = buildRssUrl('audio', [
+    'site_domain' => $configs['site_domain']['value'] ?? '',
+    'rss_token_enabled' => $rssTokenEnabled ? 'true' : 'false',
+    'rss_token' => $rssToken,
+], true);
 
 // 渲染字段
 function renderFields($fields, $configs) {
@@ -387,6 +407,55 @@ $basicSettings = [
                     <button type="button" class="token-action-btn refresh-token" title="重新產生">
                         <svg class="icon" aria-hidden="true"><use xlink:href="#icon-refresh"></use></svg>
                     </button>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>
+                    RSS Token 保護
+                    <span class="label-description">開啟後，影片與音訊 RSS 需帶 token 才能讀取</span>
+                </label>
+                <div class="radio-group">
+                    <?php foreach(['false' => '公開', 'true' => '啟用 Token'] as $value => $label): ?>
+                        <label>
+                            <input type="radio" name="rss_token_enabled" value="<?= $value ?>"
+                                   <?= ($configs['rss_token_enabled']['value'] ?? 'false') === $value ? 'checked' : '' ?>>
+                            <span><?= $label ?></span>
+                        </label>
+                    <?php endforeach; ?>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>
+                    RSS Token
+                    <span class="label-description">可獨立重新產生；舊的 RSS 訂閱連結會立即失效</span>
+                </label>
+                <div class="token-input-group">
+                    <input type="text" name="rss_token" id="rss-token-input" value="<?= htmlspecialchars($rssToken) ?>" readonly>
+                    <button type="button" class="token-action-btn copy-rss-token" title="複製">
+                        <svg class="icon" aria-hidden="true"><use xlink:href="#icon-copy"></use></svg>
+                    </button>
+                    <button type="button" class="token-action-btn refresh-rss-token" title="重新產生">
+                        <svg class="icon" aria-hidden="true"><use xlink:href="#icon-refresh"></use></svg>
+                    </button>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>
+                    RSS Preview
+                    <span class="label-description">管理員可直接複製帶 token 的 RSS URL 進行測試或訂閱</span>
+                </label>
+                <div class="rss-preview-group">
+                    <div class="rss-preview-item">
+                        <span class="rss-preview-label">影片 RSS</span>
+                        <input type="text" id="rss-video-preview" value="<?= htmlspecialchars($videoRssPreviewUrl) ?>" readonly data-public-url="<?= htmlspecialchars(buildRssUrl('video', ['site_domain' => $configs['site_domain']['value'] ?? '', 'rss_token_enabled' => 'false', 'rss_token' => ''], false)) ?>">
+                    </div>
+                    <div class="rss-preview-item">
+                        <span class="rss-preview-label">音訊 RSS</span>
+                        <input type="text" id="rss-audio-preview" value="<?= htmlspecialchars($audioRssPreviewUrl) ?>" readonly data-public-url="<?= htmlspecialchars(buildRssUrl('audio', ['site_domain' => $configs['site_domain']['value'] ?? '', 'rss_token_enabled' => 'false', 'rss_token' => ''], false)) ?>">
+                    </div>
                 </div>
             </div>
 
