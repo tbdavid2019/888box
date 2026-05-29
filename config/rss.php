@@ -26,6 +26,13 @@ function generateRssToken($length = 48) {
 }
 
 function resolveRssBaseUrl($config) {
+    if (!empty($_SERVER['HTTP_HOST'])) {
+        $isHttps = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off')
+            || ($_SERVER['HTTP_X_FORWARDED_PROTO'] ?? '') === 'https';
+        $protocol = $isHttps ? 'https://' : 'http://';
+        return $protocol . $_SERVER['HTTP_HOST'];
+    }
+
     $configuredDomains = array_filter(array_map('trim', explode(',', (string)($config['site_domain'] ?? ''))));
     foreach ($configuredDomains as $domain) {
         if ($domain === '*') {
@@ -39,11 +46,7 @@ function resolveRssBaseUrl($config) {
         return 'https://' . rtrim($domain, '/');
     }
 
-    $isHttps = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off')
-        || ($_SERVER['HTTP_X_FORWARDED_PROTO'] ?? '') === 'https';
-    $protocol = $isHttps ? 'https://' : 'http://';
-    $host = $_SERVER['HTTP_HOST'] ?? 'localhost';
-    return $protocol . $host;
+    return 'http://localhost';
 }
 
 function buildRssUrl($type, $config, $includeToken = false) {
