@@ -35,7 +35,7 @@ unset($audio);
     <link rel="stylesheet" href="/static/css/admin/shared.css?v=<?php echo time(); ?>">
     <?php renderThemeStyles($pdo); ?>
     <style>
-        body { background: radial-gradient(circle at top, rgba(122, 162, 247, 0.14), transparent 32%), linear-gradient(180deg, #1f2335 0%, #1a1b26 42%, #16161e 100%); color: #c0caf5; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; margin: 0; padding: 20px; }
+        body { background: radial-gradient(circle at top, rgba(122, 162, 247, 0.14), transparent 32%), linear-gradient(180deg, #1f2335 0%, #1a1b26 42%, #16161e 100%); color: #c0caf5; font-family: var(--font-ui); margin: 0; padding: 20px; }
         .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; border-bottom: 1px solid #414868; padding-bottom: 20px; }
         .header h1 { margin: 0; font-size: 24px; color: #c0caf5; }
         .nav-links a, .nav-links button { color: #7dcfff; text-decoration: none; margin-left: 15px; font-weight: bold; }

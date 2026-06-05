@@ -1,0 +1,30 @@
+@font-face {
+    font-family: "888box JetBrains Mono";
+    src: url("/static/fonts/JetBrainsMono-Medium.woff2") format("woff2");
+    font-weight: 500;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: "888box Maple Mono";
+    src: url("/static/fonts/MapleMonoNormal-Medium.woff2") format("woff2");
+    font-weight: 500;
+    font-style: normal;
+    font-display: swap;
+}
+
+:root {
+    --font-ui: "888box JetBrains Mono", "888box Maple Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+}
+
+html,
+body,
+button,
+input,
+textarea,
+select,
+.fancybox__container,
+.fancybox__toolbar {
+    font-family: var(--font-ui);
+}
