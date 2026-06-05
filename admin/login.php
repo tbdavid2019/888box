@@ -7,14 +7,15 @@ if (isset($_SESSION['loggedin']) && $_SESSION['loggedin']) {
 }
 
 require_once '../config/database.php';
+require_once '../config/theme_helper.php';
 
 $db = Database::getInstance();
+$pdo = $db->getConnection();
 $allowPasswordReset = ($_ENV['ALLOW_PASSWORD_RESET'] ?? 'false') === 'true';
 $isDemoMode = ($_ENV['DEMO_MODE'] ?? 'false') === 'true';
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $action = $_POST['action'] ?? 'login';
-    $pdo = $db->getConnection();
     
     if ($action === 'login') {
         $stmt = $pdo->prepare("SELECT * FROM users WHERE username = ?");
@@ -81,6 +82,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>登入</title>
     <link rel="shortcut icon" href="/static/favicon.svg">
+    <link rel="stylesheet" href="/static/css/fonts.css">
     <style>
         * {
             margin: 0;
@@ -100,6 +102,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         body {
             min-height: 100vh;
             color: #eee;
+            font-family: var(--font-ui);
             display: flex;
             align-items: center;
             justify-content: center;
@@ -303,6 +306,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             }
         }
     </style>
+    <?php renderThemeStyles($pdo); ?>
 </head>
 <body>
     <div class="login-container">

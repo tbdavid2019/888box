@@ -7,11 +7,18 @@ function renderAdminHeader($active, $title, $actions = []) {
         'audio' => ['label' => '音訊', 'href' => '/admin/audio.php'],
         'file' => ['label' => '文件', 'href' => '/admin/file.php'],
     ];
+    $currentLabel = $tabs[$active]['label'] ?? $title;
     ?>
     <header class="admin-header">
         <div class="admin-header-main">
             <div>
-                <div class="admin-kicker">888box 管理後台</div>
+                <nav class="admin-breadcrumb" aria-label="麵包屑">
+                    <a href="/">888box</a>
+                    <span class="admin-breadcrumb-separator">/</span>
+                    <a href="/admin/">管理後台</a>
+                    <span class="admin-breadcrumb-separator">/</span>
+                    <span aria-current="page"><?= htmlspecialchars($currentLabel) ?></span>
+                </nav>
                 <h1><?= htmlspecialchars($title) ?></h1>
             </div>
             <nav class="admin-tabs" aria-label="管理分類">

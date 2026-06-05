@@ -2,7 +2,7 @@
    CSS 变量定义
    ======================================== */
 :root {
-    /* Tokyo Night Storm */
+    /* Theme defaults; runtime theme helper can override these tokens. */
     --primary-color: #7aa2f7;
     --primary-hover: #7dcfff;
     --accent-color: #bb9af7;

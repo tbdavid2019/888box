@@ -308,8 +308,9 @@ $basicSettings = [
         'label' => '全站配色主題',
         'type' => 'radio',
         'options' => [
-            'default' => '預設暗黑 (Tokyo Night)',
-            'middle_east_dart' => 'Middle East Dart (潘通2026)'
+            'default' => '深色：Catppuccin Macchiato',
+            'middle_east_dart' => '深色：Catppuccin Macchiato (舊設定)',
+            'kanagawa_wave' => '淺色：Kanagawa Wave'
         ]
     ],
     'smtp_header' => [

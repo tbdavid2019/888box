@@ -17,10 +17,31 @@
     gap: 20px;
 }
 
-.admin-kicker {
+.admin-breadcrumb {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 7px;
     margin-bottom: 6px;
     color: #7f88b2;
     font-size: 13px;
+}
+
+.admin-breadcrumb a {
+    color: inherit;
+    text-decoration: none;
+}
+
+.admin-breadcrumb a:hover {
+    color: #7dcfff;
+}
+
+.admin-breadcrumb span[aria-current="page"] {
+    color: #c0caf5;
+}
+
+.admin-breadcrumb-separator {
+    color: rgba(169, 177, 214, 0.56);
 }
 
 .admin-header h1 {
