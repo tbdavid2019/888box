@@ -122,6 +122,8 @@ function handleVideoUpload($file, $pdo, $title = '', $description = '', $passwor
         $hashedPassword = !empty($password) ? password_hash($password, PASSWORD_DEFAULT) : NULL;
         $stmt = $pdo->prepare("INSERT INTO images (url, path, storage, size, upload_ip, user_id, title, description, password, mime_type, is_video, is_file) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
         $stmt->execute([$videoUrl, $videoRemotePath, $storage, $videoData['size'], getClientIp(), $user_id, $title, $description, $hashedPassword, $mimeType, 1, 0]);
+        $videoData['id'] = $pdo->lastInsertId();
+        $videoData['share_url'] = buildAssetShareUrl($videoData['id'], $config);
 
         // 7. Update RSS and JSON
         if (empty($password)) {

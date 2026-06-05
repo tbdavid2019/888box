@@ -9,6 +9,7 @@ if (!isset($_SESSION['loggedin']) || !$_SESSION['loggedin']) {
 
 require_once '../config/database.php';
 require_once '../config/theme_helper.php';
+require_once '../config/admin_ui.php';
 
 require 'pagination.php';
 
@@ -67,18 +68,19 @@ $pagination = renderPagination($current_page, $total_pages);
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>管理後台</title>
+    <title>圖片管理後台 - 888box</title>
     <link rel="shortcut icon" href="/static/favicon.svg">
     <link rel="stylesheet" href="/static/css/admin.css?v=<?php echo time(); ?>">
     <link rel="stylesheet" href="/static/css/fancybox.min.css?v=<?php echo time(); ?>">
     <?php renderThemeStyles($pdo); ?>
 </head>
 <body>
-    <div style="width: 100%; text-align: center; margin-bottom: 20px; padding: 15px; background: linear-gradient(135deg, #7aa2f7, #bb9af7); border-radius: 12px; box-shadow: 0 10px 24px rgba(122,162,247,0.2);">
-        <a href="/admin/video.php" style="color: white; font-size: 1.2rem; font-weight: bold; text-decoration: none; display: flex; align-items: center; justify-content: center; gap: 10px;">
-            <span>🎬</span> 尋找影片管理？點此進入【影片專屬管理後台】 <span>👉</span>
-        </a>
-    </div>
+    <?php renderAdminHeader('image', '圖片管理後台', [
+        ['label' => '上傳圖片', 'href' => '/upload_image.php'],
+        ['label' => '系統設定', 'href' => '#', 'class' => 'settings-link'],
+        ['label' => '返回首頁', 'href' => '/'],
+        ['label' => '登出', 'href' => '/admin/index.php?logout=true'],
+    ]); ?>
     <div id="gallery" class="gallery"><?= $images_html ?></div>
     <div class="rightside">
         <a href="/admin/video.php" class="floating-link" title="影片管理" style="background-color: #7aa2f7;">
@@ -105,19 +107,7 @@ $pagination = renderPagination($current_page, $total_pages);
     <div id="settings-modal" class="modal">
         <div class="modal-content"></div>
     </div>
-    <footer style="margin-top: 40px; padding: 20px; text-align: center; color: #7f88b2; font-size: 0.9rem; border-top: 1px solid rgba(122,162,247,0.12);">
-        <div style="margin-bottom: 15px; display: flex; justify-content: center; gap: 20px; flex-wrap: wrap;">
-            <a href="index.php" style="color: #7dcfff; text-decoration: none;">🖼️ 圖片管理</a>
-            <a href="video.php" style="color: #7dcfff; text-decoration: none;">🎬 影片管理</a>
-            <a href="audio.php" style="color: #7dcfff; text-decoration: none;">🎙️ 音訊管理</a>
-            <a href="file.php" style="color: #7dcfff; text-decoration: none;">📂 文件管理</a>
-            <a href="/skill.php" target="_blank" style="color: #7dcfff; text-decoration: none;">🤖 AI Agent Skills</a>
-        </div>
-        <div>
-            <span>© <?php echo date('Y'); ?> 888box</span> | 
-            <span>Created by <a href="https://david888.com" target="_blank" style="color: #7dcfff; text-decoration: none; font-weight: bold;">DAVID888</a></span>
-        </div>
-    </footer>
+    <?php renderAdminFooter(); ?>
     <script src="//at.alicdn.com/t/c/font_4623353_hb4c04qfi4u.js"></script>
     <script src="/static/js/fancybox.umd.min.js?v=<?php echo time(); ?>"></script>
     <script src="/static/js/lazyload.min.js?v=<?php echo time(); ?>"></script>
@@ -136,6 +126,7 @@ function renderImagesList($images) {
     foreach ($images as $image) {
         $id = htmlspecialchars($image['id']);
         $url = htmlspecialchars($image['url']);
+        $shareUrl = htmlspecialchars(buildAssetShareUrl($image['id']));
         $path = htmlspecialchars($image['path']);
         $size = number_format($image['size'] / 1024, 2);
         $ip = htmlspecialchars($image['upload_ip']);
@@ -153,7 +144,7 @@ function renderImagesList($images) {
                 <img class="lazy" src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-src="{$url}" data-fancybox="gallery">
             </div>
             <div class="action-buttons">
-                <button class="copy-btn" data-url="{$url}">
+                <button class="copy-btn" data-url="{$shareUrl}" title="複製分享頁">
                     <svg class="icon" aria-hidden="true"><use xlink:href="#icon-link"></use></svg>
                 </button>
                 <button class="delete-btn" data-id="{$id}" data-path="{$path}">

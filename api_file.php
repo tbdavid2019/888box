@@ -166,7 +166,7 @@ function handleFileUpload($file, $pdo, $config) {
             'data' => [
                 'id' => $dbId,
                 'url' => $publicFileUrl,
-                'share_url' => 'https://' . $_SERVER['HTTP_HOST'] . '/view.php?id=' . $dbId
+                'share_url' => buildAssetShareUrl($dbId, $config)
             ]
         ]);
         

@@ -421,6 +421,8 @@ function handleUnifiedUpload($pdo, $config) {
  * 統一列表處理器
  */
 function handleUnifiedList($pdo, $type) {
+    global $config;
+
     $page = isset($_GET['page']) ? max(1, (int)$_GET['page']) : 1;
     $limit = 20;
     $offset = ($page - 1) * $limit;
@@ -445,9 +447,7 @@ function handleUnifiedList($pdo, $type) {
 
     foreach ($assets as &$asset) {
         $asset['url'] = getMaskedUrl($asset['url'], $asset['path']);
-        $asset['share_url'] = (isset($asset['mime_type']) && strpos($asset['mime_type'], 'image/') === false) 
-            ? 'https://' . $_SERVER['HTTP_HOST'] . '/view.php?id=' . $asset['id']
-            : $asset['url'];
+        $asset['share_url'] = buildAssetShareUrl($asset['id'], $config);
     }
 
 
@@ -470,6 +470,8 @@ function handleUnifiedList($pdo, $type) {
  * 統一搜尋處理器
  */
 function handleUnifiedSearch($pdo, $query) {
+    global $config;
+
     if (empty($query)) {
         respondAndExit(['result' => 'error', 'code' => 400, 'message' => '搜尋內容不能為空']);
     }
@@ -494,9 +496,7 @@ function handleUnifiedSearch($pdo, $query) {
 
     foreach ($assets as &$asset) {
         $asset['url'] = getMaskedUrl($asset['url'], $asset['path']);
-        $asset['share_url'] = (isset($asset['mime_type']) && strpos($asset['mime_type'], 'image/') === false)
-            ? 'https://' . $_SERVER['HTTP_HOST'] . '/view.php?id=' . $asset['id']
-            : $asset['url'];
+        $asset['share_url'] = buildAssetShareUrl($asset['id'], $config);
     }
 
 

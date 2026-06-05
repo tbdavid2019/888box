@@ -7,6 +7,7 @@ if (!isset($_SESSION['loggedin']) || !$_SESSION['loggedin']) {
 
 require_once '../config/database.php';
 require_once '../config/theme_helper.php';
+require_once '../config/admin_ui.php';
 
 $db = Database::getInstance();
 $pdo = $db->getConnection();
@@ -24,6 +25,7 @@ $files = $stmt->fetchAll(PDO::FETCH_ASSOC);
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>文件管理後台 - 888box</title>
     <link rel="shortcut icon" href="/static/favicon.svg">
+    <link rel="stylesheet" href="/static/css/admin/shared.css?v=<?php echo time(); ?>">
     <?php renderThemeStyles($pdo); ?>
     <style>
         body { background: radial-gradient(circle at top, rgba(122, 162, 247, 0.14), transparent 32%), linear-gradient(180deg, #1f2335 0%, #1a1b26 42%, #16161e 100%); color: #c0caf5; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; margin: 0; padding: 20px; }
@@ -50,16 +52,11 @@ $files = $stmt->fetchAll(PDO::FETCH_ASSOC);
     </style>
 </head>
 <body>
-    <div class="header" style="max-width: 1200px; margin: 0 auto 30px auto;">
-        <h1>📂 文件專屬管理後台</h1>
-        <div class="nav-links">
-            <a href="/">🏠 返回首頁</a>
-            <a href="/admin/index.php">🖼️ 圖片管理</a>
-            <a href="/admin/video.php">🎬 影片管理</a>
-            <a href="/admin/audio.php">🎙️ 音訊管理</a>
-            <a href="/upload_file.php">➕ 上傳文件</a>
-        </div>
-    </div>
+    <?php renderAdminHeader('file', '文件管理後台', [
+        ['label' => '上傳文件', 'href' => '/upload_file.php'],
+        ['label' => '返回首頁', 'href' => '/'],
+        ['label' => '登出', 'href' => '/admin/index.php?logout=true'],
+    ]); ?>
 
     <div class="file-list">
         <?php if (empty($files)): ?>
@@ -96,19 +93,7 @@ $files = $stmt->fetchAll(PDO::FETCH_ASSOC);
         <?php endif; ?>
     </div>
 
-    <footer style="margin-top: 40px; padding: 20px; text-align: center; color: #7f88b2; font-size: 0.9rem; border-top: 1px solid rgba(122,162,247,0.12);">
-        <div style="margin-bottom: 15px; display: flex; justify-content: center; gap: 20px; flex-wrap: wrap;">
-            <a href="index.php" style="color: #7dcfff; text-decoration: none;">🖼️ 圖片管理</a>
-            <a href="video.php" style="color: #7dcfff; text-decoration: none;">🎬 影片管理</a>
-            <a href="audio.php" style="color: #7dcfff; text-decoration: none;">🎙️ 音訊管理</a>
-            <a href="file.php" style="color: #7dcfff; text-decoration: none;">📂 文件管理</a>
-            <a href="/skill.php" target="_blank" style="color: #7dcfff; text-decoration: none;">🤖 AI Agent Skills</a>
-        </div>
-        <div>
-            <span>© <?php echo date('Y'); ?> 888box</span> | 
-            <span>Created by <a href="https://david888.com" target="_blank" style="color: #7dcfff; text-decoration: none; font-weight: bold;">DAVID888</a></span>
-        </div>
-    </footer>
+    <?php renderAdminFooter(); ?>
     <script>
         function deleteFile(id, path) {
             if (!confirm('確定要永久刪除此文件嗎？')) return;

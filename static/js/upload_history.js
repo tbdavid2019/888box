@@ -3,6 +3,7 @@
     const STORAGE_KEYS = {
         image: '888box.history.image',
         video: '888box.history.video',
+        audio: '888box.history.audio',
         file: '888box.history.file'
     };
 
@@ -54,6 +55,8 @@
         return {
             url: payload.url,
             previewUrl: payload.previewUrl || payload.url,
+            rawUrl: payload.rawUrl || payload.url,
+            shareUrl: payload.shareUrl || payload.url,
             filename: payload.filename || basename(payload.url, 'image'),
             createdAt: normalizeTimestamp(payload.createdAt)
         };
@@ -67,8 +70,27 @@
         const filename = payload.filename || basename(payload.url, 'video');
 
         return {
-            url: payload.url,
+            url: payload.shareUrl || payload.url,
+            shareUrl: payload.shareUrl || '',
+            rawUrl: payload.url,
             thumbnailUrl: payload.thumbnailUrl || '',
+            title: (payload.title || '').trim() || filename,
+            filename: filename,
+            createdAt: normalizeTimestamp(payload.createdAt)
+        };
+    }
+
+    function normalizeAudioEntry(payload) {
+        if (!payload || !payload.url) {
+            return null;
+        }
+
+        const filename = payload.filename || basename(payload.url, 'audio');
+
+        return {
+            url: payload.shareUrl || payload.url,
+            shareUrl: payload.shareUrl || '',
+            rawUrl: payload.url,
             title: (payload.title || '').trim() || filename,
             filename: filename,
             createdAt: normalizeTimestamp(payload.createdAt)
@@ -100,6 +122,9 @@
         }
         if (type === 'video') {
             return normalizeVideoEntry(payload);
+        }
+        if (type === 'audio') {
+            return normalizeAudioEntry(payload);
         }
         if (type === 'file') {
             return normalizeFileEntry(payload);

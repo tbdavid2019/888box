@@ -265,12 +265,13 @@ document.addEventListener('DOMContentLoaded', () => {
                         
                         const resDiv = document.getElementById('res_' + id);
                         resDiv.style.display = 'flex';
-                        document.getElementById('url_' + id).value = res.data.url;
+                        document.getElementById('url_' + id).value = res.data.share_url || res.data.url;
                         sessionSuccessCount++;
                         window.UploadStats.increment('audio');
 
                         window.UploadHistory.add('audio', {
                             url: res.data.url,
+                            shareUrl: res.data.share_url || '',
                             title: finalTitle || item.file.name,
                             filename: item.file.name,
                             createdAt: new Date().toISOString()

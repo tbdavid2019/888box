@@ -5,6 +5,9 @@
 /* 基础样式：变量、全局样式、通用组件（消息通知、确认对话框） */
 @import url('admin/base.css');
 
+/* 管理页共用页首、分頁式导航与页脚 */
+@import url('admin/shared.css');
+
 /* 图片画廊相关样式 */
 @import url('admin/gallery.css');
 

@@ -413,8 +413,10 @@ export class ImageHandler {
             this.previewState.setUploadedUrl(imageIndex, response.data);
             window.UploadStats.increment('image');
             window.UploadHistory.add('image', {
-                url: response.data.url,
+                url: response.data.share_url || response.data.url,
                 previewUrl: response.data.url,
+                rawUrl: response.data.url,
+                shareUrl: response.data.share_url || '',
                 filename: this.previewState.images[imageIndex]?.file?.name || response.data.url.split('/').pop(),
                 createdAt: new Date().toISOString()
             });

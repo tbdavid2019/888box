@@ -139,7 +139,9 @@ function resolveAssetOriginUrl($asset, $config) {
 /**
  * 生成上传响应数据
  */
-function generateUploadResponse($fileUrl, $filePath, $finalFilePath, $size, $width, $height, $message = '', $isError = false) {
+function generateUploadResponse($fileUrl, $filePath, $finalFilePath, $size, $width, $height, $message = '', $isError = false, $assetId = null, $config = null) {
+    $shareUrl = buildAssetShareUrl($assetId, $config);
+
     respondAndExit($isError ? [
         'result' => 'error',
         'code' => 500,
@@ -150,14 +152,17 @@ function generateUploadResponse($fileUrl, $filePath, $finalFilePath, $size, $wid
         'status' => true,
         'name' => basename($finalFilePath),
         'data' => [
+            'id' => $assetId,
             'url' => $fileUrl,
+            'share_url' => $shareUrl ?: $fileUrl,
             'name' => basename($finalFilePath),
             'width' => $width,
             'height' => $height,
             'size' => $size,
             'path' => $filePath
         ],
-        'url' => $fileUrl
+        'url' => $fileUrl,
+        'share_url' => $shareUrl ?: $fileUrl
     ]);
 }
 
@@ -461,12 +466,13 @@ function handleUploadedFile($file, $token, $referer, $password = '') {
         $hashedPassword = !empty($password) ? password_hash($password, PASSWORD_DEFAULT) : NULL;
         $stmt = $pdo->prepare("INSERT INTO images (url, path, storage, size, upload_ip, user_id, password, mime_type, is_video, is_file) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
         $stmt->execute([$fileUrl, $storagePath, $storage, $fileSize, getClientIp(), $user_id, $hashedPassword, $mimeType, 0, 0]);
+        $assetId = $pdo->lastInsertId();
         
         // 记录上传成功日志
         $clientIp = getClientIp();
         logMessage("上传成功 | IP: {$clientIp} | 存储: {$storage} | URL: {$fileUrl}");
 
-        generateUploadResponse($publicFileUrl, $storagePath, $finalFilePath, $fileSize, $dimensions['width'], $dimensions['height']);
+        generateUploadResponse($publicFileUrl, $storagePath, $finalFilePath, $fileSize, $dimensions['width'], $dimensions['height'], '', false, $assetId, $config);
     } catch (Exception $e) {
         // 记录上传失败日志
         $clientIp = getClientIp();

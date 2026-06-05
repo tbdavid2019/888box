@@ -1,6 +1,6 @@
 document.addEventListener('DOMContentLoaded', () => {
     const modal = document.getElementById('settings-modal');
-    const settingsLink = document.querySelector('.settings-link');
+    const settingsLinks = document.querySelectorAll('.settings-link');
 
     const generateRandomToken = (length) => 
         Array.from({length}, () => 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789'[Math.floor(Math.random() * 62)]).join('');
@@ -219,7 +219,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     };
 
-    settingsLink.addEventListener('click', async (e) => {
+    const openSettings = async (e) => {
         e.preventDefault();
         try {
             const response = await fetch('settings.php', {
@@ -239,5 +239,7 @@ document.addEventListener('DOMContentLoaded', () => {
             console.error('Error loading settings:', error);
             UI.showNotification('載入設定失敗', 'error');
         }
-    });
+    };
+
+    settingsLinks.forEach(link => link.addEventListener('click', openSettings));
 });

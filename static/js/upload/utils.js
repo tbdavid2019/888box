@@ -120,12 +120,13 @@ export const UI = {
     },
 
     updateLinkDisplays(urlData) {
-        const imageName = urlData?.url.split('/').pop().split('?')[0] || 'image.webp';
-        const url = urlData?.url || 'https://example.com/image.webp';
+        const rawUrl = urlData?.url || 'https://example.com/image.webp';
+        const shareUrl = urlData?.share_url || rawUrl;
+        const imageName = rawUrl.split('/').pop().split('?')[0] || 'image.webp';
         
-        document.getElementById('urlLinkText').textContent = Clipboard.formatUrl(url, imageName, 'url');
-        document.getElementById('markdownLinkText').textContent = Clipboard.formatUrl(url, imageName, 'markdown');
-        document.getElementById('htmlLinkText').textContent = Clipboard.formatUrl(url, imageName, 'html');
+        document.getElementById('urlLinkText').textContent = Clipboard.formatUrl(shareUrl, imageName, 'url', rawUrl);
+        document.getElementById('markdownLinkText').textContent = Clipboard.formatUrl(rawUrl, imageName, 'markdown', rawUrl);
+        document.getElementById('htmlLinkText').textContent = Clipboard.formatUrl(rawUrl, imageName, 'html', rawUrl);
     }
 };
 
@@ -144,8 +145,11 @@ export const Clipboard = {
     async copy(urlDataList, type, onSuccess, onError, successMsg) {
         try {
             const texts = urlDataList.map(urlData => {
-                const imageName = urlData.url.split('/').pop().split('?')[0];
-                return this.formatUrl(urlData.url, imageName, type);
+                const rawUrl = urlData.url;
+                const shareUrl = urlData.share_url || rawUrl;
+                const imageName = rawUrl.split('/').pop().split('?')[0];
+                const primaryUrl = (type === 'url' || type === 'markdown-link') ? shareUrl : rawUrl;
+                return this.formatUrl(primaryUrl, imageName, type, rawUrl);
             });
             await navigator.clipboard.writeText(texts.join('\n'));
             onSuccess(successMsg);
@@ -155,11 +159,11 @@ export const Clipboard = {
         }
     },
 
-    formatUrl(url, imageName, type) {
+    formatUrl(url, imageName, type, rawUrl = url) {
         const formats = {
             url,
             markdown: `![${imageName}](${url})`,
-            'markdown-link': `[![${imageName}](${url})](${url})`,
+            'markdown-link': `[![${imageName}](${rawUrl})](${url})`,
             html: `<img src="${url}" alt="${imageName}">`
         };
         return formats[type] || url;

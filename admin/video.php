@@ -8,6 +8,7 @@ if (!isset($_SESSION['loggedin']) || !$_SESSION['loggedin']) {
 require_once '../config/database.php';
 require_once '../config/rss.php';
 require_once '../config/theme_helper.php';
+require_once '../config/admin_ui.php';
 
 $db = Database::getInstance();
 $pdo = $db->getConnection();
@@ -31,6 +32,7 @@ unset($video);
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>影片管理後台 - 888box</title>
     <link rel="shortcut icon" href="/static/favicon.svg">
+    <link rel="stylesheet" href="/static/css/admin/shared.css?v=<?php echo time(); ?>">
     <?php renderThemeStyles($pdo); ?>
     <style>
         body { background: radial-gradient(circle at top, rgba(122, 162, 247, 0.14), transparent 32%), linear-gradient(180deg, #1f2335 0%, #1a1b26 42%, #16161e 100%); color: #c0caf5; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; margin: 0; padding: 20px; }
@@ -103,21 +105,20 @@ unset($video);
         </div>
     </div>
 
-    <div class="header" style="max-width: 1400px; margin: 0 auto 30px auto;">
-        <h1>🎬 影片專屬管理後台</h1>
-        <div class="nav-links">
-            <a href="/admin/">🖼️ 圖片管理後台</a>
-            <a href="/upload_video.php">➕ 上傳新影片</a>
-            <a href="<?= htmlspecialchars($videoRssUrl) ?>" target="_blank">🎧 Podcast RSS</a>
-            <button type="button" onclick="rebuildPodcast()">🔁 重建 RSS</button>
-        </div>
-    </div>
+    <?php renderAdminHeader('video', '影片管理後台', [
+        ['label' => '上傳影片', 'href' => '/upload_video.php'],
+        ['label' => 'Podcast RSS', 'href' => $videoRssUrl, 'target' => '_blank'],
+        ['label' => '重建 RSS', 'type' => 'button', 'onclick' => 'rebuildPodcast()'],
+        ['label' => '返回首頁', 'href' => '/'],
+        ['label' => '登出', 'href' => '/admin/index.php?logout=true'],
+    ]); ?>
 
     <div class="video-grid">
         <?php if (empty($videos)): ?>
             <div class="empty-state">目前沒有影片</div>
         <?php else: ?>
             <?php foreach ($videos as $video): ?>
+                <?php $shareUrl = buildAssetShareUrl($video['id'], $config); ?>
                 <div class="video-card" id="video-<?= $video['id'] ?>" data-has-password="<?= empty($video['password']) ? '0' : '1' ?>">
                     <video src="<?= htmlspecialchars($video['url']) ?>" controls preload="metadata"></video>
                     <div class="video-info">
@@ -137,7 +138,8 @@ unset($video);
                         </div>
                     </div>
                     <div class="actions">
-                        <button class="btn-copy" onclick="copyUrl('<?= htmlspecialchars($video['url']) ?>')">複製</button>
+                        <button class="btn-copy" onclick="copyUrl('<?= htmlspecialchars($shareUrl) ?>')">分享</button>
+                        <button class="btn-copy" onclick="copyUrl('<?= htmlspecialchars($video['url']) ?>')">直連</button>
                         <button class="btn-edit" onclick="openEditModal(<?= $video['id'] ?>)">編輯</button>
                         <button class="btn-delete" onclick="deleteVideo(<?= $video['id'] ?>, '<?= htmlspecialchars($video['path']) ?>')">刪除</button>
                     </div>
@@ -146,18 +148,7 @@ unset($video);
         <?php endif; ?>
     </div>
 
-    <footer style="margin-top: 40px; padding: 20px; text-align: center; color: #7f88b2; font-size: 0.9rem; border-top: 1px solid rgba(122,162,247,0.12);">
-        <div style="margin-bottom: 15px; display: flex; justify-content: center; gap: 20px; flex-wrap: wrap;">
-            <a href="index.php" style="color: #7dcfff; text-decoration: none;">🖼️ 圖片管理</a>
-            <a href="video.php" style="color: #7dcfff; text-decoration: none;">🎬 影片管理</a>
-            <a href="file.php" style="color: #7dcfff; text-decoration: none;">📂 文件管理</a>
-            <a href="/skill.php" target="_blank" style="color: #7dcfff; text-decoration: none;">🤖 AI Agent Skills</a>
-        </div>
-        <div>
-            <span>© <?php echo date('Y'); ?> 888box</span> | 
-            <span>Created by <a href="https://david888.com" target="_blank" style="color: #7dcfff; text-decoration: none; font-weight: bold;">DAVID888</a></span>
-        </div>
-    </footer>
+    <?php renderAdminFooter(); ?>
     <script>
         function openEditModal(id) {
             const card = document.getElementById('video-' + id);

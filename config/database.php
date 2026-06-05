@@ -125,3 +125,32 @@ function getMaskedUrl($url, $path) {
     return $domain . '/' . $cleanPath;
 }
 
+function buildAssetShareUrl($assetId, $config = null) {
+    if (empty($assetId)) {
+        return '';
+    }
+
+    if (!empty($_SERVER['HTTP_HOST'])) {
+        $scheme = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https' : 'http';
+        return $scheme . '://' . $_SERVER['HTTP_HOST'] . '/view.php?id=' . urlencode((string)$assetId);
+    }
+
+    $siteDomain = '';
+    if (is_array($config) && !empty($config['site_domain'])) {
+        $domains = array_filter(array_map('trim', explode(',', $config['site_domain'])));
+        foreach ($domains as $domain) {
+            if ($domain !== '*') {
+                $siteDomain = $domain;
+                break;
+            }
+        }
+    }
+
+    if ($siteDomain === '') {
+        $siteDomain = 'http://localhost';
+    } elseif (!preg_match('/^https?:\/\//i', $siteDomain)) {
+        $siteDomain = 'https://' . $siteDomain;
+    }
+
+    return rtrim($siteDomain, '/') . '/view.php?id=' . urlencode((string)$assetId);
+}

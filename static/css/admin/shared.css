@@ -1,0 +1,120 @@
+.admin-header {
+    width: min(1400px, 100%);
+    margin: 0 auto 24px auto;
+    padding: 18px 20px;
+    border: 1px solid rgba(122, 162, 247, 0.18);
+    border-radius: 8px;
+    background: rgba(36, 40, 59, 0.86);
+    color: #c0caf5;
+}
+
+.admin-header-main {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 20px;
+}
+
+.admin-kicker {
+    margin-bottom: 6px;
+    color: #7f88b2;
+    font-size: 13px;
+}
+
+.admin-header h1 {
+    margin: 0;
+    color: #c0caf5;
+    font-size: 24px;
+    line-height: 1.25;
+}
+
+.admin-tabs,
+.admin-actions,
+.admin-footer-links {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.admin-tab,
+.admin-action {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 34px;
+    padding: 7px 12px;
+    border: 1px solid rgba(122, 162, 247, 0.18);
+    border-radius: 6px;
+    background: rgba(26, 27, 38, 0.44);
+    color: #a9b1d6;
+    font: inherit;
+    font-size: 14px;
+    font-weight: 600;
+    text-decoration: none;
+    cursor: pointer;
+    transition: color 0.2s, border-color 0.2s, background 0.2s;
+}
+
+.admin-tab:hover,
+.admin-action:hover {
+    border-color: rgba(125, 207, 255, 0.5);
+    color: #7dcfff;
+    background: rgba(122, 162, 247, 0.12);
+}
+
+.admin-tab.active {
+    border-color: rgba(122, 162, 247, 0.64);
+    background: rgba(122, 162, 247, 0.18);
+    color: #ffffff;
+}
+
+.admin-actions {
+    margin-top: 14px;
+}
+
+.admin-footer {
+    width: min(1400px, 100%);
+    margin: 40px auto 0 auto;
+    padding: 20px;
+    border-top: 1px solid rgba(122, 162, 247, 0.12);
+    color: #7f88b2;
+    font-size: 14px;
+    text-align: center;
+}
+
+.admin-footer-links {
+    justify-content: center;
+    margin-bottom: 14px;
+}
+
+.admin-footer a {
+    color: #7dcfff;
+    text-decoration: none;
+}
+
+.admin-footer a:hover {
+    color: #bb9af7;
+}
+
+@media (max-width: 760px) {
+    .admin-header {
+        padding: 16px;
+    }
+
+    .admin-header-main {
+        align-items: stretch;
+        flex-direction: column;
+    }
+
+    .admin-tabs,
+    .admin-actions {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .admin-tab,
+    .admin-action {
+        width: 100%;
+    }
+}
