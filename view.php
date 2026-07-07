@@ -67,9 +67,12 @@ function outputInlinePdf($asset, $config) {
     exit;
 }
 
-$id = $_GET['id'] ?? '';
-if (empty($id)) {
-    die("缺少資源 ID");
+$token = trim($_GET['token'] ?? '');
+$id = trim($_GET['id'] ?? '');
+
+if (empty($token) && empty($id)) {
+    http_response_code(404);
+    die("缺少資源 Token");
 }
 
 try {
@@ -77,14 +80,25 @@ try {
     $pdo = $db->getConnection();
     $config = Database::getConfig($pdo);
     
-    // 1. 撈取資源
-    $stmt = $pdo->prepare("SELECT * FROM images WHERE id = ?");
-    $stmt->execute([$id]);
+    // 1. 撈取資源：優先用 share_token，不公開序號 ID
+    if (!empty($token)) {
+        $stmt = $pdo->prepare("SELECT * FROM images WHERE share_token = ?");
+        $stmt->execute([$token]);
+    } else {
+        // 向下相容：將來產生的舊聯接（將來可移除）
+        // 為防止序號枚舉，直接用 id 無 token 的請求一律回 404
+        http_response_code(404);
+        die("資源不存在");
+    }
     $asset = $stmt->fetch(PDO::FETCH_ASSOC);
     
     if (!$asset) {
+        http_response_code(404);
         die("找不到該資源");
     }
+
+    // 內部統一用 id 作會話鍵（已知專屬）
+    $id = $asset['id'];
     
     // 2. 處理密碼驗證
     $isAuthorized = empty($asset['password']);
@@ -280,7 +294,7 @@ if ($asset['is_audio'] == 1 || strpos($mime, 'audio/') !== false || in_array($ex
                         });
                     </script>
                 <?php elseif ($type === 'pdf'): ?>
-                    <embed src="/view.php?id=<?= urlencode((string)$id) ?>&pdf_inline=1" type="application/pdf" width="100%" height="600px">
+                    <embed src="/view.php?token=<?= urlencode((string)($asset['share_token'] ?? '')) ?>&pdf_inline=1" type="application/pdf" width="100%" height="600px">
                 <?php elseif ($type === 'epub'): ?>
                     <div id="epub-viewer"></div>
                     <script src="https://cdnjs.cloudflare.com/ajax/libs/epub.js/0.3.88/epub.min.js"></script>

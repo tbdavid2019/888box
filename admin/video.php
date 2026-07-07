@@ -118,7 +118,7 @@ unset($video);
             <div class="empty-state">目前沒有影片</div>
         <?php else: ?>
             <?php foreach ($videos as $video): ?>
-                <?php $shareUrl = buildAssetShareUrl($video['id'], $config); ?>
+                <?php $shareUrl = buildAssetShareUrl($video, $config); ?>
                 <div class="video-card" id="video-<?= $video['id'] ?>" data-has-password="<?= empty($video['password']) ? '0' : '1' ?>">
                     <video src="<?= htmlspecialchars($video['url']) ?>" controls preload="metadata"></video>
                     <div class="video-info">

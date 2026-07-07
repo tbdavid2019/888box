@@ -125,14 +125,35 @@ function getMaskedUrl($url, $path) {
     return $domain . '/' . $cleanPath;
 }
 
-function buildAssetShareUrl($assetId, $config = null) {
-    if (empty($assetId)) {
+/**
+ * 為新上傳的資源產生隨機 share token（32-char hex）
+ */
+function generateShareToken() {
+    return bin2hex(random_bytes(16));
+}
+
+/**
+ * 根據 share_token 建立公開分享 URL，避免序號枚舉攻擊。
+ * $asset 可以是整行資料陣列（含 share_token），或單純的 token 字串。
+ */
+function buildAssetShareUrl($asset, $config = null) {
+    // 相容舊呼叫：傳入純數字 ID 時，嘗試從 DB 撈 token（最佳做法是傳陣列）
+    if (is_numeric($asset)) {
+        // 舊版相容層：呼叫方應改傳完整 $asset 陣列，這裡僅作降級保底
+        $token = null;
+    } elseif (is_array($asset)) {
+        $token = $asset['share_token'] ?? null;
+    } else {
+        $token = (string)$asset;
+    }
+
+    if (empty($token)) {
         return '';
     }
 
     if (!empty($_SERVER['HTTP_HOST'])) {
         $scheme = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https' : 'http';
-        return $scheme . '://' . $_SERVER['HTTP_HOST'] . '/view.php?id=' . urlencode((string)$assetId);
+        return $scheme . '://' . $_SERVER['HTTP_HOST'] . '/view.php?token=' . urlencode($token);
     }
 
     $siteDomain = '';
@@ -152,5 +173,5 @@ function buildAssetShareUrl($assetId, $config = null) {
         $siteDomain = 'https://' . $siteDomain;
     }
 
-    return rtrim($siteDomain, '/') . '/view.php?id=' . urlencode((string)$assetId);
+    return rtrim($siteDomain, '/') . '/view.php?token=' . urlencode($token);
 }

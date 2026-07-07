@@ -124,32 +124,40 @@ function renderImagesList($images) {
     
     $html = '';
     foreach ($images as $image) {
-        $id = htmlspecialchars($image['id']);
-        $url = htmlspecialchars($image['url']);
-        $shareUrl = htmlspecialchars(buildAssetShareUrl($image['id']));
-        $path = htmlspecialchars($image['path']);
-        $size = number_format($image['size'] / 1024, 2);
-        $ip = htmlspecialchars($image['upload_ip']);
-        $time = htmlspecialchars($image['created_at']);
+        $id          = htmlspecialchars($image['id']);
+        $url         = htmlspecialchars($image['url']);
+        $shareUrl    = htmlspecialchars(buildAssetShareUrl($image));
+        $path        = htmlspecialchars($image['path']);
+        $size        = number_format($image['size'] / 1024, 2);
+        $ip          = htmlspecialchars($image['upload_ip']);
+        $time        = htmlspecialchars($image['created_at']);
+        $title       = htmlspecialchars($image['title'] ?? '');
+        $description = htmlspecialchars($image['description'] ?? '');
+        $hasPassword = empty($image['password']) ? '0' : '1';
         
         $reportBadge = $image['report_count'] > 0 
             ? "<div style=\"position: absolute; top: 10px; left: 10px; background: #f7768e; color: #1a1b26; padding: 2px 6px; border-radius: 4px; font-size: 10px; font-weight: bold; z-index: 10;\">檢舉: {$image['report_count']}</div>" 
             : "";
+        $passBadge = !empty($image['password'])
+            ? '<div style="position:absolute;top:10px;left:10px;background:#e0af68;color:#1a1b26;padding:2px 6px;border-radius:4px;font-size:10px;font-weight:bold;z-index:10;">🔒 密碼</div>'
+            : '';
+        if ($image['report_count'] > 0) $passBadge = ''; // 檢舉優先
             
         $html .= <<<HTML
-        <div class="gallery-item" id="image-{$id}">
-            {$reportBadge}
+        <div class="gallery-item" id="image-{$id}"
+             data-title="{$title}"
+             data-description="{$description}"
+             data-has-password="{$hasPassword}">
+            {$reportBadge}{$passBadge}
             <div class="image-wrapper">
                 <div class="image-placeholder"><div class="spinner"></div></div>
                 <img class="lazy" src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-src="{$url}" data-fancybox="gallery">
             </div>
             <div class="action-buttons">
-                <button class="copy-btn" data-url="{$shareUrl}" title="複製分享頁">
-                    <svg class="icon" aria-hidden="true"><use xlink:href="#icon-link"></use></svg>
-                </button>
-                <button class="delete-btn" data-id="{$id}" data-path="{$path}">
-                    <svg class="icon" aria-hidden="true"><use xlink:href="#icon-xmark"></use></svg>
-                </button>
+                <button class="img-btn share-btn" data-url="{$shareUrl}" title="複製分享連結">分享</button>
+                <button class="img-btn direct-btn" data-url="{$url}" title="複製圖片直連">直連</button>
+                <button class="img-btn edit-btn" data-id="{$id}" title="編輯資訊">編輯</button>
+                <button class="img-btn delete-btn" data-id="{$id}" data-path="{$path}" title="刪除">刪除</button>
             </div>
             <div class="image-info">
                 <p class="info-p">大小：<span>{$size} KB</span></p>
@@ -157,7 +165,7 @@ function renderImagesList($images) {
                 <p class="info-p">瀏覽：<span>{$image['view_count']} 次</span></p>
                 <div style="display:flex; justify-content: space-between; align-items: center; margin-top:5px;">
                     <span class="info-p" style="font-size:10px; color:#565f89;">IP: {$ip}</span>
-                    <a href="/view.php?id={$id}" target="_blank" style="color: #7aa2f7; text-decoration:none; font-size:12px;">預覽</a>
+                    <a href="{$shareUrl}" target="_blank" style="color: #7aa2f7; text-decoration:none; font-size:12px;">預覽</a>
                 </div>
             </div>
         </div>
@@ -165,4 +173,5 @@ HTML;
     }
     return $html;
 }
+
 ?>

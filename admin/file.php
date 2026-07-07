@@ -83,7 +83,8 @@ $files = $stmt->fetchAll(PDO::FETCH_ASSOC);
                         </p>
                     </div>
                     <div class="actions">
-                        <a href="/view.php?id=<?= $file['id'] ?>" target="_blank" style="text-decoration:none;">
+                        <?php $fileShareUrl = htmlspecialchars(buildAssetShareUrl($file, Database::getConfig($pdo))); ?>
+                        <a href="<?= $fileShareUrl ?>" target="_blank" style="text-decoration:none;">
                             <button class="btn btn-view">預覽/分享</button>
                         </a>
                         <button class="btn btn-delete" onclick="deleteFile(<?= $file['id'] ?>, '<?= htmlspecialchars($file['path']) ?>')">刪除</button>

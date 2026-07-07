@@ -19,7 +19,8 @@ function getCoreTableSql() {
             mime_type VARCHAR(100) NULL,
             is_video INTEGER DEFAULT 0,
             is_file INTEGER DEFAULT 0,
-            is_audio INTEGER DEFAULT 0
+            is_audio INTEGER DEFAULT 0,
+            share_token VARCHAR(32) NULL
         )",
         'users' => "CREATE TABLE IF NOT EXISTS users (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -47,7 +48,8 @@ function getCoreImageColumns() {
         'mime_type' => 'VARCHAR(100) NULL',
         'is_video' => 'INTEGER DEFAULT 0',
         'is_file' => 'INTEGER DEFAULT 0',
-        'is_audio' => 'INTEGER DEFAULT 0'
+        'is_audio' => 'INTEGER DEFAULT 0',
+        'share_token' => 'VARCHAR(32) NULL'
     ];
 }
 
@@ -183,11 +185,27 @@ function normalizeConfigsTable($pdo) {
     }
 }
 
+/**
+ * 為沒有 share_token 的既有資料補上隨機 token
+ */
+function backfillShareTokens($pdo) {
+    $rows = $pdo->query("SELECT id FROM images WHERE share_token IS NULL OR share_token = ''")->fetchAll(PDO::FETCH_ASSOC);
+    if (empty($rows)) {
+        return;
+    }
+    $stmt = $pdo->prepare("UPDATE images SET share_token = ? WHERE id = ?");
+    foreach ($rows as $row) {
+        $token = bin2hex(random_bytes(16)); // 32-char hex token
+        $stmt->execute([$token, $row['id']]);
+    }
+}
+
 function ensureCoreSchema($pdo) {
     createCoreTables($pdo);
     normalizeConfigsTable($pdo);
     ensureColumns($pdo, 'images', getCoreImageColumns());
     backfillAssetFlags($pdo);
+    backfillShareTokens($pdo);
 }
 
 function backfillAssetFlags($pdo) {

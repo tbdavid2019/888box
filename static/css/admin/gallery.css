@@ -174,17 +174,57 @@
     overflow: hidden;
 }
 
-/* 操作按钮 */
+/* 操作按钮區（懸停顯示，固定在圖片底部） */
 .action-buttons {
-    display: flex;
     position: absolute;
-    top: 5px;
-    right: 5px;
-    gap: 5px;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    display: flex;
+    gap: 4px;
+    padding: 8px 6px;
+    background: linear-gradient(to top, rgba(0,0,0,0.82) 0%, rgba(0,0,0,0.3) 70%, transparent 100%);
+    border-radius: 0 0 8px 8px;
+    opacity: 0;
+    transform: translateY(4px);
+    transition: opacity 0.22s ease, transform 0.22s ease;
     z-index: 30;
+    pointer-events: none;
 }
 
-.delete-btn, .copy-btn {
+.gallery-item:hover .action-buttons,
+.multi-select-mode .gallery-item .action-buttons {
+    opacity: 1;
+    transform: translateY(0);
+    pointer-events: auto;
+}
+
+/* 通用文字按鈕 */
+.img-btn {
+    flex: 1;
+    padding: 5px 2px;
+    font-size: 11px;
+    font-weight: 600;
+    border-radius: 6px;
+    border: 1px solid rgba(255,255,255,0.18);
+    background: rgba(255,255,255,0.12);
+    color: #fff;
+    cursor: pointer;
+    backdrop-filter: blur(4px);
+    transition: background 0.18s, transform 0.12s;
+    white-space: nowrap;
+    letter-spacing: 0.02em;
+}
+
+.img-btn:hover { transform: translateY(-1px); }
+
+.share-btn:hover  { background: rgba(122, 162, 247, 0.5); }
+.direct-btn:hover { background: rgba(125, 207, 255, 0.5); }
+.edit-btn:hover   { background: rgba(224, 175, 104, 0.5); }
+.delete-btn:hover { background: rgba(247, 118, 142, 0.5); }
+
+/* 舊版相容（保留 copy-btn/delete-btn 舊 icon 按鈕以防萬一） */
+.delete-btn-icon, .copy-btn-icon {
     width: 30px;
     height: 30px;
     display: flex;
@@ -197,17 +237,6 @@
     transition: background-color 0.3s;
 }
 
-.delete-btn:hover { background: var(--color-red-hover); }
-.copy-btn:hover { background: var(--color-green-hover); }
-
-.delete-btn .icon, .copy-btn .icon {
-    width: 20px;
-    height: 20px;
-    transition: transform 0.4s ease-in-out;
-}
-
-.delete-btn:hover .icon { transform: rotate(180deg); }
-.copy-btn:hover .icon { animation: shake 0.5s cubic-bezier(.36,.07,.19,.97) both; }
 
 /* ========================================
    多选功能 (.multi-select)

@@ -120,7 +120,7 @@ unset($audio);
             <div class="empty-state">目前沒有音訊</div>
         <?php else: ?>
             <?php foreach ($audios as $audio): ?>
-                <?php $shareUrl = buildAssetShareUrl($audio['id'], $config); ?>
+                <?php $shareUrl = buildAssetShareUrl($audio, $config); ?>
                 <div class="video-card" id="audio-<?= $audio['id'] ?>" data-has-password="<?= empty($audio['password']) ? '0' : '1' ?>">
                     <div class="audio-container">
                         <div class="audio-visualizer-icon">🎙️</div>

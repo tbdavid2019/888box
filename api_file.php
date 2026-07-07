@@ -142,7 +142,8 @@ function handleFileUpload($file, $pdo, $config) {
         }
         
         // 5. Save to database
-        $stmt = $pdo->prepare("INSERT INTO images (url, path, storage, size, upload_ip, user_id, title, description, password, mime_type, is_video, is_file) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+        $shareToken = generateShareToken();
+        $stmt = $pdo->prepare("INSERT INTO images (url, path, storage, size, upload_ip, user_id, title, description, password, mime_type, is_video, is_file, share_token) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
         $stmt->execute([
             $fileUrl, 
             $remotePath, 
@@ -155,7 +156,8 @@ function handleFileUpload($file, $pdo, $config) {
             !empty($password) ? password_hash($password, PASSWORD_DEFAULT) : NULL,
             $mimeType,
             0,
-            1
+            1,
+            $shareToken
         ]);
         
         $dbId = $pdo->lastInsertId();
@@ -166,7 +168,7 @@ function handleFileUpload($file, $pdo, $config) {
             'data' => [
                 'id' => $dbId,
                 'url' => $publicFileUrl,
-                'share_url' => buildAssetShareUrl($dbId, $config)
+                'share_url' => buildAssetShareUrl($shareToken, $config)
             ]
         ]);
         

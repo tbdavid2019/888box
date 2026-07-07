@@ -447,7 +447,7 @@ function handleUnifiedList($pdo, $type) {
 
     foreach ($assets as &$asset) {
         $asset['url'] = getMaskedUrl($asset['url'], $asset['path']);
-        $asset['share_url'] = buildAssetShareUrl($asset['id'], $config);
+        $asset['share_url'] = buildAssetShareUrl($asset, $config);
     }
 
 
@@ -496,7 +496,7 @@ function handleUnifiedSearch($pdo, $query) {
 
     foreach ($assets as &$asset) {
         $asset['url'] = getMaskedUrl($asset['url'], $asset['path']);
-        $asset['share_url'] = buildAssetShareUrl($asset['id'], $config);
+        $asset['share_url'] = buildAssetShareUrl($asset, $config);
     }
 
 

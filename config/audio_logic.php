@@ -75,10 +75,11 @@ function handleAudioUpload($file, $pdo, $title = '', $description = '', $passwor
         
         // 6. Save to database
         $hashedPassword = !empty($password) ? password_hash($password, PASSWORD_DEFAULT) : NULL;
-        $stmt = $pdo->prepare("INSERT INTO images (url, path, storage, size, upload_ip, user_id, title, description, password, mime_type, is_video, is_file, is_audio) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 0, 0, 1)");
-        $stmt->execute([$audioUrl, $audioRemotePath, $storage, $audioData['size'], getClientIp(), $user_id, $title, $description, $hashedPassword, $mimeType]);
+        $shareToken = generateShareToken();
+        $stmt = $pdo->prepare("INSERT INTO images (url, path, storage, size, upload_ip, user_id, title, description, password, mime_type, is_video, is_file, is_audio, share_token) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 0, 0, 1, ?)");
+        $stmt->execute([$audioUrl, $audioRemotePath, $storage, $audioData['size'], getClientIp(), $user_id, $title, $description, $hashedPassword, $mimeType, $shareToken]);
         $audioData['id'] = $pdo->lastInsertId();
-        $audioData['share_url'] = buildAssetShareUrl($audioData['id'], $config);
+        $audioData['share_url'] = buildAssetShareUrl($shareToken, $config);
         
         // 7. Update RSS and JSON
         if (empty($password)) {

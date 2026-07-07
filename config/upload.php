@@ -464,15 +464,16 @@ function handleUploadedFile($file, $token, $referer, $password = '') {
         $storagePath = ($storage === 'local') ? $finalFilePath : $filePath;
         
         $hashedPassword = !empty($password) ? password_hash($password, PASSWORD_DEFAULT) : NULL;
-        $stmt = $pdo->prepare("INSERT INTO images (url, path, storage, size, upload_ip, user_id, password, mime_type, is_video, is_file) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
-        $stmt->execute([$fileUrl, $storagePath, $storage, $fileSize, getClientIp(), $user_id, $hashedPassword, $mimeType, 0, 0]);
+        $shareToken = generateShareToken();
+        $stmt = $pdo->prepare("INSERT INTO images (url, path, storage, size, upload_ip, user_id, password, mime_type, is_video, is_file, share_token) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+        $stmt->execute([$fileUrl, $storagePath, $storage, $fileSize, getClientIp(), $user_id, $hashedPassword, $mimeType, 0, 0, $shareToken]);
         $assetId = $pdo->lastInsertId();
         
         // 记录上传成功日志
         $clientIp = getClientIp();
         logMessage("上传成功 | IP: {$clientIp} | 存储: {$storage} | URL: {$fileUrl}");
 
-        generateUploadResponse($publicFileUrl, $storagePath, $finalFilePath, $fileSize, $dimensions['width'], $dimensions['height'], '', false, $assetId, $config);
+        generateUploadResponse($publicFileUrl, $storagePath, $finalFilePath, $fileSize, $dimensions['width'], $dimensions['height'], '', false, $shareToken, $config);
     } catch (Exception $e) {
         // 记录上传失败日志
         $clientIp = getClientIp();
