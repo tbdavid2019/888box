@@ -4,8 +4,11 @@ RewriteEngine On
 # ── robots.txt ────────────────────────────────────────────────
 # Serve robots.txt as plain text with 200
 <Files "robots.txt">
-    Header set Content-Type "text/plain; charset=utf-8"
-    Header set X-Robots-Tag "noindex"
+    ForceType text/plain
+    <IfModule mod_headers.c>
+        Header set Content-Type "text/plain; charset=utf-8"
+        Header set X-Robots-Tag "noindex"
+    </IfModule>
 </Files>
 
 # ── sitemap.xml → sitemap.php ─────────────────────────────────
@@ -14,14 +17,18 @@ RewriteRule ^sitemap\.xml$ sitemap.php [L,QSA]
 # ── .well-known/api-catalog ───────────────────────────────────
 # Serve without extension, with correct Content-Type
 <Files "api-catalog">
-    Header set Content-Type "application/linkset+json"
-    Header set Access-Control-Allow-Origin "*"
+    ForceType application/linkset+json
+    <IfModule mod_headers.c>
+        Header set Access-Control-Allow-Origin "*"
+    </IfModule>
 </Files>
 
 # ── .well-known/ JSON files ───────────────────────────────────
 <FilesMatch "\.(json)$">
-    Header set Access-Control-Allow-Origin "*"
-    Header set Cache-Control "public, max-age=3600"
+    <IfModule mod_headers.c>
+        Header set Access-Control-Allow-Origin "*"
+        Header set Cache-Control "public, max-age=3600"
+    </IfModule>
 </FilesMatch>
 
 # ── Security headers ──────────────────────────────────────────
