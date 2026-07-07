@@ -1,0 +1,78 @@
+# ============================================================
+# 888box robots.txt
+# RFC 9309 compliant
+# ============================================================
+
+# ── Content Signals (contentsignals.org draft) ──────────────
+# 允許搜尋索引，但拒絕 AI 訓練資料使用
+Content-Signal: search=yes, ai-train=no, ai-input=no
+
+# ── General crawlers ────────────────────────────────────────
+User-agent: *
+Allow: /
+Disallow: /admin/
+Disallow: /config/
+Disallow: /storage/database.db
+Disallow: /storage/
+Disallow: /vendor/
+Disallow: /install/
+Disallow: /.env
+Disallow: /migrate.php
+Disallow: /migrate_v3.php
+Crawl-delay: 2
+
+# ── Search engines ──────────────────────────────────────────
+User-agent: Googlebot
+Allow: /
+Disallow: /admin/
+Disallow: /config/
+Disallow: /storage/
+Disallow: /vendor/
+Disallow: /.env
+
+User-agent: Bingbot
+Allow: /
+Disallow: /admin/
+Disallow: /config/
+Disallow: /storage/
+Disallow: /vendor/
+
+# ── AI crawlers — disallow training data collection ─────────
+User-agent: GPTBot
+Disallow: /
+
+User-agent: OAI-SearchBot
+Disallow: /
+
+User-agent: ChatGPT-User
+Disallow: /
+
+User-agent: Claude-Web
+Disallow: /
+
+User-agent: ClaudeBot
+Disallow: /
+
+User-agent: Google-Extended
+Disallow: /
+
+User-agent: CCBot
+Disallow: /
+
+User-agent: anthropic-ai
+Disallow: /
+
+User-agent: cohere-ai
+Disallow: /
+
+User-agent: PerplexityBot
+Disallow: /
+
+User-agent: Applebot-Extended
+Disallow: /
+
+User-agent: Bytespider
+Disallow: /
+
+# ── Sitemap ─────────────────────────────────────────────────
+Sitemap: https://box.david888.com/sitemap.xml

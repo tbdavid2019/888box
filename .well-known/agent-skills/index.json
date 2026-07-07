@@ -1,0 +1,55 @@
+{
+  "$schema": "https://agentskills.io/schema/v0.2.0/index.json",
+  "version": "0.2.0",
+  "skills": [
+    {
+      "name": "upload-image",
+      "type": "http-form",
+      "description": "Upload an image file (JPG, PNG, WebP, GIF, SVG) to 888box. Returns a share URL and direct CDN URL.",
+      "url": "https://box.david888.com/.well-known/agent-skills/upload-image/SKILL.md",
+      "sha256": ""
+    },
+    {
+      "name": "upload-video",
+      "type": "http-form",
+      "description": "Upload a video file (MP4, WebM, MOV, MKV) to 888box. Returns a share URL and direct URL.",
+      "url": "https://box.david888.com/.well-known/agent-skills/upload-video/SKILL.md",
+      "sha256": ""
+    },
+    {
+      "name": "upload-file",
+      "type": "http-form",
+      "description": "Upload a generic document or file to 888box. Returns a share URL and direct URL.",
+      "url": "https://box.david888.com/.well-known/agent-skills/upload-file/SKILL.md",
+      "sha256": ""
+    },
+    {
+      "name": "upload-audio",
+      "type": "http-form",
+      "description": "Upload an audio file (MP3, WAV, AAC, M4A, FLAC) to 888box. Returns a share URL and direct URL.",
+      "url": "https://box.david888.com/.well-known/agent-skills/upload-audio/SKILL.md",
+      "sha256": ""
+    },
+    {
+      "name": "search-assets",
+      "type": "http-api",
+      "description": "Search stored assets by keyword across title, path and URL. Returns matching assets with share URLs.",
+      "url": "https://box.david888.com/.well-known/agent-skills/search-assets/SKILL.md",
+      "sha256": ""
+    },
+    {
+      "name": "list-assets",
+      "type": "http-api",
+      "description": "List stored assets with pagination. Supports filtering by type (image, video, audio, file).",
+      "url": "https://box.david888.com/.well-known/agent-skills/list-assets/SKILL.md",
+      "sha256": ""
+    },
+    {
+      "name": "mcp-tools",
+      "type": "mcp",
+      "description": "MCP server exposing upload, list, search, and view tools for AI agent integration.",
+      "url": "https://box.david888.com/skill.php",
+      "sha256": ""
+    }
+  ]
+}

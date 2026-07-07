@@ -1,0 +1,100 @@
+{
+  "schemaVersion": "1.0.0",
+  "serverInfo": {
+    "name": "888box MCP Server",
+    "version": "1.0.0",
+    "description": "888box is a unified asset hosting platform supporting image, video, audio, and file uploads with AI agent integration via MCP.",
+    "homepage": "https://box.david888.com/",
+    "contact": "https://box.david888.com/"
+  },
+  "transport": {
+    "type": "http",
+    "endpoint": "https://box.david888.com/mcp.php",
+    "methods": ["POST"],
+    "contentType": "application/json"
+  },
+  "authentication": {
+    "required": true,
+    "type": "bearer",
+    "description": "Provide a Bearer token via Authorization header or x-api-key header. Obtain your token from the admin settings page."
+  },
+  "capabilities": {
+    "tools": {
+      "supported": true,
+      "tools": [
+        {
+          "name": "upload_image",
+          "description": "Upload an image file to 888box. Returns share URL, direct URL, and metadata.",
+          "inputSchema": {
+            "type": "object",
+            "properties": {
+              "file": { "type": "string", "description": "Base64-encoded image data or URL to fetch" },
+              "title": { "type": "string", "description": "Optional title for the image" }
+            },
+            "required": ["file"]
+          }
+        },
+        {
+          "name": "upload_video",
+          "description": "Upload a video file to 888box.",
+          "inputSchema": {
+            "type": "object",
+            "properties": {
+              "file": { "type": "string", "description": "Base64-encoded video data or URL to fetch" },
+              "title": { "type": "string", "description": "Optional title" }
+            },
+            "required": ["file"]
+          }
+        },
+        {
+          "name": "upload_file",
+          "description": "Upload a document or generic file to 888box.",
+          "inputSchema": {
+            "type": "object",
+            "properties": {
+              "file": { "type": "string", "description": "Base64-encoded file data or URL to fetch" },
+              "title": { "type": "string", "description": "Optional title" }
+            },
+            "required": ["file"]
+          }
+        },
+        {
+          "name": "list_assets",
+          "description": "List stored assets with pagination. Filter by type.",
+          "inputSchema": {
+            "type": "object",
+            "properties": {
+              "type": { "type": "string", "enum": ["all", "image", "video", "audio", "file"], "default": "all" },
+              "page": { "type": "integer", "minimum": 1, "default": 1 },
+              "limit": { "type": "integer", "minimum": 1, "maximum": 100, "default": 20 }
+            }
+          }
+        },
+        {
+          "name": "search_assets",
+          "description": "Search assets by keyword across title, path, and URL.",
+          "inputSchema": {
+            "type": "object",
+            "properties": {
+              "query": { "type": "string", "description": "Search keyword" },
+              "type": { "type": "string", "enum": ["all", "image", "video", "audio", "file"], "default": "all" }
+            },
+            "required": ["query"]
+          }
+        },
+        {
+          "name": "get_stats",
+          "description": "Get site-wide statistics (total counts by asset type).",
+          "inputSchema": {
+            "type": "object",
+            "properties": {}
+          }
+        }
+      ]
+    },
+    "resources": { "supported": false },
+    "prompts": { "supported": false }
+  },
+  "documentation": "https://box.david888.com/skill.php",
+  "skillsIndex": "https://box.david888.com/.well-known/agent-skills/index.json"
+}

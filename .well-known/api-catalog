@@ -1,0 +1,51 @@
+{
+  "linkset": [
+    {
+      "anchor": "https://box.david888.com/api.php",
+      "service-desc": [
+        {
+          "href": "https://box.david888.com/.well-known/openapi.json",
+          "type": "application/vnd.oai.openapi+json"
+        }
+      ],
+      "service-doc": [
+        {
+          "href": "https://box.david888.com/skill.php",
+          "type": "text/markdown"
+        }
+      ],
+      "describedby": [
+        {
+          "href": "https://box.david888.com/.well-known/agent-skills/index.json",
+          "type": "application/json"
+        }
+      ],
+      "status": [
+        {
+          "href": "https://box.david888.com/api.php?action=stats",
+          "type": "application/json"
+        }
+      ]
+    },
+    {
+      "anchor": "https://box.david888.com/mcp.php",
+      "service-desc": [
+        {
+          "href": "https://box.david888.com/.well-known/mcp/server-card.json",
+          "type": "application/json"
+        }
+      ],
+      "service-doc": [
+        {
+          "href": "https://box.david888.com/skill.php",
+          "type": "text/markdown"
+        }
+      ],
+      "type": [
+        {
+          "href": "https://modelcontextprotocol.io/specification"
+        }
+      ]
+    }
+  ]
+}

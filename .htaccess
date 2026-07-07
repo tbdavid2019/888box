@@ -1,0 +1,41 @@
+Options -Indexes
+RewriteEngine On
+
+# ── robots.txt ────────────────────────────────────────────────
+# Serve robots.txt as plain text with 200
+<Files "robots.txt">
+    Header set Content-Type "text/plain; charset=utf-8"
+    Header set X-Robots-Tag "noindex"
+</Files>
+
+# ── sitemap.xml → sitemap.php ─────────────────────────────────
+RewriteRule ^sitemap\.xml$ sitemap.php [L,QSA]
+
+# ── .well-known/api-catalog ───────────────────────────────────
+# Serve without extension, with correct Content-Type
+<Files "api-catalog">
+    Header set Content-Type "application/linkset+json"
+    Header set Access-Control-Allow-Origin "*"
+</Files>
+
+# ── .well-known/ JSON files ───────────────────────────────────
+<FilesMatch "\.(json)$">
+    Header set Access-Control-Allow-Origin "*"
+    Header set Cache-Control "public, max-age=3600"
+</FilesMatch>
+
+# ── Security headers ──────────────────────────────────────────
+<IfModule mod_headers.c>
+    Header always set X-Content-Type-Options "nosniff"
+    Header always set X-Frame-Options "SAMEORIGIN"
+    Header always set Referrer-Policy "strict-origin-when-cross-origin"
+</IfModule>
+
+# ── Protect sensitive files ───────────────────────────────────
+<FilesMatch "\.(env|db|sqlite|log)$">
+    Require all denied
+</FilesMatch>
+
+<FilesMatch "^(migrate|migrate_v3)\.php$">
+    Require all denied
+</FilesMatch>

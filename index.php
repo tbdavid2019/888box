@@ -10,8 +10,20 @@ $stats = [
     'image' => (int)$pdo->query("SELECT COUNT(*) FROM images WHERE is_video = 0 AND is_audio = 0 AND is_file = 0")->fetchColumn(),
     'video' => (int)$pdo->query("SELECT COUNT(*) FROM images WHERE is_video = 1")->fetchColumn(),
     'audio' => (int)$pdo->query("SELECT COUNT(*) FROM images WHERE is_audio = 1")->fetchColumn(),
-    'file' => (int)$pdo->query("SELECT COUNT(*) FROM images WHERE is_file = 1")->fetchColumn(),
+    'file'  => (int)$pdo->query("SELECT COUNT(*) FROM images WHERE is_file = 1")->fetchColumn(),
 ];
+
+// RFC 8288 Link headers — AI agent 發現資源
+if (!headers_sent()) {
+    $scheme  = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https' : 'http';
+    $host    = $_SERVER['HTTP_HOST'] ?? 'box.david888.com';
+    $base    = $scheme . '://' . $host;
+    header('Link: <' . $base . '/.well-known/api-catalog>; rel="api-catalog"', false);
+    header('Link: <' . $base . '/skill.php>; rel="service-doc"', false);
+    header('Link: <' . $base . '/sitemap.xml>; rel="sitemap"; type="application/xml"', false);
+    header('Link: <' . $base . '/.well-known/mcp/server-card.json>; rel="mcp-server-card"', false);
+    header('Link: <' . $base . '/.well-known/agent-skills/index.json>; rel="agent-skills"', false);
+}
 ?>
 <!DOCTYPE html>
 <html lang="zh-Hant">
@@ -102,6 +114,79 @@ $stats = [
         Created by <a href="https://david888.com" target="_blank">DAVID888</a> | 
         <a href="/skill.php" target="_blank">AI Agent Skills</a>
     </footer>
+
+    <!-- WebMCP — AI agent 工具提供（navigator.modelContext API） -->
+    <script>
+    (function() {
+        if (typeof navigator === 'undefined' || !navigator.modelContext) return;
+
+        const BASE_URL = window.location.origin;
+
+        navigator.modelContext.provideContext({
+            tools: [
+                {
+                    name: 'upload_image',
+                    description: 'Upload an image to 888box. Supports JPG, PNG, WebP, GIF, SVG. Returns a token-based share URL and direct CDN URL.',
+                    inputSchema: {
+                        type: 'object',
+                        properties: {
+                            file_url: { type: 'string', description: 'URL of the image to upload (remote ingestion)' },
+                            title: { type: 'string', description: 'Optional title' }
+                        }
+                    },
+                    execute: async ({ file_url, title }) => {
+                        const fd = new FormData();
+                        if (file_url) fd.append('url', file_url);
+                        if (title) fd.append('title', title);
+                        const r = await fetch(BASE_URL + '/api.php?action=upload', { method: 'POST', body: fd });
+                        return r.json();
+                    }
+                },
+                {
+                    name: 'list_assets',
+                    description: 'List stored assets on 888box with optional type filter and pagination.',
+                    inputSchema: {
+                        type: 'object',
+                        properties: {
+                            type:  { type: 'string', enum: ['all', 'image', 'video', 'audio', 'file'], default: 'all' },
+                            page:  { type: 'integer', minimum: 1, default: 1 },
+                            limit: { type: 'integer', minimum: 1, maximum: 100, default: 20 }
+                        }
+                    },
+                    execute: async ({ type = 'all', page = 1, limit = 20 }) => {
+                        const r = await fetch(`${BASE_URL}/api.php?action=list&type=${type}&page=${page}&limit=${limit}`);
+                        return r.json();
+                    }
+                },
+                {
+                    name: 'search_assets',
+                    description: 'Search assets on 888box by keyword across title, path, and URL.',
+                    inputSchema: {
+                        type: 'object',
+                        required: ['query'],
+                        properties: {
+                            query: { type: 'string', description: 'Search keyword' },
+                            type:  { type: 'string', enum: ['all', 'image', 'video', 'audio', 'file'], default: 'all' }
+                        }
+                    },
+                    execute: async ({ query, type = 'all' }) => {
+                        const r = await fetch(`${BASE_URL}/api.php?action=search&q=${encodeURIComponent(query)}&type=${type}`);
+                        return r.json();
+                    }
+                },
+                {
+                    name: 'get_stats',
+                    description: 'Get 888box site statistics: total count of images, videos, audio files, and documents.',
+                    inputSchema: { type: 'object', properties: {} },
+                    execute: async () => {
+                        const r = await fetch(BASE_URL + '/api.php?action=stats');
+                        return r.json();
+                    }
+                }
+            ]
+        });
+    })();
+    </script>
 
 </body>
 </html>
