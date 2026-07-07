@@ -34,7 +34,12 @@
 
 ### 🤖 AI 代理人整合 (AI Agent Integration)
 - **動態技能指南 (`skill.php`)**：為 AI 代理人（如 Claude, GPT）提供動態生成的指令文檔，自動識別 Base URL 並在登入狀態下注入 Token。
-- **MCP 支援**：支援 Model Context Protocol，讓 AI 代理人能自動執行上傳、列表查詢及資產清理等任務。
+- **MCP 支援 & 伺服器卡片**：提供符合 Model Context Protocol (MCP) 標準的 `mcp.php` 端點，並在 `/.well-known/mcp/server-card.json` 發布 MCP Server Card。
+- **RFC 9727 API 目錄**：於 `/.well-known/api-catalog` 提供符合 RFC 9727 `application/linkset+json` 標準的 API 發現配置，方便自動解析。
+- **Agent Skills 發現索引**：於 `/.well-known/agent-skills/index.json` 發布代理人專屬技能索引。
+- **WebMCP 支援**：首頁內嵌 WebMCP 控制，向 AI 瀏覽器主動暴露 `upload_image`、`list_assets`、`search_assets` 與 `get_stats` 工具。
+- **RFC 8288 發現連結**：首頁 Response Header 具備 RFC 8288 `Link` 屬性，引導 Agent 自動探測 sitemap、api-catalog 與技能頁。
+- **爬蟲控管與 Content Signals**：支援 RFC 9309 規範，於 `robots.txt` 宣告 `Content-Signal: search=yes, ai-train=no` 訊號，拒絕 AI 爬蟲進行模型訓練，並預設封鎖 GPTBot、ClaudeBot 等 AI 採集器。
 
 ---
 

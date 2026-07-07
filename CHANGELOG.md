@@ -2,6 +2,28 @@
 
 All notable changes to this project will be documented in this file.
 
+## [2026.7.7] - 2026-07-07
+
+### ✨ Added
+- **AI Agent Readiness & Discovery**:
+  - **robots.txt**: Fully RFC 9309 compliant with Content-Signals (`search=yes, ai-train=no, ai-input=no`) and explicit blocks for major AI crawlers (GPTBot, ClaudeBot, Google-Extended, etc.).
+  - **Sitemap**: Added dynamic `sitemap.php` listing canonical public URLs using asset share tokens. Routed through `sitemap.xml` via `.htaccess`.
+  - **Link Response Headers**: Emitted RFC 8288 Link headers on homepage (`index.php`) mapping discovery endpoints for API Catalog, Service Document (Skill), Sitemap, MCP Server Card, and Agent Skills index.
+  - **WebMCP Integration**: Injected WebMCP client support on homepage (`navigator.modelContext.provideContext`) offering `upload_image`, `list_assets`, `search_assets`, and `get_stats` tools.
+  - **API Catalog**: Published RFC 9727 linkset+json catalog at `/.well-known/api-catalog` highlighting API and MCP server endpoints.
+  - **MCP Server Card**: Published SEP-1649 card at `/.well-known/mcp/server-card.json` for agent mcp endpoint auto-discovery.
+  - **Agent Skills Index**: Published `/.well-known/agent-skills/index.json` outlining all agent capabilities.
+- **Image Admin Dashboard Actions**:
+  - Added "分享" (Share), "直連" (Direct Link), "編輯" (Edit), and "刪除" (Delete) administrative quick actions to image cards.
+  - Added new backend endpoint `api_edit_image.php` to handle title, description, and password edits for images.
+
+### 🔒 Security
+- **IDOR Enumeration Vulnerability Fix**:
+  - Deprecated sharing via database incremental IDs (`view.php?id=129`) to prevent enumeration attacks. Directly querying by `?id=` now returns a 404.
+  - Replaced view URLs with token-based lookups (`view.php?token=3f8a2c...`).
+  - Added database migrations to auto-generate `share_token` (32-char hex) and backfill existing image/video/file records.
+  - Updated all API and upload helpers to return tokenized share URLs.
+
 ## [2026.5.29] - 2026-05-29
 
 ### ✨ Added
