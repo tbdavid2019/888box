@@ -50,6 +50,7 @@ $files = $stmt->fetchAll(PDO::FETCH_ASSOC);
         .btn-delete { background: #f7768e; color: #1a1b26; }
         .empty-state { text-align: center; color: #7f88b2; padding: 100px; font-size: 1.2rem; }
     </style>
+    <?php renderCustomTrackingCode($pdo); ?>
 </head>
 <body>
     <?php renderAdminHeader('file', '文件管理後台', [

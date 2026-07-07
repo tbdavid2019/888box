@@ -38,6 +38,7 @@ try {
         }
         .file-icon { font-size: 3rem; margin-bottom: 20px; color: var(--accent); }
     </style>
+    <?php renderCustomTrackingCode($pdo); ?>
 </head>
 <body>
     <header class="video-header">

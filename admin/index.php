@@ -73,6 +73,7 @@ $pagination = renderPagination($current_page, $total_pages);
     <link rel="stylesheet" href="/static/css/admin.css?v=<?php echo time(); ?>">
     <link rel="stylesheet" href="/static/css/fancybox.min.css?v=<?php echo time(); ?>">
     <?php renderThemeStyles($pdo); ?>
+    <?php renderCustomTrackingCode($pdo); ?>
 </head>
 <body>
     <?php renderAdminHeader('image', '圖片管理後台', [

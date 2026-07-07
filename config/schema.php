@@ -118,7 +118,8 @@ function getCoreConfigDefaults($siteUrl) {
         'site_domain' => [$siteUrl, '網站網域'],
         'active_theme' => ['default', '當前配色主題'],
         'rss_token_enabled' => ['false', 'RSS Token 保護'],
-        'rss_token' => ['', 'RSS Token']
+        'rss_token' => ['', 'RSS Token'],
+        'custom_tracking_code' => ['', '全站自訂追蹤碼（例如 Google Analytics / GTM 追蹤程式碼）']
     ];
 }
 

@@ -58,6 +58,7 @@ if (!headers_sent()) {
             font-weight: bold;
         }
     </style>
+    <?php renderCustomTrackingCode($pdo); ?>
 </head>
 <body>
     <div class="header">

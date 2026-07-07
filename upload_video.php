@@ -31,7 +31,7 @@ try {
     <link rel="shortcut icon" href="static/favicon.svg">
     <link rel="stylesheet" href="static/css/video_ui.css?v=<?php echo time(); ?>">
     <?php renderThemeStyles($pdo); ?>
-
+    <?php renderCustomTrackingCode($pdo); ?>
 </head>
 <body>
     <header class="video-header">

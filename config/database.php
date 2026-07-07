@@ -175,3 +175,19 @@ function buildAssetShareUrl($asset, $config = null) {
 
     return rtrim($siteDomain, '/') . '/view.php?token=' . urlencode($token);
 }
+
+/**
+ * 渲染全站自訂追蹤碼 (如 Google Analytics 或 GTM)
+ */
+function renderCustomTrackingCode($pdo) {
+    if (!$pdo) return;
+    try {
+        $code = Database::getConfig($pdo, 'custom_tracking_code');
+        if (!empty($code)) {
+            echo $code . "\n";
+        }
+    } catch (Exception $e) {
+        // 靜默失敗
+    }
+}
+

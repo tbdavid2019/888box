@@ -255,6 +255,7 @@ try {
             }
         }
     </style>
+    <?php renderCustomTrackingCode($pdo); ?>
 </head>
 <body>
     <header class="blur" style="width: 100%; max-width: 1200px; display: flex; justify-content: space-between; align-items: center; padding: 0 20px; box-sizing: border-box; margin: 0 auto 25px auto;">

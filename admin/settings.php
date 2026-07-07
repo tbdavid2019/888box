@@ -228,6 +228,10 @@ function renderFields($fields, $configs) {
                         <svg class="icon" aria-hidden="true"><use xlink:href="#icon-eye"></use></svg>
                     </span>
                 </div>
+            <?php elseif ($field['type'] === 'textarea'): ?>
+                <textarea name="<?= $key ?>" id="<?= $key ?>" rows="<?= $field['rows'] ?? 5 ?>" 
+                          placeholder="<?= $field['placeholder'] ?? '' ?>"
+                          style="width: 100%; box-sizing: border-box; padding: 10px; border-radius: 8px; border: 1px solid #414868; background: #1a1b26; color: #c0caf5; font-size: 14px; font-family: monospace; outline: none; resize: vertical;"><?= htmlspecialchars($value) ?></textarea>
             <?php else: ?>
                 <input type="<?= $field['type'] ?>" name="<?= $key ?>" id="<?= $key ?>" value="<?= $value ?>"
                        <?= isset($field['min']) ? "min=\"{$field['min']}\"" : '' ?>
@@ -349,6 +353,13 @@ $basicSettings = [
         'placeholder' => '多個信箱請用逗點分隔',
         'description' => '當資產被檢舉時，系統將發送郵件至這些信箱',
         'half_width' => true
+    ],
+    'custom_tracking_code' => [
+        'label' => '全站自訂追蹤碼 (如 Google Analytics 或 GTM)',
+        'type' => 'textarea',
+        'rows' => 4,
+        'placeholder' => '在此貼入完整的 Google Analytics (GA4) 全域網站 JavaScript 追蹤碼，或 Google Tag Manager (GTM) 代碼。例如：<script async src="https://www.googletagmanager.com/gtag/js?id=G-XXXXX"></script> <script>...</script>',
+        'description' => '這段程式碼將會被自動注入至所有公開頁面（包含首頁、圖片/影片/文件/音訊上傳中心與資產分享頁面）的 <head> 區塊中。'
     ]
 ];
 ?>

@@ -241,6 +241,7 @@ if ($asset['is_audio'] == 1 || strpos($mime, 'audio/') !== false || in_array($ex
             border-radius: 30px;
         }
     </style>
+    <?php renderCustomTrackingCode($pdo); ?>
 </head>
 <body>
     <div class="view-container">
