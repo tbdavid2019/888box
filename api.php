@@ -5,6 +5,7 @@ session_start();
 require_once 'vendor/autoload.php';
 require_once 'config/database.php';
 require_once 'config/upload.php';
+require_once 'config/cors.php';
 
 // 初始化
 $db = Database::getInstance();
@@ -35,22 +36,8 @@ function getConfigValue($pdo, $key, $default = 0) {
  */
 function isDomainAllowed($host) {
     global $config;
-    
-    if (empty($host)) return false;
-    
-    $siteDomains = array_map('trim', explode(',', $config['site_domain']));
-    
-    // 通配符允许所有域名
-    if (in_array('*', $siteDomains)) return true;
-    
-    // 检查域名是否匹配
-    foreach ($siteDomains as $domain) {
-        if ($host === parse_url($domain, PHP_URL_HOST)) {
-            return true;
-        }
-    }
-    
-    return false;
+
+    return isHostAllowedByConfiguredDomains($host, $config['site_domain'] ?? '');
 }
 
 /**
@@ -188,15 +175,11 @@ function setCorsHeaders() {
     global $config;
     
     $origin = $_SERVER['HTTP_ORIGIN'] ?? '';
-    $siteDomains = array_map('trim', explode(',', $config['site_domain']));
-    
-    if (in_array('*', $siteDomains)) {
-        header("Access-Control-Allow-Origin: *");
-    } else if (!empty($origin) && isDomainAllowed(parse_url($origin, PHP_URL_HOST))) {
-        header("Access-Control-Allow-Origin: $origin");
+    $allowOrigin = resolveCorsAllowOrigin($origin, $config['site_domain'] ?? '');
+
+    header("Access-Control-Allow-Origin: $allowOrigin");
+    if ($allowOrigin !== '*' && $allowOrigin !== 'null') {
         header("Access-Control-Allow-Credentials: true");
-    } else {
-        header("Access-Control-Allow-Origin: null");
     }
     
     header("Access-Control-Allow-Methods: GET, POST, OPTIONS");
