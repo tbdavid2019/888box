@@ -13,11 +13,13 @@ $stats = [
     'file'  => (int)$pdo->query("SELECT COUNT(*) FROM images WHERE is_file = 1")->fetchColumn(),
 ];
 
+// Compute base URL for reuse in meta tags and Link headers
+$scheme  = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https' : 'http';
+$host    = $_SERVER['HTTP_HOST'] ?? 'box.david888.com';
+$base    = $scheme . '://' . $host;
+
 // RFC 8288 Link headers — AI agent 發現資源
 if (!headers_sent()) {
-    $scheme  = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https' : 'http';
-    $host    = $_SERVER['HTTP_HOST'] ?? 'box.david888.com';
-    $base    = $scheme . '://' . $host;
     header('Link: <' . $base . '/.well-known/api-catalog>; rel="api-catalog"', false);
     header('Link: <' . $base . '/skill.php>; rel="service-doc"', false);
     header('Link: <' . $base . '/sitemap.xml>; rel="sitemap"; type="application/xml"', false);
@@ -31,7 +33,59 @@ if (!headers_sent()) {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>888box - 統一資產管理</title>
-    <link rel="shortcut icon" href="/static/favicon.svg">
+    <meta name="description" content="888box 是專業、高效、安全的個人資產管理平台，支援圖片、影片、音訊與檔案託管，提供 WebP 壓縮、Podcast RSS 同步與線上閱讀功能。">
+
+    <!-- Canonical URL -->
+    <link rel="canonical" href="<?= $base ?>">
+
+    <!-- Search engine favicon (PNG + ICO required by Google) -->
+    <link rel="icon" type="image/svg+xml" href="/static/favicon.svg">
+    <link rel="icon" type="image/png" sizes="32x32" href="/static/favicon-32x32.png">
+    <link rel="icon" href="/static/favicon.ico" sizes="any">
+
+    <!-- Apple touch icon -->
+    <link rel="apple-touch-icon" sizes="180x180" href="/static/apple-touch-icon.png">
+
+    <!-- Web app manifest -->
+    <link rel="manifest" href="/static/site.webmanifest">
+
+    <!-- Open Graph -->
+    <meta property="og:title" content="888box - 統一資產管理">
+    <meta property="og:description" content="專業、高效、安全的個人資產中心，支援圖片、影片、音訊與檔案託管。">
+    <meta property="og:image" content="<?= $base ?>/static/og-image.png">
+    <meta property="og:url" content="<?= $base ?>">
+    <meta property="og:site_name" content="888box">
+    <meta property="og:locale" content="zh_TW">
+    <meta property="og:type" content="website">
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="888box - 統一資產管理">
+    <meta name="twitter:description" content="專業、高效、安全的個人資產中心，支援圖片、影片、音訊與檔案託管。">
+    <meta name="twitter:image" content="<?= $base ?>/static/og-image.png">
+
+    <!-- Browser theme color -->
+    <meta name="theme-color" content="#1a1b26">
+
+    <!-- Structured data (JSON-LD) -->
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "WebSite",
+        "name": "888box",
+        "url": "<?= $base ?>",
+        "description": "專業、高效、安全的個人資產中心，支援圖片、影片、音訊與檔案託管。",
+        "potentialAction": {
+            "@type": "SearchAction",
+            "target": {
+                "@type": "EntryPoint",
+                "urlTemplate": "<?= $base ?>/api.php?action=search&q={search_term_string}"
+            },
+            "query-input": "required name=search_term_string"
+        }
+    }
+    </script>
+
     <link rel="stylesheet" href="/static/css/portal.css?v=<?php echo time(); ?>">
     <?php renderThemeStyles($pdo); ?>
     <style>

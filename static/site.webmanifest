@@ -1,0 +1,21 @@
+{
+    "name": "888box",
+    "short_name": "888box",
+    "description": "專業、高效、安全的個人資產中心",
+    "start_url": "/",
+    "display": "standalone",
+    "background_color": "#1a1b26",
+    "theme_color": "#1a1b26",
+    "icons": [
+        {
+            "src": "/static/favicon-32x32.png",
+            "sizes": "32x32",
+            "type": "image/png"
+        },
+        {
+            "src": "/static/apple-touch-icon.png",
+            "sizes": "180x180",
+            "type": "image/png"
+        }
+    ]
+}
