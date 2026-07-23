@@ -15,7 +15,10 @@ All notable changes to this project will be documented in this file.
   - **Title Auto-Hiding**: Automatically hide title `<h1>` when an asset has no custom title set, eliminating intrusive "未命名資源" placeholder headers.
   - **Embed Code Panel**: Integrated embed & share code generator supporting Direct URL, Markdown, HTML, and BBCode with one-click copy feedback.
   - **Image Dimensions Metadata**: Added automatic image resolution detection (`Width × Height px`) badge to asset metadata statistics.
-  - **Clickable Breadcrumb & Upload Guidance**: Transformed static header kicker into an interactive clickable link (`888box 門戶`) and added prominent CTA banners guiding visitors that anyone can upload and share assets for free.
+- **Homepage Smart Universal Dropzone (`index.php`)**:
+  - Added a prominent, drag-and-drop & paste universal upload panel right on the homepage portal.
+  - Automatically identifies file types (Images, Videos, Audio, Documents) on the client-side and routes them to `api.php?action=upload`.
+  - Displays real-time upload progress percentage bars, 1-click link copying, direct view buttons, and automatically refreshes Bento grid asset statistics live.
 
 ## [2026.7.7] - 2026-07-07
 

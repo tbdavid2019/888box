@@ -120,6 +120,28 @@ if (!headers_sent()) {
         <p>專業、高效、安全的個人資產中心</p>
     </div>
 
+    <!-- 跨類型全能智慧上傳面板 -->
+    <div class="universal-upload-panel" id="universalUploadPanel">
+        <div class="dropzone-box" id="universalDropzone" onclick="document.getElementById('universalFileInput').click()">
+            <input type="file" id="universalFileInput" multiple style="display: none;">
+            <div class="dropzone-icon">
+                <i data-lucide="upload-cloud"></i>
+            </div>
+            <div class="dropzone-text">
+                <h2>拖曳任何檔案至此，或點擊選擇檔案</h2>
+                <p>自動辨識 🖼️ 圖片 · 🎬 影片 · 🎙️ 音訊 · 📂 文件 等格式並完成託管</p>
+            </div>
+        </div>
+
+        <!-- 佇列與上傳結果展示區 -->
+        <div id="uploadQueueContainer" class="upload-queue-container" style="display: none;">
+            <div class="queue-header">
+                <h3><i data-lucide="layers"></i> 上傳與處理列表</h3>
+                <button type="button" class="btn-clear-queue" onclick="clearUploadQueue()"><i data-lucide="trash-2"></i> 清除紀錄</button>
+            </div>
+            <div id="uploadQueueList" class="upload-queue-list"></div>
+        </div>
+    </div>
 
     <div class="bento-grid">
         <!-- 圖片中心 -->
@@ -174,7 +196,215 @@ if (!headers_sent()) {
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             if (window.lucide) lucide.createIcons();
+            initUniversalDropzone();
         });
+
+        function detectFileType(file) {
+            const mime = file.type || '';
+            const ext = (file.name.split('.').pop() || '').toLowerCase();
+            
+            if (mime.startsWith('image/') || ['jpg', 'jpeg', 'png', 'gif', 'webp', 'svg', 'bmp'].includes(ext)) {
+                return { category: 'image', label: '圖片', icon: 'image' };
+            }
+            if (mime.startsWith('video/') || ['mp4', 'webm', 'mov', 'mkv', 'avi'].includes(ext)) {
+                return { category: 'video', label: '影片', icon: 'clapperboard' };
+            }
+            if (mime.startsWith('audio/') || ['mp3', 'wav', 'aac', 'ogg', 'm4a', 'flac'].includes(ext)) {
+                return { category: 'audio', label: '音訊', icon: 'mic' };
+            }
+            return { category: 'file', label: '文件', icon: 'folder-archive' };
+        }
+
+        function formatBytes(bytes) {
+            if (bytes === 0) return '0 B';
+            const k = 1024;
+            const sizes = ['B', 'KB', 'MB', 'GB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+        }
+
+        function initUniversalDropzone() {
+            const dropzone = document.getElementById('universalDropzone');
+            const fileInput = document.getElementById('universalFileInput');
+            if (!dropzone || !fileInput) return;
+
+            ['dragenter', 'dragover'].forEach(eventName => {
+                dropzone.addEventListener(eventName, (e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    dropzone.classList.add('dragover');
+                });
+            });
+
+            ['dragleave', 'drop'].forEach(eventName => {
+                dropzone.addEventListener(eventName, (e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    dropzone.classList.remove('dragover');
+                });
+            });
+
+            dropzone.addEventListener('drop', (e) => {
+                const files = e.dataTransfer.files;
+                if (files && files.length > 0) {
+                    handleFiles(files);
+                }
+            });
+
+            fileInput.addEventListener('change', (e) => {
+                if (e.target.files && e.target.files.length > 0) {
+                    handleFiles(e.target.files);
+                    fileInput.value = '';
+                }
+            });
+
+            window.addEventListener('paste', (e) => {
+                if (e.clipboardData && e.clipboardData.files && e.clipboardData.files.length > 0) {
+                    handleFiles(e.clipboardData.files);
+                }
+            });
+        }
+
+        function handleFiles(files) {
+            const container = document.getElementById('uploadQueueContainer');
+            const list = document.getElementById('uploadQueueList');
+            if (!container || !list) return;
+
+            container.style.display = 'block';
+
+            Array.from(files).forEach(file => {
+                uploadSingleFile(file, list);
+            });
+        }
+
+        function clearUploadQueue() {
+            const list = document.getElementById('uploadQueueList');
+            const container = document.getElementById('uploadQueueContainer');
+            if (list) list.innerHTML = '';
+            if (container) container.style.display = 'none';
+        }
+
+        function uploadSingleFile(file, list) {
+            const fileInfo = detectFileType(file);
+            const itemId = 'queue-' + Math.random().toString(36).substr(2, 9);
+            
+            const itemEl = document.createElement('div');
+            itemEl.className = 'queue-item';
+            itemEl.id = itemId;
+
+            itemEl.innerHTML = `
+                <div class="queue-item-info">
+                    <span class="type-badge ${fileInfo.category}">
+                        <i data-lucide="${fileInfo.icon}" style="width: 12px; height: 12px;"></i>
+                        ${fileInfo.label}
+                    </span>
+                    <span class="queue-item-name" title="${file.name}">${file.name}</span>
+                    <span class="queue-item-size">(${formatBytes(file.size)})</span>
+                </div>
+                <div class="queue-item-actions">
+                    <span class="status-text" style="font-size: 0.78rem; color: #7dcfff;">上傳中 0%...</span>
+                </div>
+                <div class="queue-progress-bar">
+                    <div class="queue-progress-fill" style="width: 0%;"></div>
+                </div>
+            `;
+
+            list.prepend(itemEl);
+            if (window.lucide) lucide.createIcons();
+
+            const formData = new FormData();
+            formData.append('file', file);
+
+            const xhr = new XMLHttpRequest();
+            xhr.open('POST', '/api.php?action=upload', true);
+
+            const fillEl = itemEl.querySelector('.queue-progress-fill');
+            const statusEl = itemEl.querySelector('.status-text');
+
+            xhr.upload.onprogress = (e) => {
+                if (e.lengthComputable) {
+                    const percent = Math.round((e.loaded / e.total) * 100);
+                    if (fillEl) fillEl.style.width = percent + '%';
+                    if (statusEl) statusEl.textContent = `上傳中 ${percent}%...`;
+                }
+            };
+
+            xhr.onload = () => {
+                try {
+                    const response = JSON.parse(xhr.responseText);
+                    if (xhr.status === 200 && response.result === 'success') {
+                        const data = response.data || {};
+                        const pageUrl = data.page_url || data.url || '#';
+                        
+                        if (fillEl) fillEl.style.width = '100%';
+                        
+                        const actionsEl = itemEl.querySelector('.queue-item-actions');
+                        if (actionsEl) {
+                            actionsEl.innerHTML = `
+                                <button type="button" class="btn-queue-action btn-queue-copy" onclick="copyText('${pageUrl}', this)">
+                                    <i data-lucide="copy" style="width: 13px; height: 13px;"></i>
+                                    <span>複製連結</span>
+                                </button>
+                                <a href="${pageUrl}" target="_blank" class="btn-queue-action btn-queue-view">
+                                    <i data-lucide="external-link" style="width: 13px; height: 13px;"></i>
+                                    <span>查看</span>
+                                </a>
+                            `;
+                            if (window.lucide) lucide.createIcons();
+                        }
+                        refreshStats();
+                    } else {
+                        if (statusEl) {
+                            statusEl.style.color = '#f7768e';
+                            statusEl.textContent = '失敗: ' + (response.message || '上傳失敗');
+                        }
+                    }
+                } catch (e) {
+                    if (statusEl) {
+                        statusEl.style.color = '#f7768e';
+                        statusEl.textContent = '解析回應失敗';
+                    }
+                }
+            };
+
+            xhr.onerror = () => {
+                if (statusEl) {
+                    statusEl.style.color = '#f7768e';
+                    statusEl.textContent = '網路上傳失敗';
+                }
+            };
+
+            xhr.send(formData);
+        }
+
+        function copyText(text, btn) {
+            navigator.clipboard.writeText(text).then(() => {
+                const span = btn.querySelector('span');
+                if (span) {
+                    const originalText = span.textContent;
+                    span.textContent = '已複製!';
+                    setTimeout(() => span.textContent = originalText, 2000);
+                }
+            }).catch(() => {
+                alert('複製失敗，請手動複製: ' + text);
+            });
+        }
+
+        function refreshStats() {
+            fetch('/api.php?action=stats')
+                .then(res => res.json())
+                .then(res => {
+                    if (res.result === 'success' && res.data) {
+                        const s = res.data;
+                        const badges = document.querySelectorAll('.stats-badge');
+                        if (badges[0] && s.image !== undefined) badges[0].textContent = `${s.image} 份資產`;
+                        if (badges[1] && s.video !== undefined) badges[1].textContent = `${s.video} 部影片`;
+                        if (badges[2] && s.file !== undefined) badges[2].textContent = `${s.file} 份文件`;
+                        if (badges[3] && s.audio !== undefined) badges[3].textContent = `${s.audio} 首音訊`;
+                    }
+                })
+                .catch(() => {});
+        }
     </script>
 
     <!-- WebMCP — AI agent 工具提供（navigator.modelContext API） -->

@@ -56,6 +56,241 @@ body {
     margin-top: 10px;
 }
 
+/* 跨類型全能智慧上傳區 */
+.universal-upload-panel {
+    max-width: 1000px;
+    width: 100%;
+    margin-bottom: 35px;
+}
+
+.dropzone-box {
+    background: linear-gradient(135deg, rgba(122, 162, 247, 0.12) 0%, rgba(125, 207, 255, 0.05) 100%);
+    border: 2px dashed rgba(122, 162, 247, 0.35);
+    backdrop-filter: blur(20px);
+    border-radius: 28px;
+    padding: 34px 20px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.dropzone-box:hover, .dropzone-box.dragover {
+    border-color: #7dcfff;
+    background: linear-gradient(135deg, rgba(125, 207, 255, 0.2) 0%, rgba(187, 154, 247, 0.1) 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 12px 30px rgba(122, 162, 247, 0.2);
+}
+
+.dropzone-icon {
+    width: 58px;
+    height: 58px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 18px;
+    background: rgba(125, 207, 255, 0.15);
+    border: 1px solid rgba(125, 207, 255, 0.3);
+    color: #7dcfff;
+    margin-bottom: 12px;
+    transition: all 0.3s ease;
+}
+
+.dropzone-box:hover .dropzone-icon {
+    transform: scale(1.1) rotate(-4deg);
+    background: rgba(125, 207, 255, 0.25);
+}
+
+.dropzone-icon svg {
+    width: 28px;
+    height: 28px;
+    stroke-width: 2.2px;
+}
+
+.dropzone-text h2 {
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: #c0caf5;
+    margin-bottom: 6px;
+}
+
+.dropzone-text p {
+    font-size: 0.83rem;
+    color: rgba(169, 177, 214, 0.76);
+    margin: 0;
+}
+
+/* 上傳佇列與結果面板 */
+.upload-queue-container {
+    margin-top: 16px;
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
+    border-radius: 20px;
+    padding: 18px 20px;
+}
+
+.queue-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 12px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.queue-header h3 {
+    margin: 0;
+    font-size: 0.92rem;
+    font-weight: 700;
+    color: #c0caf5;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.queue-header h3 svg {
+    width: 16px;
+    height: 16px;
+    color: #7dcfff;
+}
+
+.btn-clear-queue {
+    background: transparent;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    color: rgba(169, 177, 214, 0.7);
+    padding: 4px 10px;
+    border-radius: 8px;
+    font-size: 0.75rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    transition: all 0.2s ease;
+}
+
+.btn-clear-queue:hover {
+    color: #f7768e;
+    border-color: rgba(247, 118, 142, 0.4);
+    background: rgba(247, 118, 142, 0.1);
+}
+
+.upload-queue-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.queue-item {
+    background: rgba(15, 17, 26, 0.6);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 14px;
+    padding: 12px 16px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 14px;
+    flex-wrap: wrap;
+    transition: all 0.2s ease;
+}
+
+.queue-item-info {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    min-width: 0;
+    flex: 1;
+}
+
+.type-badge {
+    padding: 4px 8px;
+    border-radius: 6px;
+    font-size: 0.72rem;
+    font-weight: 700;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    white-space: nowrap;
+}
+
+.type-badge.image { background: rgba(125, 207, 255, 0.15); color: #7dcfff; border: 1px solid rgba(125, 207, 255, 0.3); }
+.type-badge.video { background: rgba(187, 154, 247, 0.15); color: #bb9af7; border: 1px solid rgba(187, 154, 247, 0.3); }
+.type-badge.audio { background: rgba(224, 175, 104, 0.15); color: #e0af68; border: 1px solid rgba(224, 175, 104, 0.3); }
+.type-badge.file  { background: rgba(158, 206, 106, 0.15); color: #9ece6a; border: 1px solid rgba(158, 206, 106, 0.3); }
+
+.queue-item-name {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: #c0caf5;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.queue-item-size {
+    font-size: 0.75rem;
+    color: rgba(169, 177, 214, 0.6);
+    white-space: nowrap;
+}
+
+.queue-progress-bar {
+    width: 100%;
+    height: 4px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 2px;
+    overflow: hidden;
+    margin-top: 6px;
+}
+
+.queue-progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #7dcfff 0%, #9ece6a 100%);
+    width: 0%;
+    transition: width 0.2s ease;
+}
+
+.queue-item-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.btn-queue-action {
+    padding: 5px 12px;
+    font-size: 0.76rem;
+    font-weight: 600;
+    border-radius: 8px;
+    text-decoration: none;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    border: none;
+    transition: all 0.2s ease;
+}
+
+.btn-queue-copy {
+    background: rgba(125, 207, 255, 0.15);
+    color: #7dcfff;
+    border: 1px solid rgba(125, 207, 255, 0.3);
+}
+
+.btn-queue-copy:hover {
+    background: rgba(125, 207, 255, 0.3);
+}
+
+.btn-queue-view {
+    background: rgba(158, 206, 106, 0.15);
+    color: #9ece6a;
+    border: 1px solid rgba(158, 206, 106, 0.3);
+}
+
+.btn-queue-view:hover {
+    background: rgba(158, 206, 106, 0.3);
+}
+
 .bento-grid {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
