@@ -162,7 +162,7 @@ if ($asset['is_audio'] == 1 || strpos($mime, 'audio/') !== false || in_array($ex
 
         .view-container {
             width: min(100%, 980px);
-            margin: 20px auto;
+            margin: 64px auto 20px;
             padding: clamp(22px, 4vw, 48px);
             background: linear-gradient(145deg, rgba(255, 255, 255, 0.065), rgba(255, 255, 255, 0.025));
             border: 1px solid var(--border, rgba(255, 255, 255, 0.12));
@@ -178,21 +178,24 @@ if ($asset['is_audio'] == 1 || strpos($mime, 'audio/') !== false || in_array($ex
         }
 
         .asset-header-top {
-            position: sticky;
-            top: 12px;
-            z-index: 99;
+            position: fixed;
+            top: 14px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: min(calc(100% - 24px), 960px);
+            z-index: 1000;
             display: flex;
             align-items: center;
             justify-content: space-between;
             gap: 12px;
             flex-wrap: wrap;
-            padding: 10px 16px;
-            background: rgba(14, 17, 28, 0.85);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-            border: 1px solid rgba(255, 255, 255, 0.14);
+            padding: 10px 18px;
+            background: rgba(14, 17, 28, 0.88);
+            backdrop-filter: blur(24px);
+            -webkit-backdrop-filter: blur(24px);
+            border: 1px solid rgba(255, 255, 255, 0.16);
             border-radius: 999px;
-            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.35);
+            box-shadow: 0 10px 36px rgba(0, 0, 0, 0.45);
         }
 
         .asset-breadcrumb {

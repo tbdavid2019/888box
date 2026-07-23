@@ -15,8 +15,8 @@ All notable changes to this project will be documented in this file.
   - **Title Auto-Hiding**: Automatically hide title `<h1>` when an asset has no custom title set, eliminating intrusive "未命名資源" placeholder headers.
   - **Embed Code Panel**: Integrated embed & share code generator supporting Direct URL, Markdown, HTML, and BBCode with one-click copy feedback.
   - **Image Dimensions Metadata**: Added automatic image resolution detection (`Width × Height px`) badge to asset metadata statistics.
-- **Sticky Floating Breadcrumb & Pretty Short URLs**:
-  - Made preview page breadcrumb navigation sticky floating at top of viewport with blur backdrop when scrolling.
+- **Permanent Fixed Floating Breadcrumb & Pretty Short URLs**:
+  - Upgraded preview page breadcrumb navigation to permanent fixed floating header (`position: fixed`) with glassmorphic blur backdrop, ensuring it stays floating seamlessly as you scroll down the page.
   - Implemented short pretty URLs (`/v/{short_token}`) while preserving 100% backward compatibility for existing 32-char token links.
 - **Webtalk Chat Widget Integration**:
   - Embedded Webtalk Chat script (`webtalk-chat.js`) across all public user-facing pages (`index.php`, `view.php`, `upload_*.php`).
