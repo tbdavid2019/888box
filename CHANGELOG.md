@@ -15,6 +15,7 @@ All notable changes to this project will be documented in this file.
   - **Title Auto-Hiding**: Automatically hide title `<h1>` when an asset has no custom title set, eliminating intrusive "未命名資源" placeholder headers.
   - **Embed Code Panel**: Integrated embed & share code generator supporting Direct URL, Markdown, HTML, and BBCode with one-click copy feedback.
   - **Image Dimensions Metadata**: Added automatic image resolution detection (`Width × Height px`) badge to asset metadata statistics.
+  - **Clickable Breadcrumb & Footer**: Transformed static header kicker into an interactive clickable link (`888box 門戶`) and added standard project footer ("© 2026 888box. All rights reserved. Created by DAVID888 | AI Agent Skills").
 - **Homepage Smart Universal Dropzone (`index.php`)**:
   - Added a prominent, drag-and-drop & paste universal upload panel right on the homepage portal.
   - Automatically identifies file types (Images, Videos, Audio, Documents) on the client-side and routes them to `api.php?action=upload`.

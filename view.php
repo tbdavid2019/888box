@@ -334,6 +334,26 @@ if ($asset['is_audio'] == 1 || strpos($mime, 'audio/') !== false || in_array($ex
             height: 16px;
         }
 
+        .portal-footer {
+            margin-top: 30px;
+            margin-bottom: 20px;
+            text-align: center;
+            color: var(--text-secondary, rgba(255, 255, 255, 0.5));
+            font-size: 0.8rem;
+            line-height: 1.6;
+        }
+
+        .portal-footer a {
+            color: var(--accent-cyan, rgba(125, 207, 255, 0.85));
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .portal-footer a:hover {
+            text-decoration: underline;
+            color: #7dcfff;
+        }
+
         .asset-title {
             max-width: 760px;
             margin: 0;
@@ -998,6 +1018,12 @@ if ($asset['is_audio'] == 1 || strpos($mime, 'audio/') !== false || in_array($ex
             </div>
         <?php endif; ?>
     </div>
+
+    <footer class="portal-footer">
+        &copy; <?= date('Y') ?> 888box. All rights reserved. <br>
+        Created by <a href="https://david888.com" target="_blank">DAVID888</a> | 
+        <a href="/skill.php" target="_blank" style="display: inline-flex; align-items: center; gap: 4px;"><i data-lucide="bot" style="width: 15px; height: 15px;"></i> AI Agent Skills</a>
+    </footer>
 
     <script src="/static/js/lucide.min.js"></script>
     <script>
