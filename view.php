@@ -251,6 +251,120 @@ if ($asset['is_audio'] == 1 || strpos($mime, 'audio/') !== false || in_array($ex
             box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04);
         }
 
+        /* 嵌入與分享代碼面板 */
+        .embed-panel {
+            margin-top: 20px;
+            padding: 18px 20px;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 16px;
+            backdrop-filter: blur(12px);
+        }
+
+        .embed-header-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 12px;
+        }
+
+        .embed-title-text {
+            margin: 0;
+            font-size: 0.88rem;
+            font-weight: 700;
+            color: var(--text-primary, #c0caf5);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .embed-title-text svg {
+            width: 16px;
+            height: 16px;
+            color: var(--accent-cyan, #7dcfff);
+        }
+
+        .embed-tabs {
+            display: flex;
+            gap: 6px;
+            margin-bottom: 10px;
+            overflow-x: auto;
+            padding-bottom: 2px;
+        }
+
+        .embed-tab {
+            padding: 5px 12px;
+            font-size: 0.76rem;
+            font-weight: 600;
+            color: var(--text-secondary, rgba(255, 255, 255, 0.6));
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            white-space: nowrap;
+        }
+
+        .embed-tab:hover {
+            background: rgba(255, 255, 255, 0.1);
+            color: #fff;
+        }
+
+        .embed-tab.active {
+            background: rgba(125, 207, 255, 0.15);
+            border-color: rgba(125, 207, 255, 0.4);
+            color: #7dcfff;
+        }
+
+        .embed-input-box {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+
+        .embed-input-box input {
+            flex: 1;
+            min-width: 0;
+            padding: 9px 12px;
+            font-size: 0.8rem;
+            font-family: monospace;
+            color: #c0caf5;
+            background: rgba(10, 12, 20, 0.7);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            border-radius: 9px;
+            outline: none;
+        }
+
+        .embed-input-box input:focus {
+            border-color: var(--accent-cyan, #7dcfff);
+        }
+
+        .btn-copy-embed {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            padding: 9px 15px;
+            font-size: 0.78rem;
+            font-weight: 700;
+            color: #1a1b26;
+            background: #7dcfff;
+            border: none;
+            border-radius: 9px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            white-space: nowrap;
+        }
+
+        .btn-copy-embed:hover {
+            background: #9ece6a;
+            transform: translateY(-1px);
+        }
+
+        .btn-copy-embed svg {
+            width: 14px;
+            height: 14px;
+        }
+
         .viewer-box img {
             max-width: 100%;
             max-height: min(72vh, 720px);
@@ -593,11 +707,20 @@ if ($asset['is_audio'] == 1 || strpos($mime, 'audio/') !== false || in_array($ex
                 </form>
             </div>
         <?php else: ?>
+            <?php 
+            $customTitle = trim($asset['title'] ?? '');
+            $hasTitle = ($customTitle !== '');
+            ?>
             <div class="asset-header">
                 <span class="asset-kicker">888box · 公開資源</span>
-                <h1 class="asset-title"><?= htmlspecialchars($asset['title'] ?: '未命名資源') ?></h1>
+                <?php if ($hasTitle): ?>
+                    <h1 class="asset-title"><?= htmlspecialchars($customTitle) ?></h1>
+                <?php endif; ?>
                 <div class="asset-meta">
                     <span class="meta-item"><i data-lucide="clock"></i>時間 <?= $asset['created_at'] ?></span>
+                    <?php if ($type === 'image'): ?>
+                        <span class="meta-item" id="meta-dimensions" style="display: none;"><i data-lucide="maximize-2"></i>尺寸 <span id="image-dimensions"></span></span>
+                    <?php endif; ?>
                     <span class="meta-item"><i data-lucide="hard-drive"></i>大小 <?= number_format($asset['size'] / 1024 / 1024, 2) ?> MB</span>
                     <span class="meta-item"><i data-lucide="eye"></i>瀏覽 <?= $asset['view_count'] ?> 次</span>
                 </div>
@@ -654,6 +777,26 @@ if ($asset['is_audio'] == 1 || strpos($mime, 'audio/') !== false || in_array($ex
                 <?php endif; ?>
             </div>
 
+            <!-- 嵌入與外鏈代碼面板 -->
+            <div class="embed-panel">
+                <div class="embed-header-row">
+                    <h3 class="embed-title-text"><i data-lucide="code-2"></i> 嵌入與外鏈代碼</h3>
+                </div>
+                <div class="embed-tabs">
+                    <button type="button" class="embed-tab active" data-type="url" onclick="selectEmbedType('url', this)">直連網址</button>
+                    <button type="button" class="embed-tab" data-type="markdown" onclick="selectEmbedType('markdown', this)">Markdown</button>
+                    <button type="button" class="embed-tab" data-type="html" onclick="selectEmbedType('html', this)">HTML</button>
+                    <button type="button" class="embed-tab" data-type="bbcode" onclick="selectEmbedType('bbcode', this)">BBCode</button>
+                </div>
+                <div class="embed-input-box">
+                    <input type="text" id="embedCodeInput" readonly value="<?= htmlspecialchars($url) ?>">
+                    <button type="button" class="btn-copy-embed" id="btnCopyEmbed" onclick="copyEmbedCode(this)">
+                        <i data-lucide="copy"></i>
+                        <span>複製</span>
+                    </button>
+                </div>
+            </div>
+
             <?php if (!empty($asset['description'])): ?>
                 <div class="asset-description">
                     <span class="description-label">資源說明</span>
@@ -691,8 +834,60 @@ if ($asset['is_audio'] == 1 || strpos($mime, 'audio/') !== false || in_array($ex
 
     <script src="/static/js/lucide.min.js"></script>
     <script>
+        const embedTemplates = {
+            url: <?= json_encode($url) ?>,
+            markdown: <?= json_encode('![' . ($customTitle ?: 'image') . '](' . $url . ')') ?>,
+            html: <?= json_encode('<img src="' . $url . '" alt="' . ($customTitle ?: 'image') . '">' ) ?>,
+            bbcode: <?= json_encode('[img]' . $url . '[/img]') ?>
+        };
+
+        function selectEmbedType(type, btn) {
+            document.querySelectorAll('.embed-tab').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            const input = document.getElementById('embedCodeInput');
+            if (input && embedTemplates[type]) {
+                input.value = embedTemplates[type];
+            }
+        }
+
+        function copyEmbedCode(btn) {
+            const input = document.getElementById('embedCodeInput');
+            if (!input) return;
+            input.select();
+            navigator.clipboard.writeText(input.value).then(() => {
+                showReportToast('已複製嵌入代碼！');
+                const span = btn.querySelector('span');
+                if (span) {
+                    const originalText = span.textContent;
+                    span.textContent = '已複製!';
+                    setTimeout(() => span.textContent = originalText, 2000);
+                }
+            }).catch(() => {
+                showReportToast('複製失敗，請手動複製', true);
+            });
+        }
+
         document.addEventListener('DOMContentLoaded', () => {
             if (window.lucide) lucide.createIcons();
+
+            const img = document.querySelector('.viewer-box img');
+            if (img) {
+                const updateDimensions = () => {
+                    if (img.naturalWidth && img.naturalHeight) {
+                        const metaDim = document.getElementById('meta-dimensions');
+                        const dimSpan = document.getElementById('image-dimensions');
+                        if (metaDim && dimSpan) {
+                            dimSpan.textContent = `${img.naturalWidth} × ${img.naturalHeight} px`;
+                            metaDim.style.display = 'inline-flex';
+                        }
+                    }
+                };
+                if (img.complete) {
+                    updateDimensions();
+                } else {
+                    img.addEventListener('load', updateDimensions);
+                }
+            }
         });
 
         function showReportToast(message, isError = false) {

@@ -11,6 +11,10 @@ All notable changes to this project will be documented in this file.
   - Upgraded public asset upload centers (`upload_image.php`, `upload_video.php`, `upload_audio.php`, `upload_file.php`) with modern vector icons across headers, dropzone prompts, pagination navigation, copy tabs, and action buttons.
   - Upgraded all admin management interfaces (`admin/index.php`, `admin/video.php`, `admin/audio.php`, `admin/file.php`, `admin/login.php`, `admin/settings.php`) sidebar navigation, modal controls, API/RSS token buttons, and password visibility toggles (`eye` / `eye-off`).
   - Upgraded asset viewer page (`view.php`) password protection gate, metadata indicators, download button, and report action button.
+- **Asset Preview UX & Embed Tools (`view.php`)**:
+  - **Title Auto-Hiding**: Automatically hide title `<h1>` when an asset has no custom title set, eliminating intrusive "未命名資源" placeholder headers.
+  - **Embed Code Panel**: Integrated embed & share code generator supporting Direct URL, Markdown, HTML, and BBCode with one-click copy feedback.
+  - **Image Dimensions Metadata**: Added automatic image resolution detection (`Width × Height px`) badge to asset metadata statistics.
 
 ## [2026.7.7] - 2026-07-07
 
