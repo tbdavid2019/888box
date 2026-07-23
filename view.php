@@ -80,10 +80,10 @@ try {
     $pdo = $db->getConnection();
     $config = Database::getConfig($pdo);
     
-    // 1. 撈取資源：優先用 share_token，不公開序號 ID
+    // 1. 撈取資源：優先用 share_token，支援完整 Token 與短 Token (如 /v/498dd84a)
     if (!empty($token)) {
-        $stmt = $pdo->prepare("SELECT * FROM images WHERE share_token = ?");
-        $stmt->execute([$token]);
+        $stmt = $pdo->prepare("SELECT * FROM images WHERE share_token = ? OR share_token LIKE ?");
+        $stmt->execute([$token, $token . '%']);
     } else {
         // 向下相容：將來產生的舊聯接（將來可移除）
         // 為防止序號枚舉，直接用 id 無 token 的請求一律回 404
@@ -178,11 +178,21 @@ if ($asset['is_audio'] == 1 || strpos($mime, 'audio/') !== false || in_array($ex
         }
 
         .asset-header-top {
+            position: sticky;
+            top: 12px;
+            z-index: 99;
             display: flex;
             align-items: center;
             justify-content: space-between;
             gap: 12px;
             flex-wrap: wrap;
+            padding: 10px 16px;
+            background: rgba(14, 17, 28, 0.85);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.14);
+            border-radius: 999px;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.35);
         }
 
         .asset-breadcrumb {
@@ -1125,5 +1135,7 @@ if ($asset['is_audio'] == 1 || strpos($mime, 'audio/') !== false || in_array($ex
             });
         }
     </script>
+    <!-- Webtalk Chat Widget -->
+    <script async src="https://webtalk-nine.vercel.app/webtalk-chat.js" data-webtalk-scope="origin"></script>
 </body>
 </html>

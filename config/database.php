@@ -151,9 +151,11 @@ function buildAssetShareUrl($asset, $config = null) {
         return '';
     }
 
+    $shortToken = (strlen($token) > 12) ? substr($token, 0, 12) : $token;
+
     if (!empty($_SERVER['HTTP_HOST'])) {
         $scheme = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https' : 'http';
-        return $scheme . '://' . $_SERVER['HTTP_HOST'] . '/view.php?token=' . urlencode($token);
+        return $scheme . '://' . $_SERVER['HTTP_HOST'] . '/v/' . urlencode($shortToken);
     }
 
     $siteDomain = '';
@@ -173,7 +175,7 @@ function buildAssetShareUrl($asset, $config = null) {
         $siteDomain = 'https://' . $siteDomain;
     }
 
-    return rtrim($siteDomain, '/') . '/view.php?token=' . urlencode($token);
+    return rtrim($siteDomain, '/') . '/v/' . urlencode($shortToken);
 }
 
 /**
