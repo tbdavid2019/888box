@@ -88,8 +88,8 @@
 }
 
 .rightside a:hover { background: var(--bg-black-30); }
-.rightside a .icon { width: 30px; height: 30px; }
-.rightside a:hover .icon { transform: scale(1.1); }
+.rightside a .icon, .rightside a svg { width: 22px; height: 22px; stroke-width: 2.2px; color: #c0caf5; stroke: currentColor; fill: none; }
+.rightside a:hover .icon, .rightside a:hover svg { transform: scale(1.1); color: #7dcfff; }
 
 /* 回到顶部按钮 */
 .top-link {

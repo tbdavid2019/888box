@@ -225,7 +225,7 @@ function renderFields($fields, $configs) {
                     <input type="password" name="<?= $key ?>" id="<?= $key ?>" value="<?= $value ?>"
                            placeholder="<?= $field['placeholder'] ?? '' ?>" autocomplete="new-password">
                     <span class="toggle-password">
-                        <svg class="icon" aria-hidden="true"><use xlink:href="#icon-eye"></use></svg>
+                        <i data-lucide="eye" class="icon"></i>
                     </span>
                 </div>
             <?php elseif ($field['type'] === 'textarea'): ?>
@@ -375,7 +375,7 @@ $basicSettings = [
             <div class="settings-header">
                 <h2>基本設定</h2>
                 <button type="button" class="close-modal">
-                    <svg class="icon" aria-hidden="true"><use xlink:href="#icon-xmark"></use></svg>
+                    <i data-lucide="x" class="icon"></i>
                 </button>
             </div>
             <div class="form-group">
@@ -414,10 +414,10 @@ $basicSettings = [
                 <div class="token-input-group">
                     <input type="text" name="token" id="token-input" value="<?= $userToken ?>" readonly>
                     <button type="button" class="token-action-btn copy-token" title="複製">
-                        <svg class="icon" aria-hidden="true"><use xlink:href="#icon-copy"></use></svg>
+                        <i data-lucide="copy" class="icon"></i>
                     </button>
                     <button type="button" class="token-action-btn refresh-token" title="重新產生">
-                        <svg class="icon" aria-hidden="true"><use xlink:href="#icon-refresh"></use></svg>
+                        <i data-lucide="refresh-cw" class="icon"></i>
                     </button>
                 </div>
             </div>
@@ -446,10 +446,10 @@ $basicSettings = [
                 <div class="token-input-group">
                     <input type="text" name="rss_token" id="rss-token-input" value="<?= htmlspecialchars($rssToken) ?>" readonly>
                     <button type="button" class="token-action-btn copy-rss-token" title="複製">
-                        <svg class="icon" aria-hidden="true"><use xlink:href="#icon-copy"></use></svg>
+                        <i data-lucide="copy" class="icon"></i>
                     </button>
                     <button type="button" class="token-action-btn refresh-rss-token" title="重新產生">
-                        <svg class="icon" aria-hidden="true"><use xlink:href="#icon-refresh"></use></svg>
+                        <i data-lucide="refresh-cw" class="icon"></i>
                     </button>
                 </div>
             </div>
@@ -477,7 +477,7 @@ $basicSettings = [
                     <div class="password-wrapper">
                         <input type="password" name="new_password" id="new_password" placeholder="留空則不修改" autocomplete="new-password">
                         <span class="toggle-password">
-                            <svg class="icon" aria-hidden="true"><use xlink:href="#icon-eye"></use></svg>
+                            <i data-lucide="eye" class="icon"></i>
                         </span>
                     </div>
                 </div>
@@ -486,7 +486,7 @@ $basicSettings = [
                     <div class="password-wrapper">
                         <input type="password" name="confirm_password" id="confirm_password" placeholder="請再次輸入新密碼" autocomplete="new-password">
                         <span class="toggle-password">
-                            <svg class="icon" aria-hidden="true"><use xlink:href="#icon-eye"></use></svg>
+                            <i data-lucide="eye" class="icon"></i>
                         </span>
                     </div>
                 </div>
@@ -507,7 +507,7 @@ $basicSettings = [
                     <h2><?= $storage['name'] ?>設定</h2>
                     <?php if ($type !== 'local'): ?>
                         <button type="button" class="test-storage-btn" data-storage="<?= $type ?>">
-                            <svg class="icon" aria-hidden="true"><use xlink:href="#icon-link"></use></svg>
+                            <i data-lucide="link-2" class="icon"></i>
                             <span class="btn-text">測試</span>
                         </button>
                     <?php endif; ?>

@@ -36,23 +36,45 @@ try {
         :root {
             --accent: #7dcfff;
         }
-        .file-icon { font-size: 3rem; margin-bottom: 20px; color: var(--accent); }
+        .file-icon {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 68px;
+            height: 68px;
+            border-radius: 20px;
+            margin-bottom: 20px;
+            background: rgba(125, 207, 255, 0.12);
+            border: 1px solid rgba(125, 207, 255, 0.25);
+            color: var(--accent);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .file-icon svg, .file-icon i {
+            width: 34px;
+            height: 34px;
+            stroke-width: 2.2px;
+        }
+        .upload-panel:hover .file-icon {
+            transform: scale(1.1) rotate(-3deg);
+            background: rgba(125, 207, 255, 0.2);
+            border-color: rgba(125, 207, 255, 0.4);
+        }
     </style>
     <?php renderCustomTrackingCode($pdo); ?>
 </head>
 <body>
     <header class="video-header">
-        <h1>📂 888box 文件託管中心</h1>
-        <div class="nav-links">
-            <a href="/">🏠 門戶</a>
-            <a href="/admin/file.php" target="_blank">⚙️ 管理後台</a>
+        <h1 style="display: flex; align-items: center; gap: 8px;"><i data-lucide="folder-archive" style="width: 24px; height: 24px; color: #7dcfff;"></i> 888box 文件託管中心</h1>
+        <div class="nav-links" style="display: flex; align-items: center; gap: 15px;">
+            <a href="/" style="display: inline-flex; align-items: center; gap: 4px;"><i data-lucide="home" style="width: 15px; height: 15px;"></i> 門戶</a>
+            <a href="/admin/file.php" target="_blank" style="display: inline-flex; align-items: center; gap: 4px;"><i data-lucide="settings" style="width: 15px; height: 15px;"></i> 管理後台</a>
         </div>
     </header>
 
     <main class="video-main">
         <div class="upload-panel" id="dropZone">
             <div id="uploadPrompt">
-                <div class="file-icon">📄</div>
+                <div class="file-icon"><i data-lucide="file-up"></i></div>
                 <h2>拖曳檔案至此</h2>
                 <p>支援 ZIP, PDF, Word, Excel, Visio, EPUB 等格式</p>
                 <input type="file" id="fileInput" multiple style="display:none;">
@@ -129,7 +151,12 @@ try {
     <script src="static/js/upload_history.js?v=<?php echo time(); ?>"></script>
     <script src="static/js/upload_stats.js?v=<?php echo time(); ?>"></script>
     <script src="static/js/file_app.js?v=<?php echo time(); ?>"></script>
+    <script src="/static/js/lucide.min.js"></script>
     <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            if (window.lucide) lucide.createIcons();
+        });
+
         function forceClearCache() {
             if ('caches' in window) {
                 caches.keys().then(function(names) {

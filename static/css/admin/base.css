@@ -96,14 +96,16 @@ body {
     background: var(--bg-white-10);
 }
 
-/* 图标基础样式 */
-.icon {
+/* 圖標基礎樣式 */
+.icon, svg.lucide {
     width: 24px;
     height: 24px;
     vertical-align: -0.15em;
-    fill: currentColor;
+    stroke: currentColor;
+    stroke-width: 2px;
+    fill: none;
     overflow: hidden;
-    transition: transform 0.3s ease;
+    transition: transform 0.3s ease, color 0.3s ease;
 }
 
 /* 加载动画 */

@@ -125,7 +125,7 @@ if (!headers_sent()) {
         <!-- 圖片中心 -->
         <a href="/upload_image.php" class="card card-images">
             <div>
-                <div class="card-icon">🖼️</div>
+                <div class="card-icon"><i data-lucide="image"></i></div>
                 <h2 class="card-title">圖片託管</h2>
                 <p class="card-desc">支援 WebP 高效壓縮與瀑布流展示</p>
                 <div class="stats-badge"><?= $stats['image'] ?> 份資產</div>
@@ -135,7 +135,7 @@ if (!headers_sent()) {
         <!-- 影片中心 -->
         <a href="/upload_video.php" class="card card-videos">
             <div>
-                <div class="card-icon">🎬</div>
+                <div class="card-icon"><i data-lucide="clapperboard"></i></div>
                 <h2 class="card-title">影片中心</h2>
                 <p class="card-desc">自動提取 MetaData 與 Podcast RSS 同步</p>
                 <div class="stats-badge"><?= $stats['video'] ?> 部影片</div>
@@ -145,7 +145,7 @@ if (!headers_sent()) {
         <!-- 文件中心 -->
         <a href="/upload_file.php" class="card card-files">
             <div>
-                <div class="card-icon">📂</div>
+                <div class="card-icon"><i data-lucide="folder-archive"></i></div>
                 <h2 class="card-title">文件託管</h2>
                 <p class="card-desc">支援 ZIP, PDF, Word 及 EPUB 線上閱讀</p>
                 <div class="stats-badge"><?= $stats['file'] ?> 份文件</div>
@@ -155,7 +155,7 @@ if (!headers_sent()) {
         <!-- 聲音大廳 -->
         <a href="/upload_audio.php" class="card card-audios">
             <div>
-                <div class="card-icon">🎙️</div>
+                <div class="card-icon"><i data-lucide="mic"></i></div>
                 <h2 class="card-title">聲音大廳</h2>
                 <p class="card-desc">支援 MP3/WAV 上傳與 Podcast RSS 訂閱</p>
                 <div class="stats-badge"><?= $stats['audio'] ?> 首音訊</div>
@@ -167,8 +167,15 @@ if (!headers_sent()) {
     <footer class="portal-footer">
         &copy; <?= date('Y') ?> 888box. All rights reserved. <br>
         Created by <a href="https://david888.com" target="_blank">DAVID888</a> | 
-        <a href="/skill.php" target="_blank">AI Agent Skills</a>
+        <a href="/skill.php" target="_blank" style="display: inline-flex; align-items: center; gap: 4px;"><i data-lucide="bot" style="width: 15px; height: 15px;"></i> AI Agent Skills</a>
     </footer>
+
+    <script src="/static/js/lucide.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            if (window.lucide) lucide.createIcons();
+        });
+    </script>
 
     <!-- WebMCP — AI agent 工具提供（navigator.modelContext API） -->
     <script>

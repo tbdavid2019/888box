@@ -85,8 +85,29 @@ body {
 }
 
 .icon-upload { 
-    font-size: 4rem; 
-    margin-bottom: 15px; 
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 68px;
+    height: 68px;
+    border-radius: 20px;
+    margin-bottom: 20px;
+    background: rgba(122, 162, 247, 0.12);
+    border: 1px solid rgba(122, 162, 247, 0.25);
+    color: var(--primary, #7aa2f7);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.icon-upload svg, .icon-upload i {
+    width: 34px;
+    height: 34px;
+    stroke-width: 2.2px;
+}
+
+.upload-panel:hover .icon-upload {
+    transform: scale(1.1) rotate(-3deg);
+    background: rgba(122, 162, 247, 0.2);
+    border-color: rgba(122, 162, 247, 0.4);
 }
 
 #uploadPrompt h2 {

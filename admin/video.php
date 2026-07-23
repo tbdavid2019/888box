@@ -291,5 +291,11 @@ unset($video);
             });
         }
     </script>
+    <script src="/static/js/lucide.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            if (window.lucide) lucide.createIcons();
+        });
+    </script>
 </body>
 </html>

@@ -33,18 +33,18 @@ try {
 </head>
 <body>
     <header class="video-header">
-        <h1>🎙️ 888box 聲音託管中心</h1>
-        <div class="nav-links">
-            <a href="javascript:void(0);" onclick="forceClearCache()">🔄 清除快取並重整</a>
-            <a href="/">🏠 門戶</a>
-            <a href="/admin/audio.php" target="_blank">⚙️ 管理後台</a>
+        <h1 style="display: flex; align-items: center; gap: 8px;"><i data-lucide="mic" style="width: 24px; height: 24px; color: #e0af68;"></i> 888box 聲音託管中心</h1>
+        <div class="nav-links" style="display: flex; align-items: center; gap: 15px;">
+            <a href="javascript:void(0);" onclick="forceClearCache()" style="display: inline-flex; align-items: center; gap: 4px;"><i data-lucide="refresh-cw" style="width: 15px; height: 15px;"></i> 清除快取並重整</a>
+            <a href="/" style="display: inline-flex; align-items: center; gap: 4px;"><i data-lucide="home" style="width: 15px; height: 15px;"></i> 門戶</a>
+            <a href="/admin/audio.php" target="_blank" style="display: inline-flex; align-items: center; gap: 4px;"><i data-lucide="settings" style="width: 15px; height: 15px;"></i> 管理後台</a>
         </div>
     </header>
 
     <main class="video-main">
         <div class="upload-panel" id="dropZone">
             <div id="uploadPrompt">
-                <div class="icon-upload">🎵</div>
+                <div class="icon-upload"><i data-lucide="music"></i></div>
                 <h2>拖曳多部音訊檔案至此</h2>
                 <p>或點擊選擇檔案 (支援 mp3, wav, aac, ogg, m4a, flac)</p>
                 <input type="file" id="audioInput" accept="audio/*" multiple style="display:none;">
@@ -143,7 +143,12 @@ try {
     <script src="static/js/upload_history.js?v=<?php echo time(); ?>"></script>
     <script src="static/js/upload_stats.js?v=<?php echo time(); ?>"></script>
     <script src="static/js/audio_app.js?v=<?php echo time(); ?>"></script>
+    <script src="/static/js/lucide.min.js"></script>
     <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            if (window.lucide) lucide.createIcons();
+        });
+
         function forceClearCache() {
             if ('caches' in window) {
                 caches.keys().then(function(names) {

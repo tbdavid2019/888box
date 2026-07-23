@@ -124,7 +124,7 @@ unset($audio);
                 <?php $shareUrl = buildAssetShareUrl($audio, $config); ?>
                 <div class="video-card" id="audio-<?= $audio['id'] ?>" data-has-password="<?= empty($audio['password']) ? '0' : '1' ?>">
                     <div class="audio-container">
-                        <div class="audio-visualizer-icon">🎙️</div>
+                        <div class="audio-visualizer-icon"><i data-lucide="mic" style="width: 48px; height: 48px; color: #7aa2f7;"></i></div>
                         <audio src="<?= htmlspecialchars($audio['url']) ?>" controls preload="metadata"></audio>
                     </div>
                     <div class="video-info">
@@ -299,6 +299,12 @@ unset($audio);
                 console.error(err);
             });
         }
+    </script>
+    <script src="/static/js/lucide.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            if (window.lucide) lucide.createIcons();
+        });
     </script>
 </body>
 </html>

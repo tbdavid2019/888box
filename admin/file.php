@@ -65,7 +65,7 @@ $files = $stmt->fetchAll(PDO::FETCH_ASSOC);
         <?php else: ?>
             <?php foreach ($files as $file): ?>
                 <div class="file-item" id="file-<?= $file['id'] ?>">
-                    <div class="file-icon">📄</div>
+                    <div class="file-icon"><i data-lucide="file-text" style="width: 28px; height: 28px; color: #7dcfff;"></i></div>
                     <div class="file-info">
                         <h3>
                             <?= htmlspecialchars($file['title'] ?: basename($file['path'])) ?>
@@ -120,6 +120,12 @@ $files = $stmt->fetchAll(PDO::FETCH_ASSOC);
             })
             .catch(err => alert('網路錯誤'));
         }
+    </script>
+    <script src="/static/js/lucide.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            if (window.lucide) lucide.createIcons();
+        });
     </script>
 </body>
 </html>

@@ -101,17 +101,18 @@ document.addEventListener('DOMContentLoaded', () => {
             UI.showNotification('RSS Token 已重新產生', 'success');
         });
 
-        // 密码显示/隐藏
+        // 密碼顯示/隱藏
         document.querySelectorAll('.toggle-password').forEach(btn => {
             btn.addEventListener('click', () => {
                 const input = btn.previousElementSibling;
                 if (input.type === 'password') {
                     input.type = 'text';
-                    btn.querySelector('use').setAttribute('xlink:href', '#icon-eye-close');
+                    btn.innerHTML = '<i data-lucide="eye-off" class="icon"></i>';
                 } else {
                     input.type = 'password';
-                    btn.querySelector('use').setAttribute('xlink:href', '#icon-eye');
+                    btn.innerHTML = '<i data-lucide="eye" class="icon"></i>';
                 }
+                if (window.lucide) lucide.createIcons();
             });
         });
 

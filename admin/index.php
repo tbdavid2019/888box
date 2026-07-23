@@ -85,22 +85,22 @@ $pagination = renderPagination($current_page, $total_pages);
     <div id="gallery" class="gallery"><?= $images_html ?></div>
     <div class="rightside">
         <a href="/admin/video.php" class="floating-link" title="影片管理" style="background-color: #7aa2f7;">
-            <svg class="icon" aria-hidden="true" style="fill: white;"><use xlink:href="#icon-Right-arrow"></use></svg>
+            <i data-lucide="arrow-right" class="icon" style="color: white;"></i>
         </a>
         <a href="/" class="floating-link" title="返回首頁">
-            <svg class="icon" aria-hidden="true"><use xlink:href="#icon-home"></use></svg>
+            <i data-lucide="home" class="icon"></i>
         </a>
         <a class="select-link" title="多選模式">
-            <svg class="icon" aria-hidden="true"><use xlink:href="#icon-select"></use></svg>
+            <i data-lucide="check-square" class="icon"></i>
         </a>
         <a href="#" class="settings-link" title="系統設定">
-            <svg class="icon" aria-hidden="true"><use xlink:href="#icon-Setting"></use></svg>
+            <i data-lucide="settings" class="icon"></i>
         </a>
         <a href="?logout=true" class="logout-link" title="登出">
-            <svg class="icon" aria-hidden="true"><use xlink:href="#icon-logout"></use></svg>
+            <i data-lucide="log-out" class="icon"></i>
         </a>
         <a class="top-link" id="scroll-to-top" title="回到頂部">
-            <svg class="icon" aria-hidden="true"><use xlink:href="#icon-top"></use></svg>
+            <i data-lucide="arrow-up" class="icon"></i>
         </a>
         <span id="current-total-pages"><?= $current_page ?>/<?= $total_pages ?></span>
     </div>
@@ -109,18 +109,23 @@ $pagination = renderPagination($current_page, $total_pages);
         <div class="modal-content"></div>
     </div>
     <?php renderAdminFooter(); ?>
-    <script src="//at.alicdn.com/t/c/font_4623353_hb4c04qfi4u.js"></script>
+    <script src="/static/js/lucide.min.js"></script>
     <script src="/static/js/fancybox.umd.min.js?v=<?php echo time(); ?>"></script>
     <script src="/static/js/lazyload.min.js?v=<?php echo time(); ?>"></script>
     <script src="/static/js/admin.js?v=<?php echo time(); ?>"></script>
     <script src="/static/js/settings.js?v=<?php echo time(); ?>"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            if (window.lucide) lucide.createIcons();
+        });
+    </script>
 </body>
 </html>
 <?php
-// 辅助函数
+// 輔助函數
 function renderImagesList($images) {
     if (empty($images)) {
-        return '<div class="empty-state"><div class="empty-icon"></div><p>目前沒有圖片</p></div>';
+        return '<div class="empty-state"><div class="empty-icon" style="margin-bottom: 12px;"><i data-lucide="image-off" style="width: 48px; height: 48px; color: #565f89;"></i></div><p>目前沒有圖片</p></div>';
     }
     
     $html = '';

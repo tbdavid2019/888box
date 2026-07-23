@@ -89,9 +89,35 @@ body {
 }
 
 .card-icon {
-    font-size: 2.5rem;
+    width: 52px;
+    height: 52px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 16px;
     margin-bottom: 20px;
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    backdrop-filter: blur(12px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
+
+.card-icon svg {
+    width: 26px;
+    height: 26px;
+    stroke-width: 2.2px;
+}
+
+.card:hover .card-icon {
+    transform: translateY(-2px) scale(1.08);
+    box-shadow: 0 12px 28px rgba(0, 0, 0, 0.3);
+}
+
+.card-images .card-icon { color: #7dcfff; background: rgba(125, 207, 255, 0.15); border-color: rgba(125, 207, 255, 0.3); }
+.card-videos .card-icon { color: #bb9af7; background: rgba(187, 154, 247, 0.15); border-color: rgba(187, 154, 247, 0.3); }
+.card-files .card-icon { color: #9ece6a; background: rgba(158, 206, 106, 0.15); border-color: rgba(158, 206, 106, 0.3); }
+.card-audios .card-icon { color: #e0af68; background: rgba(224, 175, 104, 0.15); border-color: rgba(224, 175, 104, 0.3); }
 
 .card-title {
     font-size: 1.5rem;

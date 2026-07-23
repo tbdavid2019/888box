@@ -259,10 +259,10 @@ try {
 </head>
 <body>
     <header class="blur" style="width: 100%; max-width: 1200px; display: flex; justify-content: space-between; align-items: center; padding: 0 20px; box-sizing: border-box; margin: 0 auto 25px auto;">
-        <h1 style="margin: 0; font-size: 1.5rem; color: var(--page-text); padding: 15px 0;">🖼️ 888box 圖片託管中心</h1>
+        <h1 style="margin: 0; font-size: 1.5rem; color: var(--page-text); padding: 15px 0; display: flex; align-items: center; gap: 8px;"><i data-lucide="image" style="width: 24px; height: 24px; color: #7dcfff;"></i> 888box 圖片託管中心</h1>
         <div style="display: flex; gap: 15px; align-items: center;">
-            <a href="/" style="color: white; text-decoration: none;">🏠 門戶</a>
-            <a href="/admin/" target="_blank" style="color: white; text-decoration: none;">⚙️ 管理後台</a>
+            <a href="/" style="color: white; text-decoration: none; display: inline-flex; align-items: center; gap: 4px;"><i data-lucide="home" style="width: 16px; height: 16px;"></i> 門戶</a>
+            <a href="/admin/" target="_blank" style="color: white; text-decoration: none; display: inline-flex; align-items: center; gap: 4px;"><i data-lucide="settings" style="width: 16px; height: 16px;"></i> 管理後台</a>
         </div>
     </header>
 
@@ -274,26 +274,18 @@ try {
                     <!-- 上传框区域 -->
                     <div class="upload-section">
                         <button id="deleteImageButton" class="deleteImageButton">
-                            <svg class="icon" aria-hidden="true">
-                                <use xlink:href="#icon-xmark"></use>
-                            </svg>
+                            <i data-lucide="x" class="icon"></i>
                         </button>
                         <div id="imageUploadBox" class="imageUploadBox" onclick="document.getElementById('imageInput').click();">
-                            <svg class="icon upload-icon" aria-hidden="true">
-                                <use xlink:href="#icon-up"></use>
-                            </svg>
+                            <i data-lucide="upload-cloud" class="icon upload-icon"></i>
                             <input type="file" id="imageInput" name="image[]" accept="image/png, image/jpeg, image/webp, image/svg+xml, image/gif" multiple>
                             <div id="imagePreviewContainer" class="imagePreviewContainer">
                                 <button id="prevButton" class="nav-button prev-button">
-                                    <svg class="icon" aria-hidden="true">
-                                        <use xlink:href="#icon-Left-arrow"></use>
-                                    </svg>
+                                    <i data-lucide="chevron-left" class="icon"></i>
                                 </button>
                                 <img id="imagePreview" class="imagePreview" src="" alt="">
                                 <button id="nextButton" class="nav-button next-button">
-                                    <svg class="icon" aria-hidden="true">
-                                        <use xlink:href="#icon-Right-arrow"></use>
-                                    </svg>
+                                    <i data-lucide="chevron-right" class="icon"></i>
                                 </button>
                                 <div id="imageCounter" class="image-counter"></div>
                             </div>
@@ -349,13 +341,13 @@ try {
                     <div class="copy-tab-buttons">
                         <div class="copy-icons-column">
                             <button class="copy-tab-btn" data-type="url" title="複製連結">
-                                <svg class="icon" aria-hidden="true"><use xlink:href="#icon-imageUrl"></use></svg>
+                                <i data-lucide="image" class="icon"></i>
                             </button>
                             <button class="copy-tab-btn" data-type="markdown" title="複製 Markdown">
-                                <svg class="icon" aria-hidden="true"><use xlink:href="#icon-markdownUrl"></use></svg>
+                                <i data-lucide="file-code" class="icon"></i>
                             </button>
                             <button class="copy-tab-btn" data-type="html" title="複製 HTML">
-                                <svg class="icon" aria-hidden="true"><use xlink:href="#icon-htmlUrl"></use></svg>
+                                <i data-lucide="code" class="icon"></i>
                             </button>
                         </div>
                         <div class="copy-links-column">
@@ -398,7 +390,7 @@ try {
             <div id="imageInfo" class="imageInfo blur" style="margin-bottom: 0;">
                 <div class="image-info-block">
                     <div class="info-header">
-                        <svg class="icon info-icon" aria-hidden="true"><use xlink:href="#icon-imageUrl"></use></svg>
+                        <i data-lucide="image" class="icon info-icon"></i>
                         <h3 id="infoTitleBefore">原始圖片</h3>
                     </div>
                     <div class="info-grid">
@@ -414,7 +406,7 @@ try {
                 </div>
                 <div class="image-info-block" id="infoBlockAfter">
                     <div class="info-header">
-                        <svg class="icon info-icon" aria-hidden="true"><use xlink:href="#icon-up"></use></svg>
+                        <i data-lucide="upload" class="icon info-icon"></i>
                         <h3 id="infoTitleAfter">壓縮後</h3>
                     </div>
                     <div class="info-grid">
@@ -489,6 +481,11 @@ try {
             window.location.reload(true);
         }
     </script>
-    <script src="//at.alicdn.com/t/c/font_4623353_hb4c04qfi4u.js"></script>
+    <script src="/static/js/lucide.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            if (window.lucide) lucide.createIcons();
+        });
+    </script>
 </body>
 </html>

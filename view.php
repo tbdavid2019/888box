@@ -156,30 +156,365 @@ if ($asset['is_audio'] == 1 || strpos($mime, 'audio/') !== false || in_array($ex
     <link rel="stylesheet" href="/static/css/portal.css">
     <?php renderThemeStyles($pdo); ?>
     <style>
-        body { padding: 20px; }
-        .view-container { 
-            max-width: 900px; 
-            margin: 40px auto; 
-            background: rgba(255, 255, 255, 0.03); 
-            border: 1px solid rgba(255, 255, 255, 0.1); 
-            border-radius: 24px; 
-            padding: 30px; 
+        body {
+            padding: 32px 20px 56px;
+        }
+
+        .view-container {
+            width: min(100%, 980px);
+            margin: 20px auto;
+            padding: clamp(22px, 4vw, 48px);
+            background: linear-gradient(145deg, rgba(255, 255, 255, 0.065), rgba(255, 255, 255, 0.025));
+            border: 1px solid var(--border, rgba(255, 255, 255, 0.12));
+            border-radius: 28px;
+            box-shadow: 0 24px 70px rgba(4, 6, 14, 0.28);
             backdrop-filter: blur(20px);
         }
-        .asset-title { font-size: 1.8rem; margin-bottom: 10px; color: #fff; }
-        .asset-meta { color: rgba(255,255,255,0.4); font-size: 0.9rem; margin-bottom: 30px; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 15px; }
-        .viewer-box { width: 100%; min-height: 300px; display: flex; justify-content: center; align-items: center; background: #000; border-radius: 12px; overflow: hidden; }
-        .viewer-box img { max-width: 100%; height: auto; }
-        .viewer-box video { width: 100%; }
-        .viewer-box iframe, .viewer-box object, .viewer-box embed, #epub-viewer { width: 100%; height: 600px; border: none; display: block; }
-        .password-gate { text-align: center; padding: 60px 20px; }
-        .password-gate input { padding: 12px; border-radius: 8px; border: 1px solid #444; background: #222; color: #fff; width: 240px; margin-bottom: 20px; }
-        .password-gate button { padding: 12px 30px; border-radius: 8px; border: none; background: #007aff; color: #fff; font-weight: bold; cursor: pointer; }
-        .btn-report { margin-top: 40px; background: rgba(255, 59, 48, 0.1); color: #ff3b30; border: 1px solid rgba(255, 59, 48, 0.2); padding: 10px 20px; border-radius: 8px; cursor: pointer; transition: all 0.2s; }
-        .btn-report:hover { background: #ff3b30; color: #fff; }
-        .download-box { margin-top: 30px; text-align: center; }
-        .btn-download { display: inline-block; padding: 15px 40px; background: #34c759; color: #fff; text-decoration: none; border-radius: 12px; font-weight: bold; }
-        #epub-viewer { width: 100%; height: 600px; background: #fff; color: #000; }
+
+        .asset-header {
+            display: grid;
+            gap: 12px;
+            margin-bottom: 24px;
+        }
+
+        .asset-kicker {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            width: fit-content;
+            color: var(--accent-cyan, #7dcfff) !important;
+            font-size: 0.72rem;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+        }
+
+        .asset-kicker::before {
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            background: currentColor;
+            box-shadow: 0 0 0 5px rgba(125, 207, 255, 0.1);
+            content: '';
+        }
+
+        .asset-title {
+            max-width: 760px;
+            margin: 0;
+            color: var(--text-white, #fff);
+            font-size: clamp(1.55rem, 3.6vw, 2.35rem);
+            font-weight: 700;
+            line-height: 1.2;
+            letter-spacing: -0.04em;
+            overflow-wrap: anywhere;
+        }
+
+        .asset-meta {
+            display: flex;
+            gap: 8px !important;
+            align-items: center;
+            flex-wrap: wrap;
+            margin: 4px 0 0;
+            padding: 0;
+            border: 0;
+            color: var(--text-secondary, rgba(255, 255, 255, 0.58)) !important;
+            font-size: 0.78rem;
+        }
+
+        .meta-item {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 7px 10px;
+            color: inherit !important;
+            background: rgba(255, 255, 255, 0.045);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 8px;
+        }
+
+        .meta-item svg {
+            width: 14px;
+            height: 14px;
+            color: var(--accent-blue, #7aa2f7);
+        }
+
+        .viewer-box {
+            width: 100%;
+            min-height: clamp(260px, 48vw, 520px);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 10px;
+            background: #080a11;
+            border: 1px solid rgba(255, 255, 255, 0.09);
+            border-radius: 18px;
+            overflow: hidden;
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04);
+        }
+
+        .viewer-box img {
+            max-width: 100%;
+            max-height: min(72vh, 720px);
+            height: auto;
+            display: block;
+            object-fit: contain;
+        }
+
+        .viewer-box video {
+            width: 100%;
+            max-height: min(72vh, 720px);
+        }
+
+        .viewer-box iframe, .viewer-box object, .viewer-box embed, #epub-viewer {
+            width: 100%;
+            height: 600px;
+            border: none;
+            display: block;
+        }
+
+        .password-gate {
+            text-align: center;
+            padding: 60px 20px;
+        }
+
+        .password-gate input {
+            padding: 12px;
+            border-radius: 8px;
+            border: 1px solid #444;
+            background: #222;
+            color: #fff;
+            width: 240px;
+            margin-bottom: 20px;
+        }
+
+        .password-gate button {
+            padding: 12px 30px;
+            border-radius: 8px;
+            border: none;
+            background: #007aff;
+            color: #fff;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .asset-description {
+            margin-top: 20px;
+            padding: 16px 18px;
+            background: rgba(255, 255, 255, 0.035);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-left: 2px solid var(--accent-cyan, #7dcfff);
+            border-radius: 10px 14px 14px 10px;
+        }
+
+        .description-label {
+            display: block;
+            margin-bottom: 6px;
+            color: var(--text-secondary, rgba(255, 255, 255, 0.58)) !important;
+            font-size: 0.7rem;
+            letter-spacing: 0.12em;
+        }
+
+        .description-copy {
+            color: var(--text-primary, #c0caf5) !important;
+            line-height: 1.7;
+            overflow-wrap: anywhere;
+        }
+
+        .asset-actions {
+            display: grid;
+            grid-template-columns: minmax(0, 1.1fr) minmax(260px, 0.9fr);
+            gap: 14px;
+            margin-top: 24px;
+        }
+
+        .download-box {
+            margin: 0;
+            text-align: left;
+        }
+
+        .btn-download {
+            width: 100%;
+            min-height: 66px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 14px;
+            padding: 12px 16px;
+            color: #fff;
+            text-decoration: none;
+            border-radius: 14px;
+            font-weight: bold;
+            transition: transform 0.2s ease, filter 0.2s ease;
+        }
+
+        .btn-download:hover {
+            filter: brightness(1.08);
+        }
+
+        .download-icon {
+            width: 40px;
+            height: 40px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            flex: 0 0 auto;
+            color: currentColor;
+            background: rgba(255, 255, 255, 0.14);
+            border-radius: 10px;
+        }
+
+        .download-copy {
+            min-width: 0;
+            display: grid;
+            flex: 1;
+            gap: 3px;
+        }
+
+        .download-copy strong {
+            color: inherit !important;
+            font-size: 0.95rem;
+        }
+
+        .download-copy small {
+            color: rgba(255, 255, 255, 0.72) !important;
+            font-size: 0.7rem;
+            font-weight: 400;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .report-panel {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            padding: 12px 14px;
+            background: rgba(224, 175, 104, 0.06);
+            border: 1px solid rgba(224, 175, 104, 0.2);
+            border-radius: 14px;
+        }
+
+        .report-copy {
+            min-width: 0;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .report-copy strong,
+        .report-copy small {
+            display: block;
+            color: inherit !important;
+        }
+
+        .report-copy strong {
+            margin-bottom: 3px;
+            font-size: 0.78rem;
+        }
+
+        .report-copy small {
+            color: var(--text-secondary, rgba(255, 255, 255, 0.56)) !important;
+            font-size: 0.68rem;
+            line-height: 1.4;
+        }
+
+        .report-icon {
+            width: 34px;
+            height: 34px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            flex: 0 0 auto;
+            color: var(--accent-orange, #e0af68) !important;
+            background: rgba(224, 175, 104, 0.12);
+            border-radius: 9px;
+        }
+
+        .btn-report {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            flex: 0 0 auto;
+            padding: 9px 11px;
+            color: var(--accent-orange, #e0af68) !important;
+            background: transparent;
+            border: 1px solid rgba(224, 175, 104, 0.32);
+            border-radius: 9px;
+            cursor: pointer;
+            font: inherit;
+            font-size: 0.72rem;
+            transition: background 0.2s ease, border-color 0.2s ease, transform 0.2s ease;
+        }
+
+        .btn-report:hover {
+            background: rgba(224, 175, 104, 0.14);
+            border-color: rgba(224, 175, 104, 0.62);
+            transform: translateY(-1px);
+        }
+
+        .btn-report:focus-visible,
+        .btn-download:focus-visible {
+            outline: 3px solid rgba(125, 207, 255, 0.45);
+            outline-offset: 3px;
+        }
+
+        .btn-report:disabled {
+            cursor: wait;
+            opacity: 0.65;
+            transform: none;
+        }
+
+        .report-toast {
+            position: fixed;
+            z-index: 20;
+            left: 50%;
+            bottom: 24px;
+            width: min(calc(100% - 32px), 420px);
+            padding: 13px 16px;
+            color: var(--text-primary, #c0caf5) !important;
+            background: rgba(22, 24, 36, 0.94);
+            border: 1px solid var(--border, rgba(255, 255, 255, 0.16));
+            border-radius: 12px;
+            box-shadow: 0 16px 36px rgba(0, 0, 0, 0.28);
+            opacity: 0;
+            transform: translate(-50%, 12px);
+            transition: opacity 0.2s ease, transform 0.2s ease;
+        }
+
+        .report-toast.is-visible {
+            opacity: 1;
+            transform: translate(-50%, 0);
+        }
+
+        .report-toast.is-error {
+            border-color: rgba(255, 99, 99, 0.42);
+        }
+
+        #epub-viewer {
+            width: 100%;
+            height: 600px;
+            background: #fff;
+            color: #000;
+        }
+
+        @media (max-width: 680px) {
+            body {
+                padding: 12px 12px 40px;
+            }
+
+            .view-container {
+                margin: 8px auto;
+                border-radius: 20px;
+            }
+
+            .asset-actions {
+                grid-template-columns: 1fr;
+            }
+
+            .report-panel {
+                align-items: flex-start;
+            }
+        }
         
         /* Audio Preview Specific Styles */
         .audio-preview-container {
@@ -247,7 +582,7 @@ if ($asset['is_audio'] == 1 || strpos($mime, 'audio/') !== false || in_array($ex
     <div class="view-container">
         <?php if (!$isAuthorized): ?>
             <div class="password-gate">
-                <div style="font-size: 3rem; margin-bottom: 20px;">🔒</div>
+                <div style="margin-bottom: 20px; display: flex; justify-content: center;"><i data-lucide="lock" style="width: 52px; height: 52px; color: #7aa2f7;"></i></div>
                 <h2 style="margin-bottom: 20px;">此資源受密碼保護</h2>
                 <form method="POST">
                     <input type="password" name="password" placeholder="請輸入存取密碼" required autofocus>
@@ -258,11 +593,14 @@ if ($asset['is_audio'] == 1 || strpos($mime, 'audio/') !== false || in_array($ex
                 </form>
             </div>
         <?php else: ?>
-            <h1 class="asset-title"><?= htmlspecialchars($asset['title'] ?: '未命名資源') ?></h1>
-            <div class="asset-meta">
-                <span>時間: <?= $asset['created_at'] ?></span> | 
-                <span>大小: <?= number_format($asset['size'] / 1024 / 1024, 2) ?> MB</span> | 
-                <span>瀏覽: <?= $asset['view_count'] ?> 次</span>
+            <div class="asset-header">
+                <span class="asset-kicker">888box · 公開資源</span>
+                <h1 class="asset-title"><?= htmlspecialchars($asset['title'] ?: '未命名資源') ?></h1>
+                <div class="asset-meta">
+                    <span class="meta-item"><i data-lucide="clock"></i>時間 <?= $asset['created_at'] ?></span>
+                    <span class="meta-item"><i data-lucide="hard-drive"></i>大小 <?= number_format($asset['size'] / 1024 / 1024, 2) ?> MB</span>
+                    <span class="meta-item"><i data-lucide="eye"></i>瀏覽 <?= $asset['view_count'] ?> 次</span>
+                </div>
             </div>
 
             <div class="viewer-box">
@@ -316,34 +654,87 @@ if ($asset['is_audio'] == 1 || strpos($mime, 'audio/') !== false || in_array($ex
                 <?php endif; ?>
             </div>
 
-            <div class="download-box">
-                <a href="<?= htmlspecialchars($url) ?>" download="<?= htmlspecialchars(basename($asset['path'])) ?>" class="btn-download">⬇️ 立即下載</a>
+            <?php if (!empty($asset['description'])): ?>
+                <div class="asset-description">
+                    <span class="description-label">資源說明</span>
+                    <p class="description-copy"><?= nl2br(htmlspecialchars($asset['description'])) ?></p>
+                </div>
+            <?php endif; ?>
+
+            <div class="asset-actions">
+                <div class="download-box">
+                    <a href="<?= htmlspecialchars($url) ?>" download="<?= htmlspecialchars(basename($asset['path'])) ?>" class="btn-download">
+                        <span class="download-icon"><i data-lucide="download"></i></span>
+                        <span class="download-copy">
+                            <strong>立即下載</strong>
+                            <small><?= htmlspecialchars(basename($asset['path'])) ?></small>
+                        </span>
+                        <i data-lucide="arrow-up-right"></i>
+                    </a>
+                </div>
+
+                <div class="report-panel">
+                    <div class="report-copy">
+                        <span class="report-icon"><i data-lucide="flag"></i></span>
+                        <span>
+                            <strong>內容有問題？</strong>
+                            <small>發現不當內容，請通知管理員</small>
+                        </span>
+                    </div>
+                    <button type="button" class="btn-report" onclick="reportAsset(<?= $id ?>, this)">
+                        舉報 <i data-lucide="chevron-right"></i>
+                    </button>
+                </div>
             </div>
-
-            <p style="margin-top: 30px; color: rgba(255,255,255,0.6); line-height: 1.6;"><?= nl2br(htmlspecialchars($asset['description'] ?: '')) ?></p>
-
-            <button class="btn-report" onclick="reportAsset(<?= $id ?>)">⚠️ 舉報此資源</button>
         <?php endif; ?>
     </div>
 
+    <script src="/static/js/lucide.min.js"></script>
     <script>
-        function reportAsset(id) {
+        document.addEventListener('DOMContentLoaded', () => {
+            if (window.lucide) lucide.createIcons();
+        });
+
+        function showReportToast(message, isError = false) {
+            const toast = document.createElement('div');
+            toast.className = 'report-toast' + (isError ? ' is-error' : '');
+            toast.setAttribute('role', 'status');
+            toast.textContent = message;
+            document.body.appendChild(toast);
+
+            requestAnimationFrame(() => toast.classList.add('is-visible'));
+            setTimeout(() => {
+                toast.classList.remove('is-visible');
+                setTimeout(() => toast.remove(), 220);
+            }, 3600);
+        }
+
+        function reportAsset(id, button) {
             if (!confirm('確定要舉報此資源嗎？管理員將會收到通知。')) return;
-            
+
+            const originalContent = button.innerHTML;
+            button.disabled = true;
+            button.textContent = '送出中…';
+
             fetch('/api_report.php', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
                 body: 'id=' + id
             })
-            .then(res => res.json())
+            .then(res => res.json().then(data => ({ ok: res.ok, data })))
             .then(data => {
-                if (data.result === 'success') {
-                    alert('已收到您的舉報，感謝您的回饋。');
+                if (data.ok && data.data.result === 'success') {
+                    showReportToast(data.data.message || '已收到您的舉報，感謝您的回饋。');
                 } else {
-                    alert('舉報失敗：' + data.message);
+                    showReportToast('舉報失敗：' + (data.data.message || '請稍後再試'), true);
                 }
             })
-            .catch(err => alert('網路錯誤'));
+            .catch(() => showReportToast('網路錯誤，請稍後再試', true))
+            .finally(() => {
+                button.disabled = false;
+                button.innerHTML = originalContent;
+                if (window.lucide) lucide.createIcons();
+            });
         }
     </script>
 </body>

@@ -324,16 +324,14 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                         <input type="password" name="password" <?= $isDemoMode ? 'disabled placeholder="示範模式無需填寫"' : 'required' ?>>
                         <?php if (!$isDemoMode): ?>
                         <span class="toggle-password">
-                            <svg class="icon" aria-hidden="true"><use xlink:href="#icon-eye"></use></svg>
+                            <i data-lucide="eye" class="icon"></i>
                         </span>
                         <?php endif; ?>
                     </div>
                 </div>
                 <button type="submit" <?= $isDemoMode ? 'class="btn-demo"' : '' ?>>
                     <?php if ($isDemoMode): ?>
-                        <svg style="width: 18px; height: 18px; vertical-align: middle; margin-right: 6px;" viewBox="0 0 24 24" fill="currentColor">
-                            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
-                        </svg>
+                        <i data-lucide="zap" style="width: 18px; height: 18px; vertical-align: middle; margin-right: 6px;"></i>
                         快速體驗
                     <?php else: ?>
                         登入
@@ -369,7 +367,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                     <div class="password-input-wrapper">
                         <input type="password" name="new_password" required minlength="6" placeholder="至少 6 個字元">
                         <span class="toggle-password">
-                            <svg class="icon" aria-hidden="true"><use xlink:href="#icon-eye"></use></svg>
+                            <i data-lucide="eye" class="icon"></i>
                         </span>
                     </div>
                 </div>
@@ -378,7 +376,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                     <div class="password-input-wrapper">
                         <input type="password" name="confirm_password" required minlength="6" placeholder="再次輸入新密碼">
                         <span class="toggle-password">
-                            <svg class="icon" aria-hidden="true"><use xlink:href="#icon-eye"></use></svg>
+                            <i data-lucide="eye" class="icon"></i>
                         </span>
                     </div>
                 </div>
@@ -411,21 +409,25 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         }
     </script>
     <?php endif; ?>
+    <script src="/static/js/lucide.min.js"></script>
     <script>
-        // 密码显示/隐藏
-        document.querySelectorAll('.toggle-password').forEach(btn => {
-            btn.addEventListener('click', () => {
-                const input = btn.previousElementSibling;
-                if (input.type === 'password') {
-                    input.type = 'text';
-                    btn.querySelector('use').setAttribute('xlink:href', '#icon-eye-close');
-                } else {
-                    input.type = 'password';
-                    btn.querySelector('use').setAttribute('xlink:href', '#icon-eye');
-                }
+        document.addEventListener('DOMContentLoaded', () => {
+            if (window.lucide) lucide.createIcons();
+
+            document.querySelectorAll('.toggle-password').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const input = btn.previousElementSibling;
+                    if (input.type === 'password') {
+                        input.type = 'text';
+                        btn.innerHTML = '<i data-lucide="eye-off" class="icon"></i>';
+                    } else {
+                        input.type = 'password';
+                        btn.innerHTML = '<i data-lucide="eye" class="icon"></i>';
+                    }
+                    if (window.lucide) lucide.createIcons();
+                });
             });
         });
     </script>
-    <script src="//at.alicdn.com/t/c/font_4623353_hb4c04qfi4u.js"></script>
 </body>
 </html>
