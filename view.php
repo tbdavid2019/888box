@@ -177,24 +177,161 @@ if ($asset['is_audio'] == 1 || strpos($mime, 'audio/') !== false || in_array($ex
             margin-bottom: 24px;
         }
 
-        .asset-kicker {
+        .asset-header-top {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .asset-breadcrumb {
             display: inline-flex;
             align-items: center;
             gap: 8px;
-            width: fit-content;
-            color: var(--accent-cyan, #7dcfff) !important;
-            font-size: 0.72rem;
-            letter-spacing: 0.08em;
-            text-transform: uppercase;
+            font-size: 0.78rem;
+            font-weight: 600;
         }
 
-        .asset-kicker::before {
-            width: 7px;
-            height: 7px;
-            border-radius: 50%;
-            background: currentColor;
-            box-shadow: 0 0 0 5px rgba(125, 207, 255, 0.1);
-            content: '';
+        .breadcrumb-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            color: var(--accent-cyan, #7dcfff);
+            text-decoration: none;
+            padding: 5px 12px;
+            background: rgba(125, 207, 255, 0.1);
+            border: 1px solid rgba(125, 207, 255, 0.25);
+            border-radius: 999px;
+            transition: all 0.2s ease;
+        }
+
+        .breadcrumb-link:hover {
+            background: rgba(125, 207, 255, 0.22);
+            border-color: rgba(125, 207, 255, 0.5);
+            transform: translateY(-1px);
+        }
+
+        .breadcrumb-link svg {
+            width: 14px;
+            height: 14px;
+        }
+
+        .breadcrumb-sep {
+            color: rgba(255, 255, 255, 0.3);
+            font-size: 0.75rem;
+        }
+
+        .breadcrumb-tag {
+            color: var(--text-secondary, rgba(255, 255, 255, 0.6));
+            font-size: 0.78rem;
+        }
+
+        .btn-header-upload {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 14px;
+            font-size: 0.78rem;
+            font-weight: 700;
+            color: #1a1b26;
+            background: linear-gradient(135deg, #7dcfff 0%, #7aa2f7 100%);
+            border: none;
+            border-radius: 999px;
+            text-decoration: none;
+            transition: all 0.2s ease;
+            box-shadow: 0 4px 12px rgba(125, 207, 255, 0.2);
+        }
+
+        .btn-header-upload:hover {
+            transform: translateY(-1px) scale(1.02);
+            box-shadow: 0 6px 18px rgba(125, 207, 255, 0.35);
+        }
+
+        .btn-header-upload svg {
+            width: 14px;
+            height: 14px;
+        }
+
+        /* 檔案上傳引導 CTA 橫幅 */
+        .user-guide-cta {
+            margin-top: 24px;
+            padding: 18px 22px;
+            background: linear-gradient(135deg, rgba(122, 162, 247, 0.1) 0%, rgba(187, 154, 247, 0.08) 100%);
+            border: 1px solid rgba(122, 162, 247, 0.25);
+            border-radius: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+            flex-wrap: wrap;
+        }
+
+        .cta-left {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            min-width: 0;
+            flex: 1;
+        }
+
+        .cta-icon-box {
+            width: 44px;
+            height: 44px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 12px;
+            background: rgba(122, 162, 247, 0.18);
+            border: 1px solid rgba(122, 162, 247, 0.3);
+            color: #7aa2f7;
+            flex: 0 0 auto;
+        }
+
+        .cta-icon-box svg {
+            width: 22px;
+            height: 22px;
+        }
+
+        .cta-text-content strong {
+            display: block;
+            color: #fff;
+            font-size: 0.92rem;
+            margin-bottom: 3px;
+        }
+
+        .cta-text-content p {
+            margin: 0;
+            color: var(--text-secondary, rgba(255, 255, 255, 0.65));
+            font-size: 0.78rem;
+            line-height: 1.4;
+        }
+
+        .btn-cta-upload {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 20px;
+            font-size: 0.84rem;
+            font-weight: 700;
+            color: #1a1b26;
+            background: linear-gradient(135deg, #7dcfff 0%, #7aa2f7 100%);
+            border-radius: 12px;
+            text-decoration: none;
+            transition: all 0.2s ease;
+            white-space: nowrap;
+            box-shadow: 0 4px 14px rgba(122, 162, 247, 0.25);
+        }
+
+        .btn-cta-upload:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 22px rgba(122, 162, 247, 0.4);
+            filter: brightness(1.08);
+        }
+
+        .btn-cta-upload svg {
+            width: 16px;
+            height: 16px;
         }
 
         .asset-title {
@@ -712,7 +849,20 @@ if ($asset['is_audio'] == 1 || strpos($mime, 'audio/') !== false || in_array($ex
             $hasTitle = ($customTitle !== '');
             ?>
             <div class="asset-header">
-                <span class="asset-kicker">888box · 公開資源</span>
+                <div class="asset-header-top">
+                    <nav class="asset-breadcrumb" aria-label="麵包屑導覽">
+                        <a href="/" class="breadcrumb-link" title="返回 888box 首頁門戶">
+                            <i data-lucide="box"></i>
+                            <span>888box 門戶</span>
+                        </a>
+                        <span class="breadcrumb-sep">/</span>
+                        <span class="breadcrumb-tag">公開資源</span>
+                    </nav>
+                    <a href="/" class="btn-header-upload" title="前往免費上傳與託管檔案">
+                        <i data-lucide="upload-cloud"></i>
+                        <span>我也要上傳檔案</span>
+                    </a>
+                </div>
                 <?php if ($hasTitle): ?>
                     <h1 class="asset-title"><?= htmlspecialchars($customTitle) ?></h1>
                 <?php endif; ?>
@@ -828,6 +978,23 @@ if ($asset['is_audio'] == 1 || strpos($mime, 'audio/') !== false || in_array($ex
                         舉報 <i data-lucide="chevron-right"></i>
                     </button>
                 </div>
+            </div>
+
+            <!-- 引導使用者上傳與託管的 CTA 橫幅 -->
+            <div class="user-guide-cta">
+                <div class="cta-left">
+                    <div class="cta-icon-box">
+                        <i data-lucide="sparkles"></i>
+                    </div>
+                    <div class="cta-text-content">
+                        <strong>想要託管或分享你的圖片、影片與文件？</strong>
+                        <p>888box 提供免費、高效、安全的資產中心，任何人皆可免登入直接上傳！</p>
+                    </div>
+                </div>
+                <a href="/" class="btn-cta-upload">
+                    <i data-lucide="plus-circle"></i>
+                    <span>前往免費上傳</span>
+                </a>
             </div>
         <?php endif; ?>
     </div>
