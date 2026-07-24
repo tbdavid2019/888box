@@ -14,8 +14,16 @@
     font-display: swap;
 }
 
+@font-face {
+    font-family: "888box Gen Jyuu Gothic";
+    src: url("/static/fonts/GenJyuuGothic-Medium.woff2") format("woff2");
+    font-weight: 500;
+    font-style: normal;
+    font-display: swap;
+}
+
 :root {
-    --font-ui: "888box JetBrains Mono", "888box Maple Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+    --font-ui: "888box JetBrains Mono", "888box Gen Jyuu Gothic", "888box Maple Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", sans-serif;
 }
 
 html,

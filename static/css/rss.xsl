@@ -10,7 +10,8 @@
         <style type="text/css">
           @font-face { font-family: "888box JetBrains Mono"; src: url("/static/fonts/JetBrainsMono-Medium.woff2") format("woff2"); font-weight: 500; font-style: normal; font-display: swap; }
           @font-face { font-family: "888box Maple Mono"; src: url("/static/fonts/MapleMonoNormal-Medium.woff2") format("woff2"); font-weight: 500; font-style: normal; font-display: swap; }
-          body { font-family: "888box JetBrains Mono", "888box Maple Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace; background-color: #121212; color: #f3f4f6; margin: 0; padding: 20px; line-height: 1.6; }
+          @font-face { font-family: "888box Gen Jyuu Gothic"; src: url("/static/fonts/GenJyuuGothic-Medium.woff2") format("woff2"); font-weight: 500; font-style: normal; font-display: swap; }
+          body { font-family: "888box JetBrains Mono", "888box Gen Jyuu Gothic", "888box Maple Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", sans-serif; background-color: #121212; color: #f3f4f6; margin: 0; padding: 20px; line-height: 1.6; }
           .container { max-width: 800px; margin: 0 auto; }
           .header { background: linear-gradient(135deg, #3b82f6, #8b5cf6); padding: 30px; border-radius: 12px; margin-bottom: 30px; box-shadow: 0 10px 20px rgba(0,0,0,0.3); }
           .header h1 { margin: 0 0 10px 0; color: #fff; font-size: 2.2rem; }
