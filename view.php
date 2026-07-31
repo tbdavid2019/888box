@@ -4,6 +4,9 @@ require_once 'config/database.php';
 require_once 'config/theme_helper.php';
 require_once 'config/upload.php';
 
+const TEXT_PREVIEW_EXTENSIONS = ['txt', 'md', 'json', 'csv', 'log', 'yaml', 'yml'];
+const TEXT_PREVIEW_MAX_BYTES = 2 * 1024 * 1024;
+
 
 function outputInlinePdf($asset, $config) {
     $fileName = basename($asset['path'] ?: ($asset['title'] ?: 'document.pdf'));
@@ -67,8 +70,98 @@ function outputInlinePdf($asset, $config) {
     exit;
 }
 
+function outputInlineAsset($asset, $config, $inlineMode) {
+    $fileName = basename($asset['path'] ?: ($asset['title'] ?: 'document'));
+    $extension = strtolower(pathinfo($fileName, PATHINFO_EXTENSION));
+    $fileSize = (int)($asset['size'] ?? 0);
+
+    if ($inlineMode === 'text') {
+        if (!in_array($extension, TEXT_PREVIEW_EXTENSIONS, true)) {
+            http_response_code(415);
+            exit('此檔案不支援文字預覽');
+        }
+
+        if ($fileSize > TEXT_PREVIEW_MAX_BYTES) {
+            http_response_code(413);
+            exit('文字檔超過預覽大小限制');
+        }
+
+        $contentType = 'text/plain; charset=UTF-8';
+        $errorMessage = '文字預覽載入失敗';
+    } elseif ($inlineMode === 'epub') {
+        if ($extension !== 'epub') {
+            http_response_code(415);
+            exit('此檔案不支援 EPUB 預覽');
+        }
+
+        $contentType = 'application/epub+zip';
+        $errorMessage = 'EPUB 預覽載入失敗';
+    } else {
+        http_response_code(400);
+        exit('未知的預覽模式');
+    }
+
+    header('Content-Type: ' . $contentType);
+    header('Content-Disposition: inline; filename="' . addcslashes($fileName, '"\\') . '"');
+    header('X-Content-Type-Options: nosniff');
+    if ($fileSize > 0) {
+        header('Content-Length: ' . $fileSize);
+    }
+
+    $storage = $asset['storage'] ?? 'local';
+    if ($storage === 'local') {
+        $localPath = __DIR__ . '/' . ltrim($asset['path'], '/');
+        if (!is_file($localPath)) {
+            http_response_code(404);
+            exit('預覽檔案不存在');
+        }
+
+        readfile($localPath);
+        exit;
+    }
+
+    $url = resolveAssetOriginUrl($asset, $config);
+    if (!$url) {
+        http_response_code(404);
+        exit('預覽連結不存在');
+    }
+
+    if (function_exists('curl_init')) {
+        $output = fopen('php://output', 'wb');
+        $ch = curl_init($url);
+        curl_setopt_array($ch, [
+            CURLOPT_FILE => $output,
+            CURLOPT_FOLLOWLOCATION => true,
+            CURLOPT_FAILONERROR => true,
+            CURLOPT_CONNECTTIMEOUT => 15,
+            CURLOPT_TIMEOUT => 120,
+        ]);
+        $success = curl_exec($ch);
+        $hasError = ($success === false);
+        curl_close($ch);
+        fclose($output);
+
+        if ($hasError) {
+            http_response_code(502);
+            exit($errorMessage);
+        }
+
+        exit;
+    }
+
+    $content = @file_get_contents($url);
+    if ($content === false) {
+        http_response_code(502);
+        exit($errorMessage);
+    }
+
+    echo $content;
+    exit;
+}
+
 $token = trim($_GET['token'] ?? '');
 $id = trim($_GET['id'] ?? '');
+$inlineMode = $_GET['inline'] ?? '';
 
 if (empty($token) && empty($id)) {
     http_response_code(404);
@@ -116,12 +209,16 @@ try {
     }
     
     // 3. 增加瀏覽次數 (僅在授權後或無密碼時)
-    if ($isAuthorized && !isset($_GET['pdf_inline'])) {
+    if ($isAuthorized && !isset($_GET['pdf_inline']) && $inlineMode === '') {
         $pdo->prepare("UPDATE images SET view_count = view_count + 1 WHERE id = ?")->execute([$id]);
     }
 
     if ($isAuthorized && isset($_GET['pdf_inline'])) {
         outputInlinePdf($asset, $config);
+    }
+
+    if ($isAuthorized && $inlineMode !== '') {
+        outputInlineAsset($asset, $config, $inlineMode);
     }
     
 } catch (Exception $e) {
@@ -130,6 +227,7 @@ try {
 
 // 判定資源類型
 $url = getMaskedUrl($asset['url'], $asset['path']);
+$shareUrl = buildAssetShareUrl($asset, $config);
 $mime = $asset['mime_type'] ?: '';
 $ext = strtolower(pathinfo($url, PATHINFO_EXTENSION));
 
@@ -144,6 +242,8 @@ if ($asset['is_audio'] == 1 || strpos($mime, 'audio/') !== false || in_array($ex
     $type = 'pdf';
 } elseif ($ext === 'epub') {
     $type = 'epub';
+} elseif (in_array($ext, TEXT_PREVIEW_EXTENSIONS, true)) {
+    $type = 'text';
 }
 ?>
 <!DOCTYPE html>
@@ -552,12 +652,66 @@ if ($asset['is_audio'] == 1 || strpos($mime, 'audio/') !== false || in_array($ex
             max-height: min(72vh, 720px);
         }
 
-        .viewer-box iframe, .viewer-box object, .viewer-box embed, #epub-viewer {
-            width: 100%;
-            height: 600px;
-            border: none;
-            display: block;
-        }
+.viewer-box iframe, .viewer-box object, .viewer-box embed, #epub-viewer {
+    width: 100%;
+    height: 600px;
+    border: none;
+    display: block;
+}
+
+.text-preview {
+    width: 100%;
+    height: min(68vh, 640px);
+    overflow: auto;
+    padding: clamp(18px, 3vw, 30px);
+    color: #c0caf5;
+    background: #0d1019;
+    border-radius: 12px;
+    box-sizing: border-box;
+}
+
+.text-preview pre {
+    margin: 0;
+    color: inherit;
+    font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    font-size: clamp(0.8rem, 1.8vw, 0.94rem);
+    line-height: 1.7;
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+}
+
+.preview-message,
+.epub-status {
+    max-width: 460px;
+    margin: 0;
+    color: var(--text-secondary, rgba(255, 255, 255, 0.62));
+    text-align: center;
+    line-height: 1.7;
+}
+
+.epub-preview {
+    position: relative;
+    width: 100%;
+    min-height: 600px;
+    background: #fff;
+}
+
+.epub-status {
+    position: absolute;
+    inset: 50% auto auto 50%;
+    z-index: 1;
+    width: min(86%, 420px);
+    padding: 12px 16px;
+    color: #334155;
+    background: rgba(255, 255, 255, 0.92);
+    border: 1px solid rgba(51, 65, 85, 0.16);
+    border-radius: 10px;
+    transform: translate(-50%, -50%);
+}
+
+.epub-preview.is-ready .epub-status {
+    display: none;
+}
 
         .password-gate {
             text-align: center;
@@ -944,18 +1098,68 @@ if ($asset['is_audio'] == 1 || strpos($mime, 'audio/') !== false || in_array($ex
                     </script>
                 <?php elseif ($type === 'pdf'): ?>
                     <embed src="/view.php?token=<?= urlencode((string)($asset['share_token'] ?? '')) ?>&pdf_inline=1" type="application/pdf" width="100%" height="600px">
+                <?php elseif ($type === 'text'): ?>
+                    <div class="text-preview" role="region" aria-label="文字檔預覽">
+                        <?php if ((int)$asset['size'] > TEXT_PREVIEW_MAX_BYTES): ?>
+                            <p class="preview-message">此文字檔超過 2 MB 預覽限制，請使用下方下載按鈕取得完整內容。</p>
+                        <?php else: ?>
+                            <pre id="text-viewer" tabindex="0" aria-live="polite">正在載入文字內容…</pre>
+                            <script>
+                                (async () => {
+                                    const viewer = document.getElementById('text-viewer');
+                                    if (!viewer) return;
+
+                                    try {
+                                        const response = await fetch(<?= json_encode('/view.php?token=' . urlencode((string)($asset['share_token'] ?? '')) . '&inline=text') ?>, {
+                                            credentials: 'same-origin'
+                                        });
+                                        if (!response.ok) throw new Error('Text preview request failed');
+                                        const text = await response.text();
+                                        viewer.textContent = text;
+                                    } catch (error) {
+                                        console.error('文字預覽載入失敗', error);
+                                        viewer.textContent = '文字預覽載入失敗，請使用下方下載按鈕。';
+                                    }
+                                })();
+                            </script>
+                        <?php endif; ?>
+                    </div>
                 <?php elseif ($type === 'epub'): ?>
-                    <div id="epub-viewer"></div>
-                    <script src="https://cdnjs.cloudflare.com/ajax/libs/epub.js/0.3.88/epub.min.js"></script>
+                    <div class="epub-preview" id="epub-preview">
+                        <div class="epub-status" id="epub-status" role="status">正在載入 EPUB 閱讀器…</div>
+                        <div id="epub-viewer"></div>
+                    </div>
+                    <script src="https://cdn.jsdelivr.net/npm/epubjs@0.3.88/dist/epub.min.js"></script>
                     <script>
-                        var book = ePub("<?= $url ?>");
-                        var rendition = book.renderTo("epub-viewer", {
-                            width: "100%",
-                            height: "600px",
-                            flow: "scrolled",
-                            manager: "default"
-                        });
-                        rendition.display();
+                        (() => {
+                            const preview = document.getElementById('epub-preview');
+                            const status = document.getElementById('epub-status');
+                            const showFailure = () => {
+                                if (status) status.textContent = 'EPUB 預覽載入失敗，請使用下方下載按鈕。';
+                            };
+
+                            if (typeof ePub !== 'function') {
+                                showFailure();
+                                return;
+                            }
+
+                            try {
+                                const book = ePub(<?= json_encode('/view.php?token=' . urlencode((string)($asset['share_token'] ?? '')) . '&inline=epub') ?>);
+                                const rendition = book.renderTo('epub-viewer', {
+                                    width: '100%',
+                                    height: '600px',
+                                    flow: 'scrolled',
+                                    manager: 'default'
+                                });
+                                book.ready
+                                    .then(() => rendition.display())
+                                    .then(() => preview && preview.classList.add('is-ready'))
+                                    .catch(showFailure);
+                            } catch (error) {
+                                console.error('EPUB 預覽載入失敗', error);
+                                showFailure();
+                            }
+                        })();
                     </script>
                 <?php else: ?>
                     <div style="text-align: center; color: #888;">
@@ -970,13 +1174,14 @@ if ($asset['is_audio'] == 1 || strpos($mime, 'audio/') !== false || in_array($ex
                     <h3 class="embed-title-text"><i data-lucide="code-2"></i> 嵌入與外鏈代碼</h3>
                 </div>
                 <div class="embed-tabs">
-                    <button type="button" class="embed-tab active" data-type="url" onclick="selectEmbedType('url', this)">直連網址</button>
+                    <button type="button" class="embed-tab active" data-type="share" onclick="selectEmbedType('share', this)">分享頁網址</button>
+                    <button type="button" class="embed-tab" data-type="url" onclick="selectEmbedType('url', this)">直連網址</button>
                     <button type="button" class="embed-tab" data-type="markdown" onclick="selectEmbedType('markdown', this)">Markdown</button>
                     <button type="button" class="embed-tab" data-type="html" onclick="selectEmbedType('html', this)">HTML</button>
                     <button type="button" class="embed-tab" data-type="bbcode" onclick="selectEmbedType('bbcode', this)">BBCode</button>
                 </div>
                 <div class="embed-input-box">
-                    <input type="text" id="embedCodeInput" readonly value="<?= htmlspecialchars($url) ?>">
+                    <input type="text" id="embedCodeInput" readonly value="<?= htmlspecialchars($shareUrl) ?>">
                     <button type="button" class="btn-copy-embed" id="btnCopyEmbed" onclick="copyEmbedCode(this)">
                         <i data-lucide="copy"></i>
                         <span>複製</span>
@@ -1045,6 +1250,7 @@ if ($asset['is_audio'] == 1 || strpos($mime, 'audio/') !== false || in_array($ex
     <script src="/static/js/lucide.min.js"></script>
     <script>
         const embedTemplates = {
+            share: <?= json_encode($shareUrl) ?>,
             url: <?= json_encode($url) ?>,
             markdown: <?= json_encode('![' . ($customTitle ?: 'image') . '](' . $url . ')') ?>,
             html: <?= json_encode('<img src="' . $url . '" alt="' . ($customTitle ?: 'image') . '">' ) ?>,
