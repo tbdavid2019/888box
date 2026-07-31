@@ -11,5 +11,5 @@
 
 ## 3. Verification and rollout
 
-- [ ] 3.1 Run PHP syntax, contract, HTTP, and available browser-tooling checks.
-- [ ] 3.2 Commit, push, and update all four production hosts.
+- [x] 3.1 Run PHP syntax, contract, HTTP, and available browser-tooling checks.
+- [x] 3.2 Commit, push, and update all four production hosts.
