@@ -335,7 +335,7 @@ if (!headers_sent()) {
                     const response = JSON.parse(xhr.responseText);
                     if (xhr.status === 200 && response.result === 'success') {
                         const data = response.data || {};
-                        const pageUrl = data.page_url || data.url || '#';
+                        const pageUrl = data.share_url || data.page_url || data.url || '#';
                         
                         if (fillEl) fillEl.style.width = '100%';
                         

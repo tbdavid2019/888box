@@ -208,7 +208,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
                         window.UploadHistory.add('file', {
                             shareUrl: res.data.share_url || '',
-                            url: res.data.url || '',
+                            url: res.data.share_url || res.data.url || '',
                             title: titleInput || item.file.name,
                             filename: item.file.name,
                             mimeType: item.file.type || '',
@@ -266,6 +266,7 @@ document.addEventListener('DOMContentLoaded', () => {
         historyEmpty.style.display = 'none';
 
         entries.forEach((entry) => {
+            const shareUrl = entry.shareUrl || entry.url;
             const item = document.createElement('article');
             item.className = 'history-item';
 
@@ -283,10 +284,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
             const link = document.createElement('a');
             link.className = 'history-link';
-            link.href = entry.url;
+            link.href = shareUrl;
             link.target = '_blank';
             link.rel = 'noopener noreferrer';
-            link.textContent = entry.url;
+            link.textContent = shareUrl;
 
             const meta = document.createElement('div');
             meta.className = 'history-meta';
@@ -299,11 +300,11 @@ document.addEventListener('DOMContentLoaded', () => {
             copyBtn.type = 'button';
             copyBtn.className = 'history-action copy';
             copyBtn.textContent = '複製';
-            copyBtn.addEventListener('click', () => copyUrl(entry.url, '已複製文件連結！'));
+            copyBtn.addEventListener('click', () => copyUrl(shareUrl, '已複製文件連結！'));
 
             const openLink = document.createElement('a');
             openLink.className = 'history-action open';
-            openLink.href = entry.url;
+            openLink.href = shareUrl;
             openLink.target = '_blank';
             openLink.rel = 'noopener noreferrer';
             openLink.textContent = '開啟';
