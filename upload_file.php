@@ -29,6 +29,10 @@ try {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>888box 文件託管中心</title>
     <link rel="shortcut icon" href="static/favicon.svg">
+    <link rel="apple-touch-icon" sizes="180x180" href="/static/apple-touch-icon.png">
+    <link rel="manifest" href="/static/site.webmanifest">
+    <meta name="theme-color" content="#1a1b26">
+    <script defer src="/static/js/pwa.js"></script>
     <link rel="stylesheet" href="static/css/video_ui.css?v=<?php echo time(); ?>"> <!-- 重用影片中心的 CSS 以保持風格一致 -->
     <?php renderThemeStyles($pdo); ?>
 

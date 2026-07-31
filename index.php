@@ -48,6 +48,7 @@ if (!headers_sent()) {
 
     <!-- Web app manifest -->
     <link rel="manifest" href="/static/site.webmanifest">
+    <script defer src="/static/js/pwa.js"></script>
 
     <!-- Open Graph -->
     <meta property="og:title" content="888box - 統一資產管理">

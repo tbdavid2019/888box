@@ -153,6 +153,10 @@ if ($asset['is_audio'] == 1 || strpos($mime, 'audio/') !== false || in_array($ex
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><?= htmlspecialchars($asset['title'] ?: '資源檢視') ?> - 888box</title>
     <link rel="shortcut icon" href="/static/favicon.svg">
+    <link rel="apple-touch-icon" sizes="180x180" href="/static/apple-touch-icon.png">
+    <link rel="manifest" href="/static/site.webmanifest">
+    <meta name="theme-color" content="#1a1b26">
+    <script defer src="/static/js/pwa.js"></script>
     <link rel="stylesheet" href="/static/css/portal.css">
     <?php renderThemeStyles($pdo); ?>
     <style>

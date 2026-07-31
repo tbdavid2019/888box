@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-labelledby="title">
+    <title>888box</title>
+    <rect width="512" height="512" rx="112" fill="#1a1b26"/>
+    <rect x="40" y="40" width="432" height="432" rx="88" fill="#24283b" stroke="#7aa2f7" stroke-width="12"/>
+    <path d="M150 180h212v170c0 18-14 32-32 32H182c-18 0-32-14-32-32V180Z" fill="none" stroke="#7dcfff" stroke-width="28" stroke-linecap="round" stroke-linejoin="round"/>
+    <circle cx="256" cy="290" r="44" fill="none" stroke="#bb9af7" stroke-width="28"/>
+    <circle cx="256" cy="224" r="22" fill="#9ece6a"/>
+</svg>
