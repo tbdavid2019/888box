@@ -6,4 +6,4 @@
 ## 2. Verification
 
 - [x] 2.1 Add a self-contained regression test covering share-link selection and raw preview preservation.
-- [ ] 2.2 Validate syntax, inspect the public upload flow, and deploy the completed change.
+- [x] 2.2 Validate syntax, inspect the public upload flow, and deploy the completed change.
