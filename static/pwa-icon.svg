@@ -5,5 +5,7 @@
     <path d="M84 182 256 86l172 96v176l-172 94-172-94Z" fill="#102536" stroke="#5eead4" stroke-width="16" stroke-linejoin="round"/>
     <path d="m84 182 172 96 172-96M256 278v174" fill="none" stroke="#99f6e4" stroke-width="16" stroke-linecap="round" stroke-linejoin="round"/>
     <path d="m84 182 36-70 136-26 136 26 36 70" fill="none" stroke="#22d3ee" stroke-width="16" stroke-linecap="round" stroke-linejoin="round"/>
-    <circle cx="256" cy="278" r="20" fill="#f8fafc"/>
+    <rect x="76" y="254" width="360" height="198" rx="28" fill="#081522" stroke="#5eead4" stroke-width="8"/>
+    <text x="256" y="352" fill="#f8fafc" font-family="Arial, Helvetica, sans-serif" font-size="112" font-weight="900" letter-spacing="-6" text-anchor="middle">888</text>
+    <text x="256" y="429" fill="#99f6e4" font-family="Arial, Helvetica, sans-serif" font-size="70" font-weight="900" letter-spacing="4" text-anchor="middle">BOX</text>
 </svg>
