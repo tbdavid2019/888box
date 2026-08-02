@@ -30,7 +30,7 @@ unset($audio);
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>音訊管理後台 - 888box</title>
+    <title>音訊管理後台 - 888 BOX</title>
     <link rel="shortcut icon" href="/static/favicon.svg">
     <link rel="stylesheet" href="/static/css/admin/shared.css?v=<?php echo time(); ?>">
     <?php renderThemeStyles($pdo); ?>

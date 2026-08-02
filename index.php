@@ -32,8 +32,8 @@ if (!headers_sent()) {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>888box - 統一資產管理</title>
-    <meta name="description" content="888box 是專業、高效、安全的個人資產管理平台，支援圖片、影片、音訊與檔案託管，提供 WebP 壓縮、Podcast RSS 同步與線上閱讀功能。">
+    <title>888 BOX｜個人檔案中心</title>
+    <meta name="description" content="888 BOX 是專業、高效、安全的個人檔案中心，支援圖片、影片、音訊與文件託管，提供 WebP 壓縮、Podcast RSS 同步與線上閱讀功能。">
 
     <!-- Canonical URL -->
     <link rel="canonical" href="<?= $base ?>">
@@ -48,20 +48,21 @@ if (!headers_sent()) {
 
     <!-- Web app manifest -->
     <link rel="manifest" href="/static/site.webmanifest">
+    <script defer src="/static/js/pwa.js"></script>
 
     <!-- Open Graph -->
-    <meta property="og:title" content="888box - 統一資產管理">
-    <meta property="og:description" content="專業、高效、安全的個人資產中心，支援圖片、影片、音訊與檔案託管。">
+    <meta property="og:title" content="888 BOX｜個人檔案中心">
+    <meta property="og:description" content="專業、高效、安全的個人檔案中心，支援圖片、影片、音訊與文件託管。">
     <meta property="og:image" content="<?= $base ?>/static/og-image.png">
     <meta property="og:url" content="<?= $base ?>">
-    <meta property="og:site_name" content="888box">
+    <meta property="og:site_name" content="888 BOX">
     <meta property="og:locale" content="zh_TW">
     <meta property="og:type" content="website">
 
     <!-- Twitter Card -->
     <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="888box - 統一資產管理">
-    <meta name="twitter:description" content="專業、高效、安全的個人資產中心，支援圖片、影片、音訊與檔案託管。">
+    <meta name="twitter:title" content="888 BOX｜個人檔案中心">
+    <meta name="twitter:description" content="專業、高效、安全的個人檔案中心，支援圖片、影片、音訊與文件託管。">
     <meta name="twitter:image" content="<?= $base ?>/static/og-image.png">
 
     <!-- Browser theme color -->
@@ -72,9 +73,9 @@ if (!headers_sent()) {
     {
         "@context": "https://schema.org",
         "@type": "WebSite",
-        "name": "888box",
+        "name": "888 BOX",
         "url": "<?= $base ?>",
-        "description": "專業、高效、安全的個人資產中心，支援圖片、影片、音訊與檔案託管。",
+        "description": "專業、高效、安全的個人檔案中心，支援圖片、影片、音訊與文件託管。",
         "potentialAction": {
             "@type": "SearchAction",
             "target": {
@@ -116,8 +117,14 @@ if (!headers_sent()) {
 </head>
 <body>
     <div class="header">
-        <h1>888box</h1>
-        <p>專業、高效、安全的個人資產中心</p>
+        <h1 class="brand-lockup" aria-label="888 BOX">
+            <img class="brand-mark" src="/static/brand-mark.svg" alt="">
+            <div class="brand-wordmark" aria-hidden="true">
+                <span>888</span>
+                <span>BOX</span>
+            </div>
+        </h1>
+        <p>專業、高效、安全的個人檔案中心</p>
     </div>
 
     <!-- 跨類型全能智慧上傳面板 -->
@@ -187,7 +194,7 @@ if (!headers_sent()) {
 
 
     <footer class="portal-footer">
-        &copy; <?= date('Y') ?> 888box. All rights reserved. <br>
+        &copy; <?= date('Y') ?> 888 BOX. All rights reserved. <br>
         Created by <a href="https://david888.com" target="_blank">DAVID888</a> | 
         <a href="/skill.php" target="_blank" style="display: inline-flex; align-items: center; gap: 4px;"><i data-lucide="bot" style="width: 15px; height: 15px;"></i> AI Agent Skills</a>
     </footer>
@@ -334,7 +341,7 @@ if (!headers_sent()) {
                     const response = JSON.parse(xhr.responseText);
                     if (xhr.status === 200 && response.result === 'success') {
                         const data = response.data || {};
-                        const pageUrl = data.page_url || data.url || '#';
+                        const pageUrl = data.share_url || data.page_url || data.url || '#';
                         
                         if (fillEl) fillEl.style.width = '100%';
                         

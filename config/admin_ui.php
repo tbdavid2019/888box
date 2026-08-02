@@ -13,7 +13,7 @@ function renderAdminHeader($active, $title, $actions = []) {
         <div class="admin-header-main">
             <div>
                 <nav class="admin-breadcrumb" aria-label="麵包屑">
-                    <a href="/">888box</a>
+                    <a href="/">888 BOX</a>
                     <span class="admin-breadcrumb-separator">/</span>
                     <a href="/admin/">管理後台</a>
                     <span class="admin-breadcrumb-separator">/</span>
@@ -64,7 +64,7 @@ function renderAdminFooter() {
             <a href="/skill.php" target="_blank" rel="noopener noreferrer">AI Agent Skills</a>
         </div>
         <div>
-            <span>© <?= date('Y') ?> 888box</span> |
+            <span>© <?= date('Y') ?> 888 BOX</span> |
             <span>Created by <a href="https://david888.com" target="_blank" rel="noopener noreferrer">DAVID888</a></span>
         </div>
     </footer>

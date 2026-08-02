@@ -203,6 +203,7 @@ function renderImageHistory() {
     DOM.historyEmpty.style.display = 'none';
 
     entries.forEach((entry) => {
+        const shareUrl = entry.shareUrl || entry.url;
         const item = document.createElement('article');
         item.className = 'image-history-item';
 
@@ -217,10 +218,10 @@ function renderImageHistory() {
 
         const link = document.createElement('a');
         link.className = 'image-history-link';
-        link.href = entry.url;
+        link.href = shareUrl;
         link.target = '_blank';
         link.rel = 'noopener noreferrer';
-        link.textContent = entry.url;
+        link.textContent = shareUrl;
 
         const meta = document.createElement('div');
         meta.className = 'image-history-meta';
@@ -233,11 +234,11 @@ function renderImageHistory() {
         copyBtn.type = 'button';
         copyBtn.className = 'image-history-btn';
         copyBtn.textContent = '複製';
-        copyBtn.addEventListener('click', () => copyHistoryUrl(entry.url));
+        copyBtn.addEventListener('click', () => copyHistoryUrl(shareUrl));
 
         const openLink = document.createElement('a');
         openLink.className = 'image-history-open';
-        openLink.href = entry.url;
+        openLink.href = shareUrl;
         openLink.target = '_blank';
         openLink.rel = 'noopener noreferrer';
         openLink.textContent = '開啟';

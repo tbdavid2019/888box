@@ -68,7 +68,7 @@ $pagination = renderPagination($current_page, $total_pages);
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>圖片管理後台 - 888box</title>
+    <title>圖片管理後台 - 888 BOX</title>
     <link rel="shortcut icon" href="/static/favicon.svg">
     <link rel="stylesheet" href="/static/css/admin.css?v=<?php echo time(); ?>">
     <link rel="stylesheet" href="/static/css/fancybox.min.css?v=<?php echo time(); ?>">

@@ -27,15 +27,19 @@ try {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>888box 影片託管中心</title>
+    <title>888 BOX 影片託管中心</title>
     <link rel="shortcut icon" href="static/favicon.svg">
+    <link rel="apple-touch-icon" sizes="180x180" href="/static/apple-touch-icon.png">
+    <link rel="manifest" href="/static/site.webmanifest">
+    <meta name="theme-color" content="#1a1b26">
+    <script defer src="/static/js/pwa.js"></script>
     <link rel="stylesheet" href="static/css/video_ui.css?v=<?php echo time(); ?>">
     <?php renderThemeStyles($pdo); ?>
     <?php renderCustomTrackingCode($pdo); ?>
 </head>
 <body>
     <header class="video-header">
-        <h1 style="display: flex; align-items: center; gap: 8px;"><i data-lucide="clapperboard" style="width: 24px; height: 24px; color: #bb9af7;"></i> 888box 影片託管中心</h1>
+        <h1 style="display: flex; align-items: center; gap: 8px;"><i data-lucide="clapperboard" style="width: 24px; height: 24px; color: #bb9af7;"></i> 888 BOX 影片託管中心</h1>
         <div class="nav-links" style="display: flex; align-items: center; gap: 15px;">
             <a href="javascript:void(0);" onclick="forceClearCache()" style="display: inline-flex; align-items: center; gap: 4px;"><i data-lucide="refresh-cw" style="width: 15px; height: 15px;"></i> 清除快取並重整</a>
             <a href="/" style="display: inline-flex; align-items: center; gap: 4px;"><i data-lucide="home" style="width: 15px; height: 15px;"></i> 門戶</a>
@@ -131,7 +135,7 @@ try {
             <a href="upload_file.php" style="color: #bbb; text-decoration: none;">📂 文件託管</a>
         </div>
         <div>
-            <span>© <?php echo date('Y'); ?> 888box</span> | 
+            <span>© <?php echo date('Y'); ?> 888 BOX</span> |
             <span>Created by <a href="https://david888.com" target="_blank" style="color: #bbb; text-decoration: none; font-weight: bold;">DAVID888</a></span> | 
             <a href="javascript:void(0);" onclick="forceClearCache()" style="color: #888; text-decoration: none;">清除快取並重整</a> | 
             <a href="/skill.php" target="_blank" style="color: #888; text-decoration: none;">AI Agent Skills</a>

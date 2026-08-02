@@ -42,13 +42,41 @@ body {
     margin-bottom: 60px;
 }
 
-.header h1 {
-    font-size: 3rem;
-    font-weight: 800;
-    background: linear-gradient(135deg, #c0caf5 0%, #7aa2f7 48%, #bb9af7 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    letter-spacing: -1px;
+.brand-lockup {
+    display: inline-flex;
+    align-items: center;
+    gap: 16px;
+    filter: drop-shadow(0 14px 24px rgba(5, 14, 25, 0.35));
+}
+
+.brand-mark {
+    width: 72px;
+    height: 72px;
+    display: block;
+    border-radius: 19px;
+}
+
+.brand-wordmark {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    color: #f8fafc;
+    font-family: var(--font-ui);
+    font-weight: 900;
+    line-height: 0.78;
+    letter-spacing: -0.08em;
+    text-align: left;
+}
+
+.brand-wordmark span:first-child {
+    font-size: 3.4rem;
+}
+
+.brand-wordmark span:last-child {
+    margin-left: 5px;
+    color: #99f6e4;
+    font-size: 1.58rem;
+    letter-spacing: 0.32em;
 }
 
 .header p {

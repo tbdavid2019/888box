@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file.
 
+## [2026.7.31] - 2026-07-31
+
+### ✨ Added
+- **Privacy-Safe PWA**: Added web app manifest, install icons, service worker, offline fallback page, and an in-page Android/Chrome installation entry point when the browser exposes an install opportunity.
+- **Document Share Previews**: Added safe, readable previews for small `.txt`, `.md`, `.json`, `.csv`, `.log`, `.yaml`, and `.yml` assets. Content is rendered as plain text with a 2 MB preview limit and a download fallback.
+- **Chinese Typography**: Added Gen Jyuu Gothic Medium as the project's Chinese fallback font while retaining the existing JetBrains Mono presentation for Latin/monospace content.
+
+### 🐛 Fixed
+- **EPUB Reader on Cloud Storage**: Replaced the unavailable EPUB.js CDN address and now deliver EPUB files through the authorized same-origin share route, preventing S3/OSS CORS failures.
+- **Share-Link Consistency**: Public upload queues and client-side histories now open and copy tokenized share-page URLs rather than raw storage URLs; image/media previews still use direct asset URLs where required.
+- **Share-Page Link UX**: The link panel now defaults to the share-page URL while keeping explicit direct URL, Markdown, HTML, and BBCode options.
+
 ## [2026.7.23] - 2026-07-23
 
 ### ✨ Added & Improved

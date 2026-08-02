@@ -1,4 +1,6 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" role="img" aria-label="888 BOX">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" role="img" aria-labelledby="title desc">
+    <title id="title">888 BOX</title>
+    <desc id="desc">A stylised open box mark for 888 BOX</desc>
     <rect width="256" height="256" rx="58" fill="#081522"/>
     <path d="M42 91 128 43l86 48v88l-86 47-86-47Z" fill="#102536" stroke="#5eead4" stroke-width="8" stroke-linejoin="round"/>
     <path d="m42 91 86 48 86-48M128 139v87" fill="none" stroke="#99f6e4" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/>

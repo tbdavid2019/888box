@@ -39,10 +39,14 @@ try {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>888box 圖片託管中心</title>
+    <title>888 BOX 圖片託管中心</title>
     <meta name="keywords" content="檔案託管,影片上傳,高效圖片壓縮,前後台設計,Podcast,自動生成RSS,AWS S3,本機儲存,多格式支援,瀑布流管理,管理後台,自訂壓縮率,尺寸限制">
     <meta name="description" content="一款專為個人需求設計的高效媒體託管解決方案，整合強大的圖片與影片處理功能。提供自訂壓縮率與尺寸設定，有效降低儲存成本。搭配 AWS S3 儲存（支援相容 S3 的各類雲端空間）及彈性的本機儲存選項。特色包含自動提取影片 MetaData、封面圖生成及 Podcast RSS 自動更新功能。">
     <link rel="shortcut icon" href="static/favicon.svg">
+    <link rel="apple-touch-icon" sizes="180x180" href="/static/apple-touch-icon.png">
+    <link rel="manifest" href="/static/site.webmanifest">
+    <meta name="theme-color" content="#1a1b26">
+    <script defer src="/static/js/pwa.js"></script>
     <link rel="stylesheet" type="text/css" href="static/css/styles.css?v=<?php echo time(); ?>">
     <?php renderThemeStyles($pdo); ?>
 
@@ -259,7 +263,7 @@ try {
 </head>
 <body>
     <header class="blur" style="width: 100%; max-width: 1200px; display: flex; justify-content: space-between; align-items: center; padding: 0 20px; box-sizing: border-box; margin: 0 auto 25px auto;">
-        <h1 style="margin: 0; font-size: 1.5rem; color: var(--page-text); padding: 15px 0; display: flex; align-items: center; gap: 8px;"><i data-lucide="image" style="width: 24px; height: 24px; color: #7dcfff;"></i> 888box 圖片託管中心</h1>
+        <h1 style="margin: 0; font-size: 1.5rem; color: var(--page-text); padding: 15px 0; display: flex; align-items: center; gap: 8px;"><i data-lucide="image" style="width: 24px; height: 24px; color: #7dcfff;"></i> 888 BOX 圖片託管中心</h1>
         <div style="display: flex; gap: 15px; align-items: center;">
             <a href="/" style="color: white; text-decoration: none; display: inline-flex; align-items: center; gap: 4px;"><i data-lucide="home" style="width: 16px; height: 16px;"></i> 門戶</a>
             <a href="/admin/" target="_blank" style="color: white; text-decoration: none; display: inline-flex; align-items: center; gap: 4px;"><i data-lucide="settings" style="width: 16px; height: 16px;"></i> 管理後台</a>
@@ -458,7 +462,7 @@ try {
             <a href="upload_file.php">📂 文件託管</a>
         </div>
         <div>
-            <span>© <?php echo date('Y'); ?> 888box</span> | 
+            <span>© <?php echo date('Y'); ?> 888 BOX</span> |
             <span>Created by <a href="https://david888.com" target="_blank" style="font-weight: bold;">DAVID888</a></span> | 
             <a href="javascript:void(0);" onclick="forceClearCache()">清除快取並重整</a> | 
             <a href="/skill.php" target="_blank">AI Agent Skills</a>
