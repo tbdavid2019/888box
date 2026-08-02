@@ -47,7 +47,7 @@ if (!headers_sent()) {
     <link rel="apple-touch-icon" sizes="180x180" href="/static/apple-touch-icon.png">
 
     <!-- Web app manifest -->
-    <link rel="manifest" href="/static/site.webmanifest?v=3">
+    <link rel="manifest" href="/static/site.webmanifest?v=4">
     <script defer src="/static/js/pwa.js"></script>
 
     <!-- Open Graph -->

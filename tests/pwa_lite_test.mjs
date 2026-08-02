@@ -42,7 +42,7 @@ assert(
 
 const serviceWorker = readProjectFile('sw.js');
 assert(serviceWorker.includes("const OFFLINE_URL = '/offline.html';"), 'The service worker must define the offline fallback.');
-assert(serviceWorker.includes("const CACHE_NAME = '888box-pwa-v3';"), 'The service worker cache version must advance when precached PWA code changes.');
+assert(serviceWorker.includes("const CACHE_NAME = '888box-pwa-v4';"), 'The service worker cache version must advance when precached PWA code changes.');
 assert(serviceWorker.includes('const NETWORK_ONLY_PATHS = ['), 'The service worker must define protected network-only paths.');
 assert(serviceWorker.includes("'/api.php'"), 'The service worker must exclude api.php from caching.');
 assert(serviceWorker.includes("'/admin/'"), 'The service worker must exclude admin pages from caching.');
