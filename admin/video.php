@@ -21,7 +21,7 @@ $stmt->execute();
 $videos = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
 foreach ($videos as &$video) {
-    $video['url'] = getMaskedUrl($video['url'], $video['path']);
+    $video['url'] = getAssetPublicUrl($video, $config);
 }
 unset($video);
 ?>

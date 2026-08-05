@@ -15,6 +15,7 @@ require 'pagination.php';
 
 $db = Database::getInstance();
 $pdo = $db->getConnection();
+$config = Database::getConfig($pdo);
 $demoMode = ($_ENV['DEMO_MODE'] ?? 'false') === 'true';
 $isDemoAutoLogin = isset($_SESSION['demo_auto_login']) && $_SESSION['demo_auto_login'];
 
@@ -40,7 +41,7 @@ $stmt->execute([$items_per_page, $offset]);
 $images = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
 foreach ($images as &$image) {
-    $image['url'] = getMaskedUrl($image['url'], $image['path']);
+    $image['url'] = getAssetPublicUrl($image, $config);
 }
 unset($image);
 

@@ -126,6 +126,48 @@ function getMaskedUrl($url, $path) {
 }
 
 /**
+ * 取得對外可用的資源 URL。
+ *
+ * 公開 S3 資源可走設定的 CDN；受密碼保護的資源一律回到本站代理，
+ * 讓 PHP 先驗證存取權限。保留資料庫既有原始 URL 的 path，以相容舊物件 key。
+ */
+function getAssetPublicUrl($asset, $config) {
+    if (empty($asset['path'])) {
+        return $asset['url'] ?? '';
+    }
+
+    if (!empty($asset['password'])) {
+        return getMaskedUrl($asset['url'] ?? '', $asset['path'] ?? '');
+    }
+
+    $storage = $asset['storage'] ?? 'local';
+    if ($storage === 's3' && !empty($config['s3_cdn_domain'])) {
+        $cdnDomain = trim((string)$config['s3_cdn_domain']);
+        if (!preg_match('/^https?:\/\//i', $cdnDomain)) {
+            $cdnDomain = 'https://' . $cdnDomain;
+        }
+        $originUrl = $asset['url'] ?? '';
+        $originPath = parse_url($originUrl, PHP_URL_PATH);
+        $objectPath = !empty($originPath) ? $originPath : '/' . ltrim($asset['path'], '/');
+
+        return rtrim($cdnDomain, '/') . '/' . ltrim($objectPath, '/');
+    }
+
+    if ($storage === 'local') {
+        if (!empty($config['local_cdn_domain'])) {
+            $cdnDomain = trim((string)$config['local_cdn_domain']);
+            if (!preg_match('/^https?:\/\//i', $cdnDomain)) {
+                $cdnDomain = 'https://' . $cdnDomain;
+            }
+            return rtrim($cdnDomain, '/') . '/' . ltrim($asset['path'], '/');
+        }
+        return !empty($asset['url']) ? $asset['url'] : getMaskedUrl('', $asset['path']);
+    }
+
+    return getMaskedUrl($asset['url'] ?? '', $asset['path'] ?? '');
+}
+
+/**
  * 為新上傳的資源產生隨機 share token（32-char hex）
  */
 function generateShareToken() {
@@ -192,4 +234,3 @@ function renderCustomTrackingCode($pdo) {
         // 靜默失敗
     }
 }
-

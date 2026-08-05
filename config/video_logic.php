@@ -81,7 +81,7 @@ function handleVideoUpload($file, $pdo, $title = '', $description = '', $passwor
             'content_disposition' => 'inline; filename="' . addcslashes($videoFileName, '"\\') . '"'
         ]);
         $videoUrl = generateFileUrl($storage, $config, $videoRemotePath, $videoResult);
-        $publicVideoUrl = generatePublicFileUrl($storage, $config, $videoRemotePath, $videoUrl);
+        $publicVideoUrl = generatePublicFileUrl($storage, $config, $videoRemotePath, $videoUrl, !empty($password));
         
         // Upload Thumbnail if generated
         $thumbUrl = '';
@@ -91,7 +91,9 @@ function handleVideoUpload($file, $pdo, $title = '', $description = '', $passwor
                 'content_disposition' => 'inline; filename="' . addcslashes($thumbFileName, '"\\') . '"'
             ]);
             $thumbUrl = generateFileUrl($storage, $config, $thumbRemotePath, $thumbResult);
-            $publicThumbUrl = generatePublicFileUrl($storage, $config, $thumbRemotePath, $thumbUrl);
+            $publicThumbUrl = empty($password)
+                ? generatePublicFileUrl($storage, $config, $thumbRemotePath, $thumbUrl)
+                : '';
         } else {
             $publicThumbUrl = '';
         }
@@ -332,7 +334,7 @@ function rebuildVideoRSS($pdo, $config) {
             $item->appendChild($dom->createElement('pubDate', date(DATE_RSS, strtotime($video['created_at']))));
             
             $enclosure = $dom->createElement('enclosure');
-            $publicUrl = getMaskedUrl($video['url'], $video['path']);
+            $publicUrl = getAssetPublicUrl($video, $config);
             $enclosure->setAttribute('url', $publicUrl);
             $enclosure->setAttribute('length', $video['size']);
             // A basic check for mime type based on extension

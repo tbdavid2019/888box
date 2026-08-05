@@ -135,7 +135,7 @@ function handleFileUpload($file, $pdo, $config) {
             'content_disposition' => 'inline; filename="' . addcslashes($file['name'], '"\\') . '"'
         ]);
         $fileUrl = generateFileUrl($storage, $config, $remotePath, $result);
-        $publicFileUrl = generatePublicFileUrl($storage, $config, $remotePath, $fileUrl);
+        $publicFileUrl = generatePublicFileUrl($storage, $config, $remotePath, $fileUrl, !empty($password));
         
         if ($storage !== 'local') {
             if (file_exists($targetPath)) unlink($targetPath);

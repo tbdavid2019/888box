@@ -21,7 +21,7 @@ $stmt->execute();
 $audios = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
 foreach ($audios as &$audio) {
-    $audio['url'] = getMaskedUrl($audio['url'], $audio['path']);
+    $audio['url'] = getAssetPublicUrl($audio, $config);
 }
 unset($audio);
 ?>

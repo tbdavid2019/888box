@@ -52,7 +52,7 @@ function handleAudioUpload($file, $pdo, $title = '', $description = '', $passwor
             'content_disposition' => 'inline; filename="' . addcslashes($audioFileName, '"\\') . '"'
         ]);
         $audioUrl = generateFileUrl($storage, $config, $audioRemotePath, $audioResult);
-        $publicAudioUrl = generatePublicFileUrl($storage, $config, $audioRemotePath, $audioUrl);
+        $publicAudioUrl = generatePublicFileUrl($storage, $config, $audioRemotePath, $audioUrl, !empty($password));
         
         // Capture file size before potential unlink
         $audioSize = file_exists($localAudioPath) ? filesize($localAudioPath) : 0;
@@ -147,7 +147,7 @@ function rebuildAudioRSS($pdo, $config) {
             $item->appendChild($dom->createElement('pubDate', date(DATE_RSS, strtotime($audio['created_at']))));
             
             $enclosure = $dom->createElement('enclosure');
-            $publicUrl = getMaskedUrl($audio['url'], $audio['path']);
+            $publicUrl = getAssetPublicUrl($audio, $config);
             $enclosure->setAttribute('url', $publicUrl);
             $enclosure->setAttribute('length', $audio['size']);
             

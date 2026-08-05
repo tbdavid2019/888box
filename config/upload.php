@@ -88,18 +88,13 @@ function generateFileUrl($storage, $config, $filePath, $s3Result = null) {
 /**
  * 生成對外顯示用網址，優先使用本站遮罩 URL
  */
-function generatePublicFileUrl($storage, $config, $filePath, $originUrl = '') {
-    $cleanPath = ltrim($filePath, '/');
-
-    if ($storage === 'local' && !empty($config['local_cdn_domain'])) {
-        return normalizeUrlBase($config['local_cdn_domain']) . '/' . $cleanPath;
-    }
-
-    if (!empty($_SERVER['HTTP_HOST'])) {
-        return 'https://' . $_SERVER['HTTP_HOST'] . '/' . $cleanPath;
-    }
-
-    return $originUrl ?: generateFileUrl($storage, $config, $filePath);
+function generatePublicFileUrl($storage, $config, $filePath, $originUrl = '', $isPasswordProtected = false) {
+    return getAssetPublicUrl([
+        'url' => $originUrl,
+        'path' => $filePath,
+        'storage' => $storage,
+        'password' => $isPasswordProtected ? '1' : ''
+    ], $config);
 }
 
 /**
@@ -460,7 +455,7 @@ function handleUploadedFile($file, $token, $referer, $password = '') {
         }
         
         $fileUrl = generateFileUrl($storage, $config, $filePath, $result);
-        $publicFileUrl = generatePublicFileUrl($storage, $config, $filePath, $fileUrl);
+        $publicFileUrl = generatePublicFileUrl($storage, $config, $filePath, $fileUrl, !empty($password));
         $storagePath = ($storage === 'local') ? $finalFilePath : $filePath;
         
         $hashedPassword = !empty($password) ? password_hash($password, PASSWORD_DEFAULT) : NULL;

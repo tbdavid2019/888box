@@ -3,5 +3,8 @@ RewriteRule ^podcast\.xml$ /rss.php?type=video [L,QSA]
 RewriteRule ^podcast_audio\.xml$ /rss.php?type=audio [L,QSA]
 RewriteRule ^podcast(_audio)?\.internal\.xml$ - [F,L]
 RewriteRule ^podcast(_audio)?\.internal\.xml\.lock$ - [F,L]
+# Asset files must always pass through the authorization-aware proxy.  This
+# prevents Apache from serving password-protected local assets directly.
+RewriteRule ^(i|file)/(.+)$ /get_file.php?path=$1/$2 [L,QSA,NE]
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteRule ^(.*)$ /get_file.php?path=$1 [L,QSA]

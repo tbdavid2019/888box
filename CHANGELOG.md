@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file.
 
+## [2026.8.5] - 2026-08-05
+
+### ✨ Added
+- **CloudFront Asset Delivery**: Public S3 assets now use the configured `S3_CDN_DOMAIN`, including the dedicated `888box-media` CloudFront distribution. Existing object-key paths are retained so historical uploads continue to resolve.
+
+### 🐛 Fixed
+- **Storage Origin Exposure**: S3/OSS/Upyun assets requested through the site proxy are streamed server-side instead of returning a redirect that reveals the upstream storage URL.
+- **Protected Asset Access**: Password-protected assets always remain on the same-origin authorization proxy; direct asset URLs, admin previews, API lists, share pages, and podcast feeds now share the same delivery policy.
+- **Media Streaming**: The storage proxy supports `GET`, `HEAD`, and single byte-range requests for audio/video playback and seeking.
+
 ## [2026.7.31] - 2026-07-31
 
 ### ✨ Added

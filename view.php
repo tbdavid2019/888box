@@ -226,7 +226,7 @@ try {
 }
 
 // 判定資源類型
-$url = getMaskedUrl($asset['url'], $asset['path']);
+$url = getAssetPublicUrl($asset, $config);
 $shareUrl = buildAssetShareUrl($asset, $config);
 $mime = $asset['mime_type'] ?: '';
 $ext = strtolower(pathinfo($url, PATHINFO_EXTENSION));
