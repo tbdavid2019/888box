@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [2026.8.9] - 2026-08-09
+
+### ✨ Added
+- **`/llms.txt` Standard Support (`llms.php`)**: Added dynamic `/llms.txt` generator following the [llmstxt.org](https://llmstxt.org/) specification to expose structured Markdown site indices, API gateways (`api.php`), skills (`skill.php`), MCP tools (`mcp.php`), podcast RSS feeds, and sitemaps for LLMs and AI agents.
+- **`/llms-full.txt` Rewrite**: Configured `.htaccess` rewrite rules mapping `/llms.txt` -> `llms.php` and `/llms-full.txt` -> `skill.php` for extended LLM context retrieval.
+- **AI Agent Discovery Header & HTML Link**: Added RFC 8288 `Link: </llms.txt>; rel="help"; type="text/markdown"` header and `<link rel="help" ...>` HTML tag in `index.php`, as well as updated `.well-known/api-catalog` and `robots.txt`.
+
 ## [2026.8.5] - 2026-08-05
 
 ### ✨ Added

@@ -22,6 +22,7 @@ $base    = $scheme . '://' . $host;
 if (!headers_sent()) {
     header('Link: <' . $base . '/.well-known/api-catalog>; rel="api-catalog"', false);
     header('Link: <' . $base . '/skill.php>; rel="service-doc"', false);
+    header('Link: <' . $base . '/llms.txt>; rel="help"; type="text/markdown"', false);
     header('Link: <' . $base . '/sitemap.xml>; rel="sitemap"; type="application/xml"', false);
     header('Link: <' . $base . '/.well-known/mcp/server-card.json>; rel="mcp-server-card"', false);
     header('Link: <' . $base . '/.well-known/agent-skills/index.json>; rel="agent-skills"', false);
@@ -37,6 +38,9 @@ if (!headers_sent()) {
 
     <!-- Canonical URL -->
     <link rel="canonical" href="<?= $base ?>">
+
+    <!-- LLMs.txt for AI Agents -->
+    <link rel="help" type="text/markdown" href="<?= $base ?>/llms.txt" title="LLM Context Documentation">
 
     <!-- Search engine favicon (PNG + ICO required by Google) -->
     <link rel="icon" type="image/svg+xml" href="/static/favicon.svg">

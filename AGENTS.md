@@ -28,7 +28,7 @@ This file guides coding agents working in `888box`.
 - `api.php`: unified API for upload, list, search, stats, delete, and remote URL ingestion.
 - `upload_image.php`, `upload_video.php`, `upload_file.php`: public upload UIs; all are marked deprecated in favor of `api.php?action=upload`, but they are still active entrypoints and must remain compatible.
 - `api_file.php`: deprecated document upload API kept for compatibility.
-- `mcp.php` and `skill.php`: AI agent integration surfaces; `mcp.php` exposes MCP tools and `skill.php` renders dynamic markdown instructions with base URL and token hints.
+- `mcp.php`, `skill.php`, and `llms.php`: AI agent integration surfaces; `mcp.php` exposes MCP tools, `skill.php` renders dynamic markdown instructions, and `llms.php` serves the standardized `/llms.txt` index.
 - `view.php`: unified viewer/share page for stored assets.
 - `config/database.php`: SQLite connection singleton, `.env` loading, install redirect, migration redirect, and config helpers.
 - `config/upload.php`, `config/storage.php`, `config/delete.php`: upload validation/processing, storage abstraction, and deletion helpers.

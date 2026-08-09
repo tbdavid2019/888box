@@ -74,5 +74,7 @@ Disallow: /
 User-agent: Bytespider
 Disallow: /
 
-# ── Sitemap ─────────────────────────────────────────────────
+# ── Sitemap & LLM Specs ─────────────────────────────────────
 Sitemap: https://box.david888.com/sitemap.xml
+# LLMs.txt Spec: https://box.david888.com/llms.txt
+

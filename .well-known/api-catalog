@@ -12,6 +12,10 @@
         {
           "href": "https://box.david888.com/skill.php",
           "type": "text/markdown"
+        },
+        {
+          "href": "https://box.david888.com/llms.txt",
+          "type": "text/markdown"
         }
       ],
       "describedby": [
