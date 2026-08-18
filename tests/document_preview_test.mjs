@@ -45,6 +45,11 @@ assert(
     'EPUB preview must use the verified EPUB.js distribution instead of the broken CDN URL.'
 );
 assert(
+    view.includes('const EPUB_PREVIEW_MAX_BYTES = 25 * 1024 * 1024;') &&
+    view.includes("$asset['size'] > EPUB_PREVIEW_MAX_BYTES"),
+    'Large EPUB files must show a download fallback instead of leaving the reader in a perpetual loading state.'
+);
+assert(
     view.includes('data-type="share"') && view.includes("selectEmbedType('share', this)"),
     'The share-page URL must be available as the primary link format.'
 );

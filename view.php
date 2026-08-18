@@ -6,6 +6,7 @@ require_once 'config/upload.php';
 
 const TEXT_PREVIEW_EXTENSIONS = ['txt', 'md', 'json', 'csv', 'log', 'yaml', 'yml'];
 const TEXT_PREVIEW_MAX_BYTES = 2 * 1024 * 1024;
+const EPUB_PREVIEW_MAX_BYTES = 25 * 1024 * 1024;
 
 
 function outputInlinePdf($asset, $config) {
@@ -792,6 +793,40 @@ if ($asset['is_audio'] == 1 || strpos($mime, 'audio/') !== false || in_array($ex
             filter: brightness(1.08);
         }
 
+        .floating-download {
+            position: fixed;
+            right: max(20px, env(safe-area-inset-right));
+            bottom: max(20px, env(safe-area-inset-bottom));
+            z-index: 30;
+            min-height: 50px;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            padding: 12px 16px;
+            color: #fff;
+            background: var(--accent-blue, #7aa2f7);
+            border-radius: 14px;
+            box-shadow: 0 12px 28px rgba(69, 112, 198, 0.38);
+            font-weight: 700;
+            text-decoration: none;
+            transition: transform 0.2s ease, filter 0.2s ease;
+        }
+
+        .floating-download:hover {
+            filter: brightness(1.08);
+            transform: translateY(-2px);
+        }
+
+        .floating-download:focus-visible {
+            outline: 3px solid rgba(125, 207, 255, 0.6);
+            outline-offset: 3px;
+        }
+
+        .floating-download svg {
+            width: 18px;
+            height: 18px;
+        }
+
         .download-icon {
             width: 40px;
             height: 40px;
@@ -951,6 +986,13 @@ if ($asset['is_audio'] == 1 || strpos($mime, 'audio/') !== false || in_array($ex
 
             .asset-actions {
                 grid-template-columns: 1fr;
+            }
+
+            .floating-download {
+                right: max(12px, env(safe-area-inset-right));
+                bottom: max(12px, env(safe-area-inset-bottom));
+                left: max(12px, env(safe-area-inset-left));
+                justify-content: center;
             }
 
             .report-panel {
@@ -1126,41 +1168,47 @@ if ($asset['is_audio'] == 1 || strpos($mime, 'audio/') !== false || in_array($ex
                     </div>
                 <?php elseif ($type === 'epub'): ?>
                     <div class="epub-preview" id="epub-preview">
-                        <div class="epub-status" id="epub-status" role="status">正在載入 EPUB 閱讀器…</div>
-                        <div id="epub-viewer"></div>
+                        <?php if ((int)$asset['size'] > EPUB_PREVIEW_MAX_BYTES): ?>
+                            <p class="epub-status" id="epub-status" role="status">此 EPUB 含有大型媒體，瀏覽器預覽可能無法順利開啟。請使用右下角「下載原檔」以閱讀完整內容。</p>
+                        <?php else: ?>
+                            <div class="epub-status" id="epub-status" role="status">正在載入 EPUB 閱讀器…</div>
+                            <div id="epub-viewer"></div>
+                        <?php endif; ?>
                     </div>
-                    <script src="https://cdn.jsdelivr.net/npm/epubjs@0.3.88/dist/epub.min.js"></script>
-                    <script>
-                        (() => {
-                            const preview = document.getElementById('epub-preview');
-                            const status = document.getElementById('epub-status');
-                            const showFailure = () => {
-                                if (status) status.textContent = 'EPUB 預覽載入失敗，請使用下方下載按鈕。';
-                            };
+                    <?php if ((int)$asset['size'] <= EPUB_PREVIEW_MAX_BYTES): ?>
+                        <script src="https://cdn.jsdelivr.net/npm/epubjs@0.3.88/dist/epub.min.js"></script>
+                        <script>
+                            (() => {
+                                const preview = document.getElementById('epub-preview');
+                                const status = document.getElementById('epub-status');
+                                const showFailure = () => {
+                                    if (status) status.textContent = 'EPUB 預覽載入失敗，請使用右下角「下載原檔」。';
+                                };
 
-                            if (typeof ePub !== 'function') {
-                                showFailure();
-                                return;
-                            }
+                                if (typeof ePub !== 'function') {
+                                    showFailure();
+                                    return;
+                                }
 
-                            try {
-                                const book = ePub(<?= json_encode('/view.php?token=' . urlencode((string)($asset['share_token'] ?? '')) . '&inline=epub') ?>);
-                                const rendition = book.renderTo('epub-viewer', {
-                                    width: '100%',
-                                    height: '600px',
-                                    flow: 'scrolled',
-                                    manager: 'default'
-                                });
-                                book.ready
-                                    .then(() => rendition.display())
-                                    .then(() => preview && preview.classList.add('is-ready'))
-                                    .catch(showFailure);
-                            } catch (error) {
-                                console.error('EPUB 預覽載入失敗', error);
-                                showFailure();
-                            }
-                        })();
-                    </script>
+                                try {
+                                    const book = ePub(<?= json_encode('/view.php?token=' . urlencode((string)($asset['share_token'] ?? '')) . '&inline=epub') ?>);
+                                    const rendition = book.renderTo('epub-viewer', {
+                                        width: '100%',
+                                        height: '600px',
+                                        flow: 'scrolled',
+                                        manager: 'default'
+                                    });
+                                    book.ready
+                                        .then(() => rendition.display())
+                                        .then(() => preview && preview.classList.add('is-ready'))
+                                        .catch(showFailure);
+                                } catch (error) {
+                                    console.error('EPUB 預覽載入失敗', error);
+                                    showFailure();
+                                }
+                            })();
+                        </script>
+                    <?php endif; ?>
                 <?php else: ?>
                     <div style="text-align: center; color: #888;">
                         <p>此類型檔案暫不支援直接預覽</p>
@@ -1240,6 +1288,13 @@ if ($asset['is_audio'] == 1 || strpos($mime, 'audio/') !== false || in_array($ex
             </div>
         <?php endif; ?>
     </div>
+
+    <?php if ($isAuthorized): ?>
+        <a href="<?= htmlspecialchars($url) ?>" download="<?= htmlspecialchars(basename($asset['path'])) ?>" class="floating-download" aria-label="下載原始檔案">
+            <i data-lucide="download"></i>
+            <span>下載原檔</span>
+        </a>
+    <?php endif; ?>
 
     <footer class="portal-footer">
         &copy; <?= date('Y') ?> 888 BOX. All rights reserved. <br>
