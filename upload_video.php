@@ -32,7 +32,7 @@ try {
     <link rel="apple-touch-icon" sizes="180x180" href="/static/apple-touch-icon.png">
     <link rel="manifest" href="/static/site.webmanifest">
     <meta name="theme-color" content="#1a1b26">
-    <script defer src="/static/js/pwa.js"></script>
+    <script defer src="/static/js/pwa.js?v=2"></script>
     <link rel="stylesheet" href="static/css/video_ui.css?v=<?php echo time(); ?>">
     <?php renderThemeStyles($pdo); ?>
     <?php renderCustomTrackingCode($pdo); ?>

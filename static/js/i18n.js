@@ -20,12 +20,36 @@
         '影片中心': 'Video center',
         '文件中心': 'File center',
         '圖片託管': 'Image hosting',
+        '影片託管': 'Video hosting',
         '文件託管': 'File hosting',
         '聲音大廳': 'Audio center',
         '支援 WebP 高效壓縮與瀑布流展示': 'WebP compression and waterfall gallery',
         '自動提取 MetaData 與 Podcast RSS 同步': 'Automatic metadata extraction and Podcast RSS sync',
         '支援 ZIP, PDF, Word 及 EPUB 線上閱讀': 'Online reading for ZIP, PDF, Word, and EPUB',
         '支援 MP3/WAV 上傳與 Podcast RSS 訂閱': 'MP3/WAV upload and Podcast RSS subscriptions',
+        '自動辨識 🖼️ 圖片 · 🎬 影片 · 🎙️ 音訊 · 📂 文件 等格式並完成託管': 'Automatically detects 🖼️ images, 🎬 videos, 🎙️ audio, and 📂 files',
+        '輸入圖片網址即可自動上傳，或使用 Ctrl+V 貼上': 'Enter an image URL to upload, or paste with Ctrl+V',
+        '注意：部分網站設有防盜鏈，可能無法直接下載': 'Note: some sites block hotlink downloads',
+        '貼上上傳': 'Paste to upload',
+        '切換檔案': 'Switch files',
+        '清除預覽': 'Clear preview',
+        '圖片清晰度 60-100': 'Image quality 60-100',
+        '設定存取密碼 (選填)': 'Set access password (optional)',
+        '留空則公開': 'Leave blank for public access',
+        '複製連結': 'Copy link',
+        '複製 Markdown': 'Copy Markdown',
+        '複製 HTML': 'Copy HTML',
+        '本機上傳統計': 'Device upload statistics',
+        '本批成功': 'Successful in this batch',
+        '原始圖片': 'Original image',
+        '壓縮後': 'Compressed',
+        '壓縮率': 'Compression ratio',
+        '節省空間': 'Space saved',
+        '示範站點': 'Demo site',
+        '所有檔案皆為公開可見且可能被刪除': 'All files are public and may be deleted',
+        '圖片託管': 'Image hosting',
+        '影片託管': 'Video hosting',
+        '文件託管': 'File hosting',
         '上傳與處理列表': 'Upload and processing queue',
         '🚀 上傳的影片將會自動加入至 Podcast 訂閱中！': '🚀 Uploaded videos are automatically added to the Podcast feed!',
         '🚀 上傳的音訊將會自動加入至 Podcast 訂閱中！': '🚀 Uploaded audio is automatically added to the Podcast feed!',
@@ -135,6 +159,7 @@
         '刪除失敗': 'Delete failed',
         '網路錯誤': 'Network error',
         '網址已複製！': 'URL copied!',
+        '已複製!': 'Copied!',
         '已複製！': 'Copied!',
         '已複製連結！': 'Link copied!',
         '複製失敗，請稍後再試': 'Copy failed. Please try again later.',
@@ -143,6 +168,11 @@
         '上傳成功 ✅': 'Upload succeeded ✅',
         '伺服器回應異常': 'Unexpected server response',
         '網路錯誤，上傳中斷': 'Network error. Upload interrupted.',
+        '解析回應失敗': 'Failed to parse response',
+        '網路上傳失敗': 'Network upload failed',
+        '上傳失敗': 'Upload failed',
+        '查看': 'View',
+        '複製連結': 'Copy link',
         '開啟': 'Open',
         '完成 (清除列表)': 'Done (clear list)',
         '未知錯誤': 'Unknown error',
@@ -196,6 +226,7 @@
     );
 
     const dynamicPatterns = [
+        [/^上傳中\s+(\d+)%\.\.\.$/, 'Uploading $1%...'],
         [/^(\d[\d,]*) 份資產$/, '$1 assets'],
         [/^(\d[\d,]*) 部影片$/, '$1 videos'],
         [/^(\d[\d,]*) 份文件$/, '$1 files'],
@@ -254,6 +285,15 @@
         return translations[value] || value;
     }
 
+    function replaceKnownPhrases(value, language) {
+        const entries = language === 'zh-Hant'
+            ? Object.entries(reverseTranslations)
+            : Object.entries(translations);
+        return entries
+            .sort((a, b) => b[0].length - a[0].length)
+            .reduce((result, [source, target]) => result.includes(source) ? result.split(source).join(target) : result, value);
+    }
+
     function translateTextNode(node, language) {
         const value = node.nodeValue;
         const normalized = value.trim();
@@ -261,8 +301,8 @@
         const dynamicTranslated = translateDynamic(normalized, language);
         const translated = dynamicTranslated !== normalized
             ? dynamicTranslated
-            : textFor(normalized, language);
-        if (translated === normalized && !translations[normalized] && !reverseTranslations[normalized]) return;
+            : replaceKnownPhrases(textFor(normalized, language), language);
+        if (translated === normalized) return;
         if (translated === normalized) return;
         node.nodeValue = value.replace(normalized, translated);
     }
@@ -271,7 +311,7 @@
         ['title', 'placeholder', 'aria-label'].forEach(attribute => {
             const value = element.getAttribute(attribute);
             if (!value) return;
-            const translated = textFor(value, language);
+            const translated = replaceKnownPhrases(textFor(value, language), language);
             if (translated !== value) element.setAttribute(attribute, translated);
         });
     }
@@ -326,6 +366,7 @@
             // The toggle remains usable when storage is unavailable.
         }
         window.dispatchEvent(new CustomEvent('boxlanguagechange', { detail: { language } }));
+        window.BOX_PWA?.applyLanguage(language);
     }
 
     function init() {

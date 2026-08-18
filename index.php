@@ -55,7 +55,7 @@ if (!headers_sent()) {
 
     <!-- Web app manifest -->
     <link rel="manifest" href="/static/site.webmanifest?v=7">
-    <script defer src="/static/js/pwa.js"></script>
+    <script defer src="/static/js/pwa.js?v=2"></script>
 
     <!-- Open Graph -->
     <meta property="og:title" content="888 BOX｜個人檔案中心">

@@ -218,6 +218,7 @@ function renderThemeStyles($pdo) {
         justify-content: space-between;
         gap: 18px;
         width: 100vw;
+        margin-top: -20px;
         margin-left: calc(50% - 50vw);
         margin-right: calc(50% - 50vw);
         min-height: 64px;
@@ -248,7 +249,7 @@ function renderThemeStyles($pdo) {
         box-sizing: border-box;
         color: <?= $theme['content'] ?> !important;
         text-decoration: none;
-        font-size: 0.88rem;
+        font-size: 0.98rem;
         font-weight: 700;
         white-space: nowrap;
     }
@@ -267,13 +268,13 @@ function renderThemeStyles($pdo) {
     }
     .box-site-context {
         color: <?= $theme['muted'] ?> !important;
-        font-size: 0.82rem;
+        font-size: 0.95rem;
         font-weight: 600;
         white-space: nowrap;
     }
     .box-site-header-action {
         min-height: 36px;
-        padding: 7px 12px;
+        padding: 8px 13px;
         border: 1px solid rgba(255, 255, 255, 0.18);
         border-radius: 999px;
         background: rgba(255, 255, 255, 0.04);
@@ -297,6 +298,9 @@ function renderThemeStyles($pdo) {
     .box-site-header + .login-container {
         margin-top: 88px;
     }
+    .admin-login-page .box-site-header {
+        margin-top: 0;
+    }
     @media (max-width: 640px) {
         .box-language-switcher {
             top: max(10px, env(safe-area-inset-top));
@@ -310,6 +314,7 @@ function renderThemeStyles($pdo) {
             flex-wrap: wrap;
             gap: 8px 12px;
             width: 100vw;
+            margin-top: -20px;
             margin-left: calc(50% - 50vw);
             margin-right: calc(50% - 50vw);
             padding: 10px max(14px, env(safe-area-inset-right)) 10px max(14px, env(safe-area-inset-left));

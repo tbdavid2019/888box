@@ -43,14 +43,19 @@ assert.match(runtime, /localStorage\.setItem\(languageStorageKey, language\)/);
 assert.match(helper, /data-language="en"/);
 assert.match(runtime, /MutationObserver/);
 assert.match(pwa, /boxlanguagechange/);
+assert.match(pwa, /BOX_PWA/);
 assert.match(pwa, /Install 888 BOX/);
 
 for (const phrase of [
     '支援 WebP 高效壓縮與瀑布流展示',
     '自動提取 MetaData 與 Podcast RSS 同步',
     '支援 ZIP, PDF, Word 及 EPUB 線上閱讀',
-    '支援 MP3/WAV 上傳與 Podcast RSS 訂閱',
-    '🚀 上傳的影片將會自動加入至 Podcast 訂閱中！'
+  '支援 MP3/WAV 上傳與 Podcast RSS 訂閱',
+  '🚀 上傳的影片將會自動加入至 Podcast 訂閱中！',
+  '自動辨識 🖼️ 圖片 · 🎬 影片 · 🎙️ 音訊 · 📂 文件 等格式並完成託管',
+  '輸入圖片網址即可自動上傳，或使用 Ctrl+V 貼上',
+  '原始圖片',
+  '壓縮後'
 ]) {
     assert.match(runtime, new RegExp(phrase.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')));
 }
@@ -64,6 +69,11 @@ for (const phrase of [
 ]) {
     assert.match(index, new RegExp(phrase.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')));
 }
+assert.match(index, /pwa\.js\?v=2/);
+
+const uploadImage = await read('upload_image.php');
+assert.match(uploadImage, /pwa\.js\?v=2/);
+assert.match(helper, /\.box-site-header\s*\{[\s\S]*?margin-top:\s*-20px/);
 
 const view = await read('view.php');
 assert.match(view, /\.asset-header-top\s*\{[\s\S]*?top:\s*0;[\s\S]*?left:\s*0;[\s\S]*?width:\s*100%;/);

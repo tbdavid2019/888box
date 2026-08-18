@@ -331,7 +331,7 @@ $jsonLd = [
     <meta name="twitter:image:alt" content="<?= htmlspecialchars($assetTitle) ?>">
     <script type="application/ld+json"><?= json_encode($jsonLd, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) ?></script>
     <meta name="theme-color" content="#1a1b26">
-    <script defer src="/static/js/pwa.js"></script>
+    <script defer src="/static/js/pwa.js?v=2"></script>
     <link rel="stylesheet" href="/static/css/portal.css">
     <?php renderThemeStyles($pdo); ?>
     <style>
@@ -1554,6 +1554,8 @@ $jsonLd = [
             } catch (error) {
                 console.warn('無法儲存語言偏好', error);
             }
+            window.dispatchEvent(new CustomEvent('boxlanguagechange', { detail: { language } }));
+            window.BOX_PWA?.applyLanguage(language);
         }
         window.shareText = shareText;
         const viewMarkerKey = '888box:view-counted:v1:' + <?= json_encode((string)$asset['share_token']) ?>;

@@ -39,6 +39,8 @@ function applyPwaLanguage(language = getPwaLanguage()) {
     installPromptElement.querySelector('.pwa-install-prompt__install').textContent = strings.install;
 }
 
+window.BOX_PWA = { applyLanguage: applyPwaLanguage };
+
 function removeInstallPrompt() {
     if (!installPromptElement) {
         return;

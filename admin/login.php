@@ -308,7 +308,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     </style>
     <?php renderThemeStyles($pdo); ?>
 </head>
-<body>
+<body class="admin-login-page">
     <?php renderSiteHeader('登入'); ?>
     <div class="login-container">
         <div class="form-container active" id="login-form">
