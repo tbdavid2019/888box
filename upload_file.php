@@ -27,7 +27,7 @@ try {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>888 BOX 文件託管中心</title>
+    <title>888 BOX 文件</title>
     <link rel="shortcut icon" href="static/favicon.svg">
     <link rel="apple-touch-icon" sizes="180x180" href="/static/apple-touch-icon.png">
     <link rel="manifest" href="/static/site.webmanifest">
@@ -67,10 +67,10 @@ try {
     <?php renderCustomTrackingCode($pdo); ?>
 </head>
 <body>
-    <?php renderSiteHeader('文件託管中心', [
+    <?php renderSiteHeader('文件', [
         ['label' => '首頁', 'href' => '/', 'icon' => 'home'],
         ['label' => '管理後台', 'href' => '/admin/file.php', 'target' => '_blank', 'icon' => 'settings'],
-    ]); ?>
+    ], 'file'); ?>
 
     <main class="video-main">
         <div class="upload-panel" id="dropZone">
@@ -132,11 +132,6 @@ try {
         <div style="padding: 10px; margin: 0 auto 20px auto; max-width: 800px; border-radius: 10px; font-size: 15px; font-weight: bold; backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); border: 1px solid rgb(255 255 255 / 20%); background: rgb(255 60 60 / 30%); animation: fadeIn 0.5s ease-in-out forwards;">⚠️ 示範站點 - 所有檔案皆為公開可見且可能被刪除</div>
         <?php endif; ?>
         
-        <div style="margin-bottom: 15px; display: flex; justify-content: center; gap: 20px; flex-wrap: wrap;">
-            <a href="upload_image.php" style="color: #bbb; text-decoration: none;">🖼️ 圖片託管</a>
-            <a href="upload_video.php" style="color: #bbb; text-decoration: none;">🎬 影片託管</a>
-            <a href="upload_file.php" style="color: #bbb; text-decoration: none;">📂 文件託管</a>
-        </div>
         <div>
             <span>© <?php echo date('Y'); ?> 888 BOX</span> |
             <span>Created by <a href="https://david888.com" target="_blank" style="color: #bbb; text-decoration: none; font-weight: bold;">DAVID888</a></span> | 

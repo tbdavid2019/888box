@@ -166,7 +166,7 @@ if (!headers_sent()) {
         <a href="/upload_image.php" class="card card-images">
             <div>
                 <div class="card-icon"><i data-lucide="image"></i></div>
-                <h2 class="card-title">圖片託管</h2>
+                <h2 class="card-title">圖片</h2>
                 <p class="card-desc">支援 WebP 高效壓縮與瀑布流展示</p>
                 <div class="stats-badge"><?= $stats['image'] ?> 份資產</div>
             </div>
@@ -176,7 +176,7 @@ if (!headers_sent()) {
         <a href="/upload_video.php" class="card card-videos">
             <div>
                 <div class="card-icon"><i data-lucide="clapperboard"></i></div>
-                <h2 class="card-title">影片中心</h2>
+                <h2 class="card-title">影片</h2>
                 <p class="card-desc">自動提取 MetaData 與 Podcast RSS 同步</p>
                 <div class="stats-badge"><?= $stats['video'] ?> 部影片</div>
             </div>
@@ -186,7 +186,7 @@ if (!headers_sent()) {
         <a href="/upload_file.php" class="card card-files">
             <div>
                 <div class="card-icon"><i data-lucide="folder-archive"></i></div>
-                <h2 class="card-title">文件託管</h2>
+                <h2 class="card-title">文件</h2>
                 <p class="card-desc">支援 ZIP, PDF, Word 及 EPUB 線上閱讀</p>
                 <div class="stats-badge"><?= $stats['file'] ?> 份文件</div>
             </div>
@@ -196,7 +196,7 @@ if (!headers_sent()) {
         <a href="/upload_audio.php" class="card card-audios">
             <div>
                 <div class="card-icon"><i data-lucide="mic"></i></div>
-                <h2 class="card-title">聲音大廳</h2>
+                <h2 class="card-title">音訊</h2>
                 <p class="card-desc">支援 MP3/WAV 上傳與 Podcast RSS 訂閱</p>
                 <div class="stats-badge"><?= $stats['audio'] ?> 首音訊</div>
             </div>

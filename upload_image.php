@@ -39,7 +39,7 @@ try {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>888 BOX 圖片託管中心</title>
+    <title>888 BOX 圖片</title>
     <meta name="keywords" content="檔案託管,影片上傳,高效圖片壓縮,前後台設計,Podcast,自動生成RSS,AWS S3,本機儲存,多格式支援,瀑布流管理,管理後台,自訂壓縮率,尺寸限制">
     <meta name="description" content="一款專為個人需求設計的高效媒體託管解決方案，整合強大的圖片與影片處理功能。提供自訂壓縮率與尺寸設定，有效降低儲存成本。搭配 AWS S3 儲存（支援相容 S3 的各類雲端空間）及彈性的本機儲存選項。特色包含自動提取影片 MetaData、封面圖生成及 Podcast RSS 自動更新功能。">
     <link rel="shortcut icon" href="static/favicon.svg">
@@ -262,10 +262,10 @@ try {
     <?php renderCustomTrackingCode($pdo); ?>
 </head>
 <body>
-    <?php renderSiteHeader('圖片託管中心', [
+    <?php renderSiteHeader('圖片', [
         ['label' => '首頁', 'href' => '/', 'icon' => 'home'],
         ['label' => '管理後台', 'href' => '/admin/', 'target' => '_blank', 'icon' => 'settings'],
-    ]); ?>
+    ], 'image'); ?>
 
     <main>
         <!-- 左側：上傳區與縮圖 -->
@@ -453,11 +453,6 @@ try {
         <div style="padding: 10px; margin: 0 auto 20px auto; max-width: 800px; border-radius: 10px; font-size: 15px; font-weight: bold; backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); border: 1px solid rgb(255 255 255 / 20%); background: rgb(255 60 60 / 30%); animation: fadeIn 0.5s ease-in-out forwards;">⚠️ 示範站點 - 所有檔案皆為公開可見且可能被刪除</div>
         <?php endif; ?>
         
-        <div style="margin-bottom: 15px; display: flex; justify-content: center; gap: 20px; flex-wrap: wrap;">
-            <a href="upload_image.php">🖼️ 圖片託管</a>
-            <a href="upload_video.php">🎬 影片託管</a>
-            <a href="upload_file.php">📂 文件託管</a>
-        </div>
         <div>
             <span>© <?php echo date('Y'); ?> 888 BOX</span> |
             <span>Created by <a href="https://david888.com" target="_blank" style="font-weight: bold;">DAVID888</a></span> | 

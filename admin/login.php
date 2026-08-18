@@ -104,12 +104,15 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             color: #eee;
             font-family: var(--font-ui);
             display: flex;
-            align-items: center;
-            justify-content: center;
+            flex-direction: column;
+            align-items: stretch;
+            justify-content: flex-start;
             background-color: #2b2b2b;
+            padding: 0;
         }
         
         .login-container {
+            align-self: center;
             width: min(400px, 90vw);
             padding: 2rem;
             border-radius: 16px;
@@ -117,6 +120,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             backdrop-filter: blur(12px);
             box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
             border: 1px solid rgba(255, 255, 255, 0.2);
+            margin-top: 72px;
         }
         
         h2 {
@@ -309,7 +313,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     <?php renderThemeStyles($pdo); ?>
 </head>
 <body class="admin-login-page">
-    <?php renderSiteHeader('登入'); ?>
+    <?php renderSiteHeader('登入', [], false); ?>
     <div class="login-container">
         <div class="form-container active" id="login-form">
             <h2>登入</h2>

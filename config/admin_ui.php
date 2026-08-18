@@ -1,13 +1,6 @@
 <?php
 
 function renderAdminHeader($active, $title, $actions = []) {
-    $tabs = [
-        'image' => ['label' => '圖片', 'href' => '/admin/index.php'],
-        'video' => ['label' => '影片', 'href' => '/admin/video.php'],
-        'audio' => ['label' => '音訊', 'href' => '/admin/audio.php'],
-        'file' => ['label' => '文件', 'href' => '/admin/file.php'],
-    ];
-    $currentLabel = $tabs[$active]['label'] ?? $title;
     ?>
     <?php
     $headerActions = array_map(static function ($action) {
@@ -27,19 +20,8 @@ function renderAdminHeader($active, $title, $actions = []) {
         }
         return $action;
     }, $actions);
-    renderSiteHeader($title, $headerActions);
+    renderSiteHeader($title, $headerActions, $active);
     ?>
-    <header class="admin-header">
-        <div class="admin-header-main">
-            <nav class="admin-tabs" aria-label="管理分類">
-                <?php foreach ($tabs as $key => $tab): ?>
-                    <a href="<?= htmlspecialchars($tab['href']) ?>" class="admin-tab <?= $active === $key ? 'active' : '' ?>">
-                        <?= htmlspecialchars($tab['label']) ?>
-                    </a>
-                <?php endforeach; ?>
-            </nav>
-        </div>
-    </header>
     <?php
 }
 

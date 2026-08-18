@@ -8,6 +8,7 @@ const read = async (path) => readFile(new URL(path, root), 'utf8');
 const helper = await read('config/theme_helper.php');
 assert.match(helper, /function renderLanguageSwitcher\s*\(/);
 assert.match(helper, /function renderSiteHeader\s*\(/);
+assert.match(helper, /box-site-section-nav/);
 assert.match(helper, /function renderI18nAssets\s*\(/);
 
 const pages = [
@@ -69,11 +70,23 @@ for (const phrase of [
 ]) {
     assert.match(index, new RegExp(phrase.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')));
 }
+for (const label of ['圖片', '影片', '文件', '音訊']) {
+    assert.match(index, new RegExp(`<h2 class="card-title">${label}</h2>`));
+}
 assert.match(index, /pwa\.js\?v=2/);
 
 const uploadImage = await read('upload_image.php');
 assert.match(uploadImage, /pwa\.js\?v=2/);
 assert.match(helper, /\.box-site-header\s*\{[\s\S]*?margin-top:\s*-20px/);
+for (const page of ['upload_image.php', 'upload_video.php', 'upload_audio.php', 'upload_file.php']) {
+    const source = await read(page);
+    assert.match(source, /renderSiteHeader\([^\n]+,[\s\S]*?['"](image|video|audio|file)['"]\)/);
+    assert.doesNotMatch(source, /🖼️|🎬|🎙️|📂/);
+}
+
+const login = await read('admin/login.php');
+assert.match(login, /flex-direction:\s*column/);
+assert.match(login, /renderSiteHeader\('登入', \[\], false\)/);
 
 const view = await read('view.php');
 assert.match(view, /\.asset-header-top\s*\{[\s\S]*?top:\s*0;[\s\S]*?left:\s*0;[\s\S]*?width:\s*100%;/);

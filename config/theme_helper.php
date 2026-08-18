@@ -230,11 +230,37 @@ function renderThemeStyles($pdo) {
         box-shadow: 0 10px 28px rgba(0, 0, 0, 0.22);
     }
     .box-site-header-left,
+    .box-site-section-nav,
     .box-site-header-actions {
         display: inline-flex;
         align-items: center;
         gap: 10px;
         min-width: 0;
+    }
+    .box-site-section-nav {
+        gap: 4px;
+        flex: 1 1 auto;
+        justify-content: center;
+    }
+    .box-site-section-link {
+        display: inline-flex;
+        align-items: center;
+        min-height: 32px;
+        padding: 6px 10px;
+        border: 1px solid transparent;
+        border-radius: 7px;
+        color: <?= $theme['muted'] ?> !important;
+        text-decoration: none;
+        font-size: 0.82rem;
+        font-weight: 700;
+        white-space: nowrap;
+        transition: background 160ms ease, border-color 160ms ease, color 160ms ease;
+    }
+    .box-site-section-link:hover,
+    .box-site-section-link.is-active {
+        color: <?= $theme['content'] ?> !important;
+        background: rgba(122, 162, 247, 0.16);
+        border-color: rgba(125, 207, 255, 0.46);
     }
     .box-site-header-actions {
         justify-content: flex-end;
@@ -319,7 +345,8 @@ function renderThemeStyles($pdo) {
             margin-right: calc(50% - 50vw);
             padding: 10px max(14px, env(safe-area-inset-right)) 10px max(14px, env(safe-area-inset-left));
         }
-        .box-site-header-left,
+    .box-site-header-left,
+        .box-site-section-nav,
         .box-site-header-actions {
             flex-wrap: wrap;
         }
@@ -350,7 +377,13 @@ function renderLanguageSwitcher($inline = false) {
  * @param string $context Current center or admin section label.
  * @param array<int, array<string, string>> $actions Header links/buttons.
  */
-function renderSiteHeader($context, $actions = []) {
+function renderSiteHeader($context, $actions = [], $activeSection = null) {
+    $sections = [
+        'image' => ['label' => '圖片', 'href' => '/upload_image.php'],
+        'video' => ['label' => '影片', 'href' => '/upload_video.php'],
+        'audio' => ['label' => '音訊', 'href' => '/upload_audio.php'],
+        'file' => ['label' => '文件', 'href' => '/upload_file.php'],
+    ];
     ?>
     <header class="box-site-header">
         <div class="box-site-header-left">
@@ -361,6 +394,15 @@ function renderSiteHeader($context, $actions = []) {
             <span class="box-site-separator" aria-hidden="true">/</span>
             <span class="box-site-context" data-i18n><?= htmlspecialchars($context, ENT_QUOTES, 'UTF-8') ?></span>
         </div>
+        <?php if ($activeSection !== false): ?>
+            <nav class="box-site-section-nav" aria-label="管理分類">
+                <?php foreach ($sections as $key => $section): ?>
+                    <a href="<?= htmlspecialchars($section['href'], ENT_QUOTES, 'UTF-8') ?>" class="box-site-section-link<?= $activeSection === $key ? ' is-active' : '' ?>"<?= $activeSection === $key ? ' aria-current="page"' : '' ?>>
+                        <span data-i18n><?= htmlspecialchars($section['label'], ENT_QUOTES, 'UTF-8') ?></span>
+                    </a>
+                <?php endforeach; ?>
+            </nav>
+        <?php endif; ?>
         <div class="box-site-header-actions">
             <?php renderLanguageSwitcher(true); ?>
             <?php foreach ($actions as $action): ?>
