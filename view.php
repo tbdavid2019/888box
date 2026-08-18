@@ -279,6 +279,7 @@ if ($asset['is_audio'] == 1 || strpos($mime, 'audio/') !== false || in_array($ex
         .asset-header {
             display: grid;
             gap: 12px;
+            padding-top: 34px;
             margin-bottom: 24px;
         }
 
@@ -764,8 +765,7 @@ if ($asset['is_audio'] == 1 || strpos($mime, 'audio/') !== false || in_array($ex
 
         .asset-primary-actions {
             display: grid;
-            grid-template-columns: minmax(0, 1.1fr) minmax(260px, 0.9fr);
-            gap: 14px;
+            width: min(100%, 560px);
         }
 
         .btn-download {
@@ -776,12 +776,12 @@ if ($asset['is_audio'] == 1 || strpos($mime, 'audio/') !== false || in_array($ex
             justify-content: space-between;
             gap: 14px;
             padding: 12px 16px;
-            color: #fff;
-            background: #365fd1;
+            color: #10111a;
+            background: #7dcfff;
             text-decoration: none;
             border-radius: 14px;
             font-weight: bold;
-            box-shadow: 0 8px 18px rgba(54, 95, 209, 0.34);
+            box-shadow: 0 8px 18px rgba(125, 207, 255, 0.24);
             transition: transform 0.2s ease, filter 0.2s ease;
         }
 
@@ -798,7 +798,7 @@ if ($asset['is_audio'] == 1 || strpos($mime, 'audio/') !== false || in_array($ex
             justify-content: center;
             flex: 0 0 auto;
             color: currentColor;
-            background: rgba(255, 255, 255, 0.14);
+            background: rgba(16, 17, 26, 0.1);
             border-radius: 10px;
         }
 
@@ -815,7 +815,7 @@ if ($asset['is_audio'] == 1 || strpos($mime, 'audio/') !== false || in_array($ex
         }
 
         .download-copy small {
-            color: rgba(255, 255, 255, 0.72) !important;
+            color: rgba(16, 17, 26, 0.65) !important;
             font-size: 0.7rem;
             font-weight: 400;
             overflow: hidden;
@@ -826,13 +826,13 @@ if ($asset['is_audio'] == 1 || strpos($mime, 'audio/') !== false || in_array($ex
         .report-panel {
             display: flex;
             align-items: center;
-            justify-content: space-between;
+            justify-content: center;
             gap: 12px;
-            padding: 12px 14px;
-            color: #f7e4c3;
-            background: #352d25;
-            border: 1px solid #795d34;
-            border-radius: 14px;
+            width: fit-content;
+            max-width: 100%;
+            margin: 18px auto 0;
+            padding: 7px 0;
+            color: var(--text-secondary, rgba(255, 255, 255, 0.62));
         }
 
         .report-copy {
@@ -866,8 +866,8 @@ if ($asset['is_audio'] == 1 || strpos($mime, 'audio/') !== false || in_array($ex
             align-items: center;
             justify-content: center;
             flex: 0 0 auto;
-            color: var(--accent-orange, #e0af68) !important;
-            background: rgba(224, 175, 104, 0.12);
+            color: var(--text-secondary, rgba(255, 255, 255, 0.62)) !important;
+            background: rgba(255, 255, 255, 0.06);
             border-radius: 9px;
         }
 
@@ -877,9 +877,9 @@ if ($asset['is_audio'] == 1 || strpos($mime, 'audio/') !== false || in_array($ex
             gap: 6px;
             flex: 0 0 auto;
             padding: 9px 11px;
-            color: #ffe0a3 !important;
-            background: #5b4527;
-            border: 1px solid #9a7540;
+            color: var(--text-secondary, rgba(255, 255, 255, 0.7)) !important;
+            background: transparent;
+            border: 1px solid rgba(255, 255, 255, 0.16);
             border-radius: 9px;
             cursor: pointer;
             font: inherit;
@@ -888,8 +888,9 @@ if ($asset['is_audio'] == 1 || strpos($mime, 'audio/') !== false || in_array($ex
         }
 
         .btn-report:hover {
-            background: #72562e;
-            border-color: #c39650;
+            color: var(--accent-cyan, #7dcfff) !important;
+            background: rgba(125, 207, 255, 0.08);
+            border-color: rgba(125, 207, 255, 0.48);
             transform: translateY(-1px);
         }
 
@@ -1065,19 +1066,6 @@ if ($asset['is_audio'] == 1 || strpos($mime, 'audio/') !== false || in_array($ex
                         </span>
                         <i data-lucide="arrow-up-right"></i>
                     </a>
-
-                    <div class="report-panel">
-                        <div class="report-copy">
-                            <span class="report-icon"><i data-lucide="flag"></i></span>
-                            <span>
-                                <strong>內容有問題？</strong>
-                                <small>發現不當內容，請通知管理員</small>
-                            </span>
-                        </div>
-                        <button type="button" class="btn-report" onclick="reportAsset(<?= $id ?>, this)">
-                            舉報 <i data-lucide="chevron-right"></i>
-                        </button>
-                    </div>
                 </div>
                 <div class="asset-meta">
                     <span class="meta-item"><i data-lucide="clock"></i>時間 <?= $asset['created_at'] ?></span>
@@ -1239,6 +1227,19 @@ if ($asset['is_audio'] == 1 || strpos($mime, 'audio/') !== false || in_array($ex
                     <i data-lucide="plus-circle"></i>
                     <span>前往免費上傳</span>
                 </a>
+            </div>
+
+            <div class="report-panel report-panel-footer">
+                <div class="report-copy">
+                    <span class="report-icon"><i data-lucide="flag"></i></span>
+                    <span>
+                        <strong>內容有問題？</strong>
+                        <small>發現不當內容，請通知管理員</small>
+                    </span>
+                </div>
+                <button type="button" class="btn-report" onclick="reportAsset(<?= $id ?>, this)">
+                    舉報 <i data-lucide="chevron-right"></i>
+                </button>
             </div>
         <?php endif; ?>
     </div>

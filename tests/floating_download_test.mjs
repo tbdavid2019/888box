@@ -14,15 +14,30 @@ function assert(condition, message) {
 assert(
     view.includes('class="asset-primary-actions"') &&
     view.indexOf('class="asset-primary-actions"') < view.indexOf('class="asset-meta"'),
-    'Download and report actions must appear between the title and the asset metadata.'
+    'The download action must appear between the title and the asset metadata.'
 );
 assert(
-    view.includes('class="btn-download"') && view.includes('立即下載'),
+    view.includes('class="btn-download"') && view.includes('立即下載') &&
+    !view.slice(
+        view.indexOf('class="asset-primary-actions"'),
+        view.indexOf('class="asset-meta"')
+    ).includes('report-panel'),
     'The primary action must retain the established 立即下載 label.'
 );
 assert(
-    !view.includes('floating-download') && view.includes('background: #365fd1;'),
-    'The old floating action must be removed and the primary download button must be visually distinct.'
+    !view.includes('floating-download') &&
+    view.includes('background: #7dcfff;') &&
+    view.includes('color: #10111a;'),
+    'The primary download button must use the same high-contrast light-blue treatment as the install action.'
+);
+assert(
+    view.indexOf('class="user-guide-cta"') < view.indexOf('class="report-panel report-panel-footer"') &&
+    view.indexOf('class="report-panel report-panel-footer"') < view.indexOf('<footer class="portal-footer">'),
+    'The report action must be a secondary control immediately above the footer.'
+);
+assert(
+    view.includes('.asset-header {') && view.includes('padding-top: 34px;'),
+    'The asset title must reserve space beneath the fixed navigation bar.'
 );
 assert(
     view.includes('color: #172554 !important;') && view.includes('background: #4f86df;'),
