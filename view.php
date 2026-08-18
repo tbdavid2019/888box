@@ -260,16 +260,73 @@ if ($asset['is_audio'] == 1 || strpos($mime, 'audio/') !== false || in_array($ex
 } elseif (in_array($ext, TEXT_PREVIEW_EXTENSIONS, true)) {
     $type = 'text';
 }
+$shareUrlParts = parse_url($shareUrl);
+$siteUrl = '';
+if (!empty($shareUrlParts['scheme']) && !empty($shareUrlParts['host'])) {
+    $siteUrl = $shareUrlParts['scheme'] . '://' . $shareUrlParts['host'];
+    if (!empty($shareUrlParts['port'])) {
+        $siteUrl .= ':' . $shareUrlParts['port'];
+    }
+}
+$siteUrl = $siteUrl ?: 'https://' . ($_SERVER['HTTP_HOST'] ?? 'box.aiurl.tw');
+$assetTitle = trim($asset['title'] ?: '資源檢視');
+$metaDescription = trim(preg_replace('/\s+/u', ' ', strip_tags((string)($asset['description'] ?? ''))));
+if ($metaDescription === '') {
+    $metaDescription = '公開分享資源「' . $assetTitle . '」，由 888 BOX 提供檔案預覽與下載。';
+}
+if (function_exists('mb_substr')) {
+    $metaDescription = mb_substr($metaDescription, 0, 160);
+} else {
+    $metaDescription = substr($metaDescription, 0, 160);
+}
+$defaultOgImage = $siteUrl . '/static/og-image.png';
+$ogImage = $defaultOgImage;
+if ($type === 'image' && empty($asset['password']) && preg_match('/\.(jpe?g|png|gif|webp)$/i', $asset['path'] ?? '')) {
+    $ogImage = $url;
+}
+$jsonLd = [
+    '@context' => 'https://schema.org',
+    '@type' => 'WebPage',
+    'name' => $assetTitle . ' - 888 BOX',
+    'description' => $metaDescription,
+    'url' => $shareUrl,
+    'image' => $ogImage,
+    'inLanguage' => 'zh-Hant',
+    'isPartOf' => [
+        '@type' => 'WebSite',
+        'name' => '888 BOX',
+        'url' => $siteUrl,
+    ],
+];
 ?>
 <!DOCTYPE html>
 <html lang="zh-Hant">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-    <title><?= htmlspecialchars($asset['title'] ?: '資源檢視') ?> - 888 BOX</title>
+    <title><?= htmlspecialchars($assetTitle) ?> - 888 BOX</title>
+    <meta name="description" content="<?= htmlspecialchars($metaDescription) ?>">
+    <link rel="canonical" href="<?= htmlspecialchars($shareUrl) ?>">
+    <link rel="icon" href="/static/favicon.ico" sizes="any">
+    <link rel="icon" type="image/png" sizes="32x32" href="/static/favicon-32x32.png">
     <link rel="shortcut icon" href="/static/favicon.svg">
     <link rel="apple-touch-icon" sizes="180x180" href="/static/apple-touch-icon.png">
     <link rel="manifest" href="/static/site.webmanifest">
+    <meta property="og:type" content="article">
+    <meta property="og:title" content="<?= htmlspecialchars($assetTitle . ' - 888 BOX') ?>">
+    <meta property="og:description" content="<?= htmlspecialchars($metaDescription) ?>">
+    <meta property="og:url" content="<?= htmlspecialchars($shareUrl) ?>">
+    <meta property="og:image" content="<?= htmlspecialchars($ogImage) ?>">
+    <meta property="og:image:alt" content="<?= htmlspecialchars($assetTitle) ?>">
+    <meta property="og:site_name" content="888 BOX">
+    <meta property="og:locale" content="zh_TW">
+    <meta property="og:locale:alternate" content="en_US">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="<?= htmlspecialchars($assetTitle . ' - 888 BOX') ?>">
+    <meta name="twitter:description" content="<?= htmlspecialchars($metaDescription) ?>">
+    <meta name="twitter:image" content="<?= htmlspecialchars($ogImage) ?>">
+    <meta name="twitter:image:alt" content="<?= htmlspecialchars($assetTitle) ?>">
+    <script type="application/ld+json"><?= json_encode($jsonLd, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) ?></script>
     <meta name="theme-color" content="#1a1b26">
     <script defer src="/static/js/pwa.js"></script>
     <link rel="stylesheet" href="/static/css/portal.css">
@@ -345,6 +402,49 @@ if ($asset['is_audio'] == 1 || strpos($mime, 'audio/') !== false || in_array($ex
             gap: 8px;
             font-size: 0.78rem;
             font-weight: 600;
+        }
+
+        .header-actions {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            flex: 0 0 auto;
+        }
+
+        .language-switcher {
+            display: inline-flex;
+            align-items: center;
+            gap: 2px;
+            padding: 3px;
+            background: rgba(255, 255, 255, 0.06);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            border-radius: 10px;
+        }
+
+        .language-switcher button {
+            min-width: 32px;
+            min-height: 30px;
+            padding: 5px 7px;
+            color: var(--share-text-muted);
+            background: transparent;
+            border: 0;
+            border-radius: 7px;
+            cursor: pointer;
+            font: inherit;
+            font-size: 0.68rem;
+            font-weight: 700;
+            line-height: 1;
+        }
+
+        .language-switcher button:hover,
+        .language-switcher button.is-active {
+            color: var(--share-action-ink);
+            background: var(--share-action);
+        }
+
+        .language-switcher button:focus-visible {
+            outline: 2px solid var(--share-focus);
+            outline-offset: 2px;
         }
 
         .breadcrumb-link {
@@ -1026,6 +1126,16 @@ if ($asset['is_audio'] == 1 || strpos($mime, 'audio/') !== false || in_array($ex
                 padding: 8px 10px;
             }
 
+            .header-actions {
+                gap: 5px;
+            }
+
+            .language-switcher button {
+                min-width: 30px;
+                min-height: 30px;
+                padding-inline: 5px;
+            }
+
             .asset-breadcrumb {
                 min-width: 0;
                 white-space: nowrap;
@@ -1125,13 +1235,13 @@ if ($asset['is_audio'] == 1 || strpos($mime, 'audio/') !== false || in_array($ex
         <?php if (!$isAuthorized): ?>
             <div class="password-gate">
                 <div style="margin-bottom: 20px; display: flex; justify-content: center;"><i data-lucide="lock" style="width: 52px; height: 52px; color: #7aa2f7;"></i></div>
-                <h2 style="margin-bottom: 20px;">此資源受密碼保護</h2>
+                <h2 style="margin-bottom: 20px;" data-i18n="passwordProtected">此資源受密碼保護</h2>
                 <form method="POST">
-                    <input type="password" name="password" placeholder="請輸入存取密碼" required autofocus>
+                    <input type="password" name="password" data-i18n-placeholder="passwordPlaceholder" placeholder="請輸入存取密碼" required autofocus>
                     <?php if (isset($error)): ?>
-                        <p style="color: #ff3b30; margin-bottom: 15px;"><?= $error ?></p>
+                        <p style="color: #ff3b30; margin-bottom: 15px;" data-i18n="passwordError"><?= $error ?></p>
                     <?php endif; ?><br>
-                    <button type="submit">驗證並進入</button>
+                    <button type="submit" data-i18n="verifyAndEnter">驗證並進入</button>
                 </form>
             </div>
         <?php else: ?>
@@ -1142,17 +1252,23 @@ if ($asset['is_audio'] == 1 || strpos($mime, 'audio/') !== false || in_array($ex
             <div class="asset-header">
                 <div class="asset-header-top">
                     <nav class="asset-breadcrumb" aria-label="麵包屑導覽">
-                        <a href="/" class="breadcrumb-link" title="返回 888 BOX 首頁門戶">
+                        <a href="/" class="breadcrumb-link" title="返回 888 BOX 首頁門戶" data-i18n-aria="portalLabel">
                             <i data-lucide="box"></i>
-                            <span>888 BOX 門戶</span>
+                            <span data-i18n="portal">888 BOX 門戶</span>
                         </a>
                         <span class="breadcrumb-sep">/</span>
-                        <span class="breadcrumb-tag">公開資源</span>
+                        <span class="breadcrumb-tag" data-i18n="publicResource">公開資源</span>
                     </nav>
-                    <a href="/" class="btn-header-upload" title="前往免費上傳與託管檔案" aria-label="前往免費上傳與託管檔案">
-                        <i data-lucide="upload-cloud"></i>
-                        <span>我也要上傳檔案</span>
-                    </a>
+                    <div class="header-actions">
+                        <div class="language-switcher" role="group" aria-label="Language" data-i18n-aria="languageLabel">
+                            <button type="button" data-language="zh-Hant" aria-pressed="true">繁</button>
+                            <button type="button" data-language="en" aria-pressed="false">EN</button>
+                        </div>
+                        <a href="/" class="btn-header-upload" title="前往免費上傳與託管檔案" aria-label="前往免費上傳與託管檔案" data-i18n-aria="uploadLabel">
+                            <i data-lucide="upload-cloud"></i>
+                            <span data-i18n="uploadLabel">我也要上傳檔案</span>
+                        </a>
+                    </div>
                 </div>
                 <?php if ($hasTitle): ?>
                     <h1 class="asset-title"><?= htmlspecialchars($customTitle) ?></h1>
@@ -1161,19 +1277,19 @@ if ($asset['is_audio'] == 1 || strpos($mime, 'audio/') !== false || in_array($ex
                     <a href="<?= htmlspecialchars($url) ?>" download="<?= htmlspecialchars(basename($asset['path'])) ?>" class="btn-download">
                         <span class="download-icon"><i data-lucide="download"></i></span>
                         <span class="download-copy">
-                            <strong>立即下載</strong>
+                            <strong data-i18n="download">立即下載</strong>
                             <small><?= htmlspecialchars(basename($asset['path'])) ?></small>
                         </span>
                         <i data-lucide="arrow-up-right"></i>
                     </a>
                 </div>
                 <div class="asset-meta">
-                    <span class="meta-item"><i data-lucide="clock"></i>時間 <?= $asset['created_at'] ?></span>
+                    <span class="meta-item"><i data-lucide="clock"></i><span data-i18n="time">時間</span> <?= $asset['created_at'] ?></span>
                     <?php if ($type === 'image'): ?>
-                        <span class="meta-item" id="meta-dimensions" style="display: none;"><i data-lucide="maximize-2"></i>尺寸 <span id="image-dimensions"></span></span>
+                        <span class="meta-item" id="meta-dimensions" style="display: none;"><i data-lucide="maximize-2"></i><span data-i18n="dimensions">尺寸</span> <span id="image-dimensions"></span></span>
                     <?php endif; ?>
-                    <span class="meta-item"><i data-lucide="hard-drive"></i>大小 <?= number_format($asset['size'] / 1024 / 1024, 2) ?> MB</span>
-                    <span class="meta-item"><i data-lucide="eye"></i>瀏覽 <span id="view-count"><?= $asset['view_count'] ?></span> 次</span>
+                    <span class="meta-item"><i data-lucide="hard-drive"></i><span data-i18n="size">大小</span> <?= number_format($asset['size'] / 1024 / 1024, 2) ?> MB</span>
+                    <span class="meta-item"><i data-lucide="eye"></i><span data-i18n="views">瀏覽</span> <span id="view-count"><?= $asset['view_count'] ?></span> <span data-i18n="times">次</span></span>
                 </div>
             </div>
 
@@ -1211,9 +1327,9 @@ if ($asset['is_audio'] == 1 || strpos($mime, 'audio/') !== false || in_array($ex
                 <?php elseif ($type === 'text'): ?>
                     <div class="text-preview" role="region" aria-label="文字檔預覽">
                         <?php if ((int)$asset['size'] > TEXT_PREVIEW_MAX_BYTES): ?>
-                            <p class="preview-message">此文字檔超過 2 MB 預覽限制，請使用下方下載按鈕取得完整內容。</p>
+                        <p class="preview-message" data-i18n="textTooLarge">此文字檔超過 2 MB 預覽限制，請使用下方下載按鈕取得完整內容。</p>
                         <?php else: ?>
-                            <pre id="text-viewer" tabindex="0" aria-live="polite">正在載入文字內容…</pre>
+                            <pre id="text-viewer" tabindex="0" aria-live="polite" data-i18n="loadingText">正在載入文字內容…</pre>
                             <script>
                                 (async () => {
                                     const viewer = document.getElementById('text-viewer');
@@ -1228,7 +1344,7 @@ if ($asset['is_audio'] == 1 || strpos($mime, 'audio/') !== false || in_array($ex
                                         viewer.textContent = text;
                                     } catch (error) {
                                         console.error('文字預覽載入失敗', error);
-                                        viewer.textContent = '文字預覽載入失敗，請使用下方下載按鈕。';
+                                        viewer.textContent = window.shareText ? window.shareText('textPreviewFailed') : '文字預覽載入失敗，請使用下方下載按鈕。';
                                     }
                                 })();
                             </script>
@@ -1237,9 +1353,9 @@ if ($asset['is_audio'] == 1 || strpos($mime, 'audio/') !== false || in_array($ex
                 <?php elseif ($type === 'epub'): ?>
                     <div class="epub-preview" id="epub-preview">
                         <?php if ((int)$asset['size'] > EPUB_PREVIEW_MAX_BYTES): ?>
-                            <p class="epub-status" id="epub-status" role="status">此 EPUB 含有大型媒體，瀏覽器預覽可能無法順利開啟。請使用「立即下載」以閱讀完整內容。</p>
+                            <p class="epub-status" id="epub-status" role="status" data-i18n="largeEpub">此 EPUB 含有大型媒體，瀏覽器預覽可能無法順利開啟。請使用「立即下載」以閱讀完整內容。</p>
                         <?php else: ?>
-                            <div class="epub-status" id="epub-status" role="status">正在載入 EPUB 閱讀器…</div>
+                            <div class="epub-status" id="epub-status" role="status" data-i18n="loadingEpub">正在載入 EPUB 閱讀器…</div>
                             <div id="epub-viewer"></div>
                         <?php endif; ?>
                     </div>
@@ -1250,7 +1366,7 @@ if ($asset['is_audio'] == 1 || strpos($mime, 'audio/') !== false || in_array($ex
                                 const preview = document.getElementById('epub-preview');
                                 const status = document.getElementById('epub-status');
                                 const showFailure = () => {
-                                    if (status) status.textContent = 'EPUB 預覽載入失敗，請使用「立即下載」。';
+                                    if (status) status.textContent = window.shareText ? window.shareText('epubFailed') : 'EPUB 預覽載入失敗，請使用「立即下載」。';
                                 };
 
                                 if (typeof ePub !== 'function') {
@@ -1279,7 +1395,7 @@ if ($asset['is_audio'] == 1 || strpos($mime, 'audio/') !== false || in_array($ex
                     <?php endif; ?>
                 <?php else: ?>
                     <div style="text-align: center; color: #888;">
-                        <p>此類型檔案暫不支援直接預覽</p>
+                        <p data-i18n="previewUnsupported">此類型檔案暫不支援直接預覽</p>
                     </div>
                 <?php endif; ?>
             </div>
@@ -1287,11 +1403,11 @@ if ($asset['is_audio'] == 1 || strpos($mime, 'audio/') !== false || in_array($ex
             <!-- 嵌入與外鏈代碼面板 -->
             <div class="embed-panel">
                 <div class="embed-header-row">
-                    <h3 class="embed-title-text"><i data-lucide="code-2"></i> 嵌入與外鏈代碼</h3>
+                    <h3 class="embed-title-text"><i data-lucide="code-2"></i> <span data-i18n="embedTitle">嵌入與外鏈代碼</span></h3>
                 </div>
                 <div class="embed-tabs">
-                    <button type="button" class="embed-tab active" data-type="share" onclick="selectEmbedType('share', this)">分享頁網址</button>
-                    <button type="button" class="embed-tab" data-type="url" onclick="selectEmbedType('url', this)">直連網址</button>
+                    <button type="button" class="embed-tab active" data-type="share" onclick="selectEmbedType('share', this)" data-i18n="shareUrl">分享頁網址</button>
+                    <button type="button" class="embed-tab" data-type="url" onclick="selectEmbedType('url', this)" data-i18n="directUrl">直連網址</button>
                     <button type="button" class="embed-tab" data-type="markdown" onclick="selectEmbedType('markdown', this)">Markdown</button>
                     <button type="button" class="embed-tab" data-type="html" onclick="selectEmbedType('html', this)">HTML</button>
                     <button type="button" class="embed-tab" data-type="bbcode" onclick="selectEmbedType('bbcode', this)">BBCode</button>
@@ -1300,14 +1416,14 @@ if ($asset['is_audio'] == 1 || strpos($mime, 'audio/') !== false || in_array($ex
                     <input type="text" id="embedCodeInput" readonly value="<?= htmlspecialchars($shareUrl) ?>">
                     <button type="button" class="btn-copy-embed" id="btnCopyEmbed" onclick="copyEmbedCode(this)">
                         <i data-lucide="copy"></i>
-                        <span>複製</span>
+                        <span data-i18n="copy">複製</span>
                     </button>
                 </div>
             </div>
 
             <?php if (!empty($asset['description'])): ?>
                 <div class="asset-description">
-                    <span class="description-label">資源說明</span>
+                    <span class="description-label" data-i18n="description">資源說明</span>
                     <p class="description-copy"><?= nl2br(htmlspecialchars($asset['description'])) ?></p>
                 </div>
             <?php endif; ?>
@@ -1319,13 +1435,13 @@ if ($asset['is_audio'] == 1 || strpos($mime, 'audio/') !== false || in_array($ex
                         <i data-lucide="sparkles"></i>
                     </div>
                     <div class="cta-text-content">
-                        <strong>想要託管或分享你的圖片、影片與文件？</strong>
-                        <p>888 BOX 提供免費、高效、安全的檔案中心，任何人皆可免登入直接上傳！</p>
+                        <strong data-i18n="ctaTitle">想要託管或分享你的圖片、影片與文件？</strong>
+                        <p data-i18n="ctaText">888 BOX 提供免費、高效、安全的檔案中心，任何人皆可免登入直接上傳！</p>
                     </div>
                 </div>
                 <a href="/" class="btn-cta-upload">
                     <i data-lucide="plus-circle"></i>
-                    <span>前往免費上傳</span>
+                    <span data-i18n="goUpload">前往免費上傳</span>
                 </a>
             </div>
 
@@ -1333,12 +1449,12 @@ if ($asset['is_audio'] == 1 || strpos($mime, 'audio/') !== false || in_array($ex
                 <div class="report-copy">
                     <span class="report-icon"><i data-lucide="flag"></i></span>
                     <span>
-                        <strong>內容有問題？</strong>
-                        <small>發現不當內容，請通知管理員</small>
+                        <strong data-i18n="reportTitle">內容有問題？</strong>
+                        <small data-i18n="reportDescription">發現不當內容，請通知管理員</small>
                     </span>
                 </div>
                 <button type="button" class="btn-report" onclick="reportAsset(<?= $id ?>, this)">
-                    舉報 <i data-lucide="chevron-right"></i>
+                    <span data-i18n="report">舉報</span> <i data-lucide="chevron-right"></i>
                 </button>
             </div>
         <?php endif; ?>
@@ -1359,6 +1475,74 @@ if ($asset['is_audio'] == 1 || strpos($mime, 'audio/') !== false || in_array($ex
             html: <?= json_encode('<img src="' . $url . '" alt="' . ($customTitle ?: 'image') . '">' ) ?>,
             bbcode: <?= json_encode('[img]' . $url . '[/img]') ?>
         };
+        const shareTranslations = {
+            'zh-Hant': {
+                portal: '888 BOX 門戶', publicResource: '公開資源', languageLabel: '語言', portalLabel: '返回 888 BOX 首頁門戶', uploadLabel: '我也要上傳檔案', download: '立即下載', time: '時間', dimensions: '尺寸', size: '大小', views: '瀏覽', times: '次',
+                passwordProtected: '此資源受密碼保護', passwordPlaceholder: '請輸入存取密碼', verifyAndEnter: '驗證並進入', passwordError: '密碼錯誤',
+                textTooLarge: '此文字檔超過 2 MB 預覽限制，請使用下方下載按鈕取得完整內容。', loadingText: '正在載入文字內容…',
+                largeEpub: '此 EPUB 含有大型媒體，瀏覽器預覽可能無法順利開啟。請使用「立即下載」以閱讀完整內容。', loadingEpub: '正在載入 EPUB 閱讀器…',
+                epubFailed: 'EPUB 預覽載入失敗，請使用「立即下載」。', textPreviewFailed: '文字預覽載入失敗，請使用下方下載按鈕。', previewUnsupported: '此類型檔案暫不支援直接預覽',
+                embedTitle: '嵌入與外鏈代碼', shareUrl: '分享頁網址', directUrl: '直連網址', copy: '複製', copied: '已複製嵌入代碼！', copyFailed: '複製失敗，請手動複製',
+                description: '資源說明', ctaTitle: '想要託管或分享你的圖片、影片與文件？', ctaText: '888 BOX 提供免費、高效、安全的檔案中心，任何人皆可免登入直接上傳！', goUpload: '前往免費上傳',
+                reportTitle: '內容有問題？', reportDescription: '發現不當內容，請通知管理員', report: '舉報', reportConfirm: '確定要舉報此資源嗎？管理員將會收到通知。', reporting: '送出中…',
+                reportReceived: '已收到您的舉報，感謝您的回饋。', reportFailed: '舉報失敗：', networkError: '網路錯誤，請稍後再試', uploadAria: '前往免費上傳與託管檔案'
+            },
+            en: {
+                portal: '888 BOX Portal', publicResource: 'Public Resource', languageLabel: 'Language', portalLabel: 'Return to 888 BOX home', uploadLabel: 'Upload files', download: 'Download', time: 'Time', dimensions: 'Dimensions', size: 'Size', views: 'Views', times: '',
+                passwordProtected: 'This resource is password protected', passwordPlaceholder: 'Enter access password', verifyAndEnter: 'Verify and enter', passwordError: 'Incorrect password',
+                textTooLarge: 'This text file exceeds the 2 MB preview limit. Use the download button below to get the complete file.', loadingText: 'Loading text…',
+                largeEpub: 'This EPUB contains large media and may not preview reliably in a browser. Use “Download” to read the complete file.', loadingEpub: 'Loading EPUB reader…',
+                epubFailed: 'EPUB preview failed. Use “Download” instead.', textPreviewFailed: 'Text preview failed. Use the download button below.', previewUnsupported: 'Direct preview is not supported for this file type',
+                embedTitle: 'Embed & external link code', shareUrl: 'Share page URL', directUrl: 'Direct URL', copy: 'Copy', copied: 'Embed code copied!', copyFailed: 'Copy failed. Please copy it manually.',
+                description: 'Description', ctaTitle: 'Want to host or share your images, videos, and files?', ctaText: '888 BOX provides a free, fast, and secure file center. Anyone can upload without signing in.', goUpload: 'Upload for free',
+                reportTitle: 'Something wrong?', reportDescription: 'Found inappropriate content? Notify an administrator.', report: 'Report', reportConfirm: 'Report this resource? An administrator will be notified.', reporting: 'Sending…',
+                reportReceived: 'Your report was received. Thank you for your feedback.', reportFailed: 'Report failed: ', networkError: 'Network error. Please try again later.', uploadAria: 'Go to free file hosting and upload'
+            }
+        };
+        const shareLanguageStorageKey = '888box:share-language:v1';
+        let shareLanguage = 'zh-Hant';
+        try {
+            const storedLanguage = localStorage.getItem(shareLanguageStorageKey);
+            if (storedLanguage === 'en' || storedLanguage === 'zh-Hant') {
+                shareLanguage = storedLanguage;
+            } else if (Array.from(navigator.languages || [navigator.language]).some(language => /^zh/i.test(language))) {
+                shareLanguage = 'zh-Hant';
+            } else {
+                shareLanguage = 'en';
+            }
+        } catch (error) {
+            shareLanguage = /^zh/i.test(navigator.language || '') ? 'zh-Hant' : 'en';
+        }
+
+        function shareText(key) {
+            return shareTranslations[shareLanguage][key] || shareTranslations['zh-Hant'][key] || '';
+        }
+
+        function applyShareLanguage(language) {
+            if (!shareTranslations[language]) return;
+            shareLanguage = language;
+            document.documentElement.lang = language;
+            document.querySelectorAll('[data-i18n]').forEach(element => {
+                element.textContent = shareText(element.dataset.i18n);
+            });
+            document.querySelectorAll('[data-i18n-placeholder]').forEach(element => {
+                element.placeholder = shareText(element.dataset.i18nPlaceholder);
+            });
+            document.querySelectorAll('[data-i18n-aria]').forEach(element => {
+                element.setAttribute('aria-label', shareText(element.dataset.i18nAria));
+            });
+            document.querySelectorAll('[data-language]').forEach(button => {
+                const isActive = button.dataset.language === language;
+                button.classList.toggle('is-active', isActive);
+                button.setAttribute('aria-pressed', isActive ? 'true' : 'false');
+            });
+            try {
+                localStorage.setItem(shareLanguageStorageKey, language);
+            } catch (error) {
+                console.warn('無法儲存語言偏好', error);
+            }
+        }
+        window.shareText = shareText;
         const viewMarkerKey = '888box:view-counted:v1:' + <?= json_encode((string)$asset['share_token']) ?>;
         const viewRecordUrl = <?= json_encode('/view.php?token=' . urlencode((string)$asset['share_token'])) ?>;
 
@@ -1407,20 +1591,24 @@ if ($asset['is_audio'] == 1 || strpos($mime, 'audio/') !== false || in_array($ex
             if (!input) return;
             input.select();
             navigator.clipboard.writeText(input.value).then(() => {
-                showReportToast('已複製嵌入代碼！');
+                showReportToast(shareText('copied'));
                 const span = btn.querySelector('span');
                 if (span) {
                     const originalText = span.textContent;
-                    span.textContent = '已複製!';
+                    span.textContent = shareLanguage === 'en' ? 'Copied!' : '已複製!';
                     setTimeout(() => span.textContent = originalText, 2000);
                 }
             }).catch(() => {
-                showReportToast('複製失敗，請手動複製', true);
+                showReportToast(shareText('copyFailed'), true);
             });
         }
 
         document.addEventListener('DOMContentLoaded', () => {
             if (window.lucide) lucide.createIcons();
+            document.querySelectorAll('[data-language]').forEach(button => {
+                button.addEventListener('click', () => applyShareLanguage(button.dataset.language));
+            });
+            applyShareLanguage(shareLanguage);
             recordFirstDeviceView();
 
             const img = document.querySelector('.viewer-box img');
@@ -1458,11 +1646,11 @@ if ($asset['is_audio'] == 1 || strpos($mime, 'audio/') !== false || in_array($ex
         }
 
         function reportAsset(id, button) {
-            if (!confirm('確定要舉報此資源嗎？管理員將會收到通知。')) return;
+            if (!confirm(shareText('reportConfirm'))) return;
 
             const originalContent = button.innerHTML;
             button.disabled = true;
-            button.textContent = '送出中…';
+            button.textContent = shareText('reporting');
 
             fetch('/api_report.php', {
                 method: 'POST',
@@ -1472,9 +1660,9 @@ if ($asset['is_audio'] == 1 || strpos($mime, 'audio/') !== false || in_array($ex
             .then(res => res.json().then(data => ({ ok: res.ok, data })))
             .then(data => {
                 if (data.ok && data.data.result === 'success') {
-                    showReportToast(data.data.message || '已收到您的舉報，感謝您的回饋。');
+                    showReportToast(data.data.message || shareText('reportReceived'));
                 } else {
-                    showReportToast('舉報失敗：' + (data.data.message || '請稍後再試'), true);
+                    showReportToast(shareText('reportFailed') + (data.data.message || (shareLanguage === 'en' ? 'Please try again later.' : '請稍後再試')), true);
                 }
             })
             .catch(() => showReportToast('網路錯誤，請稍後再試', true))
