@@ -359,7 +359,7 @@ $jsonLd = [
             --share-subtle-border: rgba(255, 255, 255, 0.08);
             --share-viewer-surface: #080a11;
             width: min(100%, 980px);
-            margin: 64px auto 20px;
+            margin: 88px auto 20px;
             padding: clamp(22px, 4vw, 48px);
             background: var(--share-surface);
             border: 1px solid var(--share-border);
@@ -377,23 +377,25 @@ $jsonLd = [
 
         .asset-header-top {
             position: fixed;
-            top: 14px;
-            left: 50%;
-            transform: translateX(-50%);
-            width: min(calc(100% - 24px), 960px);
+            top: 0;
+            left: 0;
+            transform: none;
+            width: 100%;
+            box-sizing: border-box;
             z-index: 1000;
             display: flex;
             align-items: center;
             justify-content: space-between;
             gap: 12px;
             flex-wrap: wrap;
-            padding: 10px 18px;
+            padding: 12px clamp(18px, 4vw, 48px);
             background: var(--share-nav-surface);
             backdrop-filter: blur(24px);
             -webkit-backdrop-filter: blur(24px);
             border: 1px solid var(--share-nav-border);
-            border-radius: 999px;
-            box-shadow: 0 10px 36px rgba(0, 0, 0, 0.45);
+            border-width: 0 0 1px;
+            border-radius: 0;
+            box-shadow: 0 10px 28px rgba(0, 0, 0, 0.3);
         }
 
         .asset-breadcrumb {
@@ -1115,15 +1117,15 @@ $jsonLd = [
 
             .view-container {
                 --share-nav-clearance: 54px;
-                margin: 8px auto;
+                margin: 76px auto 8px;
                 border-radius: 20px;
             }
 
             .asset-header-top {
-                top: max(8px, env(safe-area-inset-top));
-                width: min(calc(100% - 16px), 960px);
+                top: 0;
+                width: 100%;
                 flex-wrap: nowrap;
-                padding: 8px 10px;
+                padding: max(8px, env(safe-area-inset-top)) 10px 8px;
             }
 
             .header-actions {
