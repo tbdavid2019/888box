@@ -196,7 +196,9 @@ function buildAssetShareUrl($asset, $config = null) {
     $shortToken = (strlen($token) > 12) ? substr($token, 0, 12) : $token;
 
     if (!empty($_SERVER['HTTP_HOST'])) {
-        $scheme = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https' : 'http';
+        $forwardedProto = strtolower(trim(explode(',', (string)($_SERVER['HTTP_X_FORWARDED_PROTO'] ?? ''))[0]));
+        $isHttps = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') || $forwardedProto === 'https';
+        $scheme = $isHttps ? 'https' : 'http';
         return $scheme . '://' . $_SERVER['HTTP_HOST'] . '/v/' . urlencode($shortToken);
     }
 

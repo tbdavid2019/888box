@@ -3,6 +3,7 @@ import { resolve } from 'node:path';
 import process from 'node:process';
 
 const view = readFileSync(resolve(import.meta.dirname, '..', 'view.php'), 'utf8');
+const database = readFileSync(resolve(import.meta.dirname, '..', 'config', 'database.php'), 'utf8');
 
 function assert(condition, message) {
     if (!condition) {
@@ -44,6 +45,13 @@ assert(
     view.includes('data-i18n="embedTitle"') &&
     view.includes('data-i18n="reportTitle"'),
     'Share-page interface labels must be available in Traditional Chinese and English.'
+);
+
+assert(
+    database.includes("$_SERVER['HTTP_X_FORWARDED_PROTO']") &&
+    database.includes("=== 'https'") &&
+    database.includes("$scheme . '://' . $_SERVER['HTTP_HOST']"),
+    'Share URLs must preserve HTTPS when the app is behind a reverse proxy.'
 );
 
 console.log('Share SEO and bilingual UI contract checks passed.');

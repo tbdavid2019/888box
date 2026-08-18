@@ -9,6 +9,7 @@ All notable changes to this project will be documented in this file.
 - **Share-Page CTA Contrast**: The embed-code copy action now forces dark text and icons on its light-blue surface, preventing theme styles from making the label unreadable.
 - **Bilingual Share Pages**: Added automatic browser-language detection plus a persistent Traditional Chinese / English switcher in the top-right navigation.
 - **Share-Page SEO Metadata**: Added description, canonical, Open Graph, Twitter Card, JSON-LD, and PNG/ICO favicon metadata for richer link previews and search indexing.
+- **HTTPS Share URLs**: Share metadata now respects the reverse proxy's forwarded HTTPS scheme instead of emitting HTTP canonical and preview URLs.
 
 ## [2026.8.9] - 2026-08-09
 
