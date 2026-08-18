@@ -37,6 +37,13 @@ assert(
     'The primary download action must be centered beneath the title.'
 );
 assert(
+    view.includes('@keyframes download-attention-nudge') &&
+    view.includes('animation: download-attention-nudge 460ms cubic-bezier(0.16, 1, 0.3, 1) 900ms 1 both;') &&
+    view.includes('@media (prefers-reduced-motion: reduce)') &&
+    view.includes('animation: none;'),
+    'The download action must provide a single subtle attention nudge that respects reduced-motion preferences.'
+);
+assert(
     view.indexOf('class="user-guide-cta"') < view.indexOf('class="report-panel report-panel-footer"') &&
     view.indexOf('class="report-panel report-panel-footer"') < view.indexOf('<footer class="portal-footer">'),
     'The report action must be a secondary control immediately above the footer.'

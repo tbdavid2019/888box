@@ -784,11 +784,26 @@ if ($asset['is_audio'] == 1 || strpos($mime, 'audio/') !== false || in_array($ex
             font-weight: bold;
             box-shadow: 0 8px 18px rgba(125, 207, 255, 0.24);
             transition: transform 0.2s ease, filter 0.2s ease;
+            animation: download-attention-nudge 460ms cubic-bezier(0.16, 1, 0.3, 1) 900ms 1 both;
         }
 
         .btn-download:hover {
             filter: brightness(1.08);
             transform: translateY(-2px);
+        }
+
+        @keyframes download-attention-nudge {
+            0%, 100% { transform: translateX(0); }
+            22% { transform: translateX(-5px); }
+            45% { transform: translateX(4px); }
+            66% { transform: translateX(-2px); }
+            82% { transform: translateX(1px); }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            .btn-download {
+                animation: none;
+            }
         }
 
         .download-icon {
