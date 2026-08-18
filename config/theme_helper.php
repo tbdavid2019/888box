@@ -237,6 +237,6 @@ function renderLanguageSwitcher() {
 function renderI18nAssets($scope = 'common') {
     ?>
     <script>window.BOX_I18N_SCOPE = <?= json_encode($scope, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>;</script>
-    <script src="/static/js/i18n.js?v=1"></script>
+    <script src="/static/js/i18n.js?v=2"></script>
     <?php
 }
