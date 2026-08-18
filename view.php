@@ -279,7 +279,7 @@ if (function_exists('mb_substr')) {
 } else {
     $metaDescription = substr($metaDescription, 0, 160);
 }
-$defaultOgImage = $siteUrl . '/static/og-image.png';
+$defaultOgImage = $siteUrl . '/static/og-image.png?v=30f0c30';
 $ogImage = $defaultOgImage;
 if ($type === 'image' && empty($asset['password']) && preg_match('/\.(jpe?g|png|gif|webp)$/i', $asset['path'] ?? '')) {
     $ogImage = $url;
