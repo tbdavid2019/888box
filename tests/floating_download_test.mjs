@@ -26,10 +26,10 @@ assert(
 );
 assert(
     !view.includes('floating-download') &&
-    view.includes('background: #7dcfff;') &&
-    view.includes('color: #10111a;') &&
+    view.includes('background: var(--share-action);') &&
+    view.includes('color: var(--share-action-ink);') &&
     view.includes('.btn-download,') &&
-    view.includes('color: #10111a !important;'),
+    view.includes('color: var(--share-action-ink) !important;'),
     'The primary download button must use the same high-contrast light-blue treatment as the install action.'
 );
 assert(
@@ -49,11 +49,26 @@ assert(
     'The report action must be a secondary control immediately above the footer.'
 );
 assert(
-    view.includes('.asset-header {') && view.includes('padding-top: 34px;'),
+    view.includes('.asset-header {') && view.includes('padding-top: var(--share-nav-clearance);'),
     'The asset title must reserve space beneath the fixed navigation bar.'
 );
 assert(
-    view.includes('color: #172554 !important;') && view.includes('background: #4f86df;'),
+    view.includes('viewport-fit=cover') &&
+    view.includes('--share-nav-clearance: 34px;') &&
+    view.includes('--share-nav-clearance: 54px;') &&
+    view.includes('padding-top: var(--share-nav-clearance);') &&
+    view.includes('.btn-header-upload span {') &&
+    view.includes('display: none;'),
+    'The mobile header must reserve stable space for the fixed navigation without wrapping over the title.'
+);
+assert(
+    view.includes('--share-action: var(--accent-cyan, #7dcfff);') &&
+    view.includes('--share-action-ink: #10111a;') &&
+    view.includes('background: var(--share-action);'),
+    'Share-page action colors must use local semantic tokens instead of repeated hard-coded values.'
+);
+assert(
+    view.includes('color: #172554 !important;') && view.includes('background: var(--share-upload-action);'),
     'Large EPUB guidance and upload actions must remain legible against their surfaces.'
 );
 

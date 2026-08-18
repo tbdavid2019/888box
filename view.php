@@ -251,7 +251,7 @@ if ($asset['is_audio'] == 1 || strpos($mime, 'audio/') !== false || in_array($ex
 <html lang="zh-Hant">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <title><?= htmlspecialchars($asset['title'] ?: '資源檢視') ?> - 888 BOX</title>
     <link rel="shortcut icon" href="/static/favicon.svg">
     <link rel="apple-touch-icon" sizes="180x180" href="/static/apple-touch-icon.png">
@@ -262,24 +262,45 @@ if ($asset['is_audio'] == 1 || strpos($mime, 'audio/') !== false || in_array($ex
     <?php renderThemeStyles($pdo); ?>
     <style>
         body {
-            padding: 32px 20px 56px;
+            padding:
+                max(32px, env(safe-area-inset-top))
+                max(20px, env(safe-area-inset-right))
+                max(56px, env(safe-area-inset-bottom))
+                max(20px, env(safe-area-inset-left));
         }
 
         .view-container {
+            --share-nav-clearance: 34px;
+            --share-surface: linear-gradient(145deg, rgba(255, 255, 255, 0.065), rgba(255, 255, 255, 0.025));
+            --share-border: var(--border, rgba(255, 255, 255, 0.12));
+            --share-shadow: rgba(4, 6, 14, 0.28);
+            --share-nav-surface: rgba(14, 17, 28, 0.88);
+            --share-nav-border: rgba(255, 255, 255, 0.16);
+            --share-text-strong: var(--text-white, #fff);
+            --share-text-muted: var(--text-secondary, rgba(255, 255, 255, 0.62));
+            --share-action: var(--accent-cyan, #7dcfff);
+            --share-action-ink: #10111a;
+            --share-upload-action: var(--accent-blue, #4f86df);
+            --share-action-soft: rgba(125, 207, 255, 0.1);
+            --share-action-border: rgba(125, 207, 255, 0.25);
+            --share-focus: rgba(125, 207, 255, 0.45);
+            --share-subtle-surface: rgba(255, 255, 255, 0.045);
+            --share-subtle-border: rgba(255, 255, 255, 0.08);
+            --share-viewer-surface: #080a11;
             width: min(100%, 980px);
             margin: 64px auto 20px;
             padding: clamp(22px, 4vw, 48px);
-            background: linear-gradient(145deg, rgba(255, 255, 255, 0.065), rgba(255, 255, 255, 0.025));
-            border: 1px solid var(--border, rgba(255, 255, 255, 0.12));
+            background: var(--share-surface);
+            border: 1px solid var(--share-border);
             border-radius: 28px;
-            box-shadow: 0 24px 70px rgba(4, 6, 14, 0.28);
+            box-shadow: 0 24px 70px var(--share-shadow);
             backdrop-filter: blur(20px);
         }
 
         .asset-header {
             display: grid;
             gap: 12px;
-            padding-top: 34px;
+            padding-top: var(--share-nav-clearance);
             margin-bottom: 24px;
         }
 
@@ -296,10 +317,10 @@ if ($asset['is_audio'] == 1 || strpos($mime, 'audio/') !== false || in_array($ex
             gap: 12px;
             flex-wrap: wrap;
             padding: 10px 18px;
-            background: rgba(14, 17, 28, 0.88);
+            background: var(--share-nav-surface);
             backdrop-filter: blur(24px);
             -webkit-backdrop-filter: blur(24px);
-            border: 1px solid rgba(255, 255, 255, 0.16);
+            border: 1px solid var(--share-nav-border);
             border-radius: 999px;
             box-shadow: 0 10px 36px rgba(0, 0, 0, 0.45);
         }
@@ -316,11 +337,11 @@ if ($asset['is_audio'] == 1 || strpos($mime, 'audio/') !== false || in_array($ex
             display: inline-flex;
             align-items: center;
             gap: 6px;
-            color: var(--accent-cyan, #7dcfff);
+            color: var(--share-action);
             text-decoration: none;
             padding: 5px 12px;
-            background: rgba(125, 207, 255, 0.1);
-            border: 1px solid rgba(125, 207, 255, 0.25);
+            background: var(--share-action-soft);
+            border: 1px solid var(--share-action-border);
             border-radius: 999px;
             transition: all 0.2s ease;
         }
@@ -342,7 +363,7 @@ if ($asset['is_audio'] == 1 || strpos($mime, 'audio/') !== false || in_array($ex
         }
 
         .breadcrumb-tag {
-            color: var(--text-secondary, rgba(255, 255, 255, 0.6));
+            color: var(--share-text-muted);
             font-size: 0.78rem;
         }
 
@@ -353,8 +374,8 @@ if ($asset['is_audio'] == 1 || strpos($mime, 'audio/') !== false || in_array($ex
             padding: 6px 14px;
             font-size: 0.78rem;
             font-weight: 700;
-            color: #fff;
-            background: #4f86df;
+            color: var(--share-text-strong);
+            background: var(--share-upload-action);
             border: none;
             border-radius: 999px;
             text-decoration: none;
@@ -433,8 +454,8 @@ if ($asset['is_audio'] == 1 || strpos($mime, 'audio/') !== false || in_array($ex
             padding: 10px 20px;
             font-size: 0.84rem;
             font-weight: 700;
-            color: #fff;
-            background: #4f86df;
+            color: var(--share-text-strong);
+            background: var(--share-upload-action);
             border-radius: 12px;
             text-decoration: none;
             transition: all 0.2s ease;
@@ -470,13 +491,13 @@ if ($asset['is_audio'] == 1 || strpos($mime, 'audio/') !== false || in_array($ex
 
         .portal-footer a:hover {
             text-decoration: underline;
-            color: #7dcfff;
+            color: var(--share-action);
         }
 
         .asset-title {
             max-width: 760px;
             margin: 0;
-            color: var(--text-white, #fff);
+            color: var(--share-text-strong);
             font-size: clamp(1.55rem, 3.6vw, 2.35rem);
             font-weight: 700;
             line-height: 1.2;
@@ -492,7 +513,7 @@ if ($asset['is_audio'] == 1 || strpos($mime, 'audio/') !== false || in_array($ex
             margin: 4px 0 0;
             padding: 0;
             border: 0;
-            color: var(--text-secondary, rgba(255, 255, 255, 0.58)) !important;
+            color: var(--share-text-muted) !important;
             font-size: 0.78rem;
         }
 
@@ -502,8 +523,8 @@ if ($asset['is_audio'] == 1 || strpos($mime, 'audio/') !== false || in_array($ex
             gap: 6px;
             padding: 7px 10px;
             color: inherit !important;
-            background: rgba(255, 255, 255, 0.045);
-            border: 1px solid rgba(255, 255, 255, 0.08);
+            background: var(--share-subtle-surface);
+            border: 1px solid var(--share-subtle-border);
             border-radius: 8px;
         }
 
@@ -520,8 +541,8 @@ if ($asset['is_audio'] == 1 || strpos($mime, 'audio/') !== false || in_array($ex
             justify-content: center;
             align-items: center;
             padding: 10px;
-            background: #080a11;
-            border: 1px solid rgba(255, 255, 255, 0.09);
+            background: var(--share-viewer-surface);
+            border: 1px solid var(--share-subtle-border);
             border-radius: 18px;
             overflow: hidden;
             box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04);
@@ -531,8 +552,8 @@ if ($asset['is_audio'] == 1 || strpos($mime, 'audio/') !== false || in_array($ex
         .embed-panel {
             margin-top: 20px;
             padding: 18px 20px;
-            background: rgba(255, 255, 255, 0.03);
-            border: 1px solid rgba(255, 255, 255, 0.08);
+            background: var(--share-subtle-surface);
+            border: 1px solid var(--share-subtle-border);
             border-radius: 16px;
             backdrop-filter: blur(12px);
         }
@@ -557,7 +578,7 @@ if ($asset['is_audio'] == 1 || strpos($mime, 'audio/') !== false || in_array($ex
         .embed-title-text svg {
             width: 16px;
             height: 16px;
-            color: var(--accent-cyan, #7dcfff);
+            color: var(--share-action);
         }
 
         .embed-tabs {
@@ -622,8 +643,8 @@ if ($asset['is_audio'] == 1 || strpos($mime, 'audio/') !== false || in_array($ex
             padding: 9px 15px;
             font-size: 0.78rem;
             font-weight: 700;
-            color: #1a1b26;
-            background: #7dcfff;
+            color: var(--share-action-ink);
+            background: var(--share-action);
             border: none;
             border-radius: 9px;
             cursor: pointer;
@@ -777,8 +798,8 @@ if ($asset['is_audio'] == 1 || strpos($mime, 'audio/') !== false || in_array($ex
             justify-content: space-between;
             gap: 14px;
             padding: 12px 16px;
-            color: #10111a;
-            background: #7dcfff;
+            color: var(--share-action-ink);
+            background: var(--share-action);
             text-decoration: none;
             border-radius: 14px;
             font-weight: bold;
@@ -841,7 +862,7 @@ if ($asset['is_audio'] == 1 || strpos($mime, 'audio/') !== false || in_array($ex
 
         .btn-download,
         .btn-download * {
-            color: #10111a !important;
+            color: var(--share-action-ink) !important;
         }
 
         .btn-download .download-copy small {
@@ -857,7 +878,7 @@ if ($asset['is_audio'] == 1 || strpos($mime, 'audio/') !== false || in_array($ex
             max-width: 100%;
             margin: 18px auto 0;
             padding: 7px 0;
-            color: var(--text-secondary, rgba(255, 255, 255, 0.62));
+            color: var(--share-text-muted);
         }
 
         .report-copy {
@@ -891,7 +912,7 @@ if ($asset['is_audio'] == 1 || strpos($mime, 'audio/') !== false || in_array($ex
             align-items: center;
             justify-content: center;
             flex: 0 0 auto;
-            color: var(--text-secondary, rgba(255, 255, 255, 0.62)) !important;
+            color: var(--share-text-muted) !important;
             background: rgba(255, 255, 255, 0.06);
             border-radius: 9px;
         }
@@ -902,7 +923,7 @@ if ($asset['is_audio'] == 1 || strpos($mime, 'audio/') !== false || in_array($ex
             gap: 6px;
             flex: 0 0 auto;
             padding: 9px 11px;
-            color: var(--text-secondary, rgba(255, 255, 255, 0.7)) !important;
+            color: var(--share-text-muted) !important;
             background: transparent;
             border: 1px solid rgba(255, 255, 255, 0.16);
             border-radius: 9px;
@@ -913,7 +934,7 @@ if ($asset['is_audio'] == 1 || strpos($mime, 'audio/') !== false || in_array($ex
         }
 
         .btn-report:hover {
-            color: var(--accent-cyan, #7dcfff) !important;
+            color: var(--share-action) !important;
             background: rgba(125, 207, 255, 0.08);
             border-color: rgba(125, 207, 255, 0.48);
             transform: translateY(-1px);
@@ -921,7 +942,7 @@ if ($asset['is_audio'] == 1 || strpos($mime, 'audio/') !== false || in_array($ex
 
         .btn-report:focus-visible,
         .btn-download:focus-visible {
-            outline: 3px solid rgba(125, 207, 255, 0.45);
+            outline: 3px solid var(--share-focus);
             outline-offset: 3px;
         }
 
@@ -966,12 +987,47 @@ if ($asset['is_audio'] == 1 || strpos($mime, 'audio/') !== false || in_array($ex
 
         @media (max-width: 680px) {
             body {
-                padding: 12px 12px 40px;
+                padding:
+                    max(12px, env(safe-area-inset-top))
+                    max(12px, env(safe-area-inset-right))
+                    max(40px, env(safe-area-inset-bottom))
+                    max(12px, env(safe-area-inset-left));
             }
 
             .view-container {
+                --share-nav-clearance: 54px;
                 margin: 8px auto;
                 border-radius: 20px;
+            }
+
+            .asset-header-top {
+                top: max(8px, env(safe-area-inset-top));
+                width: min(calc(100% - 16px), 960px);
+                flex-wrap: nowrap;
+                padding: 8px 10px;
+            }
+
+            .asset-breadcrumb {
+                min-width: 0;
+                white-space: nowrap;
+            }
+
+            .breadcrumb-link {
+                min-height: 36px;
+                padding: 5px 9px;
+            }
+
+            .breadcrumb-sep,
+            .breadcrumb-tag,
+            .btn-header-upload span {
+                display: none;
+            }
+
+            .btn-header-upload {
+                min-width: 36px;
+                min-height: 36px;
+                justify-content: center;
+                padding: 8px 10px;
             }
 
             .asset-primary-actions {
@@ -1074,7 +1130,7 @@ if ($asset['is_audio'] == 1 || strpos($mime, 'audio/') !== false || in_array($ex
                         <span class="breadcrumb-sep">/</span>
                         <span class="breadcrumb-tag">公開資源</span>
                     </nav>
-                    <a href="/" class="btn-header-upload" title="前往免費上傳與託管檔案">
+                    <a href="/" class="btn-header-upload" title="前往免費上傳與託管檔案" aria-label="前往免費上傳與託管檔案">
                         <i data-lucide="upload-cloud"></i>
                         <span>我也要上傳檔案</span>
                     </a>
