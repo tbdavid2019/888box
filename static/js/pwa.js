@@ -1,5 +1,43 @@
 let deferredInstallPrompt;
 let installPromptElement;
+const pwaLanguageStorageKey = '888box:share-language:v1';
+const pwaTranslations = {
+    'zh-Hant': {
+        ariaLabel: '安裝 888 BOX 應用程式',
+        title: '安裝 888 BOX',
+        description: '加到手機主畫面，像 App 一樣快速開啟。',
+        dismiss: '暫時不要',
+        install: '安裝 888 BOX'
+    },
+    en: {
+        ariaLabel: 'Install 888 BOX app',
+        title: 'Install 888 BOX',
+        description: 'Add it to your home screen for quick App-like access.',
+        dismiss: 'Not now',
+        install: 'Install 888 BOX'
+    }
+};
+
+function getPwaLanguage() {
+    try {
+        const storedLanguage = localStorage.getItem(pwaLanguageStorageKey);
+        if (pwaTranslations[storedLanguage]) return storedLanguage;
+    } catch (error) {
+        // Use browser preference when storage is unavailable.
+    }
+    return /^zh/i.test(navigator.language || '') ? 'zh-Hant' : 'en';
+}
+
+function applyPwaLanguage(language = getPwaLanguage()) {
+    const strings = pwaTranslations[language] || pwaTranslations['zh-Hant'];
+    if (!installPromptElement) return;
+
+    installPromptElement.setAttribute('aria-label', strings.ariaLabel);
+    installPromptElement.querySelector('.pwa-install-prompt__title').textContent = strings.title;
+    installPromptElement.querySelector('.pwa-install-prompt__description').textContent = strings.description;
+    installPromptElement.querySelector('.pwa-install-prompt__dismiss').textContent = strings.dismiss;
+    installPromptElement.querySelector('.pwa-install-prompt__install').textContent = strings.install;
+}
 
 function removeInstallPrompt() {
     if (!installPromptElement) {
@@ -136,7 +174,12 @@ function showInstallPrompt() {
     });
 
     document.body.append(installPromptElement);
+    applyPwaLanguage();
 }
+
+window.addEventListener('boxlanguagechange', (event) => {
+    applyPwaLanguage(event.detail?.language);
+});
 
 if ('serviceWorker' in navigator && window.isSecureContext) {
     window.addEventListener('beforeinstallprompt', (event) => {

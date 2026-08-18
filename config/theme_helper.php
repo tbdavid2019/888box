@@ -172,6 +172,14 @@ function renderThemeStyles($pdo) {
         box-shadow: 0 10px 28px rgba(0, 0, 0, 0.24);
         backdrop-filter: blur(14px);
     }
+    .box-language-switcher-inline {
+        position: static;
+        top: auto;
+        right: auto;
+        z-index: auto;
+        box-shadow: none;
+        backdrop-filter: none;
+    }
     .box-language-label {
         padding: 0 5px 0 8px;
         color: <?= $theme['muted'] ?> !important;
@@ -202,6 +210,93 @@ function renderThemeStyles($pdo) {
         color: #111827 !important;
         box-shadow: 0 4px 12px rgba(0, 0, 0, 0.18);
     }
+    .box-site-header {
+        position: relative;
+        z-index: 1000;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 18px;
+        width: 100vw;
+        margin-left: calc(50% - 50vw);
+        margin-right: calc(50% - 50vw);
+        min-height: 64px;
+        box-sizing: border-box;
+        padding: 10px clamp(18px, 4vw, 48px);
+        color: <?= $theme['content'] ?>;
+        background: rgba(15, 18, 32, 0.94);
+        border-bottom: 1px solid <?= $theme['border_color'] ?>;
+        box-shadow: 0 10px 28px rgba(0, 0, 0, 0.22);
+    }
+    .box-site-header-left,
+    .box-site-header-actions {
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        min-width: 0;
+    }
+    .box-site-header-actions {
+        justify-content: flex-end;
+        flex-wrap: wrap;
+    }
+    .box-site-brand,
+    .box-site-header-action {
+        display: inline-flex;
+        align-items: center;
+        gap: 7px;
+        min-height: 34px;
+        box-sizing: border-box;
+        color: <?= $theme['content'] ?> !important;
+        text-decoration: none;
+        font-size: 0.88rem;
+        font-weight: 700;
+        white-space: nowrap;
+    }
+    .box-site-brand {
+        color: <?= $theme['title'] ?> !important;
+        letter-spacing: 0.01em;
+    }
+    .box-site-brand svg,
+    .box-site-header-action svg {
+        width: 16px;
+        height: 16px;
+    }
+    .box-site-separator {
+        color: <?= $theme['muted'] ?>;
+        font-size: 0.85rem;
+    }
+    .box-site-context {
+        color: <?= $theme['muted'] ?> !important;
+        font-size: 0.82rem;
+        font-weight: 600;
+        white-space: nowrap;
+    }
+    .box-site-header-action {
+        min-height: 36px;
+        padding: 7px 12px;
+        border: 1px solid rgba(255, 255, 255, 0.18);
+        border-radius: 999px;
+        background: rgba(255, 255, 255, 0.04);
+        transition: background 160ms ease, border-color 160ms ease, color 160ms ease, transform 160ms ease;
+    }
+    .box-site-header-action:hover,
+    .box-site-header-action:focus-visible {
+        color: #ffffff !important;
+        background: rgba(125, 207, 255, 0.14);
+        border-color: rgba(125, 207, 255, 0.58);
+        transform: translateY(-1px);
+    }
+    .box-site-header + .video-main,
+    .box-site-header + main,
+    .box-site-header + .admin-header {
+        margin-top: 24px;
+    }
+    .box-site-header + .admin-header {
+        margin-top: 0;
+    }
+    .box-site-header + .login-container {
+        margin-top: 88px;
+    }
     @media (max-width: 640px) {
         .box-language-switcher {
             top: max(10px, env(safe-area-inset-top));
@@ -209,6 +304,22 @@ function renderThemeStyles($pdo) {
         }
         .box-language-label {
             display: none;
+        }
+        .box-site-header {
+            align-items: flex-start;
+            flex-wrap: wrap;
+            gap: 8px 12px;
+            width: 100vw;
+            margin-left: calc(50% - 50vw);
+            margin-right: calc(50% - 50vw);
+            padding: 10px max(14px, env(safe-area-inset-right)) 10px max(14px, env(safe-area-inset-left));
+        }
+        .box-site-header-left,
+        .box-site-header-actions {
+            flex-wrap: wrap;
+        }
+        .box-site-header-action {
+            padding-inline: 10px;
         }
     }
     </style>
@@ -219,13 +330,54 @@ function renderThemeStyles($pdo) {
  * Render the shared Traditional Chinese / English language control.
  * The preference is stored in the browser so it follows the user across UI pages.
  */
-function renderLanguageSwitcher() {
+function renderLanguageSwitcher($inline = false) {
     ?>
-    <div class="box-language-switcher" role="group" aria-label="語言" data-i18n-aria="languageLabel">
+    <div class="box-language-switcher<?= $inline ? ' box-language-switcher-inline' : '' ?>" role="group" aria-label="語言" data-i18n-aria="languageLabel">
         <span class="box-language-label" aria-hidden="true" data-i18n="languageLabel">語言</span>
         <button type="button" data-language="zh-Hant" aria-pressed="true">繁</button>
         <button type="button" data-language="en" aria-pressed="false">EN</button>
     </div>
+    <?php
+}
+
+/**
+ * Render the shared top header used by every non-home page.
+ * @param string $context Current center or admin section label.
+ * @param array<int, array<string, string>> $actions Header links/buttons.
+ */
+function renderSiteHeader($context, $actions = []) {
+    ?>
+    <header class="box-site-header">
+        <div class="box-site-header-left">
+            <a href="/" class="box-site-brand" aria-label="888 BOX">
+                <i data-lucide="box"></i>
+                <span data-i18n="brandName">888 BOX</span>
+            </a>
+            <span class="box-site-separator" aria-hidden="true">/</span>
+            <span class="box-site-context" data-i18n><?= htmlspecialchars($context, ENT_QUOTES, 'UTF-8') ?></span>
+        </div>
+        <div class="box-site-header-actions">
+            <?php renderLanguageSwitcher(true); ?>
+            <?php foreach ($actions as $action): ?>
+                <?php
+                $label = $action['label'] ?? '';
+                $icon = $action['icon'] ?? '';
+                $actionClass = trim('box-site-header-action ' . ($action['class'] ?? ''));
+                ?>
+                <?php if (($action['type'] ?? 'link') === 'button'): ?>
+                    <button type="button" class="<?= htmlspecialchars($actionClass, ENT_QUOTES, 'UTF-8') ?>" onclick="<?= htmlspecialchars($action['onclick'] ?? '', ENT_QUOTES, 'UTF-8') ?>">
+                        <?php if ($icon): ?><i data-lucide="<?= htmlspecialchars($icon, ENT_QUOTES, 'UTF-8') ?>"></i><?php endif; ?>
+                        <span data-i18n><?= htmlspecialchars($label, ENT_QUOTES, 'UTF-8') ?></span>
+                    </button>
+                <?php else: ?>
+                    <a href="<?= htmlspecialchars($action['href'] ?? '#', ENT_QUOTES, 'UTF-8') ?>" class="<?= htmlspecialchars($actionClass, ENT_QUOTES, 'UTF-8') ?>"<?= !empty($action['onclick']) ? ' onclick="' . htmlspecialchars($action['onclick'], ENT_QUOTES, 'UTF-8') . '"' : '' ?><?= !empty($action['target']) ? ' target="' . htmlspecialchars($action['target'], ENT_QUOTES, 'UTF-8') . '" rel="noopener noreferrer"' : '' ?>>
+                        <?php if ($icon): ?><i data-lucide="<?= htmlspecialchars($icon, ENT_QUOTES, 'UTF-8') ?>"></i><?php endif; ?>
+                        <span data-i18n><?= htmlspecialchars($label, ENT_QUOTES, 'UTF-8') ?></span>
+                    </a>
+                <?php endif; ?>
+            <?php endforeach; ?>
+        </div>
+    </header>
     <?php
 }
 
@@ -237,6 +389,6 @@ function renderLanguageSwitcher() {
 function renderI18nAssets($scope = 'common') {
     ?>
     <script>window.BOX_I18N_SCOPE = <?= json_encode($scope, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>;</script>
-    <script src="/static/js/i18n.js?v=2"></script>
+    <script src="/static/js/i18n.js?v=3"></script>
     <?php
 }

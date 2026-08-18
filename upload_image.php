@@ -262,14 +262,10 @@ try {
     <?php renderCustomTrackingCode($pdo); ?>
 </head>
 <body>
-    <?php renderLanguageSwitcher(); ?>
-    <header class="blur" style="width: 100%; max-width: 1200px; display: flex; justify-content: space-between; align-items: center; padding: 0 20px; box-sizing: border-box; margin: 0 auto 25px auto;">
-        <h1 style="margin: 0; font-size: 1.5rem; color: var(--page-text); padding: 15px 0; display: flex; align-items: center; gap: 8px;"><i data-lucide="image" style="width: 24px; height: 24px; color: #7dcfff;"></i> 888 BOX 圖片託管中心</h1>
-        <div style="display: flex; gap: 15px; align-items: center;">
-            <a href="/" style="color: white; text-decoration: none; display: inline-flex; align-items: center; gap: 4px;"><i data-lucide="home" style="width: 16px; height: 16px;"></i> 門戶</a>
-            <a href="/admin/" target="_blank" style="color: white; text-decoration: none; display: inline-flex; align-items: center; gap: 4px;"><i data-lucide="settings" style="width: 16px; height: 16px;"></i> 管理後台</a>
-        </div>
-    </header>
+    <?php renderSiteHeader('圖片託管中心', [
+        ['label' => '首頁', 'href' => '/', 'icon' => 'home'],
+        ['label' => '管理後台', 'href' => '/admin/', 'target' => '_blank', 'icon' => 'settings'],
+    ]); ?>
 
     <main>
         <!-- 左側：上傳區與縮圖 -->

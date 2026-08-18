@@ -36,15 +36,11 @@ try {
     <?php renderCustomTrackingCode($pdo); ?>
 </head>
 <body>
-    <?php renderLanguageSwitcher(); ?>
-    <header class="video-header">
-        <h1 style="display: flex; align-items: center; gap: 8px;"><i data-lucide="mic" style="width: 24px; height: 24px; color: #e0af68;"></i> 888 BOX 聲音託管中心</h1>
-        <div class="nav-links" style="display: flex; align-items: center; gap: 15px;">
-            <a href="javascript:void(0);" onclick="forceClearCache()" style="display: inline-flex; align-items: center; gap: 4px;"><i data-lucide="refresh-cw" style="width: 15px; height: 15px;"></i> 清除快取並重整</a>
-            <a href="/" style="display: inline-flex; align-items: center; gap: 4px;"><i data-lucide="home" style="width: 15px; height: 15px;"></i> 門戶</a>
-            <a href="/admin/audio.php" target="_blank" style="display: inline-flex; align-items: center; gap: 4px;"><i data-lucide="settings" style="width: 15px; height: 15px;"></i> 管理後台</a>
-        </div>
-    </header>
+    <?php renderSiteHeader('聲音託管中心', [
+        ['label' => '清除快取並重整', 'href' => 'javascript:void(0);', 'onclick' => 'forceClearCache()', 'icon' => 'refresh-cw'],
+        ['label' => '首頁', 'href' => '/', 'icon' => 'home'],
+        ['label' => '管理後台', 'href' => '/admin/audio.php', 'target' => '_blank', 'icon' => 'settings'],
+    ]); ?>
 
     <main class="video-main">
         <div class="upload-panel" id="dropZone">

@@ -446,8 +446,10 @@ $jsonLd = [
 
         .language-switcher button:hover,
         .language-switcher button.is-active {
-            color: var(--share-action-ink);
-            background: var(--share-action);
+            color: #08111f !important;
+            background: #7dcfff !important;
+            border: 1px solid #f8fafc;
+            box-shadow: 0 0 0 2px rgba(125, 207, 255, 0.26), 0 4px 12px rgba(0, 0, 0, 0.24);
         }
 
         .language-switcher button:focus-visible {
@@ -1244,9 +1246,9 @@ $jsonLd = [
 <body>
     <div class="asset-header-top">
         <nav class="asset-breadcrumb" aria-label="麵包屑導覽">
-            <a href="/" class="breadcrumb-link" title="返回 888 BOX 首頁門戶" data-i18n-aria="portalLabel">
+            <a href="/" class="breadcrumb-link" title="返回 888 BOX" data-i18n-aria="portalLabel">
                 <i data-lucide="box"></i>
-                <span data-i18n="portal">888 BOX 門戶</span>
+                <span data-i18n="portal">888 BOX</span>
             </a>
             <span class="breadcrumb-sep">/</span>
             <span class="breadcrumb-tag" data-i18n="publicResource">公開資源</span>
@@ -1488,7 +1490,7 @@ $jsonLd = [
         };
         const shareTranslations = {
             'zh-Hant': {
-                portal: '888 BOX 門戶', publicResource: '公開資源', languageLabel: '語言', portalLabel: '返回 888 BOX 首頁門戶', uploadLabel: '我也要上傳檔案', download: '立即下載', time: '時間', dimensions: '尺寸', size: '大小', views: '瀏覽', times: '次',
+                portal: '888 BOX', publicResource: '公開資源', languageLabel: '語言', portalLabel: '返回 888 BOX', uploadLabel: '我也要上傳檔案', download: '立即下載', time: '時間', dimensions: '尺寸', size: '大小', views: '瀏覽', times: '次',
                 passwordProtected: '此資源受密碼保護', passwordPlaceholder: '請輸入存取密碼', verifyAndEnter: '驗證並進入', passwordError: '密碼錯誤',
                 textTooLarge: '此文字檔超過 2 MB 預覽限制，請使用下方下載按鈕取得完整內容。', loadingText: '正在載入文字內容…',
                 largeEpub: '此 EPUB 含有大型媒體，瀏覽器預覽可能無法順利開啟。請使用「立即下載」以閱讀完整內容。', loadingEpub: '正在載入 EPUB 閱讀器…',
@@ -1499,7 +1501,7 @@ $jsonLd = [
                 reportReceived: '已收到您的舉報，感謝您的回饋。', reportFailed: '舉報失敗：', networkError: '網路錯誤，請稍後再試', uploadAria: '前往免費上傳與託管檔案'
             },
             en: {
-                portal: '888 BOX Portal', publicResource: 'Public Resource', languageLabel: 'Language', portalLabel: 'Return to 888 BOX home', uploadLabel: 'Upload files', download: 'Download', time: 'Time', dimensions: 'Dimensions', size: 'Size', views: 'Views', times: '',
+                portal: '888 BOX', publicResource: 'Public Resource', languageLabel: 'Language', portalLabel: 'Return to 888 BOX', uploadLabel: 'Upload files', download: 'Download', time: 'Time', dimensions: 'Dimensions', size: 'Size', views: 'Views', times: '',
                 passwordProtected: 'This resource is password protected', passwordPlaceholder: 'Enter access password', verifyAndEnter: 'Verify and enter', passwordError: 'Incorrect password',
                 textTooLarge: 'This text file exceeds the 2 MB preview limit. Use the download button below to get the complete file.', loadingText: 'Loading text…',
                 largeEpub: 'This EPUB contains large media and may not preview reliably in a browser. Use “Download” to read the complete file.', loadingEpub: 'Loading EPUB reader…',

@@ -5,18 +5,17 @@
     const languageStorageKey = '888box:share-language:v1';
     const supportedLanguages = ['zh-Hant', 'en'];
     const keyedTranslations = {
-        languageLabel: { 'zh-Hant': '語言', en: 'Language' }
+        languageLabel: { 'zh-Hant': '語言', en: 'Language' },
+        brandName: { 'zh-Hant': '888 BOX', en: '888 BOX' }
     };
     const translations = {
         '語言': 'Language',
-        '888 BOX 門戶': '888 BOX Portal',
         '管理後台': 'Admin',
         '圖片管理': 'Image admin',
         '影片管理': 'Video admin',
         '音訊管理': 'Audio admin',
         '文件管理': 'File admin',
         '首頁': 'Home',
-        '門戶': 'Portal',
         '圖片中心': 'Image center',
         '影片中心': 'Video center',
         '文件中心': 'File center',
@@ -78,7 +77,15 @@
         '上傳時間：': 'Upload time:',
         '瀏覽：': 'Views:',
         '密碼保護': 'Password protected',
-        '返回首頁門戶': 'Return to portal',
+        '圖片託管中心': 'Image Center',
+        '影片託管中心': 'Video Center',
+        '文件託管中心': 'File Center',
+        '聲音託管中心': 'Audio Center',
+        '登入': 'Sign in',
+        '安裝 888 BOX 應用程式': 'Install 888 BOX app',
+        '安裝 888 BOX': 'Install 888 BOX',
+        '加到手機主畫面，像 App 一樣快速開啟。': 'Add it to your home screen for quick App-like access.',
+        '暫時不要': 'Not now',
         '系統維護': 'System maintenance',
         '最佳化資料庫': 'Optimize database',
         '檢查更新': 'Check for updates',

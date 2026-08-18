@@ -7,6 +7,7 @@ const read = async (path) => readFile(new URL(path, root), 'utf8');
 
 const helper = await read('config/theme_helper.php');
 assert.match(helper, /function renderLanguageSwitcher\s*\(/);
+assert.match(helper, /function renderSiteHeader\s*\(/);
 assert.match(helper, /function renderI18nAssets\s*\(/);
 
 const pages = [
@@ -26,7 +27,7 @@ for (const page of pages) {
     const source = await read(page);
     const rendersInSharedAdminLayout = page.startsWith('admin/') && page !== 'admin/login.php';
     assert.ok(
-        /renderLanguageSwitcher\s*\(/.test(source) || rendersInSharedAdminLayout,
+        /renderLanguageSwitcher\s*\(|renderSiteHeader\s*\(/.test(source) || rendersInSharedAdminLayout,
         `${page} must render the language switcher`
     );
     assert.ok(
@@ -36,10 +37,13 @@ for (const page of pages) {
 }
 
 const runtime = await read('static/js/i18n.js');
+const pwa = await read('static/js/pwa.js');
 assert.match(runtime, /navigator\.languages/);
 assert.match(runtime, /localStorage\.setItem\(languageStorageKey, language\)/);
 assert.match(helper, /data-language="en"/);
 assert.match(runtime, /MutationObserver/);
+assert.match(pwa, /boxlanguagechange/);
+assert.match(pwa, /Install 888 BOX/);
 
 for (const phrase of [
     '支援 WebP 高效壓縮與瀑布流展示',
@@ -69,6 +73,8 @@ assert.ok(
     'Share header must sit outside the content card so it can span the viewport.'
 );
 assert.match(view, /background:\s*#080d16;/);
+assert.doesNotMatch(view, /門戶|888 BOX Portal/);
+assert.match(view, /button\.is-active[\s\S]*?background:\s*#7dcfff/);
 assert.match(view, /og:image:type/);
 await access(new URL('../static/og-image.png', import.meta.url));
 

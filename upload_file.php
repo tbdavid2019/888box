@@ -67,14 +67,10 @@ try {
     <?php renderCustomTrackingCode($pdo); ?>
 </head>
 <body>
-    <?php renderLanguageSwitcher(); ?>
-    <header class="video-header">
-        <h1 style="display: flex; align-items: center; gap: 8px;"><i data-lucide="folder-archive" style="width: 24px; height: 24px; color: #7dcfff;"></i> 888 BOX 文件託管中心</h1>
-        <div class="nav-links" style="display: flex; align-items: center; gap: 15px;">
-            <a href="/" style="display: inline-flex; align-items: center; gap: 4px;"><i data-lucide="home" style="width: 15px; height: 15px;"></i> 門戶</a>
-            <a href="/admin/file.php" target="_blank" style="display: inline-flex; align-items: center; gap: 4px;"><i data-lucide="settings" style="width: 15px; height: 15px;"></i> 管理後台</a>
-        </div>
-    </header>
+    <?php renderSiteHeader('文件託管中心', [
+        ['label' => '首頁', 'href' => '/', 'icon' => 'home'],
+        ['label' => '管理後台', 'href' => '/admin/file.php', 'target' => '_blank', 'icon' => 'settings'],
+    ]); ?>
 
     <main class="video-main">
         <div class="upload-panel" id="dropZone">

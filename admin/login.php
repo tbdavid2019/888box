@@ -309,7 +309,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     <?php renderThemeStyles($pdo); ?>
 </head>
 <body>
-    <?php renderLanguageSwitcher(); ?>
+    <?php renderSiteHeader('登入'); ?>
     <div class="login-container">
         <div class="form-container active" id="login-form">
             <h2>登入</h2>

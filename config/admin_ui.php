@@ -9,19 +9,28 @@ function renderAdminHeader($active, $title, $actions = []) {
     ];
     $currentLabel = $tabs[$active]['label'] ?? $title;
     ?>
-    <?php renderLanguageSwitcher(); ?>
+    <?php
+    $headerActions = array_map(static function ($action) {
+        $iconByLabel = [
+            '上傳圖片' => 'upload-cloud',
+            '上傳影片' => 'upload-cloud',
+            '上傳音訊' => 'upload-cloud',
+            '上傳文件' => 'upload-cloud',
+            '系統設定' => 'settings',
+            '返回首頁' => 'home',
+            '登出' => 'log-out',
+            'Podcast RSS' => 'rss',
+            '重建 RSS' => 'refresh-cw',
+        ];
+        if (empty($action['icon']) && isset($iconByLabel[$action['label'] ?? ''])) {
+            $action['icon'] = $iconByLabel[$action['label']];
+        }
+        return $action;
+    }, $actions);
+    renderSiteHeader($title, $headerActions);
+    ?>
     <header class="admin-header">
         <div class="admin-header-main">
-            <div>
-                <nav class="admin-breadcrumb" aria-label="麵包屑">
-                    <a href="/">888 BOX</a>
-                    <span class="admin-breadcrumb-separator">/</span>
-                    <a href="/admin/">管理後台</a>
-                    <span class="admin-breadcrumb-separator">/</span>
-                    <span aria-current="page"><?= htmlspecialchars($currentLabel) ?></span>
-                </nav>
-                <h1><?= htmlspecialchars($title) ?></h1>
-            </div>
             <nav class="admin-tabs" aria-label="管理分類">
                 <?php foreach ($tabs as $key => $tab): ?>
                     <a href="<?= htmlspecialchars($tab['href']) ?>" class="admin-tab <?= $active === $key ? 'active' : '' ?>">
@@ -30,26 +39,6 @@ function renderAdminHeader($active, $title, $actions = []) {
                 <?php endforeach; ?>
             </nav>
         </div>
-        <?php if (!empty($actions)): ?>
-            <div class="admin-actions">
-                <?php foreach ($actions as $action): ?>
-                    <?php if (($action['type'] ?? 'link') === 'button'): ?>
-                        <button type="button" class="admin-action" onclick="<?= htmlspecialchars($action['onclick'] ?? '') ?>">
-                            <?= htmlspecialchars($action['label'] ?? '') ?>
-                        </button>
-                    <?php else: ?>
-                        <a
-                            href="<?= htmlspecialchars($action['href'] ?? '#') ?>"
-                            class="admin-action <?= htmlspecialchars($action['class'] ?? '') ?>"
-                            <?= !empty($action['target']) ? 'target="' . htmlspecialchars($action['target']) . '"' : '' ?>
-                            <?= !empty($action['target']) ? 'rel="noopener noreferrer"' : '' ?>
-                        >
-                            <?= htmlspecialchars($action['label'] ?? '') ?>
-                        </a>
-                    <?php endif; ?>
-                <?php endforeach; ?>
-            </div>
-        <?php endif; ?>
     </header>
     <?php
 }
