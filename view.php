@@ -823,6 +823,13 @@ if ($asset['is_audio'] == 1 || strpos($mime, 'audio/') !== false || in_array($ex
             white-space: nowrap;
         }
 
+        .btn-download .download-icon,
+        .btn-download .download-icon svg,
+        .btn-download .download-copy strong,
+        .btn-download > svg {
+            color: #10111a !important;
+        }
+
         .report-panel {
             display: flex;
             align-items: center;
