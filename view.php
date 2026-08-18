@@ -766,6 +766,7 @@ if ($asset['is_audio'] == 1 || strpos($mime, 'audio/') !== false || in_array($ex
         .asset-primary-actions {
             display: grid;
             width: min(100%, 560px);
+            margin-inline: auto;
         }
 
         .btn-download {
@@ -823,11 +824,13 @@ if ($asset['is_audio'] == 1 || strpos($mime, 'audio/') !== false || in_array($ex
             white-space: nowrap;
         }
 
-        .btn-download .download-icon,
-        .btn-download .download-icon svg,
-        .btn-download .download-copy strong,
-        .btn-download > svg {
+        .btn-download,
+        .btn-download * {
             color: #10111a !important;
+        }
+
+        .btn-download .download-copy small {
+            color: rgba(16, 17, 26, 0.68) !important;
         }
 
         .report-panel {

@@ -28,9 +28,13 @@ assert(
     !view.includes('floating-download') &&
     view.includes('background: #7dcfff;') &&
     view.includes('color: #10111a;') &&
-    view.includes('.btn-download .download-copy strong,') &&
+    view.includes('.btn-download,') &&
     view.includes('color: #10111a !important;'),
     'The primary download button must use the same high-contrast light-blue treatment as the install action.'
+);
+assert(
+    view.includes('margin-inline: auto;'),
+    'The primary download action must be centered beneath the title.'
 );
 assert(
     view.indexOf('class="user-guide-cta"') < view.indexOf('class="report-panel report-panel-footer"') &&
