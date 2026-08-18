@@ -262,6 +262,7 @@ try {
     <?php renderCustomTrackingCode($pdo); ?>
 </head>
 <body>
+    <?php renderLanguageSwitcher(); ?>
     <header class="blur" style="width: 100%; max-width: 1200px; display: flex; justify-content: space-between; align-items: center; padding: 0 20px; box-sizing: border-box; margin: 0 auto 25px auto;">
         <h1 style="margin: 0; font-size: 1.5rem; color: var(--page-text); padding: 15px 0; display: flex; align-items: center; gap: 8px;"><i data-lucide="image" style="width: 24px; height: 24px; color: #7dcfff;"></i> 888 BOX 圖片託管中心</h1>
         <div style="display: flex; gap: 15px; align-items: center;">
@@ -486,6 +487,7 @@ try {
         }
     </script>
     <script src="/static/js/lucide.min.js"></script>
+    <?php renderI18nAssets('upload-image'); ?>
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             if (window.lucide) lucide.createIcons();

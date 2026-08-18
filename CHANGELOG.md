@@ -8,6 +8,7 @@ All notable changes to this project will be documented in this file.
 - **Share-Page View Counts**: A browser-local persistent marker now counts the same asset once per device/browser until that site's storage is cleared, instead of incrementing on every reload.
 - **Share-Page CTA Contrast**: The embed-code copy action now forces dark text and icons on its light-blue surface, preventing theme styles from making the label unreadable.
 - **Bilingual Share Pages**: Added automatic browser-language detection plus a persistent Traditional Chinese / English switcher in the top-right navigation.
+- **Global Bilingual UI**: Added the same automatic Traditional Chinese / English switcher to the portal, all public upload centers, admin login, and admin management pages. The preference is shared across the site and dynamically inserted upload/admin content is translated as well.
 - **Share-Page SEO Metadata**: Added description, canonical, Open Graph, Twitter Card, JSON-LD, and PNG/ICO favicon metadata for richer link previews and search indexing.
 - **HTTPS Share URLs**: Share metadata now respects the reverse proxy's forwarded HTTPS scheme instead of emitting HTTP canonical and preview URLs.
 

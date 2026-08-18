@@ -36,6 +36,7 @@ try {
     <?php renderCustomTrackingCode($pdo); ?>
 </head>
 <body>
+    <?php renderLanguageSwitcher(); ?>
     <header class="video-header">
         <h1 style="display: flex; align-items: center; gap: 8px;"><i data-lucide="mic" style="width: 24px; height: 24px; color: #e0af68;"></i> 888 BOX 聲音託管中心</h1>
         <div class="nav-links" style="display: flex; align-items: center; gap: 15px;">
@@ -148,6 +149,7 @@ try {
     <script src="static/js/upload_stats.js?v=<?php echo time(); ?>"></script>
     <script src="static/js/audio_app.js?v=<?php echo time(); ?>"></script>
     <script src="/static/js/lucide.min.js"></script>
+    <?php renderI18nAssets('upload-audio'); ?>
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             if (window.lucide) lucide.createIcons();

@@ -156,6 +156,87 @@ function renderThemeStyles($pdo) {
         color: <?= $theme['content'] ?> !important;
         background: <?= $theme['overlay_deep'] ?> !important;
     }
+
+    .box-language-switcher {
+        position: fixed;
+        top: max(16px, env(safe-area-inset-top));
+        right: max(18px, env(safe-area-inset-right));
+        z-index: 2000;
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        padding: 4px;
+        border: 1px solid <?= $theme['border_color'] ?>;
+        border-radius: 999px;
+        background: <?= $theme['panel_bg'] ?>;
+        box-shadow: 0 10px 28px rgba(0, 0, 0, 0.24);
+        backdrop-filter: blur(14px);
+    }
+    .box-language-label {
+        padding: 0 5px 0 8px;
+        color: <?= $theme['muted'] ?> !important;
+        font-size: 0.72rem;
+        font-weight: 700;
+    }
+    .box-language-switcher button {
+        min-width: 32px;
+        min-height: 30px;
+        padding: 4px 8px;
+        border: 0;
+        border-radius: 999px;
+        background: transparent;
+        color: <?= $theme['content'] ?> !important;
+        cursor: pointer;
+        font: inherit;
+        font-size: 0.78rem;
+        font-weight: 800;
+        transition: background 160ms ease, color 160ms ease, transform 160ms ease;
+    }
+    .box-language-switcher button:hover,
+    .box-language-switcher button:focus-visible {
+        background: <?= $theme['overlay_mid'] ?>;
+        outline: none;
+    }
+    .box-language-switcher button.is-active {
+        background: <?= $theme['accent'] ?>;
+        color: #111827 !important;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.18);
+    }
+    @media (max-width: 640px) {
+        .box-language-switcher {
+            top: max(10px, env(safe-area-inset-top));
+            right: max(10px, env(safe-area-inset-right));
+        }
+        .box-language-label {
+            display: none;
+        }
+    }
     </style>
+    <?php
+}
+
+/**
+ * Render the shared Traditional Chinese / English language control.
+ * The preference is stored in the browser so it follows the user across UI pages.
+ */
+function renderLanguageSwitcher() {
+    ?>
+    <div class="box-language-switcher" role="group" aria-label="語言" data-i18n-aria="languageLabel">
+        <span class="box-language-label" aria-hidden="true" data-i18n="languageLabel">語言</span>
+        <button type="button" data-language="zh-Hant" aria-pressed="true">繁</button>
+        <button type="button" data-language="en" aria-pressed="false">EN</button>
+    </div>
+    <?php
+}
+
+/**
+ * Load the page-independent i18n runtime. Visible text is translated through
+ * exact text mappings and optional data-i18n attributes, including dynamically
+ * inserted upload/admin content.
+ */
+function renderI18nAssets($scope = 'common') {
+    ?>
+    <script>window.BOX_I18N_SCOPE = <?= json_encode($scope, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>;</script>
+    <script src="/static/js/i18n.js?v=1"></script>
     <?php
 }

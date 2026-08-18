@@ -67,6 +67,7 @@ try {
     <?php renderCustomTrackingCode($pdo); ?>
 </head>
 <body>
+    <?php renderLanguageSwitcher(); ?>
     <header class="video-header">
         <h1 style="display: flex; align-items: center; gap: 8px;"><i data-lucide="folder-archive" style="width: 24px; height: 24px; color: #7dcfff;"></i> 888 BOX 文件託管中心</h1>
         <div class="nav-links" style="display: flex; align-items: center; gap: 15px;">
@@ -156,6 +157,7 @@ try {
     <script src="static/js/upload_stats.js?v=<?php echo time(); ?>"></script>
     <script src="static/js/file_app.js?v=<?php echo time(); ?>"></script>
     <script src="/static/js/lucide.min.js"></script>
+    <?php renderI18nAssets('upload-file'); ?>
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             if (window.lucide) lucide.createIcons();

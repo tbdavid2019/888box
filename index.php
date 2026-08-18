@@ -13,8 +13,11 @@ $stats = [
     'file'  => (int)$pdo->query("SELECT COUNT(*) FROM images WHERE is_file = 1")->fetchColumn(),
 ];
 
-// Compute base URL for reuse in meta tags and Link headers
-$scheme  = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https' : 'http';
+// Compute base URL for reuse in meta tags and Link headers.
+// Reverse proxies terminate TLS before PHP, so also honor the forwarded scheme.
+$forwardedProto = strtolower(trim(explode(',', (string)($_SERVER['HTTP_X_FORWARDED_PROTO'] ?? ''))[0]));
+$isHttps = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') || $forwardedProto === 'https';
+$scheme  = $isHttps ? 'https' : 'http';
 $host    = $_SERVER['HTTP_HOST'] ?? 'box.david888.com';
 $base    = $scheme . '://' . $host;
 
@@ -120,6 +123,7 @@ if (!headers_sent()) {
     <?php renderCustomTrackingCode($pdo); ?>
 </head>
 <body>
+    <?php renderLanguageSwitcher(); ?>
     <div class="header">
         <h1 class="brand-lockup" aria-label="888 BOX">
             <img class="brand-mark" src="/static/brand-mark.svg" alt="">
@@ -204,6 +208,7 @@ if (!headers_sent()) {
     </footer>
 
     <script src="/static/js/lucide.min.js"></script>
+    <?php renderI18nAssets('portal'); ?>
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             if (window.lucide) lucide.createIcons();

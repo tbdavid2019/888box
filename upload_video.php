@@ -38,6 +38,7 @@ try {
     <?php renderCustomTrackingCode($pdo); ?>
 </head>
 <body>
+    <?php renderLanguageSwitcher(); ?>
     <header class="video-header">
         <h1 style="display: flex; align-items: center; gap: 8px;"><i data-lucide="clapperboard" style="width: 24px; height: 24px; color: #bb9af7;"></i> 888 BOX 影片託管中心</h1>
         <div class="nav-links" style="display: flex; align-items: center; gap: 15px;">
@@ -149,6 +150,7 @@ try {
     <script src="static/js/upload_stats.js?v=<?php echo time(); ?>"></script>
     <script src="static/js/video_app.js?v=<?php echo time(); ?>"></script>
     <script src="/static/js/lucide.min.js"></script>
+    <?php renderI18nAssets('upload-video'); ?>
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             if (window.lucide) lucide.createIcons();

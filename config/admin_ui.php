@@ -9,6 +9,7 @@ function renderAdminHeader($active, $title, $actions = []) {
     ];
     $currentLabel = $tabs[$active]['label'] ?? $title;
     ?>
+    <?php renderLanguageSwitcher(); ?>
     <header class="admin-header">
         <div class="admin-header-main">
             <div>
@@ -68,5 +69,6 @@ function renderAdminFooter() {
             <span>Created by <a href="https://david888.com" target="_blank" rel="noopener noreferrer">DAVID888</a></span>
         </div>
     </footer>
+    <?php renderI18nAssets('admin'); ?>
     <?php
 }

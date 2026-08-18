@@ -309,6 +309,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     <?php renderThemeStyles($pdo); ?>
 </head>
 <body>
+    <?php renderLanguageSwitcher(); ?>
     <div class="login-container">
         <div class="form-container active" id="login-form">
             <h2>登入</h2>
@@ -410,6 +411,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     </script>
     <?php endif; ?>
     <script src="/static/js/lucide.min.js"></script>
+    <?php renderI18nAssets('admin-login'); ?>
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             if (window.lucide) lucide.createIcons();
