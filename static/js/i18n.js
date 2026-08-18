@@ -40,6 +40,10 @@
         '影片管理後台 - 888 BOX': 'Video Admin - 888 BOX',
         '音訊管理後台 - 888 BOX': 'Audio Admin - 888 BOX',
         '文件管理後台 - 888 BOX': 'File Admin - 888 BOX',
+        '圖片管理後台': 'Image Admin',
+        '影片管理後台': 'Video Admin',
+        '音訊管理後台': 'Audio Admin',
+        '文件管理後台': 'File Admin',
         '圖片': 'Images',
         '影片': 'Videos',
         '音訊': 'Audio',
@@ -49,6 +53,18 @@
         '上傳音訊': 'Upload audio',
         '上傳文件': 'Upload files',
         '上傳檔案': 'Upload files',
+        '複製分享連結': 'Copy share link',
+        '複製圖片直連': 'Copy direct image URL',
+        '編輯資訊': 'Edit information',
+        '預覽': 'Preview',
+        '預覽/分享': 'Preview / Share',
+        '標題：': 'Title:',
+        '描述：': 'Description:',
+        '大小：': 'Size:',
+        '時間：': 'Time:',
+        '上傳時間：': 'Upload time:',
+        '瀏覽：': 'Views:',
+        '密碼保護': 'Password protected',
         '返回首頁門戶': 'Return to portal',
         '系統維護': 'System maintenance',
         '最佳化資料庫': 'Optimize database',
@@ -99,6 +115,19 @@
         '刪除失敗': 'Delete failed',
         '網路錯誤': 'Network error',
         '網址已複製！': 'URL copied!',
+        '已複製！': 'Copied!',
+        '已複製連結！': 'Link copied!',
+        '複製失敗，請稍後再試': 'Copy failed. Please try again later.',
+        '複製失敗，請再試一次': 'Copy failed. Please try again.',
+        '上傳中...': 'Uploading...',
+        '上傳成功 ✅': 'Upload succeeded ✅',
+        '伺服器回應異常': 'Unexpected server response',
+        '網路錯誤，上傳中斷': 'Network error. Upload interrupted.',
+        '開啟': 'Open',
+        '完成 (清除列表)': 'Done (clear list)',
+        '未知錯誤': 'Unknown error',
+        '目前受密碼保護': 'Currently password protected',
+        '目前未受密碼保護': 'Currently not password protected',
         '確定要永久刪除此文件嗎？': 'Permanently delete this file?',
         '確定要刪除這部影片嗎？（將會同步從 RSS 中移除）': 'Delete this video? It will also be removed from the RSS feed.',
         '確定要刪除這首音訊嗎？（將會同步從 RSS 中移除）': 'Delete this audio? It will also be removed from the RSS feed.',
@@ -146,6 +175,46 @@
         Object.entries(translations).map(([zh, en]) => [en, zh])
     );
 
+    const dynamicPatterns = [
+        [/^(\d[\d,]*) 份資產$/, '$1 assets'],
+        [/^(\d[\d,]*) 部影片$/, '$1 videos'],
+        [/^(\d[\d,]*) 份文件$/, '$1 files'],
+        [/^(\d[\d,]*) 首音訊$/, '$1 audio items'],
+        [/^大小[：:]\s*(.+)$/, 'Size: $1'],
+        [/^時間[：:]\s*(.+)$/, 'Time: $1'],
+        [/^瀏覽[：:]\s*(.+)$/, 'Views: $1'],
+        [/^上傳時間[：:]\s*(.+)$/, 'Upload time: $1'],
+        [/^檢舉[：:]\s*(.+)$/, 'Reports: $1'],
+        [/^失敗[：:]\s*(.+)$/, 'Failed: $1'],
+        [/^HTTP 錯誤[：:]\s*(.+)$/, 'HTTP error: $1']
+    ];
+
+    function translateDynamic(value, language) {
+        if (language === 'en') {
+            for (const [pattern, replacement] of dynamicPatterns) {
+                if (pattern.test(value)) return value.replace(pattern, replacement);
+            }
+            return value;
+        }
+        const reversePatterns = [
+            [/^(\d[\d,]*) assets$/, '$1 份資產'],
+            [/^(\d[\d,]*) videos$/, '$1 部影片'],
+            [/^(\d[\d,]*) files$/, '$1 份文件'],
+            [/^(\d[\d,]*) audio items$/, '$1 首音訊'],
+            [/^Size:\s*(.+)$/, '大小：$1'],
+            [/^Time:\s*(.+)$/, '時間：$1'],
+            [/^Views:\s*(.+)$/, '瀏覽：$1'],
+            [/^Upload time:\s*(.+)$/, '上傳時間：$1'],
+            [/^Reports:\s*(.+)$/, '檢舉：$1'],
+            [/^Failed:\s*(.+)$/, '失敗：$1'],
+            [/^HTTP error:\s*(.+)$/, 'HTTP 錯誤：$1']
+        ];
+        for (const [pattern, replacement] of reversePatterns) {
+            if (pattern.test(value)) return value.replace(pattern, replacement);
+        }
+        return value;
+    }
+
     function detectLanguage() {
         try {
             const storedLanguage = localStorage.getItem(languageStorageKey);
@@ -168,8 +237,12 @@
     function translateTextNode(node, language) {
         const value = node.nodeValue;
         const normalized = value.trim();
-        if (!normalized || !translations[normalized] && !reverseTranslations[normalized]) return;
-        const translated = textFor(normalized, language);
+        if (!normalized) return;
+        const dynamicTranslated = translateDynamic(normalized, language);
+        const translated = dynamicTranslated !== normalized
+            ? dynamicTranslated
+            : textFor(normalized, language);
+        if (translated === normalized && !translations[normalized] && !reverseTranslations[normalized]) return;
         if (translated === normalized) return;
         node.nodeValue = value.replace(normalized, translated);
     }
