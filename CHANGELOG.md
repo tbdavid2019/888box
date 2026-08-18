@@ -11,6 +11,8 @@ All notable changes to this project will be documented in this file.
 - **Global Bilingual UI**: Added the same automatic Traditional Chinese / English switcher to the portal, all public upload centers, admin login, and admin management pages. The preference is shared across the site and dynamically inserted upload/admin content is translated as well.
 - **Bilingual Copy Coverage**: Completed English translations for portal card descriptions, upload-center notices, device statistics, dynamic upload states, and admin metadata labels.
 - **Unified Share Header**: Reworked the share-page navigation into the same full-width, fixed top header pattern used by upload centers, with safer title clearance and responsive mobile controls.
+- **Share Header Contrast & Type Scale**: Changed the upload entry to a dark high-contrast action and consolidated the share page's heading, metadata, navigation, and button type sizes into a clearer scale.
+- **Branded OG Image**: Replaced the plain gradient OG asset with a 1200×630 PNG containing the existing 888 BOX brand mark and added explicit OG image dimensions and MIME metadata.
 - **Share-Page SEO Metadata**: Added description, canonical, Open Graph, Twitter Card, JSON-LD, and PNG/ICO favicon metadata for richer link previews and search indexing.
 - **HTTPS Share URLs**: Share metadata now respects the reverse proxy's forwarded HTTPS scheme instead of emitting HTTP canonical and preview URLs.
 

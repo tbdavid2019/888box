@@ -317,6 +317,9 @@ $jsonLd = [
     <meta property="og:description" content="<?= htmlspecialchars($metaDescription) ?>">
     <meta property="og:url" content="<?= htmlspecialchars($shareUrl) ?>">
     <meta property="og:image" content="<?= htmlspecialchars($ogImage) ?>">
+    <meta property="og:image:type" content="image/png">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
     <meta property="og:image:alt" content="<?= htmlspecialchars($assetTitle) ?>">
     <meta property="og:site_name" content="888 BOX">
     <meta property="og:locale" content="zh_TW">
@@ -342,6 +345,9 @@ $jsonLd = [
 
         .view-container {
             --share-nav-clearance: 34px;
+            --share-font-sm: 0.82rem;
+            --share-font-md: 0.94rem;
+            --share-font-lg: clamp(1.75rem, 3.4vw, 2.4rem);
             --share-surface: linear-gradient(145deg, rgba(255, 255, 255, 0.065), rgba(255, 255, 255, 0.025));
             --share-border: var(--border, rgba(255, 255, 255, 0.12));
             --share-shadow: rgba(4, 6, 14, 0.28);
@@ -402,7 +408,7 @@ $jsonLd = [
             display: inline-flex;
             align-items: center;
             gap: 8px;
-            font-size: 0.78rem;
+            font-size: var(--share-font-sm);
             font-weight: 600;
         }
 
@@ -433,7 +439,7 @@ $jsonLd = [
             border-radius: 7px;
             cursor: pointer;
             font: inherit;
-            font-size: 0.68rem;
+            font-size: 0.75rem;
             font-weight: 700;
             line-height: 1;
         }
@@ -480,28 +486,31 @@ $jsonLd = [
 
         .breadcrumb-tag {
             color: var(--share-text-muted);
-            font-size: 0.78rem;
+            font-size: var(--share-font-sm);
         }
 
         .btn-header-upload {
             display: inline-flex;
             align-items: center;
             gap: 6px;
-            padding: 6px 14px;
-            font-size: 0.78rem;
+            padding: 7px 15px;
+            font-size: var(--share-font-sm);
             font-weight: 700;
-            color: var(--share-text-strong);
-            background: var(--share-upload-action);
-            border: none;
+            color: #f8fafc !important;
+            background: #080d16;
+            border: 1px solid rgba(255, 255, 255, 0.3);
             border-radius: 999px;
             text-decoration: none;
             transition: all 0.2s ease;
-            box-shadow: 0 4px 12px rgba(125, 207, 255, 0.2);
+            box-shadow: 0 5px 16px rgba(0, 0, 0, 0.32);
         }
 
         .btn-header-upload:hover {
             transform: translateY(-1px) scale(1.02);
-            box-shadow: 0 6px 18px rgba(125, 207, 255, 0.35);
+            color: #ffffff !important;
+            background: #111827;
+            border-color: rgba(125, 207, 255, 0.7);
+            box-shadow: 0 7px 20px rgba(0, 0, 0, 0.42);
         }
 
         .btn-header-upload svg {
@@ -614,10 +623,10 @@ $jsonLd = [
             max-width: 760px;
             margin: 0;
             color: var(--share-text-strong);
-            font-size: clamp(1.55rem, 3.6vw, 2.35rem);
+            font-size: var(--share-font-lg);
             font-weight: 700;
             line-height: 1.2;
-            letter-spacing: -0.04em;
+            letter-spacing: -0.025em;
             overflow-wrap: anywhere;
         }
 
@@ -630,7 +639,7 @@ $jsonLd = [
             padding: 0;
             border: 0;
             color: var(--share-text-muted) !important;
-            font-size: 0.78rem;
+            font-size: var(--share-font-sm);
         }
 
         .meta-item {
@@ -895,7 +904,7 @@ $jsonLd = [
             display: block;
             margin-bottom: 6px;
             color: var(--text-secondary, rgba(255, 255, 255, 0.58)) !important;
-            font-size: 0.7rem;
+            font-size: 0.76rem;
             letter-spacing: 0.12em;
         }
 
@@ -969,12 +978,12 @@ $jsonLd = [
 
         .download-copy strong {
             color: inherit !important;
-            font-size: 0.95rem;
+            font-size: 1rem;
         }
 
         .download-copy small {
             color: rgba(16, 17, 26, 0.65) !important;
-            font-size: 0.7rem;
+            font-size: 0.75rem;
             font-weight: 400;
             overflow: hidden;
             text-overflow: ellipsis;
@@ -1233,6 +1242,26 @@ $jsonLd = [
     <?php renderCustomTrackingCode($pdo); ?>
 </head>
 <body>
+    <div class="asset-header-top">
+        <nav class="asset-breadcrumb" aria-label="麵包屑導覽">
+            <a href="/" class="breadcrumb-link" title="返回 888 BOX 首頁門戶" data-i18n-aria="portalLabel">
+                <i data-lucide="box"></i>
+                <span data-i18n="portal">888 BOX 門戶</span>
+            </a>
+            <span class="breadcrumb-sep">/</span>
+            <span class="breadcrumb-tag" data-i18n="publicResource">公開資源</span>
+        </nav>
+        <div class="header-actions">
+            <div class="language-switcher" role="group" aria-label="Language" data-i18n-aria="languageLabel">
+                <button type="button" data-language="zh-Hant" aria-pressed="true">繁</button>
+                <button type="button" data-language="en" aria-pressed="false">EN</button>
+            </div>
+            <a href="/" class="btn-header-upload" title="前往免費上傳與託管檔案" aria-label="前往免費上傳與託管檔案" data-i18n-aria="uploadLabel">
+                <i data-lucide="upload-cloud"></i>
+                <span data-i18n="uploadLabel">我也要上傳檔案</span>
+            </a>
+        </div>
+    </div>
     <div class="view-container">
         <?php if (!$isAuthorized): ?>
             <div class="password-gate">
@@ -1252,26 +1281,6 @@ $jsonLd = [
             $hasTitle = ($customTitle !== '');
             ?>
             <div class="asset-header">
-                <div class="asset-header-top">
-                    <nav class="asset-breadcrumb" aria-label="麵包屑導覽">
-                        <a href="/" class="breadcrumb-link" title="返回 888 BOX 首頁門戶" data-i18n-aria="portalLabel">
-                            <i data-lucide="box"></i>
-                            <span data-i18n="portal">888 BOX 門戶</span>
-                        </a>
-                        <span class="breadcrumb-sep">/</span>
-                        <span class="breadcrumb-tag" data-i18n="publicResource">公開資源</span>
-                    </nav>
-                    <div class="header-actions">
-                        <div class="language-switcher" role="group" aria-label="Language" data-i18n-aria="languageLabel">
-                            <button type="button" data-language="zh-Hant" aria-pressed="true">繁</button>
-                            <button type="button" data-language="en" aria-pressed="false">EN</button>
-                        </div>
-                        <a href="/" class="btn-header-upload" title="前往免費上傳與託管檔案" aria-label="前往免費上傳與託管檔案" data-i18n-aria="uploadLabel">
-                            <i data-lucide="upload-cloud"></i>
-                            <span data-i18n="uploadLabel">我也要上傳檔案</span>
-                        </a>
-                    </div>
-                </div>
                 <?php if ($hasTitle): ?>
                     <h1 class="asset-title"><?= htmlspecialchars($customTitle) ?></h1>
                 <?php endif; ?>

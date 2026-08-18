@@ -61,6 +61,9 @@ if (!headers_sent()) {
     <meta property="og:title" content="888 BOX｜個人檔案中心">
     <meta property="og:description" content="專業、高效、安全的個人檔案中心，支援圖片、影片、音訊與文件託管。">
     <meta property="og:image" content="<?= $base ?>/static/og-image.png">
+    <meta property="og:image:type" content="image/png">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
     <meta property="og:url" content="<?= $base ?>">
     <meta property="og:site_name" content="888 BOX">
     <meta property="og:locale" content="zh_TW">

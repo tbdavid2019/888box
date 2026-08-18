@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict';
-import { readFile } from 'node:fs/promises';
+import { access, readFile } from 'node:fs/promises';
 
 const root = new URL('../', import.meta.url);
 
@@ -64,5 +64,12 @@ for (const phrase of [
 const view = await read('view.php');
 assert.match(view, /\.asset-header-top\s*\{[\s\S]*?top:\s*0;[\s\S]*?left:\s*0;[\s\S]*?width:\s*100%;/);
 assert.match(view, /border-radius:\s*0;/);
+assert.ok(
+    view.indexOf('<div class="asset-header-top">') < view.indexOf('<div class="view-container">'),
+    'Share header must sit outside the content card so it can span the viewport.'
+);
+assert.match(view, /background:\s*#080d16;/);
+assert.match(view, /og:image:type/);
+await access(new URL('../static/og-image.png', import.meta.url));
 
 console.log('global i18n contract checks passed');
