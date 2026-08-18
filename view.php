@@ -7,6 +7,32 @@ require_once 'config/upload.php';
 const TEXT_PREVIEW_EXTENSIONS = ['txt', 'md', 'json', 'csv', 'log', 'yaml', 'yml'];
 const TEXT_PREVIEW_MAX_BYTES = 2 * 1024 * 1024;
 const EPUB_PREVIEW_MAX_BYTES = 25 * 1024 * 1024;
+const VIEW_COUNT_DEDUPLICATION_SECONDS = 1800;
+
+function shouldIncrementAssetViewCount($assetId) {
+    $now = time();
+    $recentViews = $_SESSION['view_counted_assets'] ?? [];
+
+    if (!is_array($recentViews)) {
+        $recentViews = [];
+    }
+
+    foreach ($recentViews as $recentAssetId => $viewedAt) {
+        if ($now - (int)$viewedAt >= VIEW_COUNT_DEDUPLICATION_SECONDS) {
+            unset($recentViews[$recentAssetId]);
+        }
+    }
+
+    $lastViewedAt = (int)($recentViews[$assetId] ?? 0);
+    if ($lastViewedAt > 0 && $now - $lastViewedAt < VIEW_COUNT_DEDUPLICATION_SECONDS) {
+        $_SESSION['view_counted_assets'] = $recentViews;
+        return false;
+    }
+
+    $recentViews[$assetId] = $now;
+    $_SESSION['view_counted_assets'] = $recentViews;
+    return true;
+}
 
 
 function outputInlinePdf($asset, $config) {
@@ -209,9 +235,10 @@ try {
         }
     }
     
-    // 3. 增加瀏覽次數 (僅在授權後或無密碼時)
-    if ($isAuthorized && !isset($_GET['pdf_inline']) && $inlineMode === '') {
+    // 3. 同一訪客在 30 分鐘內重整同一分享頁，只計一次瀏覽。
+    if ($isAuthorized && !isset($_GET['pdf_inline']) && $inlineMode === '' && shouldIncrementAssetViewCount($id)) {
         $pdo->prepare("UPDATE images SET view_count = view_count + 1 WHERE id = ?")->execute([$id]);
+        $asset['view_count'] = (int)$asset['view_count'] + 1;
     }
 
     if ($isAuthorized && isset($_GET['pdf_inline'])) {
@@ -650,6 +677,11 @@ if ($asset['is_audio'] == 1 || strpos($mime, 'audio/') !== false || in_array($ex
             cursor: pointer;
             transition: all 0.2s ease;
             white-space: nowrap;
+        }
+
+        .btn-copy-embed,
+        .btn-copy-embed * {
+            color: var(--share-action-ink) !important;
         }
 
         .btn-copy-embed:hover {

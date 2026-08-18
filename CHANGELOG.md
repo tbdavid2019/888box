@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [2026.8.18] - 2026-08-18
+
+### 🐛 Fixed
+- **Share-Page View Counts**: A visitor refreshing the same asset now counts once per 30-minute server session window instead of incrementing on every reload.
+- **Share-Page CTA Contrast**: The embed-code copy action now forces dark text and icons on its light-blue surface, preventing theme styles from making the label unreadable.
+
 ## [2026.8.9] - 2026-08-09
 
 ### ✨ Added

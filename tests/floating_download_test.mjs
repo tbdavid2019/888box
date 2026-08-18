@@ -67,6 +67,15 @@ assert(
     view.includes('background: var(--share-action);'),
     'Share-page action colors must use local semantic tokens instead of repeated hard-coded values.'
 );
+const copyButtonStart = view.indexOf('.btn-copy-embed {');
+const copyButtonEnd = view.indexOf('.btn-copy-embed:hover {');
+const copyButtonRules = view.slice(copyButtonStart, copyButtonEnd);
+assert(
+    copyButtonRules.includes('background: var(--share-action);') &&
+    view.includes('.btn-copy-embed,\n        .btn-copy-embed * {') &&
+    view.includes('color: var(--share-action-ink) !important;'),
+    'The copy action must keep dark text and icons on its light-blue background.'
+);
 assert(
     view.includes('color: #172554 !important;') && view.includes('background: var(--share-upload-action);'),
     'Large EPUB guidance and upload actions must remain legible against their surfaces.'
