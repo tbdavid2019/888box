@@ -16,6 +16,7 @@ All notable changes to this project will be documented in this file.
 - **Translation Coverage & Header Spacing**: Hardened phrase and attribute translation for mixed homepage/upload text, dynamic upload percentages, and image compression labels. Removed the upload-page top padding that left a blank strip above the shared header, and increased the header brand/context type size.
 - **Header Navigation Cleanup**: Replaced the old emoji-based hosting links with a compact shared 图片／影片／音訊／文件 navigation in the top header. Homepage and upload-center labels now use the short category names only; duplicate admin tabs and footer navigation were removed.
 - **Admin Login Layout**: Fixed the login page flex layout so the shared header stays at the top and the sign-in card remains centered instead of being pushed to the right edge.
+- **Homepage Icon Cleanup**: Replaced the remaining emoji type markers in the universal upload hint with plain localized text so the homepage uses the same icon language throughout.
 - **Share Header Contrast & Type Scale**: Changed the upload entry to a dark high-contrast action and consolidated the share page's heading, metadata, navigation, and button type sizes into a clearer scale.
 - **Branded OG Image**: Replaced the plain gradient OG asset with a 1200×630 PNG containing the existing 888 BOX brand mark and added explicit OG image dimensions and MIME metadata.
 - **Share-Page SEO Metadata**: Added description, canonical, Open Graph, Twitter Card, JSON-LD, and PNG/ICO favicon metadata for richer link previews and search indexing.

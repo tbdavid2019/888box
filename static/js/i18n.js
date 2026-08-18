@@ -28,6 +28,7 @@
         '支援 ZIP, PDF, Word 及 EPUB 線上閱讀': 'Online reading for ZIP, PDF, Word, and EPUB',
         '支援 MP3/WAV 上傳與 Podcast RSS 訂閱': 'MP3/WAV upload and Podcast RSS subscriptions',
         '自動辨識 🖼️ 圖片 · 🎬 影片 · 🎙️ 音訊 · 📂 文件 等格式並完成託管': 'Automatically detects 🖼️ images, 🎬 videos, 🎙️ audio, and 📂 files',
+        '自動辨識圖片、影片、音訊與文件格式並完成託管': 'Automatically detects image, video, audio, and file formats',
         '輸入圖片網址即可自動上傳，或使用 Ctrl+V 貼上': 'Enter an image URL to upload, or paste with Ctrl+V',
         '注意：部分網站設有防盜鏈，可能無法直接下載': 'Note: some sites block hotlink downloads',
         '貼上上傳': 'Paste to upload',
