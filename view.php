@@ -7,32 +7,6 @@ require_once 'config/upload.php';
 const TEXT_PREVIEW_EXTENSIONS = ['txt', 'md', 'json', 'csv', 'log', 'yaml', 'yml'];
 const TEXT_PREVIEW_MAX_BYTES = 2 * 1024 * 1024;
 const EPUB_PREVIEW_MAX_BYTES = 25 * 1024 * 1024;
-const VIEW_COUNT_DEDUPLICATION_SECONDS = 1800;
-
-function shouldIncrementAssetViewCount($assetId) {
-    $now = time();
-    $recentViews = $_SESSION['view_counted_assets'] ?? [];
-
-    if (!is_array($recentViews)) {
-        $recentViews = [];
-    }
-
-    foreach ($recentViews as $recentAssetId => $viewedAt) {
-        if ($now - (int)$viewedAt >= VIEW_COUNT_DEDUPLICATION_SECONDS) {
-            unset($recentViews[$recentAssetId]);
-        }
-    }
-
-    $lastViewedAt = (int)($recentViews[$assetId] ?? 0);
-    if ($lastViewedAt > 0 && $now - $lastViewedAt < VIEW_COUNT_DEDUPLICATION_SECONDS) {
-        $_SESSION['view_counted_assets'] = $recentViews;
-        return false;
-    }
-
-    $recentViews[$assetId] = $now;
-    $_SESSION['view_counted_assets'] = $recentViews;
-    return true;
-}
 
 
 function outputInlinePdf($asset, $config) {
@@ -235,10 +209,23 @@ try {
         }
     }
     
-    // 3. 同一訪客在 30 分鐘內重整同一分享頁，只計一次瀏覽。
-    if ($isAuthorized && !isset($_GET['pdf_inline']) && $inlineMode === '' && shouldIncrementAssetViewCount($id)) {
+    // 3. 只接受瀏覽器首次標記後的 POST 計數請求。
+    $isViewRecordingRequest = $_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['record_view']);
+    if ($isViewRecordingRequest) {
+        header('Content-Type: application/json; charset=utf-8');
+
+        if (!$isAuthorized || isset($_GET['pdf_inline']) || $inlineMode !== '') {
+            http_response_code(403);
+            echo json_encode(['success' => false], JSON_UNESCAPED_UNICODE);
+            exit;
+        }
+
         $pdo->prepare("UPDATE images SET view_count = view_count + 1 WHERE id = ?")->execute([$id]);
-        $asset['view_count'] = (int)$asset['view_count'] + 1;
+        echo json_encode([
+            'success' => true,
+            'view_count' => (int)$asset['view_count'] + 1,
+        ], JSON_UNESCAPED_UNICODE);
+        exit;
     }
 
     if ($isAuthorized && isset($_GET['pdf_inline'])) {
@@ -1186,7 +1173,7 @@ if ($asset['is_audio'] == 1 || strpos($mime, 'audio/') !== false || in_array($ex
                         <span class="meta-item" id="meta-dimensions" style="display: none;"><i data-lucide="maximize-2"></i>尺寸 <span id="image-dimensions"></span></span>
                     <?php endif; ?>
                     <span class="meta-item"><i data-lucide="hard-drive"></i>大小 <?= number_format($asset['size'] / 1024 / 1024, 2) ?> MB</span>
-                    <span class="meta-item"><i data-lucide="eye"></i>瀏覽 <?= $asset['view_count'] ?> 次</span>
+                    <span class="meta-item"><i data-lucide="eye"></i>瀏覽 <span id="view-count"><?= $asset['view_count'] ?></span> 次</span>
                 </div>
             </div>
 
@@ -1372,6 +1359,39 @@ if ($asset['is_audio'] == 1 || strpos($mime, 'audio/') !== false || in_array($ex
             html: <?= json_encode('<img src="' . $url . '" alt="' . ($customTitle ?: 'image') . '">' ) ?>,
             bbcode: <?= json_encode('[img]' . $url . '[/img]') ?>
         };
+        const viewMarkerKey = '888box:view-counted:v1:' + <?= json_encode((string)$asset['share_token']) ?>;
+        const viewRecordUrl = <?= json_encode('/view.php?token=' . urlencode((string)$asset['share_token'])) ?>;
+
+        function recordFirstDeviceView() {
+            if (!document.getElementById('view-count')) return;
+
+            try {
+                if (localStorage.getItem(viewMarkerKey)) return;
+                localStorage.setItem(viewMarkerKey, '1');
+            } catch (error) {
+                console.warn('無法儲存裝置瀏覽記號', error);
+                return;
+            }
+
+            fetch(viewRecordUrl, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                body: 'record_view=1'
+            })
+            .then(response => response.ok ? response.json() : Promise.reject(new Error('View count request failed')))
+            .then(data => {
+                const viewCount = document.getElementById('view-count');
+                if (data.success && viewCount) viewCount.textContent = data.view_count;
+            })
+            .catch(error => {
+                console.warn('瀏覽次數記錄失敗', error);
+                try {
+                    localStorage.removeItem(viewMarkerKey);
+                } catch (storageError) {
+                    console.warn('無法移除裝置瀏覽記號', storageError);
+                }
+            });
+        }
 
         function selectEmbedType(type, btn) {
             document.querySelectorAll('.embed-tab').forEach(b => b.classList.remove('active'));
@@ -1401,6 +1421,7 @@ if ($asset['is_audio'] == 1 || strpos($mime, 'audio/') !== false || in_array($ex
 
         document.addEventListener('DOMContentLoaded', () => {
             if (window.lucide) lucide.createIcons();
+            recordFirstDeviceView();
 
             const img = document.querySelector('.viewer-box img');
             if (img) {
