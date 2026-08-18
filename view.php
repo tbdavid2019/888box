@@ -352,8 +352,8 @@ if ($asset['is_audio'] == 1 || strpos($mime, 'audio/') !== false || in_array($ex
             padding: 6px 14px;
             font-size: 0.78rem;
             font-weight: 700;
-            color: #1a1b26;
-            background: linear-gradient(135deg, #7dcfff 0%, #7aa2f7 100%);
+            color: #fff;
+            background: #4f86df;
             border: none;
             border-radius: 999px;
             text-decoration: none;
@@ -432,8 +432,8 @@ if ($asset['is_audio'] == 1 || strpos($mime, 'audio/') !== false || in_array($ex
             padding: 10px 20px;
             font-size: 0.84rem;
             font-weight: 700;
-            color: #1a1b26;
-            background: linear-gradient(135deg, #7dcfff 0%, #7aa2f7 100%);
+            color: #fff;
+            background: #4f86df;
             border-radius: 12px;
             text-decoration: none;
             transition: all 0.2s ease;
@@ -703,7 +703,7 @@ if ($asset['is_audio'] == 1 || strpos($mime, 'audio/') !== false || in_array($ex
     z-index: 1;
     width: min(86%, 420px);
     padding: 12px 16px;
-    color: #334155;
+    color: #172554 !important;
     background: rgba(255, 255, 255, 0.92);
     border: 1px solid rgba(51, 65, 85, 0.16);
     border-radius: 10px;
@@ -762,16 +762,10 @@ if ($asset['is_audio'] == 1 || strpos($mime, 'audio/') !== false || in_array($ex
             overflow-wrap: anywhere;
         }
 
-        .asset-actions {
+        .asset-primary-actions {
             display: grid;
             grid-template-columns: minmax(0, 1.1fr) minmax(260px, 0.9fr);
             gap: 14px;
-            margin-top: 24px;
-        }
-
-        .download-box {
-            margin: 0;
-            text-align: left;
         }
 
         .btn-download {
@@ -783,48 +777,17 @@ if ($asset['is_audio'] == 1 || strpos($mime, 'audio/') !== false || in_array($ex
             gap: 14px;
             padding: 12px 16px;
             color: #fff;
+            background: #365fd1;
             text-decoration: none;
             border-radius: 14px;
             font-weight: bold;
+            box-shadow: 0 8px 18px rgba(54, 95, 209, 0.34);
             transition: transform 0.2s ease, filter 0.2s ease;
         }
 
         .btn-download:hover {
             filter: brightness(1.08);
-        }
-
-        .floating-download {
-            position: fixed;
-            right: max(20px, env(safe-area-inset-right));
-            bottom: max(20px, env(safe-area-inset-bottom));
-            z-index: 30;
-            min-height: 50px;
-            display: inline-flex;
-            align-items: center;
-            gap: 10px;
-            padding: 12px 16px;
-            color: #fff;
-            background: var(--accent-blue, #7aa2f7);
-            border-radius: 14px;
-            box-shadow: 0 12px 28px rgba(69, 112, 198, 0.38);
-            font-weight: 700;
-            text-decoration: none;
-            transition: transform 0.2s ease, filter 0.2s ease;
-        }
-
-        .floating-download:hover {
-            filter: brightness(1.08);
             transform: translateY(-2px);
-        }
-
-        .floating-download:focus-visible {
-            outline: 3px solid rgba(125, 207, 255, 0.6);
-            outline-offset: 3px;
-        }
-
-        .floating-download svg {
-            width: 18px;
-            height: 18px;
         }
 
         .download-icon {
@@ -866,8 +829,9 @@ if ($asset['is_audio'] == 1 || strpos($mime, 'audio/') !== false || in_array($ex
             justify-content: space-between;
             gap: 12px;
             padding: 12px 14px;
-            background: rgba(224, 175, 104, 0.06);
-            border: 1px solid rgba(224, 175, 104, 0.2);
+            color: #f7e4c3;
+            background: #352d25;
+            border: 1px solid #795d34;
             border-radius: 14px;
         }
 
@@ -913,9 +877,9 @@ if ($asset['is_audio'] == 1 || strpos($mime, 'audio/') !== false || in_array($ex
             gap: 6px;
             flex: 0 0 auto;
             padding: 9px 11px;
-            color: var(--accent-orange, #e0af68) !important;
-            background: transparent;
-            border: 1px solid rgba(224, 175, 104, 0.32);
+            color: #ffe0a3 !important;
+            background: #5b4527;
+            border: 1px solid #9a7540;
             border-radius: 9px;
             cursor: pointer;
             font: inherit;
@@ -924,8 +888,8 @@ if ($asset['is_audio'] == 1 || strpos($mime, 'audio/') !== false || in_array($ex
         }
 
         .btn-report:hover {
-            background: rgba(224, 175, 104, 0.14);
-            border-color: rgba(224, 175, 104, 0.62);
+            background: #72562e;
+            border-color: #c39650;
             transform: translateY(-1px);
         }
 
@@ -984,15 +948,8 @@ if ($asset['is_audio'] == 1 || strpos($mime, 'audio/') !== false || in_array($ex
                 border-radius: 20px;
             }
 
-            .asset-actions {
+            .asset-primary-actions {
                 grid-template-columns: 1fr;
-            }
-
-            .floating-download {
-                right: max(12px, env(safe-area-inset-right));
-                bottom: max(12px, env(safe-area-inset-bottom));
-                left: max(12px, env(safe-area-inset-left));
-                justify-content: center;
             }
 
             .report-panel {
@@ -1099,6 +1056,29 @@ if ($asset['is_audio'] == 1 || strpos($mime, 'audio/') !== false || in_array($ex
                 <?php if ($hasTitle): ?>
                     <h1 class="asset-title"><?= htmlspecialchars($customTitle) ?></h1>
                 <?php endif; ?>
+                <div class="asset-primary-actions">
+                    <a href="<?= htmlspecialchars($url) ?>" download="<?= htmlspecialchars(basename($asset['path'])) ?>" class="btn-download">
+                        <span class="download-icon"><i data-lucide="download"></i></span>
+                        <span class="download-copy">
+                            <strong>立即下載</strong>
+                            <small><?= htmlspecialchars(basename($asset['path'])) ?></small>
+                        </span>
+                        <i data-lucide="arrow-up-right"></i>
+                    </a>
+
+                    <div class="report-panel">
+                        <div class="report-copy">
+                            <span class="report-icon"><i data-lucide="flag"></i></span>
+                            <span>
+                                <strong>內容有問題？</strong>
+                                <small>發現不當內容，請通知管理員</small>
+                            </span>
+                        </div>
+                        <button type="button" class="btn-report" onclick="reportAsset(<?= $id ?>, this)">
+                            舉報 <i data-lucide="chevron-right"></i>
+                        </button>
+                    </div>
+                </div>
                 <div class="asset-meta">
                     <span class="meta-item"><i data-lucide="clock"></i>時間 <?= $asset['created_at'] ?></span>
                     <?php if ($type === 'image'): ?>
@@ -1244,32 +1224,6 @@ if ($asset['is_audio'] == 1 || strpos($mime, 'audio/') !== false || in_array($ex
                 </div>
             <?php endif; ?>
 
-            <div class="asset-actions">
-                <div class="download-box">
-                    <a href="<?= htmlspecialchars($url) ?>" download="<?= htmlspecialchars(basename($asset['path'])) ?>" class="btn-download">
-                        <span class="download-icon"><i data-lucide="download"></i></span>
-                        <span class="download-copy">
-                            <strong>立即下載</strong>
-                            <small><?= htmlspecialchars(basename($asset['path'])) ?></small>
-                        </span>
-                        <i data-lucide="arrow-up-right"></i>
-                    </a>
-                </div>
-
-                <div class="report-panel">
-                    <div class="report-copy">
-                        <span class="report-icon"><i data-lucide="flag"></i></span>
-                        <span>
-                            <strong>內容有問題？</strong>
-                            <small>發現不當內容，請通知管理員</small>
-                        </span>
-                    </div>
-                    <button type="button" class="btn-report" onclick="reportAsset(<?= $id ?>, this)">
-                        舉報 <i data-lucide="chevron-right"></i>
-                    </button>
-                </div>
-            </div>
-
             <!-- 引導使用者上傳與託管的 CTA 橫幅 -->
             <div class="user-guide-cta">
                 <div class="cta-left">
@@ -1288,13 +1242,6 @@ if ($asset['is_audio'] == 1 || strpos($mime, 'audio/') !== false || in_array($ex
             </div>
         <?php endif; ?>
     </div>
-
-    <?php if ($isAuthorized): ?>
-        <a href="<?= htmlspecialchars($url) ?>" download="<?= htmlspecialchars(basename($asset['path'])) ?>" class="floating-download" aria-label="下載原始檔案">
-            <i data-lucide="download"></i>
-            <span>下載原檔</span>
-        </a>
-    <?php endif; ?>
 
     <footer class="portal-footer">
         &copy; <?= date('Y') ?> 888 BOX. All rights reserved. <br>

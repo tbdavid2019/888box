@@ -12,16 +12,21 @@ function assert(condition, message) {
 }
 
 assert(
-    view.includes('.floating-download') && view.includes('position: fixed'),
-    'The direct-download action must remain fixed and visible while the preview is open.'
+    view.includes('class="asset-primary-actions"') &&
+    view.indexOf('class="asset-primary-actions"') < view.indexOf('class="asset-meta"'),
+    'Download and report actions must appear between the title and the asset metadata.'
 );
 assert(
-    view.includes('class="floating-download"') && view.includes('下載原檔'),
-    'The fixed action must clearly identify the file download action.'
+    view.includes('class="btn-download"') && view.includes('立即下載'),
+    'The primary action must retain the established 立即下載 label.'
 );
 assert(
-    view.includes('class="floating-download"') && view.includes('href="<?= htmlspecialchars($url) ?>"'),
-    'The fixed action must use the existing authorized asset URL.'
+    !view.includes('floating-download') && view.includes('background: #365fd1;'),
+    'The old floating action must be removed and the primary download button must be visually distinct.'
+);
+assert(
+    view.includes('color: #172554 !important;') && view.includes('background: #4f86df;'),
+    'Large EPUB guidance and upload actions must remain legible against their surfaces.'
 );
 
 console.log('Floating download contract checks passed.');
