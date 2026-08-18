@@ -1149,7 +1149,7 @@ if ($asset['is_audio'] == 1 || strpos($mime, 'audio/') !== false || in_array($ex
                 <?php elseif ($type === 'epub'): ?>
                     <div class="epub-preview" id="epub-preview">
                         <?php if ((int)$asset['size'] > EPUB_PREVIEW_MAX_BYTES): ?>
-                            <p class="epub-status" id="epub-status" role="status">此 EPUB 含有大型媒體，瀏覽器預覽可能無法順利開啟。請使用右下角「下載原檔」以閱讀完整內容。</p>
+                            <p class="epub-status" id="epub-status" role="status">此 EPUB 含有大型媒體，瀏覽器預覽可能無法順利開啟。請使用「立即下載」以閱讀完整內容。</p>
                         <?php else: ?>
                             <div class="epub-status" id="epub-status" role="status">正在載入 EPUB 閱讀器…</div>
                             <div id="epub-viewer"></div>
@@ -1162,7 +1162,7 @@ if ($asset['is_audio'] == 1 || strpos($mime, 'audio/') !== false || in_array($ex
                                 const preview = document.getElementById('epub-preview');
                                 const status = document.getElementById('epub-status');
                                 const showFailure = () => {
-                                    if (status) status.textContent = 'EPUB 預覽載入失敗，請使用右下角「下載原檔」。';
+                                    if (status) status.textContent = 'EPUB 預覽載入失敗，請使用「立即下載」。';
                                 };
 
                                 if (typeof ePub !== 'function') {

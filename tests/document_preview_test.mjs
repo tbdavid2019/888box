@@ -50,6 +50,10 @@ assert(
     'Large EPUB files must show a download fallback instead of leaving the reader in a perpetual loading state.'
 );
 assert(
+    view.includes('請使用「立即下載」以閱讀完整內容。') && !view.includes('右下角「下載原檔」'),
+    'EPUB guidance must point users to the visible primary download action.'
+);
+assert(
     view.includes('data-type="share"') && view.includes("selectEmbedType('share', this)"),
     'The share-page URL must be available as the primary link format.'
 );
