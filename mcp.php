@@ -192,7 +192,7 @@ function executeUploadFromUrl($pdo, $config, $url, $title = '', $description = '
         return ['success' => false, 'error' => "無法訪問遠端檔案 (HTTP $httpCode)"];
     }
 
-    $maxFileSize = getConfigValue($pdo, 'max_file_size', 100 * 1024 * 1024);
+    $maxFileSize = (int)(Database::getConfig($pdo, 'max_file_size') ?: (100 * 1024 * 1024));
     if ($contentLength > 0 && $contentLength > $maxFileSize) {
         return ['success' => false, 'error' => '遠端檔案大小超過伺服器限制 (' . round($maxFileSize / (1024 * 1024)) . 'MB)'];
     }
