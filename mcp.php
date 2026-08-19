@@ -184,8 +184,8 @@ function executeUploadFromUrl($pdo, $config, $url, $title = '', $description = '
     curl_setopt($ch, CURLOPT_USERAGENT, '888box-WebMCP-Ingestion/1.0');
     curl_exec($ch);
     $contentType = curl_getinfo($ch, CURLINFO_CONTENT_TYPE);
-    $contentLength = (int)curl_getinfo($ch, CURLINFO_CONTENT_LENGTH);
-    $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+    $contentLength = (int)curl_getinfo($ch, CURLINFO_CONTENT_LENGTH_DOWNLOAD);
+    $httpCode = (int)curl_getinfo($ch, CURLINFO_HTTP_CODE);
     curl_close($ch);
 
     if ($httpCode >= 400) {
