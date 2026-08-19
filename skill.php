@@ -114,6 +114,14 @@ Parameters:
 - `type` one of `image`, `video`, `audio`, `file`, `all`
 - `page` optional
 
+#### `search`
+
+Search assets by keyword across title, path, and URL.
+
+Parameters:
+- `q` required (keyword string)
+- `type` optional (`image`, `video`, `audio`, `file`, `all`)
+
 #### `stats`
 
 Get asset count statistics.
@@ -139,6 +147,14 @@ curl -X POST '<?= $baseUrl ?>/api.php?action=upload_url' \
 
 ```bash
 curl '<?= $baseUrl ?>/api.php?action=list&type=all&page=1&token=<?= $tokenDisplay ?>'
+```
+
+### JSON-RPC 2.0 MCP / WebMCP Call
+
+```bash
+curl -X POST '<?= $baseUrl ?>/mcp.php' \
+  -H 'Content-Type: application/json' \
+  -d '{"jsonrpc":"2.0","id":1,"method":"tools/call","params":{"name":"get_stats","arguments":{}}}'
 ```
 
 ## MCP & WebMCP Tools
