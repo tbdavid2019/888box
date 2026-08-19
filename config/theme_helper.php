@@ -355,6 +355,8 @@ function renderThemeStyles($pdo) {
         }
     }
     </style>
+    <!-- WebMCP Agent Interface (Chrome 146+ document.modelContext / Cloudflare WebMCP) -->
+    <script type="module" src="/static/js/webmcp.js" data-mcp-url="/mcp.php"></script>
     <?php
 }
 

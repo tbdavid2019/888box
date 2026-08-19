@@ -141,14 +141,21 @@ curl -X POST '<?= $baseUrl ?>/api.php?action=upload_url' \
 curl '<?= $baseUrl ?>/api.php?action=list&type=all&page=1&token=<?= $tokenDisplay ?>'
 ```
 
-## MCP Tools
-If MCP is connected for this 888box instance, prefer these tools:
+## MCP & WebMCP Tools
+888box provides dual-mode MCP support over both CLI stdio and HTTP (compatible with Chrome 146+ WebMCP `document.modelContext` and Cloudflare WebMCP):
 
+- **Endpoint**: `<?= $baseUrl ?>/mcp.php` (or `<?= $baseUrl ?>/mcp`)
+- **Transport**: stdio (CLI) or JSON-RPC 2.0 over HTTP POST
+- **Browser WebMCP**: Automatically registers tools in `document.modelContext` for browser AI agents.
+
+Available tools:
 - **`upload_asset_by_url`**: Best for transferring assets from other websites.
-- **`list_assets`**: Use this to find IDs for deletion or viewing.
-- **`get_stats`**: Check storage usage and counts.
+- **`list_assets`**: List recent assets with type filter and pagination.
+- **`search_assets`**: Search assets by keyword across title, path, and URL.
+- **`get_stats`**: Check storage usage and asset counts.
 - **`get_podcast_info`**: Retrieve the RSS feeds for your videos or audios.
-- **`rebuild_podcast_rss`**: Run this with the type parameter if the RSS feed seems out of sync.
+- **`rebuild_podcast_rss`**: Force rebuild of Podcast RSS feeds (Admin only).
+- **`delete_asset`**: Remove an asset by ID (Admin only).
 
 ## Best Practices
 - **Images**: Automatically converted to WebP for optimization.

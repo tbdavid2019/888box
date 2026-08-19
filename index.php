@@ -27,6 +27,7 @@ if (!headers_sent()) {
     header('Link: <' . $base . '/skill.php>; rel="service-doc"', false);
     header('Link: <' . $base . '/llms.txt>; rel="help"; type="text/markdown"', false);
     header('Link: <' . $base . '/sitemap.xml>; rel="sitemap"; type="application/xml"', false);
+    header('Link: <' . $base . '/mcp.php>; rel="mcp-server"', false);
     header('Link: <' . $base . '/.well-known/mcp/server-card.json>; rel="mcp-server-card"', false);
     header('Link: <' . $base . '/.well-known/agent-skills/index.json>; rel="agent-skills"', false);
 }

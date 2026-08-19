@@ -18,6 +18,9 @@ RewriteRule ^sitemap\.xml$ sitemap.php [L,QSA]
 RewriteRule ^llms\.txt$ llms.php [L,QSA]
 RewriteRule ^llms-full\.txt$ skill.php [L,QSA]
 
+# ── WebMCP / MCP endpoint: /mcp → mcp.php ─────────────────────
+RewriteRule ^mcp$ mcp.php [L,QSA]
+
 # ── Pretty Short Share URLs: /v/{token} & /s/{token} ───────────
 RewriteRule ^v/([a-zA-Z0-9_-]+)$ view.php?token=$1 [L,QSA]
 RewriteRule ^s/([a-zA-Z0-9_-]+)$ view.php?token=$1 [L,QSA]

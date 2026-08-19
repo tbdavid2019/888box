@@ -2,6 +2,30 @@
 
 All notable changes to this project will be documented in this file.
 
+## [2026.8.19] - 2026-08-19
+
+### ✨ Added
+- **Native WebMCP & HTTP JSON-RPC Dual-Mode MCP Server (`mcp.php`, `/mcp`)**:
+  - Upgraded `mcp.php` to support both **CLI stdio** (for Claude Desktop, Cursor, subagents) and **HTTP JSON-RPC 2.0** (`GET`, `POST`, `OPTIONS` with full CORS support).
+  - Added multi-source authentication supporting `Authorization: Bearer <token>`, `X-API-Key`, parameter `token`, and browser **active session login** (`$_SESSION['loggedin']`).
+  - Added new `/mcp` rewrite rule in `.htaccess` mapping directly to `mcp.php` for out-of-the-box compatibility with Cloudflare WebMCP edge bridge and standard agent clients.
+  - Expanded and unified tool capabilities:
+    - `upload_asset_by_url`: Safely downloads and ingests remote images, videos, audios, or documents with metadata and thumbnail generation.
+    - `list_assets`: Paginated browsing of stored assets filtered by media type (`all`, `image`, `video`, `audio`, `file`).
+    - `search_assets`: Keyword search across titles, storage paths, and URLs.
+    - `get_stats`: Global statistics overview of asset counts and active storage backend.
+    - `get_podcast_info`: Dynamic feed discovery for video and audio podcast RSS feeds.
+    - `rebuild_podcast_rss`: Administrative action to trigger podcast RSS feed rebuilds.
+    - `delete_asset`: Administrative action to safely remove assets and linked storage files.
+- **Browser-Side WebMCP Bridge Module (`static/js/webmcp.js`)**:
+  - Implemented client-side W3C / Chrome 146+ `document.modelContext` discovery and tool registration.
+  - Injected seamlessly across all portal, upload center, and share viewer pages via `config/theme_helper.php`.
+  - Automatically forwards tool calls from browser AI agents to the same-origin `/mcp.php` endpoint using active session credentials.
+- **AI Agent Discovery & Specification Upgrades**:
+  - Added RFC 8288 `Link: </mcp.php>; rel="mcp-server"` header on `index.php`.
+  - Updated `skill.php` dynamic LLM instructions with WebMCP, HTTP endpoints, and complete tool documentation.
+  - Updated `/.well-known/mcp/server-card.json` schema to version 1.1.0 with comprehensive input schemas for all tools.
+
 ## [2026.8.18] - 2026-08-18
 
 ### 🐛 Fixed
