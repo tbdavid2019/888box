@@ -126,6 +126,26 @@ function getMaskedUrl($url, $path) {
 }
 
 /**
+ * 判斷指定網域是否為雲端儲存原生端點（避免誤將 S3/OSS 等原始桶網址當作 CDN 輸出）
+ */
+function isRawStorageEndpoint($domain) {
+    if (empty($domain)) {
+        return false;
+    }
+    $host = parse_url($domain, PHP_URL_HOST) ?: $domain;
+    if (preg_match('/(^|\.)s3[.-][a-z0-9-]*\.?amazonaws\.com$/i', $host) || strtolower($host) === 's3.amazonaws.com') {
+        return true;
+    }
+    if (preg_match('/(^|\.)aliyuncs\.com$/i', $host)) {
+        return true;
+    }
+    if (preg_match('/(^|\.)r2\.cloudflarestorage\.com$/i', $host)) {
+        return true;
+    }
+    return false;
+}
+
+/**
  * 取得對外可用的資源 URL。
  *
  * 公開 S3 資源可走設定的 CDN；受密碼保護的資源一律回到本站代理，
@@ -141,7 +161,7 @@ function getAssetPublicUrl($asset, $config) {
     }
 
     $storage = $asset['storage'] ?? 'local';
-    if ($storage === 's3' && !empty($config['s3_cdn_domain'])) {
+    if ($storage === 's3' && !empty($config['s3_cdn_domain']) && !isRawStorageEndpoint($config['s3_cdn_domain'])) {
         $cdnDomain = trim((string)$config['s3_cdn_domain']);
         if (!preg_match('/^https?:\/\//i', $cdnDomain)) {
             $cdnDomain = 'https://' . $cdnDomain;

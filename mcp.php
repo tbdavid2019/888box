@@ -132,7 +132,17 @@ function getMcpTools() {
 function authenticateUser($pdo, $args = []) {
     // 1. 檢查 HTTP Header
     $headerToken = '';
-    if (!empty($_SERVER['HTTP_AUTHORIZATION']) && preg_match('/Bearer\s+(.*)$/i', $_SERVER['HTTP_AUTHORIZATION'], $m)) {
+    $authHeader = $_SERVER['HTTP_AUTHORIZATION'] ?? $_SERVER['REDIRECT_HTTP_AUTHORIZATION'] ?? '';
+    if (empty($authHeader) && function_exists('apache_request_headers')) {
+        $reqHeaders = apache_request_headers();
+        $authHeader = $reqHeaders['Authorization'] ?? $reqHeaders['authorization'] ?? '';
+    }
+    if (empty($authHeader) && function_exists('getallheaders')) {
+        $reqHeaders = getallheaders();
+        $authHeader = $reqHeaders['Authorization'] ?? $reqHeaders['authorization'] ?? '';
+    }
+
+    if (!empty($authHeader) && preg_match('/Bearer\s+(.*)$/i', $authHeader, $m)) {
         $headerToken = trim($m[1]);
     } elseif (!empty($_SERVER['HTTP_X_API_KEY'])) {
         $headerToken = trim($_SERVER['HTTP_X_API_KEY']);

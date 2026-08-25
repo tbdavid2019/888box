@@ -6,18 +6,9 @@ ob_start();
 error_reporting(0);
 ini_set('display_errors', '0');
 
-require_once '../vendor/autoload.php';
-require_once 'database.php';
-require_once 'storage.php';
-
-// 权限验证
-session_start();
-if (!isset($_SESSION['loggedin']) || !$_SESSION['loggedin']) {
-    ob_end_clean();
-    header('Content-Type: application/json; charset=utf-8');
-    echo json_encode(['result' => 'error', 'message' => '未登录，无权限执行删除操作'], JSON_UNESCAPED_UNICODE);
-    exit;
-}
+require_once __DIR__ . '/../vendor/autoload.php';
+require_once __DIR__ . '/database.php';
+require_once __DIR__ . '/storage.php';
 
 use OSS\OssClient;
 use OSS\Core\OssException;
@@ -96,6 +87,16 @@ function deleteAsset($pdo, $idOrPath) {
 
 // 只有直接訪問此檔案時才執行以下邏輯
 if (basename($_SERVER['PHP_SELF']) === 'delete.php') {
+    if (session_status() === PHP_SESSION_NONE) {
+        session_start();
+    }
+    if (!isset($_SESSION['loggedin']) || !$_SESSION['loggedin']) {
+        ob_end_clean();
+        header('Content-Type: application/json; charset=utf-8');
+        echo json_encode(['result' => 'error', 'message' => '未登录，无权限执行删除操作'], JSON_UNESCAPED_UNICODE);
+        exit;
+    }
+
     // 處理請求
     $database = Database::getInstance();
     $pdo = $database->getConnection();

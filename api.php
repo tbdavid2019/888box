@@ -130,10 +130,20 @@ function validateToken() {
     
     // 1. 获取 Token
     $token = '';
-    if (preg_match('/Bearer\s+(.*)$/i', $_SERVER['HTTP_AUTHORIZATION'] ?? '', $matches)) {
-        $token = $matches[1];
+    $authHeader = $_SERVER['HTTP_AUTHORIZATION'] ?? $_SERVER['REDIRECT_HTTP_AUTHORIZATION'] ?? '';
+    if (empty($authHeader) && function_exists('apache_request_headers')) {
+        $reqHeaders = apache_request_headers();
+        $authHeader = $reqHeaders['Authorization'] ?? $reqHeaders['authorization'] ?? '';
+    }
+    if (empty($authHeader) && function_exists('getallheaders')) {
+        $reqHeaders = getallheaders();
+        $authHeader = $reqHeaders['Authorization'] ?? $reqHeaders['authorization'] ?? '';
+    }
+
+    if (preg_match('/Bearer\s+(.*)$/i', $authHeader, $matches)) {
+        $token = trim($matches[1]);
     } else {
-        $token = $_POST['token'] ?? '';
+        $token = trim($_POST['token'] ?? $_GET['token'] ?? '');
     }
     
     // 2. 验证 Token (優先級最高)

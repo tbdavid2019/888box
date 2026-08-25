@@ -1,6 +1,10 @@
 Options -Indexes
 RewriteEngine On
 
+# ── Pass Authorization header to PHP ─────────────────────────
+SetEnvIf Authorization "(.*)" HTTP_AUTHORIZATION=$1
+RewriteRule .* - [E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]
+
 # ── robots.txt ────────────────────────────────────────────────
 # Serve robots.txt as plain text with 200
 <Files "robots.txt">

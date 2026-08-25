@@ -65,7 +65,7 @@ echo "S3_REGION=ap-northeast-1" >> .env.s3
 echo "S3_BUCKET=$BUCKET_NAME" >> .env.s3
 echo "S3_ACCESS_KEY_ID=$ACCESS_KEY" >> .env.s3
 echo "S3_ACCESS_KEY_SECRET=$SECRET_KEY" >> .env.s3
-echo "S3_CDN_DOMAIN=https://$BUCKET_NAME.s3.ap-northeast-1.amazonaws.com" >> .env.s3
+echo "S3_CDN_DOMAIN=" >> .env.s3
 echo "S3_ACL=public-read" >> .env.s3
 
 echo "S3 Setup Complete!"

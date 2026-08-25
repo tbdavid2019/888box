@@ -73,7 +73,7 @@ ALLOW_PASSWORD_RESET = false
 # S3_CDN_DOMAIN =
 # S3_ACL =
 EOF
-    chmod 600 .env
+    chmod 644 .env
 fi
 
 # 5. 啟動容器
