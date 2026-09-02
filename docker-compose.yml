@@ -1,11 +1,21 @@
 services:
   888box:
+    image: tbdavid2019/888box:latest
     build: .
     container_name: 888box
-    environment:
-      TZ: Asia/Taipei
-    volumes:
-      - .:/var/www/html
+    restart: unless-stopped
     ports:
       - "6767:80"
+    volumes:
+      - ./storage:/var/www/html/storage
+      - ./.env:/var/www/html/.env
+    environment:
+      TZ: Asia/Taipei
+
+  watchtower:
+    image: containrrr/watchtower
+    container_name: watchtower-888box
     restart: unless-stopped
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    command: --interval 300 --cleanup 888box
