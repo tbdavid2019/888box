@@ -16,6 +16,7 @@ require_once __DIR__ . '/config/database.php';
 require_once __DIR__ . '/config/upload.php';
 require_once __DIR__ . '/config/rss.php';
 require_once __DIR__ . '/config/cors.php';
+require_once __DIR__ . '/config/security.php';
 
 // 初始化数据库连接
 $db = Database::getInstance();
@@ -152,10 +153,6 @@ function authenticateUser($pdo, $args = []) {
 
     // 2. 驗證 Token
     if (!empty($token)) {
-        if ($token === 'ai_agent') {
-            return ['id' => 1, 'username' => 'ai_agent', 'isAdmin' => true];
-        }
-
         $stmt = $pdo->prepare("SELECT id, username FROM users WHERE token = ?");
         $stmt->execute([$token]);
         $user = $stmt->fetch(PDO::FETCH_ASSOC);
@@ -180,9 +177,16 @@ function authenticateUser($pdo, $args = []) {
  * 執行遠端 URL 下載與資產儲存
  */
 function executeUploadFromUrl($pdo, $config, $url, $title = '', $description = '', $password = '', $userId = null) {
-    if (empty($url) || !filter_var($url, FILTER_VALIDATE_URL)) {
+    if (empty($url)) {
         return ['success' => false, 'error' => '請提供有效的遠端 URL'];
     }
+
+    // SSRF 安全檢驗
+    $urlCheck = validateSafeRemoteUrl($url);
+    if (!$urlCheck['valid']) {
+        return ['success' => false, 'error' => '無效或受限的遠端 URL: ' . $urlCheck['error']];
+    }
+    $url = $urlCheck['url'];
 
     // 1. 安全檢查 Header
     $ch = curl_init($url);
@@ -192,14 +196,28 @@ function executeUploadFromUrl($pdo, $config, $url, $title = '', $description = '
     curl_setopt($ch, CURLOPT_HEADER, true);
     curl_setopt($ch, CURLOPT_TIMEOUT, 10);
     curl_setopt($ch, CURLOPT_USERAGENT, '888box-WebMCP-Ingestion/1.0');
+    applySafeCurlOptions($ch);
     curl_exec($ch);
     $contentType = curl_getinfo($ch, CURLINFO_CONTENT_TYPE);
     $contentLength = (int)curl_getinfo($ch, CURLINFO_CONTENT_LENGTH_DOWNLOAD);
+    if ($contentLength < 0) {
+        $contentLength = (int)curl_getinfo($ch, CURLINFO_CONTENT_LENGTH);
+    }
+    $effectiveUrl = curl_getinfo($ch, CURLINFO_EFFECTIVE_URL);
     $httpCode = (int)curl_getinfo($ch, CURLINFO_HTTP_CODE);
     curl_close($ch);
 
     if ($httpCode >= 400) {
         return ['success' => false, 'error' => "無法訪問遠端檔案 (HTTP $httpCode)"];
+    }
+
+    // 若有重新導向，再次驗證最終 URL 避免被跳轉至內部網路
+    if (!empty($effectiveUrl) && $effectiveUrl !== $url) {
+        $redirCheck = validateSafeRemoteUrl($effectiveUrl);
+        if (!$redirCheck['valid']) {
+            return ['success' => false, 'error' => '重新導向至受限的位址: ' . $redirCheck['error']];
+        }
+        $url = $redirCheck['url'];
     }
 
     $maxFileSize = (int)(Database::getConfig($pdo, 'max_file_size') ?: (100 * 1024 * 1024));
@@ -227,9 +245,20 @@ function executeUploadFromUrl($pdo, $config, $url, $title = '', $description = '
     curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
     curl_setopt($ch, CURLOPT_TIMEOUT, 120);
     curl_setopt($ch, CURLOPT_USERAGENT, '888box-WebMCP-Ingestion/1.0');
+    applySafeCurlOptions($ch);
     $downloadOk = curl_exec($ch);
+    $downloadEffectiveUrl = curl_getinfo($ch, CURLINFO_EFFECTIVE_URL);
     curl_close($ch);
     fclose($fp);
+
+    // 下載完成後再次檢查重定向網址安全
+    if (!empty($downloadEffectiveUrl) && $downloadEffectiveUrl !== $url) {
+        $finalCheck = validateSafeRemoteUrl($downloadEffectiveUrl);
+        if (!$finalCheck['valid']) {
+            if (file_exists($tempFile)) @unlink($tempFile);
+            return ['success' => false, 'error' => '下載重新導向至受限位址'];
+        }
+    }
 
     if (!$downloadOk || !file_exists($tempFile) || filesize($tempFile) === 0) {
         if (file_exists($tempFile)) @unlink($tempFile);
@@ -664,7 +693,9 @@ if (PHP_SAPI === 'cli') {
 $origin = $_SERVER['HTTP_ORIGIN'] ?? '';
 $allowOrigin = resolveCorsAllowOrigin($origin, $config['site_domain'] ?? '');
 header("Access-Control-Allow-Origin: $allowOrigin");
-header('Access-Control-Allow-Credentials: true');
+if ($allowOrigin !== '*' && $allowOrigin !== 'null') {
+    header('Access-Control-Allow-Credentials: true');
+}
 header('Access-Control-Allow-Methods: GET, POST, OPTIONS');
 header('Access-Control-Allow-Headers: Content-Type, Authorization, X-API-Key, X-Requested-With');
 header('Content-Type: application/json; charset=utf-8');

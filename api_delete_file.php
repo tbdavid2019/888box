@@ -16,18 +16,23 @@ try {
     $config = Database::getConfig($pdo);
     
     if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-        $id = $_POST['id'] ?? '';
-        $path = $_POST['path'] ?? '';
+        $id = (int)($_POST['id'] ?? 0);
         
-        if (empty($id)) {
+        if ($id <= 0) {
             echo json_encode(['result' => 'error', 'message' => '缺少 ID'], JSON_UNESCAPED_UNICODE);
+            exit;
+        }
+
+        $stmt = $pdo->prepare("SELECT id, path, storage FROM images WHERE id = ?");
+        $stmt->execute([$id]);
+        $row = $stmt->fetch(PDO::FETCH_ASSOC);
+        if (!$row) {
+            echo json_encode(['result' => 'error', 'message' => '找不到該檔案記錄'], JSON_UNESCAPED_UNICODE);
             exit;
         }
         
         // 1. Delete from storage
-        if (!empty($path)) {
-            StorageHelper::delete($config['storage'], $config, $path);
-        }
+        StorageHelper::delete($row['storage'], $config, $row['path']);
         
         // 2. Delete from database
         $stmt = $pdo->prepare("DELETE FROM images WHERE id = ?");

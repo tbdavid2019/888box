@@ -73,7 +73,7 @@ ALLOW_PASSWORD_RESET = false
 # S3_CDN_DOMAIN =
 # S3_ACL =
 EOF
-    chmod 644 .env
+    chmod 600 .env
 fi
 
 # 5. 啟動容器
@@ -103,30 +103,33 @@ if [ -z "$ADMIN_PASS" ]; then
 fi
 
 echo "⚙️ 正在初始化資料庫與配置 (共用 config/schema.php bootstrap)..."
-docker exec 888box php -r "
+docker exec -e INIT_ADMIN_USER="$ADMIN_USER" -e INIT_ADMIN_PASS="$ADMIN_PASS" -e INIT_STORAGE_TYPE="$STORAGE_TYPE" -e S3_ACCESS_KEY_ID="$S3_ACCESS_KEY_ID" -e S3_ACCESS_KEY_SECRET="$S3_ACCESS_KEY_SECRET" -e S3_REGION="$S3_REGION" -e S3_BUCKET="$S3_BUCKET" -e S3_ENDPOINT="$S3_ENDPOINT" -e S3_CDN_DOMAIN="$S3_CDN_DOMAIN" -e S3_ACL="$S3_ACL" 888box php -r "
     require '/var/www/html/config/schema.php';
     \$pdo = new PDO('sqlite:/var/www/html/storage/database.db');
     createCoreTables(\$pdo);
     
     // 初始化帳號
-    \$hashed = password_hash('$ADMIN_PASS', PASSWORD_DEFAULT);
+    \$adminUser = getenv('INIT_ADMIN_USER') ?: 'admin';
+    \$adminPass = getenv('INIT_ADMIN_PASS') ?: '';
+    \$storageType = getenv('INIT_STORAGE_TYPE') ?: 'local';
+    \$hashed = password_hash(\$adminPass, PASSWORD_DEFAULT);
     \$token = bin2hex(random_bytes(16));
     \$stmt = \$pdo->prepare('INSERT OR REPLACE INTO users (username, password, token) VALUES (?, ?, ?)');
-    \$stmt->execute(['$ADMIN_USER', \$hashed, \$token]);
+    \$stmt->execute([\$adminUser, \$hashed, \$token]);
 
     // 注入儲存設定
     \$configs = [
-        'storage' => '$STORAGE_TYPE',
+        'storage' => \$storageType,
         'max_uploads_per_day' => '100',
         'max_file_size' => '104857600',
         'max_video_size' => '500',
-        's3_access_key_id' => '$S3_ACCESS_KEY_ID',
-        's3_access_key_secret' => '$S3_ACCESS_KEY_SECRET',
-        's3_region' => '$S3_REGION',
-        's3_bucket' => '$S3_BUCKET',
-        's3_endpoint' => '$S3_ENDPOINT',
-        's3_cdn_domain' => '$S3_CDN_DOMAIN',
-        's3_acl' => '$S3_ACL'
+        's3_access_key_id' => (string)getenv('S3_ACCESS_KEY_ID'),
+        's3_access_key_secret' => (string)getenv('S3_ACCESS_KEY_SECRET'),
+        's3_region' => (string)getenv('S3_REGION'),
+        's3_bucket' => (string)getenv('S3_BUCKET'),
+        's3_endpoint' => (string)getenv('S3_ENDPOINT'),
+        's3_cdn_domain' => (string)getenv('S3_CDN_DOMAIN'),
+        's3_acl' => (string)getenv('S3_ACL')
     ];
 
     foreach (\$configs as \$k => \$v) {
@@ -141,9 +144,9 @@ docker exec 888box php -r "
         mkdir('/var/www/html/storage/locks', 0777, true);
     }
 
-    echo \"✅ 管理員 \$ADMIN_USER 已成功初始化。\\n\";
+    echo \"✅ 管理員 {\$adminUser} 已成功初始化。\\n\";
     echo \"✅ 核心 schema 已透過 config/schema.php 建立完成。\\n\";
-    echo \"✅ 儲存配置 (\$STORAGE_TYPE) 已寫入資料庫。\\n\";
+    echo \"✅ 儲存配置 ({\$storageType}) 已寫入資料庫。\\n\";
 "
 
 

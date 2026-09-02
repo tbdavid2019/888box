@@ -1,10 +1,44 @@
+Options -Indexes -ExecCGI
 RewriteEngine On
+
+# ── Disable Script Execution in Storage ───────────────────────────
+<FilesMatch "(?i)\.(php|php[0-9]|phtml|phar|shtml|cgi|pl|py|sh|bash|exe|bat|cmd)$">
+    <IfModule mod_authz_core.c>
+        Require all denied
+    </IfModule>
+    <IfModule !mod_authz_core.c>
+        Order Deny,Allow
+        Deny from all
+    </IfModule>
+</FilesMatch>
+
+<IfModule mod_php.c>
+    php_flag engine off
+</IfModule>
+<IfModule mod_php7.c>
+    php_flag engine off
+</IfModule>
+<IfModule mod_php8.c>
+    php_flag engine off
+</IfModule>
+
+# ── Block direct access to database & sensitive storage files ─────
+<FilesMatch "(?i)\.(db|sqlite|sqlite3|log|env|lock)$">
+    <IfModule mod_authz_core.c>
+        Require all denied
+    </IfModule>
+    <IfModule !mod_authz_core.c>
+        Order Deny,Allow
+        Deny from all
+    </IfModule>
+</FilesMatch>
+
 RewriteRule ^podcast\.xml$ /rss.php?type=video [L,QSA]
 RewriteRule ^podcast_audio\.xml$ /rss.php?type=audio [L,QSA]
 RewriteRule ^podcast(_audio)?\.internal\.xml$ - [F,L]
 RewriteRule ^podcast(_audio)?\.internal\.xml\.lock$ - [F,L]
-# Asset files must always pass through the authorization-aware proxy.  This
-# prevents Apache from serving password-protected local assets directly.
+
+# Asset files must always pass through the authorization-aware proxy.
 RewriteRule ^(i|file)/(.+)$ /get_file.php?path=$1/$2 [L,QSA,NE]
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteRule ^(.*)$ /get_file.php?path=$1 [L,QSA]

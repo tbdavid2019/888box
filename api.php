@@ -6,6 +6,7 @@ require_once 'vendor/autoload.php';
 require_once 'config/database.php';
 require_once 'config/upload.php';
 require_once 'config/cors.php';
+require_once 'config/security.php';
 
 // 初始化
 $db = Database::getInstance();
@@ -148,9 +149,6 @@ function validateToken() {
     
     // 2. 验证 Token (優先級最高)
     if (!empty($token)) {
-        // 允許預設的 AI 代理人 Token
-        if ($token === 'ai_agent') return;
-
         $stmt = $pdo->prepare("SELECT id FROM users WHERE token = ?");
         $stmt->execute([$token]);
         if ($stmt->fetch()) return;
@@ -218,24 +216,28 @@ try {
     // 取得 Action
     $action = $_GET['action'] ?? $_POST['action'] ?? 'upload';
 
-    // 1. 驗證權限
+    // OPTIONS 請求直接退出
+    if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
+        exit;
+    }
+
+    // 驗證登入限制與操作權限
     if (!isPublicActionAllowed($action)) {
         validateToken();
     }
 
+    // 分流處理
     switch ($action) {
         case 'upload':
             handleUnifiedUpload($pdo, $config);
             break;
 
         case 'list':
-            $type = $_GET['type'] ?? 'all';
-            handleUnifiedList($pdo, $type);
+            handleUnifiedList($pdo, $_GET['type'] ?? 'all');
             break;
 
         case 'search':
-            $query = $_GET['q'] ?? '';
-            handleUnifiedSearch($pdo, $query);
+            handleUnifiedSearch($pdo, $_GET['q'] ?? $_GET['query'] ?? '');
             break;
 
         case 'stats':
@@ -243,8 +245,7 @@ try {
             break;
 
         case 'delete':
-            $id = (int)($_POST['id'] ?? 0);
-            handleDeleteAsset($pdo, $id);
+            handleDeleteAsset($pdo, (int)($_POST['id'] ?? $_GET['id'] ?? 0));
             break;
 
         case 'upload_url':
@@ -269,6 +270,13 @@ function handleUploadFromUrl($pdo, $config) {
         respondAndExit(['result' => 'error', 'code' => 400, 'message' => 'URL 不能為空']);
     }
 
+    // SSRF 安全檢驗
+    $urlCheck = validateSafeRemoteUrl($url);
+    if (!$urlCheck['valid']) {
+        respondAndExit(['result' => 'error', 'code' => 400, 'message' => '無效或受限的遠端 URL: ' . $urlCheck['error']]);
+    }
+    $url = $urlCheck['url'];
+
     // 1. 安全檢查：獲取 Headers
     $ch = curl_init($url);
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
@@ -276,14 +284,33 @@ function handleUploadFromUrl($pdo, $config) {
     curl_setopt($ch, CURLOPT_NOBODY, true); // 僅獲取 Header
     curl_setopt($ch, CURLOPT_HEADER, true);
     curl_setopt($ch, CURLOPT_TIMEOUT, 10);
+    applySafeCurlOptions($ch);
     $response = curl_exec($ch);
     $contentType = curl_getinfo($ch, CURLINFO_CONTENT_TYPE);
-    $contentLength = curl_getinfo($ch, CURLINFO_CONTENT_LENGTH);
+    $contentLength = curl_getinfo($ch, CURLINFO_CONTENT_LENGTH_DOWNLOAD);
+    if ($contentLength < 0) {
+        $contentLength = curl_getinfo($ch, CURLINFO_CONTENT_LENGTH);
+    }
+    $effectiveUrl = curl_getinfo($ch, CURLINFO_EFFECTIVE_URL);
+    $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
     curl_close($ch);
+
+    if ($httpCode >= 400) {
+        respondAndExit(['result' => 'error', 'code' => 400, 'message' => '遠端伺服器回應錯誤 (HTTP ' . $httpCode . ')']);
+    }
+
+    // 若有重新導向，再次驗證最終 URL 避免被跳轉至內部網路
+    if (!empty($effectiveUrl) && $effectiveUrl !== $url) {
+        $redirCheck = validateSafeRemoteUrl($effectiveUrl);
+        if (!$redirCheck['valid']) {
+            respondAndExit(['result' => 'error', 'code' => 400, 'message' => '重新導向至不安全的位址: ' . $redirCheck['error']]);
+        }
+        $url = $redirCheck['url'];
+    }
 
     // 驗證大小 (限制 100MB 避免伺服器爆掉)
     $maxFileSize = getConfigValue($pdo, 'max_file_size', 100 * 1024 * 1024);
-    if ($contentLength > $maxFileSize) {
+    if ($contentLength > 0 && $contentLength > $maxFileSize) {
         respondAndExit(['result' => 'error', 'code' => 413, 'message' => '遠端檔案太大']);
     }
 
@@ -291,19 +318,35 @@ function handleUploadFromUrl($pdo, $config) {
     $tempDir = 'storage/temp';
     if (!is_dir($tempDir)) mkdir($tempDir, 0755, true);
     
-    $extension = strtolower(pathinfo(parse_url($url, PHP_URL_PATH), PATHINFO_EXTENSION)) ?: 'tmp';
+    $parsedPath = parse_url($url, PHP_URL_PATH) ?? '';
+    $extension = strtolower(pathinfo($parsedPath, PATHINFO_EXTENSION)) ?: 'tmp';
     $tempFile = $tempDir . '/' . bin2hex(random_bytes(8)) . '.' . $extension;
 
     $fp = fopen($tempFile, 'w+');
+    if (!$fp) {
+        respondAndExit(['result' => 'error', 'code' => 500, 'message' => '無法建立本機暫存檔案']);
+    }
+
     $ch = curl_init($url);
     curl_setopt($ch, CURLOPT_FILE, $fp);
     curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
     curl_setopt($ch, CURLOPT_TIMEOUT, 60);
-    curl_exec($ch);
+    applySafeCurlOptions($ch);
+    $downloadOk = curl_exec($ch);
+    $downloadEffectiveUrl = curl_getinfo($ch, CURLINFO_EFFECTIVE_URL);
     curl_close($ch);
     fclose($fp);
 
-    if (!file_exists($tempFile) || filesize($tempFile) == 0) {
+    // 下載完成後再次檢查重定向網址安全
+    if (!empty($downloadEffectiveUrl) && $downloadEffectiveUrl !== $url) {
+        $finalCheck = validateSafeRemoteUrl($downloadEffectiveUrl);
+        if (!$finalCheck['valid']) {
+            @unlink($tempFile);
+            respondAndExit(['result' => 'error', 'code' => 400, 'message' => '下載重新導向至不安全位址']);
+        }
+    }
+
+    if (!$downloadOk || !file_exists($tempFile) || filesize($tempFile) == 0) {
         @unlink($tempFile);
         respondAndExit(['result' => 'error', 'code' => 500, 'message' => '遠端檔案下載失敗']);
     }

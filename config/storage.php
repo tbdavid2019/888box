@@ -70,22 +70,35 @@ class StorageHelper {
         try {
             switch ($storage) {
                 case 'local':
-                    if (file_exists('../' . $path)) {
-                        return unlink('../' . $path);
+                    $cleanPath = ltrim(str_replace('\\', '/', (string)$path), '/');
+                    if ($cleanPath === '' || str_contains($cleanPath, "\0") || preg_match('#(^|/)\.\.?(/|$)#', $cleanPath)) {
+                        return false;
+                    }
+
+                    $appRoot = realpath(__DIR__ . '/..');
+                    $storageRoot = $appRoot ? realpath($appRoot . '/storage') : null;
+
+                    $target = $appRoot ? ($appRoot . '/' . $cleanPath) : null;
+                    if ($target && file_exists($target)) {
+                        $realTarget = realpath($target);
+                        if ($realTarget && $storageRoot && str_starts_with($realTarget, $storageRoot) && is_file($realTarget)) {
+                            return unlink($realTarget);
+                        }
                     }
                     return true;
                     
                 case 'oss':
                     $client = self::createOssClient($config);
-                    $key = parse_url($path, PHP_URL_PATH);
+                    $key = ltrim((string)(parse_url($path, PHP_URL_PATH) ?: $path), '/');
                     $client->deleteObject($config['oss_bucket'], $key);
                     return true;
                     
                 case 's3':
                     $client = self::createS3Client($config);
                     $key = !empty($config['s3_cdn_domain']) 
-                        ? str_replace($config['s3_cdn_domain'] . '/', '', $path) 
+                        ? str_replace(rtrim($config['s3_cdn_domain'], '/') . '/', '', $path) 
                         : $path;
+                    $key = ltrim((string)(parse_url($key, PHP_URL_PATH) ?: $key), '/');
                     $client->deleteObject([
                         'Bucket' => $config['s3_bucket'],
                         'Key' => $key,
@@ -94,7 +107,10 @@ class StorageHelper {
                     
                 case 'upyun':
                     $client = self::createUpyunClient($config);
-                    $key = str_replace($config['upyun_cdn_domain'] . '/', '', $path);
+                    $key = !empty($config['upyun_cdn_domain'])
+                        ? str_replace(rtrim($config['upyun_cdn_domain'], '/') . '/', '', $path)
+                        : $path;
+                    $key = ltrim((string)(parse_url($key, PHP_URL_PATH) ?: $key), '/');
                     $client->delete($key);
                     return true;
                     

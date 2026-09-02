@@ -52,7 +52,7 @@ function respondAndExit($response) {
 function isUploadAllowed($maxUploadsPerDay) {
     if ($maxUploadsPerDay <= 0) return true;
     
-    $uploadDir = 'i/.upload_limits/';
+    $uploadDir = 'storage/i/.upload_limits/';
     if (!is_dir($uploadDir)) mkdir($uploadDir, 0755, true);
     
     $clientIp = getClientIp();

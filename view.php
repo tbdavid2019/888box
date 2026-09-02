@@ -164,9 +164,15 @@ $token = trim($_GET['token'] ?? '');
 $id = trim($_GET['id'] ?? '');
 $inlineMode = $_GET['inline'] ?? '';
 
-if (empty($token) && empty($id)) {
+if (empty($token)) {
     http_response_code(404);
-    die("缺少資源 Token");
+    exit("缺少資源 Token");
+}
+
+// 嚴格檢驗 Token 格式（必須為 6~32 位元之 Hex 字串，杜絕 % 或 _ 萬用字元枚舉）
+if (!preg_match('/^[a-fA-F0-9]{6,32}$/', $token)) {
+    http_response_code(404);
+    exit("資源不存在或 Token 格式無效");
 }
 
 try {
@@ -175,20 +181,13 @@ try {
     $config = Database::getConfig($pdo);
     
     // 1. 撈取資源：優先用 share_token，支援完整 Token 與短 Token (如 /v/498dd84a)
-    if (!empty($token)) {
-        $stmt = $pdo->prepare("SELECT * FROM images WHERE share_token = ? OR share_token LIKE ?");
-        $stmt->execute([$token, $token . '%']);
-    } else {
-        // 向下相容：將來產生的舊聯接（將來可移除）
-        // 為防止序號枚舉，直接用 id 無 token 的請求一律回 404
-        http_response_code(404);
-        die("資源不存在");
-    }
+    $stmt = $pdo->prepare("SELECT * FROM images WHERE share_token = ? OR share_token LIKE ? LIMIT 1");
+    $stmt->execute([$token, $token . '%']);
     $asset = $stmt->fetch(PDO::FETCH_ASSOC);
     
     if (!$asset) {
         http_response_code(404);
-        die("找不到該資源");
+        exit("找不到該資源");
     }
 
     // 內部統一用 id 作會話鍵（已知專屬）
@@ -237,7 +236,9 @@ try {
     }
     
 } catch (Exception $e) {
-    die($e->getMessage());
+    error_log('View page error: ' . $e->getMessage());
+    http_response_code(500);
+    exit('載入資源發生錯誤，請稍後再試');
 }
 
 // 判定資源類型
@@ -1485,7 +1486,7 @@ $jsonLd = [
             share: <?= json_encode($shareUrl) ?>,
             url: <?= json_encode($url) ?>,
             markdown: <?= json_encode('![' . ($customTitle ?: 'image') . '](' . $url . ')') ?>,
-            html: <?= json_encode('<img src="' . $url . '" alt="' . ($customTitle ?: 'image') . '">' ) ?>,
+            html: <?= json_encode('<img src="' . $url . '" alt="' . htmlspecialchars($customTitle ?: 'image', ENT_QUOTES, 'UTF-8') . '">' ) ?>,
             bbcode: <?= json_encode('[img]' . $url . '[/img]') ?>
         };
         const shareTranslations = {

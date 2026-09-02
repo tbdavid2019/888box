@@ -22,6 +22,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         $stmt->execute([$_POST['username'] ?? '']);
         
         if ($user = $stmt->fetch(PDO::FETCH_ASSOC) and password_verify($_POST['password'] ?? '', $user['password'])) {
+            session_regenerate_id(true);
             $_SESSION['loggedin'] = true;
             $_SESSION['username'] = $user['username'];
             $_SESSION['user_id'] = $user['id'];
@@ -34,6 +35,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         $stmt = $pdo->prepare("SELECT id, username FROM users ORDER BY id LIMIT 1");
         $stmt->execute();
         if ($user = $stmt->fetch(PDO::FETCH_ASSOC)) {
+            session_regenerate_id(true);
             $_SESSION['loggedin'] = true;
             $_SESSION['username'] = $user['username'];
             $_SESSION['user_id'] = $user['id'];

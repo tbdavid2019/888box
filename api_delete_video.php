@@ -20,24 +20,24 @@ $pdo = $db->getConnection();
 $config = Database::getConfig($pdo);
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $id = $_POST['id'] ?? '';
-    $path = $_POST['path'] ?? '';
+    $id = (int)($_POST['id'] ?? 0);
     
-    if (empty($id) || empty($path)) {
+    if ($id <= 0) {
         ob_end_clean();
         echo json_encode(['result' => 'error', 'message' => '參數錯誤'], JSON_UNESCAPED_UNICODE);
         exit;
     }
     
     try {
-        // 取得 storage 類型
-        $stmt = $pdo->prepare("SELECT storage FROM images WHERE id = ?");
+        // 取得記錄與 storage 類型
+        $stmt = $pdo->prepare("SELECT id, path, storage FROM images WHERE id = ?");
         $stmt->execute([$id]);
         $row = $stmt->fetch(PDO::FETCH_ASSOC);
         if (!$row) {
             throw new Exception("找不到該影片記錄");
         }
         $storage = $row['storage'];
+        $path = $row['path'];
         
         // 刪除實體檔案
         StorageHelper::delete($storage, $config, $path);

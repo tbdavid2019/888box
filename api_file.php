@@ -92,9 +92,14 @@ function handleFileUpload($file, $pdo, $config) {
         $title = pathinfo($file['name'], PATHINFO_FILENAME);
     }
     
-    // 1. Validate file (more relaxed for documents)
+    // 1. Validate file (strict document extension whitelist)
     $extension = strtolower(pathinfo($file['name'], PATHINFO_EXTENSION));
-    $allowedDocs = ['zip', 'pdf', 'doc', 'docx', 'xls', 'xlsx', 'vsd', 'vsdx', 'epub', 'txt', 'md'];
+    $allowedDocs = ['zip', 'pdf', 'doc', 'docx', 'xls', 'xlsx', 'ppt', 'pptx', 'vsd', 'vsdx', 'epub', 'txt', 'md', 'csv', 'json', 'yaml', 'yml', '7z', 'tar', 'gz', 'bz2'];
+    $dangerousExtensions = ['php', 'phtml', 'php3', 'php4', 'php5', 'phar', 'inc', 'sh', 'bash', 'exe', 'bat', 'cmd', 'cgi', 'pl', 'py', 'js', 'html', 'htm', 'shtml', 'svg'];
+
+    if (empty($extension) || !in_array($extension, $allowedDocs, true) || in_array($extension, $dangerousExtensions, true)) {
+        respondAndExit(['result' => 'error', 'message' => '不支援的文件格式: ' . htmlspecialchars($extension, ENT_QUOTES, 'UTF-8')]);
+    }
 
     $maxFileSize = 100 * 1024 * 1024;
     $stmt = $pdo->prepare("SELECT value FROM configs WHERE `key` = 'max_file_size'");
@@ -114,10 +119,6 @@ function handleFileUpload($file, $pdo, $config) {
     $finfo = finfo_open(FILEINFO_MIME_TYPE);
     $mimeType = finfo_file($finfo, $file['tmp_name']);
     finfo_close($finfo);
-    
-    if (!in_array($extension, $allowedDocs) && strpos($mimeType, 'application/') === false && strpos($mimeType, 'text/') === false) {
-        respondAndExit(['result' => 'error', 'message' => '不支援的文件格式: ' . $extension]);
-    }
     
     // 2. Prepare paths
     $dateFolder = date('Y/m/d');

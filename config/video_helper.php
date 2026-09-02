@@ -23,7 +23,7 @@ class VideoHelper {
         }
         
         $cmd = sprintf(
-            'ffprobe -v quiet -print_format json -show_format -show_streams "%s"',
+            'ffprobe -v quiet -print_format json -show_format -show_streams %s',
             escapeshellarg($filePath)
         );
         
@@ -91,7 +91,7 @@ class VideoHelper {
         
         // Extract frame at 1 second
         $cmd = sprintf(
-            'ffmpeg -i "%s" -ss 00:00:01.000 -vframes 1 "%s" -y',
+            'ffmpeg -i %s -ss 00:00:01.000 -vframes 1 %s -y',
             escapeshellarg($videoPath),
             escapeshellarg($thumbPath)
         );
