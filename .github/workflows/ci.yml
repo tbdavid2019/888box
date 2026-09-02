@@ -1,0 +1,50 @@
+name: CI & Security Testing
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+  workflow_dispatch:
+
+jobs:
+  test:
+    name: Lint & Test Suite
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Set up PHP 8.2
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+          extensions: sqlite3, pdo_sqlite, curl, gd, mbstring, dom, fileinfo
+          coverage: none
+
+      - name: PHP Syntax Lint (php -l)
+        run: |
+          echo "🔍 Linting all PHP files..."
+          find . -name "*.php" -not -path "./vendor/*" -exec php -l {} \;
+
+      - name: Set up Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Run Test Suites & Security Regressions
+        run: |
+          echo "🧪 Running unit, contract, and security audit test suites..."
+          node tests/security_audit_test.mjs
+          node tests/cdn_delivery_test.mjs
+          node tests/document_preview_test.mjs
+          node tests/floating_download_test.mjs
+          node tests/global_i18n_test.mjs
+          node tests/pwa_lite_test.mjs
+          node tests/share_page_links_test.mjs
+          node tests/share_seo_i18n_test.mjs
+          node tests/storage_proxy_test.mjs
+          node tests/view_count_dedupe_test.mjs
+          php tests/cors_policy_test.php
+          echo "✅ All tests passed successfully!"
