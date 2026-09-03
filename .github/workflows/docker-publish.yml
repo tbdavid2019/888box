@@ -12,6 +12,7 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: read
+      packages: write
 
     steps:
       - name: Checkout Code
@@ -38,11 +39,20 @@ jobs:
           username: ${{ secrets.DOCKERHUB_USERNAME || secrets.DOCKER_USERNAME || 'tbdavid2019' }}
           password: ${{ secrets.DOCKERHUB_TOKEN || secrets.DOCKERHUB_PASSWORD || secrets.DOCKER_PASSWORD }}
 
+      - name: Log in to GitHub Container Registry (GHCR)
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
       - name: Docker Metadata & Tags Extraction
         id: meta
         uses: docker/metadata-action@v5
         with:
-          images: ${{ vars.DOCKERHUB_REPOSITORY || format('{0}/888box', secrets.DOCKERHUB_USERNAME || secrets.DOCKER_USERNAME || 'tbdavid2019') }}
+          images: |
+            ${{ vars.DOCKERHUB_REPOSITORY || format('{0}/888box', secrets.DOCKERHUB_USERNAME || secrets.DOCKER_USERNAME || 'tbdavid2019') }}
+            ghcr.io/${{ github.repository }}
           tags: |
             type=raw,value=latest,enable=${{ github.ref == 'refs/heads/main' }}
             type=raw,value=${{ steps.pkg_version.outputs.version }}
