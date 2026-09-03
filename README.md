@@ -1,80 +1,131 @@
 # 888box
-![alt text](image-3.png)
+
+[![Docker Image](https://img.shields.io/badge/Docker%20Hub-tbdavid2019%2F888box-blue.svg?logo=docker)](https://hub.docker.com/r/tbdavid2019/888box)
+[![GitHub Actions CI](https://github.com/tbdavid2019/888box/actions/workflows/ci.yml/badge.svg)](https://github.com/tbdavid2019/888box/actions)
+[![License: AGPL-3.0](https://img.shields.io/badge/License-AGPL%203.0-green.svg)](LICENSE)
+[![Architecture: Multi-Arch](https://img.shields.io/badge/Architecture-AMD64%20%7C%20ARM64-orange.svg)](https://hub.docker.com/r/tbdavid2019/888box/tags)
+
 ![Banner](static/favicon.svg)
 
-一款專業級、全方位的媒體與文件託管解決方案。採用全新的 **Bento Grid** 首頁設計，將「圖片」、「影片」、「音訊」與「文件」完美整合，並具備強大的安全性、分析與舉報系統。支援 AWS S3 等多種儲存後端，具備自動提取 MetaData、Podcast RSS 同步、受控的文字／EPUB 線上閱讀及點擊次數追蹤等功能。
-
-### 🚀 跨類型全能智慧上傳區 (Smart Universal Dropzone)
-- **首頁一站式託管**：首頁直接提供全能拖曳與剪貼簿 (`Ctrl+V`) 智慧上傳區，免點擊切換頁面。
-- **自動類型辨識**：前端自動分析 MIME Type 與副檔名，智慧分類為圖片 🖼️、影片 🎬、音訊 🎙️ 或文件 📂。
-- **即時進度與一鍵分享**：提供百分比動態進度條、1 秒複製短連結與即時預覽按鈕，並實時連動首頁統計卡片。
-
-### 🎨 Lucide 向量圖示與精緻 UI
-- **Lucide Icon 離線整合**：全站移除舊式 Alibaba Iconfont 腳本，改採 100% 離線 Lucide 向量圖示庫 (`static/js/lucide.min.js`)。
-- **美化短網址 (Pretty Short URLs)**：採用 `/v/{short_token}` 清爽短網址格式，且 100% 向下相容舊版 32 位元長 Token 連結。
-- **無標題自動隱藏**：未填寫標題之資產自動隱藏大標題，節省視覺版面。
-- **統一置頂導覽 (Sticky Header)**：除首頁維持原有 Bento 版面外，分享頁、四個上傳中心、後台登入與管理頁使用一致的全寬置頂導覽結構；分享頁保留麵包屑、公開資源標籤、語言切換與上傳入口。
-- **全站繁中／英文介面**：首頁、分享頁、四個上傳中心、後台登入與管理頁支援瀏覽器語言自動偵測；使用者選擇會永久保存在目前裝置並跨頁套用，動態佇列與統計文字也會同步翻譯。
-- **PWA 安裝提示雙語化**：右下角 888 BOX 安裝提示會跟隨已選語言切換，包含標題、說明、安裝與稍後再說按鈕；目前語言也會以高對比色清楚標示。
-- **翻譯覆蓋與頁首間距**：首頁與圖片上傳頁的混合文案、placeholder、壓縮資訊及動態上傳狀態均會翻譯；共用頁首不再被上方頁面留白推下，品牌與中心名稱也採用更清楚的字級。
-- **共用分類導覽**：上傳中心與後台在頂部 Header 統一提供「圖片／影片／音訊／文件」分類切換，移除重複的後台分頁與頁尾 emoji 導覽；首頁卡片也只保留簡短分類名稱。
-- **首頁圖示一致性**：智慧上傳提示改用純文字描述圖片、影片、音訊與文件格式，避免與 Lucide 圖示系統混用 emoji 標誌。
-- **登入頁版面**：登入頁採用 Header 在上、登入卡置中的垂直結構，避免寬螢幕下登入卡跑到右側。
-- **品牌 OG 分享圖**：首頁與分享頁使用包含 888 BOX 品牌 Logo 的 1200×630 PNG Open Graph 圖片，並宣告完整圖片尺寸與 MIME metadata。
-- **嵌入與外鏈代碼面板**：預覽頁面提供直連網址、Markdown、HTML 與 BBCode 一鍵複製。
-- **分享網址優先**：預覽頁面預設複製安全的分享頁網址；原始檔直連與嵌入碼仍可按需求切換。
-- **圖片尺寸元數據**：自動檢測並標示圖片寬高解析度 (`Width × Height px`)。
-- **Webtalk Chat 聊天小工具**：公開頁面全面內嵌 Webtalk 即時對談小工具。
-- **PWA 安裝與離線頁**：支援 Android Chrome 的站內安裝提示、安裝圖示與離線降級頁面。
-
-### 🖼️ 圖片託管中心
-- **極速上傳**：支援拖曳、剪貼簿貼上上傳，具備強大的圖片壓縮與格式轉換（WebP）功能。
-- **智能處理**：自動校正 JPEG 方向，保留/移除 Exif 資訊。
-- **本機進度統計**：顯示本批成功上傳數，並在目前瀏覽器記錄圖片的今日與累計上傳數量。
-
-### 🎬 影片與 Podcast 系統
-- **自動化 RSS**：上傳影片後自動生成相容 iTunes 的 Podcast RSS (`podcast.xml`)，支援主流播客 App 訂閱。
-- **MetaData 提取**：自動擷取影片長度、解析度、碼率，並於第 1 秒處自動生成預覽縮圖。
-- **批次進度可視化**：影片佇列頁面會顯示本批成功數，以及這台裝置在目前瀏覽器中的今日/累計影片上傳數。
-
-### 🎙️ 音訊與播客大廳
-- **專業級音訊託管**：支援 `mp3`, `wav`, `aac`, `ogg`, `m4a`, `flac` 等格式，自動生成獨立 Podcast 音訊 Feed (`podcast_audio.xml`)。
-- **精品細節播放器**：整合 HTML5 播放器，配備精心設計、隨播放事件動態旋轉的仿實體 CD 唱盤視覺特效。
-- **管理後台與批次佇列**：專屬的音訊上傳與批次佇列管理，自動提取時長與位元率資訊。
-
-### 📂 文件託管中心
-- **萬用支援**：支援 ZIP, PDF, Word, Excel, Visio 等多種文件格式。
-- **安全文字預覽**：`.txt`、`.md`、`.json`、`.csv`、`.log`、`.yaml`、`.yml` 可在分享頁直接閱讀；為維持效能，預覽上限為 2 MB，較大檔案仍可直接下載。
-- **EPUB 閱讀器**：內建 `epub.js` 支援，透過本站授權預覽端點讀取 EPUB，避免 S3／OSS 等外部儲存的 CORS 問題。
-- **本機上傳計數**：文件上傳頁面會在不依賴後端資料庫的情況下，顯示本批成功數與裝置端的今日/累計上傳數。
-![alt text](image-4.png)
-
-### 🛡️ 安全、分析與舉報
-- **通用 Gatekeeper**：所有資源均可設定存取密碼，透過毛玻璃 UI 進行驗證。
-- **點擊分析**：追蹤每一項資源的「真實點擊次數」。
-- **舉報系統**：內建舉報功能，方便管理違規內容。
-
-### 🤖 AI 代理人整合 (AI Agent Integration)
-- **`/llms.txt` 標準動態導覽 (`llms.php`)**：遵循 [llmstxt.org](https://llmstxt.org/) 標準規範，提供結構化 Markdown 網站索引與 API 導覽；並透過 `/llms-full.txt` 轉發至完整的 AI 技能定義說明。
-- **動態技能指南 (`skill.php`)**：為 AI 代理人（如 Claude, GPT）提供動態生成的指令文檔，自動識別 Base URL 並在登入狀態下注入 Token。
-- **MCP & WebMCP 雙模伺服器 (`mcp.php` / `/mcp`)**：
-  - 符合 Model Context Protocol (MCP) 與 W3C / Chrome 146+ WebMCP 標準。
-  - 支援 **CLI stdio**（Claude Desktop、Cursor 等桌面 IDE）與 **HTTP JSON-RPC 2.0** 雙模通訊。
-  - 支援 Bearer Token、X-API-Key 與瀏覽器 **Active Session 登入態**（訪客在瀏覽器操作 AI Agent 免配置 Token）。
-  - 提供 `upload_asset_by_url`、`list_assets`、`search_assets`、`get_stats`、`get_podcast_info`、`rebuild_podcast_rss` 與 `delete_asset` 完整工具集。
-- **全站 WebMCP 前端橋接 (`static/js/webmcp.js`)**：全站頁面透過 `theme_helper.php` 自動載入 WebMCP 模組，向支援的瀏覽器主動於 `document.modelContext` 註冊工具，同時 100% 相容 Cloudflare WebMCP 邊緣代理。
-- **RFC 9727 API 目錄**：於 `/.well-known/api-catalog` 提供符合 RFC 9727 `application/linkset+json` 標準的 API 發現配置，方便自動解析。
-- **MCP 伺服器卡片**：於 `/.well-known/mcp/server-card.json` 發布 v1.1.0 規格卡片，供 Agent 進行 MCP 端點與 Tool Schema 自動發現。
-- **Agent Skills 發現索引**：於 `/.well-known/agent-skills/index.json` 發布代理人專屬技能索引。
-- **RFC 8288 發現連結**：首頁 Response Header 具備 RFC 8288 `Link` 屬性，引導 Agent 自動探測 sitemap、api-catalog、mcp-server、llms.txt 與技能頁。
-- **爬蟲控管與 Content Signals**：支援 RFC 9309 規範，於 `robots.txt` 宣告 `Content-Signal: search=yes, ai-train=no` 訊號，拒絕 AI 爬蟲進行模型訓練，並預設封鎖 GPTBot、ClaudeBot 等 AI 採集器。
+一款專業級、輕量化、全方位的多媒體與文件統一託管平台。採用現代 **Bento Grid** 介面，將「圖片」、「影片」、「音訊」與「文件」無縫整合，兼具企業級 SSRF 安全防護、真實點擊分析、密碼存取門禁與 Podcast RSS 自動同步。原生支援 Model Context Protocol (MCP) 與 WebMCP，為次世代 AI 代理人提供隨插即用的資產託管與檢索服務。
 
 ---
 
-## 🚀 快速開始
+## ✨ 核心功能亮點
 
-### 推薦安裝方式 (一鍵腳本)
-只要你的伺服器具備 Docker 與 Git，執行以下指令即可完成安裝：
+### 🚀 跨類型全能智慧上傳區 (Smart Universal Dropzone)
+- **首頁一站式託管**：首頁直接提供全能拖曳與剪貼簿 (`Ctrl+V`) 智慧上傳區，無須切換頁面。
+- **自動格式辨識**：前端自動分析 MIME Type 與副檔名，智慧分類為圖片 🖼️、影片 🎬、音訊 🎙️ 或文件 📂。
+- **即時進度與一鍵分享**：百分比動態進度條、一鍵複製 `/v/{token}` 美化短連結與預覽按鈕，實時連動首頁資產統計。
+
+### 🖼️ 圖片託管中心
+- **極速上傳與壓縮**：支援拖曳、剪貼簿貼上上傳，具備強大的圖片壓縮與 WebP 格式轉換。
+- **智慧方向與 Exif 管理**：自動校正 JPEG 方向，保留或按需移除 Exif 隱私資訊。
+
+### 🎬 影片與 Podcast 系統
+- **自動化 iTunes RSS**：上傳影片後自動生成相容 iTunes 的 Podcast RSS (`storage/podcast.xml`)，支援主流播客 App 訂閱。
+- **自動 MetaData 提取**：內建 FFmpeg 自動擷取影片時長、解析度、碼率，並於第 1 秒處自動生成預覽縮圖封面。
+
+### 🎙️ 音訊與播客大廳
+- **專業級音訊託管**：支援 `mp3`, `wav`, `aac`, `ogg`, `m4a`, `flac` 等格式，自動生成獨立音訊 Podcast Feed (`storage/podcast_audio.xml`)。
+- **黑膠 CD 動態播放器**：整合 HTML5 音訊播放器，配備隨播放狀態動態旋轉的仿實體 CD 唱盤視覺特效。
+
+### 📂 文件託管與安全預覽
+- **多格式萬用支援**：支援 ZIP, PDF, Word, Excel, Visio, EPUB 等多種文件格式。
+- **安全文字預覽**：`.txt`、`.md`、`.json`、`.csv`、`.log`、`.yaml` 可在分享頁直接閱讀（預覽上限 2 MB，超額自動降級為下載）。
+- **EPUB 線上閱讀器**：內建 `epub.js` 閱讀器，透過本站授權預覽端點讀取，免除外部儲存跨域（CORS）限制。
+
+### 🛡️ 企業級安全與點擊分析
+- **全面 SSRF 防禦體系**：遠端 URL 拉取嚴格阻斷本機迴路（Loopback）、私有內部網段（10.x, 172.16-31.x, 192.168.x）與雲端 Metadata 服務（`169.254.169.254`）。
+- **目錄遍歷與上傳防護**：文件副檔名強制白名單比對，資產刪除嚴格限制於 `storage/` 邊界內，`storage/.htaccess` 徹底禁止執行 PHP 腳本。
+- **存取密碼門禁 (Gatekeeper)**：支援為單一資源設定存取密碼，透過毛玻璃 UI 進行授權驗證；密碼保護之資源自動自公開 Podcast RSS 隱藏。
+- **真實點擊分析**：基於裝置持久標記追蹤每筆資產的真實造訪次數，並具備即時檢舉違規系統。
+
+### 🤖 AI 代理人原生整合 (AI Agent Ready)
+- **標準動態 `/llms.txt` (`llms.php`)**：遵循 [llmstxt.org](https://llmstxt.org/) 標準規範，提供結構化 Markdown 網站索引與 API 導覽。
+- **動態技能指南 (`skill.php`)**：為 AI 代理人提供動態生成的指令文檔，自動識別 Base URL 並在登入狀態下注入 Token。
+- **MCP & WebMCP 雙模伺服器 (`mcp.php` / `/mcp`)**：符合 Model Context Protocol (MCP) 與 W3C / Chrome 146+ WebMCP 標準，支援 **CLI stdio** 與 **HTTP JSON-RPC 2.0** 雙模通訊。
+- **RFC 9727 API 目錄 & 發現標頭**：發布 `/.well-known/api-catalog` 與 RFC 8288 `Link` 標頭，供 Agent 自動探測端點。
+
+---
+
+## 🐳 Docker 快速啟動 (推薦)
+
+888box 官方映像檔已發布至 Docker Hub 與 GitHub Container Registry，支援 **Multi-Arch（`linux/amd64` 與 `linux/arm64`，完全相容 AWS Graviton 與 Apple Silicon）**。
+
+### 方式一：Docker Compose（含 Watchtower 自動看門狗，強烈推薦）
+
+本方案包含 `888box` 核心服務與 `watchtower` 自動更新容器。當遠端映像檔更新時，Watchtower 會自動為您平滑熱重啟，達到無人值守的 CI/CD 效果。
+
+建立 `docker-compose.yml`：
+
+```yaml
+services:
+  888box:
+    image: ${DOCKER_IMAGE:-tbdavid2019/888box:latest}
+    build: .
+    container_name: 888box
+    restart: unless-stopped
+    ports:
+      - "6767:80"
+    volumes:
+      - ./storage:/var/www/html/storage
+      - ./.env:/var/www/html/.env
+    environment:
+      TZ: Asia/Taipei
+    labels:
+      - "com.centurylinklabs.watchtower.enable=true"
+      - "com.centurylinklabs.watchtower.scope=888box"
+
+  watchtower:
+    image: containrrr/watchtower:latest
+    container_name: watchtower-888box
+    restart: unless-stopped
+    environment:
+      DOCKER_API_VERSION: "1.44"
+      WATCHTOWER_SCOPE: "888box"
+      WATCHTOWER_POLL_INTERVAL: 300
+      WATCHTOWER_CLEANUP: "true"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+```
+
+啟動服務：
+
+```bash
+# 準備儲存目錄與設定檔
+mkdir -p storage && cp .env.example .env
+
+# 一鍵啟動
+docker compose up -d
+```
+
+> **提示**：若伺服器對 Docker Hub 連線有路由限制，可在 `.env` 中加入 `DOCKER_IMAGE=ghcr.io/tbdavid2019/888box:latest`，即可直接改由 GitHub Container Registry 拉取。
+
+---
+
+### 方式二：直接使用 `docker run` 指令
+
+```bash
+# 1. 建立本機持久化目錄與環境檔
+mkdir -p storage
+cp .env.example .env
+
+# 2. 啟動容器
+docker run -d \
+  --name 888box \
+  -p 6767:80 \
+  -v $(pwd)/storage:/var/www/html/storage \
+  -v $(pwd)/.env:/var/www/html/.env \
+  --restart unless-stopped \
+  tbdavid2019/888box:latest
+```
+
+---
+
+### 方式三：一鍵互動式腳本 (原生初始化與管理員設定)
+
+若你是第一次安裝，推薦使用隨附的互動式安裝腳本，會一步一步引導設定管理員帳號與儲存後端：
 
 ```bash
 git clone https://github.com/tbdavid2019/888box.git
@@ -82,97 +133,88 @@ cd 888box
 ./install.sh
 ```
 
-**該腳本會自動完成：**
-1.  **環境檢查**：確保 Docker 正常運作。
-2.  **目錄初始化**：建立 `storage/` 並設定正確的權限。
-3.  **配置生成**：產生預設的 `.env` 環境變數檔。
-4.  **容器啟動**：自動編譯與啟動 Docker 容器。
-5.  **共用 Bootstrap**：透過 `config/schema.php` 建立核心 schema 與基礎設定，不再由不同安裝入口各自維護一套 SQL。
-6.  **互動式設定**：引導你設定第一個**管理員帳號與密碼**。
-
-### 安裝與升級注意事項
-- Docker 容器內實際寫入 `storage/` 的使用者是 `www-data`（UID/GID 33），包含 `storage/database.db`、`storage/podcast.internal.xml`、`storage/podcast.internal.xml.lock`、`storage/podcast_audio.internal.xml`、`storage/podcast_audio.internal.xml.lock`。
-- 若你在宿主機用 `root` 手動重建 RSS、複製檔案、或直接覆寫 `storage/` 內容，可能會把檔案 owner 改成 `root:root`，進而導致後續影片上傳成功但 RSS 無法更新。
-- `install.sh` 會先在宿主機嘗試 `chown -R 33:33 storage`，容器啟動後也會再執行一次 `docker exec 888box chown -R 33:33 /var/www/html/storage`，目的是把 writable 檔案統一交回 `www-data`。
-- 若既有站台出現 RSS 停止更新，可優先檢查：
-  ```bash
-  docker exec 888box sh -lc 'stat -c "%U:%G %a %n" /var/www/html/storage/database.db /var/www/html/storage/podcast.internal.xml /var/www/html/storage/podcast.internal.xml.lock /var/www/html/storage/podcast_audio.internal.xml /var/www/html/storage/podcast_audio.internal.xml.lock'
-  ```
-- 若 owner 不是 `www-data:www-data`，可修正為：
-  ```bash
-  docker exec 888box chown -R 33:33 /var/www/html/storage
-  ```
-- 專案目前預設 `max_uploads_per_day` 為 `100`。`install.sh` 會在新安裝時寫入這個值，但既有部署若資料庫裡已經有舊值（例如 `50`），升級程式碼後不會自動覆蓋，需另外更新 `configs` 表或從後台設定頁修改。
-- 舊版 SQLite 若缺少 `images.is_video`、`images.is_file`，現在會在 runtime / install / migration 流程中由 `config/schema.php` 自動補欄位並回填既有資料，不需要手動執行 `ALTER TABLE`。
-
-### `.env` 範例
-專案現在提供 [.env.example](.env.example)。若你不走互動式安裝，可先複製一份：
-
-```bash
-cp .env.example .env
-```
-
-### S3 快速說明
-- `install.sh` 目前使用的 S3 參數名稱為 `S3_ACCESS_KEY_ID` / `S3_ACCESS_KEY_SECRET` / `S3_BUCKET` / `S3_REGION` / `S3_ENDPOINT` / `S3_CDN_DOMAIN` / `S3_ACL`
-- 若使用 AWS S3 並希望上傳後可直接公開讀取，通常需要：
-  - `S3_ACL=public-read`
-  - bucket 具備公開讀取 policy (`s3:GetObject` on `arn:aws:s3:::your-bucket/*`)
-- 若使用 Cloudflare R2 等不建議 ACL 的 Provider，`S3_ACL` 可留空，但你仍需自行處理對外讀取策略
-
-### 建立 S3 Bucket
-若你要快速建立一個新的 AWS S3 bucket 與對應金鑰，可使用：
-
-```bash
-./setup_s3.sh
-```
-
-該腳本目前會：
-- 建立 bucket
-- 建立 IAM user 與 access key
-- 關閉 bucket 的 public access block 限制
-- 設定 `BucketOwnerPreferred`
-- 寫入公開讀取 bucket policy
-- 產生 `.env.s3`，內含 `S3_ACCESS_KEY_ID`、`S3_ACCESS_KEY_SECRET`、`S3_CDN_DOMAIN`、`S3_ACL=public-read`
+**腳本功能亮點：**
+1. 自動檢查 Docker 環境。
+2. 自動初始化 `storage/` 並設定正確的 `www-data` (UID 33) 讀寫權限。
+3. 自動依 `.env.example` 產生正式 `.env`。
+4. 自動啟動容器並由 `config/schema.php` 自動建立核心資料庫 Schema。
+5. 互動式建立第一位超級管理員帳號與密碼。
 
 ---
 
-## 🛠️ 開發與架構
+## 🔄 CI/CD 與自動化看門狗流程
 
-- **Backend**: PHP 8.1+ (Apache)
-- **Frontend**: Vanilla JS (ES Modules)
-- **Storage**: SQLite 3 (持久化於 `storage/database.db`)
-- **Dependencies**: FFmpeg, ImageMagick, Composer
-- **Docker**: 支援 x86_64 與 ARM64 (Apple Silicon / AWS Graviton)
+本專案建置了完全閉環的自動化 CI/CD 架構：
 
-### Schema Source Of Truth
-- 核心資料表定義與 bootstrap 邏輯統一放在 [config/schema.php](config/schema.php)
-- `config/database.php`、`install/index.php`、`install.sh`、`migrate.php` 都共用這一份定義
-- 若未來需要新增核心欄位或調整初始化行為，應優先修改 `config/schema.php`
-- `images` 表除了圖片，也承載影片與一般檔案；目前透過 `mime_type`、`is_video`、`is_file` 區分資產類型
-- 既有資料庫若缺少這些旗標欄位，`ensureCoreSchema()` 會自動補齊並回填舊資料，避免不同部署之間 schema 漂移
+```mermaid
+flowchart LR
+    A[👨‍💻 本地 git push] --> B[⚙️ GitHub Actions CI 安全審計 & 測試]
+    B --> C[🐳 建置 Multi-Arch 映像檔 AMD64/ARM64]
+    C --> D[📦 推播至 Docker Hub & GHCR]
+    D --> E[🐕 伺服器 Watchtower 每 5 分鐘自動巡檢]
+    E --> F[🔄 自動拉取映像檔並平滑熱重啟 888box]
+```
 
-### 手動管理指令
-- **啟動**：`docker compose up -d`
-- **停止**：`docker compose stop`
-- **更新代碼**：`git pull && docker compose restart`
-- **重構環境**：`docker compose up -d --build` (當 Dockerfile 有變動時)
-- **同步環境變數後重啟**：若修改 `.env` 的儲存設定，建議執行 `docker compose restart`
-- **部署 schema / Dockerfile 變更**：若更新包含 migration、自動補欄位或容器權限調整，建議使用 `git pull && docker compose up -d --build`
-- **手動建立/重設管理員帳號**：
-  若未執行安裝腳本，可透過此指令建立帳號（請替換 `YOUR_USER` 與 `YOUR_PASS`）：
-  ```bash
-  docker exec -it 888box php -r "$u='YOUR_USER'; $p='YOUR_PASS'; $pdo = new PDO('sqlite:/var/www/html/storage/database.db'); $h = password_hash($p, PASSWORD_DEFAULT); $t = bin2hex(random_bytes(16)); $stmt = $pdo->prepare('INSERT OR REPLACE INTO users (username, password, token) VALUES (?, ?, ?)'); $stmt->execute([$u, $h, $t]); echo \"User $u created.\n\";"
-  ```
-- **檢查每日上傳限制**：
-   ```bash
-   docker exec -it 888box php -r '$pdo = new PDO("sqlite:/var/www/html/storage/database.db"); echo $pdo->query("SELECT value FROM configs WHERE key = '\''max_uploads_per_day'\'' LIMIT 1")->fetchColumn(), PHP_EOL;'
-   ```
+- **多架構原生支援**：GitHub Actions 自動建置 `linux/amd64` 與 `linux/arm64`，各種伺服器皆能下載最佳效能的專屬架構層。
+- **多實例隔離安全**：透過 `WATCHTOWER_SCOPE=888box`，Watchtower 僅鎖定監控 888box 容器，不會影響或重啟同主機上的其他服務。
+- **資料持久化保證**：所有上傳檔案與 SQLite 資料庫均透過 Volume 掛載至宿主機 `./storage`，映像檔換新時資料絕對零遺失。
 
-### 前端本機統計說明
-- `upload_image.php`、`upload_video.php`、`upload_file.php` 都會顯示「本批成功」、「今日上傳」、「累計上傳」。
-- 「本批成功」只統計目前這一批 queue 中成功完成的項目，清空列表或重新建立新 queue 後會重新計算。
-- 「今日上傳」與「累計上傳」儲存在瀏覽器 `localStorage`，只對目前裝置與目前瀏覽器有效，不會跨裝置同步。
-- 若使用者清除瀏覽器資料、改用其他瀏覽器、或從其他 API / 後台入口上傳，這些本機統計不會保留或合併。
+---
+
+## ⚙️ 儲存後端設定 (.env)
+
+888box 支援「本地儲存」、「AWS S3」、「阿里雲 OSS」與「又拍雲 UpYun」。
+
+### AWS S3 / CloudFront 配置範例
+```ini
+STORAGE_TYPE=s3
+S3_ACCESS_KEY_ID=your_access_key
+S3_ACCESS_KEY_SECRET=your_secret_key
+S3_BUCKET=your_bucket_name
+S3_REGION=ap-northeast-1
+S3_ENDPOINT=https://s3.ap-northeast-1.amazonaws.com
+S3_CDN_DOMAIN=https://your-cloudfront-id.cloudfront.net
+S3_ACL=public-read
+```
+
+> **S3 自動建置腳本**：若需快速建立符合安全規範與公開讀取 Policy 的 AWS S3 Bucket，可直接執行 `./setup_s3.sh`。
+
+---
+
+## 🔒 權限與重要維護注意事項
+
+### 1. SQLite 檔案與目錄權限 (避免 500 錯誤)
+容器內 Apache / PHP 以 `www-data`（UID/GID 33）執行。SQLite 在執行寫入與建立 WAL 日誌時，**資料庫檔案及其上層目錄 `storage/` 必須具備 `www-data` 的寫入權限**。
+若在宿主機以 root 操作導致檔案擁有者改變，請在宿主機執行以下指令修正：
+
+```bash
+sudo chown -R 33:33 ./storage
+```
+
+### 2. 手動建立或重設管理員帳號
+若未透過 `install.sh` 建立帳號，可隨時透過以下指令建立管理員（請替換 `YOUR_USER` 與 `YOUR_PASS`）：
+
+```bash
+docker exec -it 888box php -r "$u='YOUR_USER'; $p='YOUR_PASS'; $pdo = new PDO('sqlite:/var/www/html/storage/database.db'); $h = password_hash($p, PASSWORD_DEFAULT); $t = bin2hex(random_bytes(16)); $stmt = $pdo->prepare('INSERT OR REPLACE INTO users (username, password, token) VALUES (?, ?, ?)'); $stmt->execute([$u, $h, $t]); echo \"User $u created.\n\";"
+```
+
+### 3. 查看每日上傳額度
+```bash
+docker exec -it 888box php -r '$pdo = new PDO("sqlite:/var/www/html/storage/database.db"); echo $pdo->query("SELECT value FROM configs WHERE key = '\''max_uploads_per_day'\'' LIMIT 1")->fetchColumn(), PHP_EOL;'
+```
+
+---
+
+## 🛠️ 開發與架構說明
+
+- **後端環境**：PHP 8.1+ (Apache Prefork, pdo_sqlite, gd, imagick, exif, fileinfo)
+- **前端架構**：原生 Vanilla ES Modules，整合 100% 離線向量圖示庫 Lucide Icons
+- **本機資料庫**：SQLite 3（存放於 `storage/database.db`，由 `config/schema.php` 自動維護核心 Schema）
+- **多媒體處理**：FFmpeg & ImageMagick（容器內建）
+- **詳細變更歷史**：請參閱 [CHANGELOG.md](CHANGELOG.md)
+
+---
 
 ## 📄 授權協議
+
 本專案採用 AGPL-3.0 授權協議。詳見 [LICENSE](LICENSE) 檔案。

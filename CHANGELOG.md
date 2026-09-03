@@ -2,6 +2,35 @@
 
 All notable changes to this project will be documented in this file.
 
+## [2026.9.3] - 2026-09-03
+
+### 🐳 CI/CD & Multi-Arch Docker Publishing
+- **Official Docker Hub & GHCR Releases**:
+  - Configured automated GitHub Actions workflow (`.github/workflows/docker-publish.yml`) to build and push multi-architecture images (`linux/amd64` and `linux/arm64`) to Docker Hub (`tbdavid2019/888box:latest`) and GitHub Container Registry (`ghcr.io/tbdavid2019/888box:latest`).
+  - Native performance on AWS Graviton, Apple Silicon, and AMD64 Linux servers.
+- **Zero-Downtime Watchtower Auto-Deployment**:
+  - Integrated `containrrr/watchtower` service directly in `docker-compose.yml`.
+  - Configured isolated `WATCHTOWER_SCOPE=888box` to prevent collisions on hosts running multiple Watchtower instances.
+  - Added `DOCKER_API_VERSION=1.44` compatibility for Ubuntu 24.04 and Docker Engine 26+.
+  - Fully closed-loop CI/CD: push code to `main` -> automated tests pass -> multi-arch images pushed -> servers automatically pull and restart within 5 minutes without manual SSH intervention.
+- **Configurable Registry Fallback**:
+  - Added `${DOCKER_IMAGE:-tbdavid2019/888box:latest}` support to `docker-compose.yml`, allowing seamless override to GHCR (`ghcr.io/tbdavid2019/888box:latest`) via `.env` for environments with network routing restrictions.
+
+### 🔒 Security Audit & Remediation (12 Full-Stack Fixes)
+- **SEC-01 (Backdoor Token Removal)**: Removed hardcoded bypass token `'ai_agent'` from `api.php` and `mcp.php`.
+- **SEC-02 (SSRF Defense Engine)**: Built centralized SSRF validation (`config/security.php`) blocking private IP ranges (10.x, 172.16-31.x, 192.168.x), loopback (`127.0.0.1`), link-local, IPv6 site-local, and cloud metadata (`169.254.169.254`); enforced safe cURL protocol restrictions.
+- **SEC-03 (Arbitrary File Upload & Execution Defense)**: Enforced strict document extension whitelist in `api_file.php` and disabled PHP engine/script execution inside `storage/.htaccess`.
+- **SEC-04 (Arbitrary File Deletion / Path Traversal)**: Secured asset deletion across `config/storage.php`, `api_delete_audio.php`, `api_delete_file.php`, and `api_delete_video.php` by strictly resolving paths from database records within the `storage/` root boundary.
+- **SEC-05 (SQL LIKE Wildcard Enumeration)**: Added strict hex regex validation `/^[a-fA-F0-9]{6,32}$/` for short and long tokens in `view.php`, eliminating database enumeration risks.
+- **SEC-06 (Session Fixation & Cache Hardening)**: Enforced `session_regenerate_id(true)` upon login in `admin/login.php` and applied `Cache-Control: no-store` across all administrative views.
+- **SEC-07 (CORS Alignment)**: Aligned Access-Control-Allow-Origin with credentials support in `mcp.php`.
+- **SEC-08 (XSS Defense)**: Sanitized dynamic HTML attributes and metadata in `view.php`.
+- **SEC-09 - SEC-11 (Command Injection, Installation & Config Protection)**: Sanitized shell arguments in `config/video_helper.php`, hardened `install.sh` `.env` chmod to `600`, and restricted access to sensitive project files in `.htaccess`.
+- **Automated Security Test Suite & Skill**: Added `tests/security_audit_test.mjs` (10 test suites covering all remediations) and `.agent/skills/security-audit/SKILL.md`.
+
+### 🎨 UI/UX & Documentation Streamlining
+- **Documentation Refactoring**: Transferred granular UI design notes, translation details, and button spacing history from `README.md` into `CHANGELOG.md` to keep `README.md` focused, clean, and developer-friendly.
+
 ## [2026.8.19] - 2026-08-19
 
 ### ✨ Added
