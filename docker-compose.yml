@@ -11,6 +11,9 @@ services:
       - ./.env:/var/www/html/.env
     environment:
       TZ: Asia/Taipei
+    labels:
+      - "com.centurylinklabs.watchtower.enable=true"
+      - "com.centurylinklabs.watchtower.scope=888box"
 
   watchtower:
     image: containrrr/watchtower:latest
@@ -18,6 +21,8 @@ services:
     restart: unless-stopped
     environment:
       DOCKER_API_VERSION: "1.44"
+      WATCHTOWER_SCOPE: "888box"
+      WATCHTOWER_POLL_INTERVAL: 300
+      WATCHTOWER_CLEANUP: "true"
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
-    command: --interval 300 --cleanup 888box
