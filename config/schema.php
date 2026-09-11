@@ -119,7 +119,12 @@ function getCoreConfigDefaults($siteUrl) {
         'active_theme' => ['default', '當前配色主題'],
         'rss_token_enabled' => ['false', 'RSS Token 保護'],
         'rss_token' => ['', 'RSS Token'],
-        'custom_tracking_code' => ['', '全站自訂追蹤碼（例如 Google Analytics / GTM 追蹤程式碼）']
+        'custom_tracking_code' => ['', '全站自訂追蹤碼（例如 Google Analytics / GTM 追蹤程式碼）'],
+        'turnstile_enabled' => ['false', 'Cloudflare Turnstile 總開關'],
+        'turnstile_site_key' => ['', 'Turnstile Site Key (公鑰)'],
+        'turnstile_secret_key' => ['', 'Turnstile Secret Key (密鑰)'],
+        'turnstile_protect_login' => ['true', 'Turnstile 保護後台登入/重設'],
+        'turnstile_protect_upload' => ['false', 'Turnstile 保護公開網頁上傳']
     ];
 }
 

@@ -8,14 +8,30 @@ if (isset($_SESSION['loggedin']) && $_SESSION['loggedin']) {
 
 require_once '../config/database.php';
 require_once '../config/theme_helper.php';
+require_once '../config/turnstile.php';
 
 $db = Database::getInstance();
 $pdo = $db->getConnection();
 $allowPasswordReset = ($_ENV['ALLOW_PASSWORD_RESET'] ?? 'false') === 'true';
 $isDemoMode = ($_ENV['DEMO_MODE'] ?? 'false') === 'true';
+$turnstileEnabledForLogin = isTurnstileEnabled($pdo, 'login');
+$turnstileSiteKey = $turnstileEnabledForLogin ? getTurnstileSiteKey($pdo) : '';
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $action = $_POST['action'] ?? 'login';
+
+    if ($turnstileEnabledForLogin && $action !== 'demo_login') {
+        $turnstileToken = $_POST['cf-turnstile-response'] ?? '';
+        $secretKey = Database::getConfig($pdo, 'turnstile_secret_key');
+        require_once '../config/upload.php';
+        $clientIp = function_exists('getClientIp') ? getClientIp() : ($_SERVER['REMOTE_ADDR'] ?? '');
+        $vResult = verifyTurnstileToken($turnstileToken, (string)$secretKey, $clientIp);
+        if (!$vResult['success']) {
+            $_SESSION['error'] = $vResult['error'] ?? "請完成機器人安全驗證";
+            header("Location: " . $_SERVER['REQUEST_URI']);
+            exit;
+        }
+    }
     
     if ($action === 'login') {
         $stmt = $pdo->prepare("SELECT * FROM users WHERE username = ?");
@@ -313,6 +329,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         }
     </style>
     <?php renderThemeStyles($pdo); ?>
+    <?php if ($turnstileEnabledForLogin): ?>
+    <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
+    <?php endif; ?>
 </head>
 <body class="admin-login-page">
     <?php renderSiteHeader('登入', [], false); ?>
@@ -336,6 +355,11 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                         <?php endif; ?>
                     </div>
                 </div>
+                <?php if ($turnstileEnabledForLogin && !$isDemoMode): ?>
+                <div style="margin: 16px 0; display: flex; justify-content: center;">
+                    <div class="cf-turnstile" data-sitekey="<?= htmlspecialchars($turnstileSiteKey) ?>" data-action="login" data-theme="auto"></div>
+                </div>
+                <?php endif; ?>
                 <button type="submit" <?= $isDemoMode ? 'class="btn-demo"' : '' ?>>
                     <?php if ($isDemoMode): ?>
                         <i data-lucide="zap" style="width: 18px; height: 18px; vertical-align: middle; margin-right: 6px;"></i>
@@ -387,6 +411,11 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                         </span>
                     </div>
                 </div>
+                <?php if ($turnstileEnabledForLogin): ?>
+                <div style="margin: 16px 0; display: flex; justify-content: center;">
+                    <div class="cf-turnstile" data-sitekey="<?= htmlspecialchars($turnstileSiteKey) ?>" data-action="reset" data-theme="auto"></div>
+                </div>
+                <?php endif; ?>
                 <button type="submit">重設密碼</button>
             </form>
             <div class="toggle-form">

@@ -2,6 +2,7 @@
 session_start();
 require_once 'config/database.php';
 require_once 'config/theme_helper.php';
+require_once 'config/turnstile.php';
 
 try {
     $db = Database::getInstance();
@@ -33,6 +34,8 @@ try {
     <script defer src="/static/js/pwa.js?v=2"></script>
     <link rel="stylesheet" href="static/css/audio_ui.css?v=<?php echo time(); ?>">
     <?php renderThemeStyles($pdo); ?>
+    <?php renderTurnstileScript($pdo, 'upload'); ?>
+    <?php renderTurnstileJsHelper($pdo, 'upload'); ?>
     <?php renderCustomTrackingCode($pdo); ?>
 </head>
 <body>
@@ -67,6 +70,7 @@ try {
                         <label style="display:block; margin-bottom:5px; font-weight:bold;">存取密碼 (選填)</label>
                         <input type="password" id="batchPass" placeholder="設定密碼後，Podcast RSS 將會排除此音訊" style="width:100%; padding:10px; border-radius:6px; border:1px solid #444; background:#222; color:#fff;" autocomplete="new-password">
                     </div>
+                    <?php renderTurnstileWidget($pdo, 'upload', 'upload', 'margin-top: 15px; display: flex; justify-content: center;'); ?>
                 </div>
 
                 <div class="action-buttons action-buttons-top">

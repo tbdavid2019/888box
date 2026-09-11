@@ -241,6 +241,9 @@ document.addEventListener('DOMContentLoaded', () => {
         if (finalTitle) formData.append('title', finalTitle);
         if (finalDesc) formData.append('description', finalDesc);
         if (finalPass) formData.append('password', finalPass);
+
+        const turnstileToken = window.turnstileUploadToken || (window.turnstile ? window.turnstile.getResponse() : '');
+        if (turnstileToken) formData.append('cf-turnstile-response', turnstileToken);
         
         const xhr = new XMLHttpRequest();
         xhr.open('POST', 'audio.php', true);
@@ -255,6 +258,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
         xhr.onload = () => {
             progCont.style.display = 'none';
+            if (window.turnstile) {
+                try { window.turnstile.reset(); } catch (e) {}
+                window.turnstileUploadToken = '';
+            }
             if (xhr.status === 200) {
                 try {
                     const res = JSON.parse(xhr.responseText);
@@ -300,6 +307,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
         xhr.onerror = () => {
             progCont.style.display = 'none';
+            if (window.turnstile) {
+                try { window.turnstile.reset(); } catch (e) {}
+                window.turnstileUploadToken = '';
+            }
             item.status = 'error';
             document.getElementById('status_' + id).className = 'queue-item-status status-error';
             document.getElementById('status_' + id).textContent = '網路錯誤，上傳中斷';

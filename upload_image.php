@@ -4,6 +4,7 @@ session_start();
 
 require_once 'config/database.php';
 require_once 'config/theme_helper.php';
+require_once 'config/turnstile.php';
 
 
 try {
@@ -259,6 +260,9 @@ try {
             }
         }
     </style>
+    <?php renderThemeStyles($pdo); ?>
+    <?php renderTurnstileScript($pdo, 'upload'); ?>
+    <?php renderTurnstileJsHelper($pdo, 'upload'); ?>
     <?php renderCustomTrackingCode($pdo); ?>
 </head>
 <body>
@@ -302,6 +306,8 @@ try {
                     <div class="url-input-section">
                         <input type="text" id="pasteOrUrlInput" class="pasteOrUrlInput" placeholder="輸入圖片網址即可自動上傳，或使用 Ctrl+V 貼上" title="注意：部分網站設有防盜鏈，可能無法直接下載">
                     </div>
+
+                    <?php renderTurnstileWidget($pdo, 'upload', 'upload', 'margin: 12px 0; display: flex; justify-content: center;'); ?>
 
                     <div id="progressContainer" class="progressContainer" style="position: relative; border-radius: 5px; margin-top: 15px;">
                         <div id="progressBar" class="progressBar"></div>

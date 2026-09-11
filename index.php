@@ -2,6 +2,7 @@
 session_start();
 require_once 'config/database.php';
 require_once 'config/theme_helper.php';
+require_once 'config/turnstile.php';
 $db = Database::getInstance();
 $pdo = $db->getConnection();
 
@@ -100,6 +101,8 @@ if (!headers_sent()) {
 
     <link rel="stylesheet" href="/static/css/portal.css?v=<?php echo time(); ?>">
     <?php renderThemeStyles($pdo); ?>
+    <?php renderTurnstileScript($pdo, 'upload'); ?>
+    <?php renderTurnstileJsHelper($pdo, 'upload'); ?>
     <style>
         .stats-badge {
             background: rgba(122, 162, 247, 0.14);
@@ -151,6 +154,8 @@ if (!headers_sent()) {
                 <p>自動辨識圖片、影片、音訊與文件格式並完成託管</p>
             </div>
         </div>
+
+        <?php renderTurnstileWidget($pdo, 'upload', 'upload', 'margin: 12px auto; display: flex; justify-content: center;'); ?>
 
         <!-- 佇列與上傳結果展示區 -->
         <div id="uploadQueueContainer" class="upload-queue-container" style="display: none;">
@@ -335,6 +340,11 @@ if (!headers_sent()) {
             const formData = new FormData();
             formData.append('file', file);
 
+            const turnstileToken = window.turnstileUploadToken || (window.turnstile ? window.turnstile.getResponse() : '');
+            if (turnstileToken) {
+                formData.append('cf-turnstile-response', turnstileToken);
+            }
+
             const xhr = new XMLHttpRequest();
             xhr.open('POST', '/api.php?action=upload', true);
 
@@ -350,6 +360,10 @@ if (!headers_sent()) {
             };
 
             xhr.onload = () => {
+                if (window.turnstile) {
+                    try { window.turnstile.reset(); } catch(e) {}
+                    window.turnstileUploadToken = '';
+                }
                 try {
                     const response = JSON.parse(xhr.responseText);
                     if (xhr.status === 200 && response.result === 'success') {
@@ -388,6 +402,10 @@ if (!headers_sent()) {
             };
 
             xhr.onerror = () => {
+                if (window.turnstile) {
+                    try { window.turnstile.reset(); } catch(e) {}
+                    window.turnstileUploadToken = '';
+                }
                 if (statusEl) {
                     statusEl.style.color = '#f7768e';
                     statusEl.textContent = '網路上傳失敗';

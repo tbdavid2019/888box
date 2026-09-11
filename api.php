@@ -7,6 +7,7 @@ require_once 'config/database.php';
 require_once 'config/upload.php';
 require_once 'config/cors.php';
 require_once 'config/security.php';
+require_once 'config/turnstile.php';
 
 // 初始化
 $db = Database::getInstance();
@@ -229,6 +230,10 @@ try {
     // 分流處理
     switch ($action) {
         case 'upload':
+            $turnstileCheck = checkUploadTurnstilePermission($pdo, $config);
+            if (!$turnstileCheck['allowed']) {
+                respondAndExit(['result' => 'error', 'code' => 403, 'message' => $turnstileCheck['message']]);
+            }
             handleUnifiedUpload($pdo, $config);
             break;
 
@@ -249,6 +254,10 @@ try {
             break;
 
         case 'upload_url':
+            $turnstileCheck = checkUploadTurnstilePermission($pdo, $config);
+            if (!$turnstileCheck['allowed']) {
+                respondAndExit(['result' => 'error', 'code' => 403, 'message' => $turnstileCheck['message']]);
+            }
             handleUploadFromUrl($pdo, $config);
             break;
 

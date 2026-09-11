@@ -3,6 +3,7 @@
 session_start();
 require_once 'config/database.php';
 require_once 'config/theme_helper.php';
+require_once 'config/turnstile.php';
 
 
 try {
@@ -64,6 +65,9 @@ try {
             border-color: rgba(125, 207, 255, 0.4);
         }
     </style>
+    <?php renderThemeStyles($pdo); ?>
+    <?php renderTurnstileScript($pdo, 'upload'); ?>
+    <?php renderTurnstileJsHelper($pdo, 'upload'); ?>
     <?php renderCustomTrackingCode($pdo); ?>
 </head>
 <body>
@@ -85,6 +89,8 @@ try {
                 <h3 style="margin-top:0; margin-bottom:20px; border-bottom:1px solid var(--border); padding-bottom:10px;">檔案上傳佇列</h3>
                 <div id="fileList"></div>
                 
+                <?php renderTurnstileWidget($pdo, 'upload', 'upload', 'margin-top: 15px; display: flex; justify-content: center;'); ?>
+
                 <div class="action-buttons" style="margin-top: 30px;">
                     <button id="cancelBtn" class="btn secondary">清空列表</button>
                     <button id="uploadBtn" class="btn primary">開始上傳</button>

@@ -9,6 +9,7 @@ require_once 'vendor/autoload.php';
 require_once 'config/database.php';
 require_once 'config/upload.php';
 require_once 'config/audio_logic.php';
+require_once 'config/turnstile.php';
 
 // 初始化
 $db = Database::getInstance();
@@ -166,6 +167,11 @@ try {
 
     // 2. 验证权限
     validateToken();
+
+    $turnstileCheck = checkUploadTurnstilePermission($pdo, $config);
+    if (!$turnstileCheck['allowed']) {
+        respondAndExit(['result' => 'error', 'code' => 403, 'message' => $turnstileCheck['message']]);
+    }
 
     // 3. 验证上传次数限制 (重用 api.php 逻辑)
     $maxUploadsPerDay = getConfigValue($pdo, 'max_uploads_per_day');

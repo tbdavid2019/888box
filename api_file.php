@@ -68,8 +68,10 @@ if (realpath(__FILE__) === realpath($_SERVER['SCRIPT_FILENAME'])) {
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $action = $_POST['action'] ?? '';
             if ($action === 'upload_file') {
-                if (!isset($_FILES['file'])) {
-                    respondAndExit(['result' => 'error', 'message' => '未選擇檔案']);
+                require_once 'config/turnstile.php';
+                $turnstileCheck = checkUploadTurnstilePermission($pdo, $config);
+                if (!$turnstileCheck['allowed']) {
+                    respondAndExit(['result' => 'error', 'message' => $turnstileCheck['message']]);
                 }
                 handleFileUpload($_FILES['file'], $pdo, $config);
             } else {

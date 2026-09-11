@@ -189,6 +189,39 @@ document.addEventListener('DOMContentLoaded', () => {
             });
         });
 
+        document.getElementById('test-turnstile-btn')?.addEventListener('click', async (e) => {
+            e.preventDefault();
+            const btn = e.currentTarget;
+            btn.disabled = true;
+            const originalText = btn.textContent;
+            btn.textContent = '連線測試中...';
+
+            try {
+                const secretKeyInput = document.getElementById('turnstile_secret_key');
+                const secretKey = secretKeyInput ? secretKeyInput.value.trim() : '';
+                const formData = new FormData();
+                formData.append('action', 'test_turnstile');
+                if (secretKey) {
+                    formData.append('secret_key', secretKey);
+                }
+
+                const response = await fetch('settings.php', {
+                    method: 'POST',
+                    headers: {'X-Requested-With': 'XMLHttpRequest'},
+                    body: formData
+                });
+
+                const data = await response.json();
+                UI.showNotification(data.message, data.success ? 'success' : 'error');
+            } catch (error) {
+                console.error('Error testing turnstile:', error);
+                UI.showNotification('連線測試出錯，請檢查網路或稍後再試', 'error');
+            } finally {
+                btn.disabled = false;
+                btn.textContent = originalText;
+            }
+        });
+
         // 存储测试按钮
         document.querySelectorAll('.test-storage-btn').forEach(btn => {
             btn.addEventListener('click', async () => {

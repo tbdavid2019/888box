@@ -52,5 +52,6 @@ jobs:
           node tests/share_seo_i18n_test.mjs
           node tests/storage_proxy_test.mjs
           node tests/view_count_dedupe_test.mjs
+          node tests/turnstile_integration_test.mjs
           php tests/cors_policy_test.php
           echo "✅ All tests passed successfully!"

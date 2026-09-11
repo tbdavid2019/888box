@@ -88,6 +88,17 @@ if (!empty($_POST['action'])) {
                     'saved' => round(($sizeBefore - $sizeAfter) / 1024 / 1024, 2)
                 ], JSON_UNESCAPED_UNICODE);
                 break;
+
+            case 'test_turnstile':
+                require_once '../config/turnstile.php';
+                $secretKey = $_POST['secret_key'] ?? '';
+                if (empty($secretKey)) {
+                    $config = Database::getConfig($pdo);
+                    $secretKey = $config['turnstile_secret_key'] ?? '';
+                }
+                $testRes = testTurnstileSecretKey((string)$secretKey);
+                echo json_encode($testRes, JSON_UNESCAPED_UNICODE);
+                break;
                 
             default:
                 throw new Exception('未知操作');
@@ -360,6 +371,45 @@ $basicSettings = [
         'rows' => 4,
         'placeholder' => '在此貼入完整的 Google Analytics (GA4) 全域網站 JavaScript 追蹤碼，或 Google Tag Manager (GTM) 代碼。例如：<script async src="https://www.googletagmanager.com/gtag/js?id=G-XXXXX"></script> <script>...</script>',
         'description' => '這段程式碼將會被自動注入至所有公開頁面（包含首頁、圖片/影片/文件/音訊上傳中心與資產分享頁面）的 <head> 區塊中。'
+    ],
+    'turnstile_header' => [
+        'type' => 'header',
+        'name' => '🛡️ Cloudflare Turnstile 機器人驗證 (支援多站獨立 Fallback)'
+    ],
+    'turnstile_enabled' => [
+        'label' => '啟用 Turnstile',
+        'type' => 'radio',
+        'options' => ['true' => '啟用', 'false' => '停用（預設 / Fallback）'],
+        'description' => '總開關。未啟用或未填寫金鑰時完全不載入、不驗證（支援 .env TURNSTILE_ENABLED 覆蓋）',
+        'half_width' => true
+    ],
+    'turnstile_protect_login' => [
+        'label' => '保護後台登入',
+        'type' => 'radio',
+        'options' => ['true' => '是', 'false' => '否'],
+        'description' => '為後台登入與密碼重設表單啟用 Turnstile 驗證，防止暴力破解',
+        'half_width' => true
+    ],
+    'turnstile_protect_upload' => [
+        'label' => '保護公開上傳',
+        'type' => 'radio',
+        'options' => ['true' => '是', 'false' => '否'],
+        'description' => '為公開網頁上傳啟用驗證（持合法 Token 的工具如 ShareX、PicGo、MCP 自動放行）',
+        'half_width' => true
+    ],
+    'turnstile_site_key' => [
+        'label' => 'Turnstile Site Key (公鑰)',
+        'type' => 'text',
+        'placeholder' => '0x4AAAAAA...',
+        'description' => 'Cloudflare Turnstile 儀表板公鑰（支援 .env TURNSTILE_SITE_KEY 覆蓋）',
+        'half_width' => true
+    ],
+    'turnstile_secret_key' => [
+        'label' => 'Turnstile Secret Key (密鑰)',
+        'type' => 'password',
+        'placeholder' => '0x4AAAAAA...',
+        'description' => 'Cloudflare Turnstile 儀表板密鑰（支援 .env TURNSTILE_SECRET_KEY 覆蓋）',
+        'half_width' => true
     ]
 ];
 ?>
@@ -493,10 +543,11 @@ $basicSettings = [
             </div>
             
             <div class="form-group">
-                <label>系統維護</label>
-                <div style="display: flex; gap: 10px;">
+                <label>系統維護與驗證測試</label>
+                <div style="display: flex; gap: 10px; flex-wrap: wrap;">
                     <button type="button" id="optimize-db-btn" class="update-btn">最佳化資料庫</button>
                     <button type="button" id="check-update-btn" class="update-btn">檢查更新</button>
+                    <button type="button" id="test-turnstile-btn" class="update-btn">測試 Turnstile 連線</button>
                 </div>
             </div>
         </div>

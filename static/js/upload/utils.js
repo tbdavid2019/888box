@@ -8,11 +8,20 @@ export const API = {
         formData.append('quality', quality);
         if (password) formData.append('password', password);
 
+        const turnstileToken = window.turnstileUploadToken || (window.turnstile ? window.turnstile.getResponse() : '');
+        if (turnstileToken) {
+            formData.append('cf-turnstile-response', turnstileToken);
+        }
+
         const xhr = new XMLHttpRequest();
         xhr.open('POST', 'api.php', true);
         xhr.upload.addEventListener('progress', (e) => onProgress(e, imageIndex));
         xhr.onreadystatechange = () => {
             if (xhr.readyState === XMLHttpRequest.DONE) {
+                if (window.turnstile) {
+                    try { window.turnstile.reset(); } catch(e) {}
+                    window.turnstileUploadToken = '';
+                }
                 onComplete(xhr, imageIndex);
             }
         };

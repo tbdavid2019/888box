@@ -178,6 +178,9 @@ document.addEventListener('DOMContentLoaded', () => {
         if (titleInput) formData.append('title', titleInput);
         if (passInput) formData.append('password', passInput);
         if (descInput) formData.append('description', descInput);
+
+        const turnstileToken = window.turnstileUploadToken || (window.turnstile ? window.turnstile.getResponse() : '');
+        if (turnstileToken) formData.append('cf-turnstile-response', turnstileToken);
         
         const xhr = new XMLHttpRequest();
         xhr.open('POST', 'api_file.php', true); // 我們需要建立這個 API
@@ -192,6 +195,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
         xhr.onload = () => {
             progCont.style.display = 'none';
+            if (window.turnstile) {
+                try { window.turnstile.reset(); } catch (e) {}
+                window.turnstileUploadToken = '';
+            }
             if (xhr.status === 200) {
                 try {
                     const res = JSON.parse(xhr.responseText);
@@ -236,6 +243,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
         xhr.onerror = () => {
             progCont.style.display = 'none';
+            if (window.turnstile) {
+                try { window.turnstile.reset(); } catch (e) {}
+                window.turnstileUploadToken = '';
+            }
             item.status = 'error';
             document.getElementById('status_' + id).className = 'queue-item-status status-error';
             document.getElementById('status_' + id).textContent = '網路錯誤';
