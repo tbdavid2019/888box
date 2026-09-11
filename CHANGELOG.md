@@ -2,6 +2,31 @@
 
 All notable changes to this project will be documented in this file.
 
+## [2026.9.5] - 2026-09-11
+
+### 🛡️ Cloudflare Turnstile Bot Protection & Multi-Site Fallback Architecture
+- **Dedicated Security & Verification Engine (`config/turnstile.php`)**:
+  - Implemented centralized Turnstile verification communicating directly with Cloudflare official API (`https://challenges.cloudflare.com/turnstile/v0/siteverify`).
+  - Added connection test probe helper `testTurnstileSecretKey()` to validate secret keys without real tokens.
+- **Multi-Site Independent Fallback**:
+  - Default state is completely disabled (`turnstile_enabled = false` in `config/schema.php`).
+  - Instances without Turnstile configuration cleanly fallback to native operation without loading Cloudflare scripts, rendering widgets, or rejecting requests.
+  - Supports per-site override via `.env` (`TURNSTILE_ENABLED`, `TURNSTILE_SITE_KEY`, `TURNSTILE_SECRET_KEY`, `TURNSTILE_PROTECT_LOGIN`, `TURNSTILE_PROTECT_UPLOAD`).
+- **Server-Controlled Authorization & Fail-Closed Defense**:
+  - Eliminated any client-side bypass vulnerabilities: backend never reads client flags (e.g. `turnstile_failed=true`), and failure to verify tokens defaults to 403 Forbidden.
+  - Dual-track authentication: requests bearing valid DB API tokens (`Bearer <token>` or `token=...`) automatically bypass Turnstile to preserve headless integrations (ShareX, PicGo, AI Agent MCP `mcp.php`, CLI scripts).
+  - Active admin sessions (`$_SESSION['loggedin'] === true`) automatically bypass verification.
+  - Session clearance window (10 minutes) protects against race conditions during simultaneous multi-file drag-and-drop batch uploads.
+- **Surface Protection Across Admin & Upload Portals**:
+  - **Admin Login & Password Reset (`admin/login.php`)**: Embedded Turnstile widget and enforced server-side validation to block credential brute-forcing.
+  - **Unified & Legacy Upload Endpoints (`api.php`, `video.php`, `audio.php`, `api_file.php`)**: Added upload gate check before file processing.
+  - **Public Upload UIs (`index.php`, `upload_image.php`, `upload_video.php`, `upload_file.php`, `upload_audio.php`)**: Dynamically rendered widgets and synchronized lifecycle hooks (`turnstile.reset()`) across `utils.js`, `video_app.js`, `file_app.js`, and `audio_app.js`.
+- **Admin Management Panel (`admin/settings.php`, `static/js/settings.js`)**:
+  - Added visual configuration section for Turnstile toggles and keys.
+  - Added one-click "測試 Turnstile 連線" button to verify upstream Cloudflare connectivity in real time.
+- **CI/CD Integration**:
+  - Added `tests/turnstile_integration_test.mjs` verifying contract integrity across backend modules, schemas, endpoints, and frontend scripts. Integrated into `.github/workflows/ci.yml`.
+
 ## [2026.9.4] - 2026-09-08
 
 ### 🧠 Google Magika AI File Content-Type Detection & Zero-Trust Defense
