@@ -80,6 +80,7 @@ $pagination = renderPagination($current_page, $total_pages);
 <body>
     <?php renderAdminHeader('image', '圖片管理後台', [
         ['label' => '上傳圖片', 'href' => '/upload_image.php'],
+        ['label' => 'Seal 管理', 'href' => '/admin/seals.php'],
         ['label' => '系統設定', 'href' => '#', 'class' => 'settings-link'],
         ['label' => '返回首頁', 'href' => '/'],
         ['label' => '登出', 'href' => '/admin/index.php?logout=true'],
