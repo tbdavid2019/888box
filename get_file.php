@@ -272,6 +272,7 @@ try {
     if ($sealDecision['seal']) {
         $asset['_sealed'] = true;
     }
+    scheduleEphemeralAssetDeletion($pdo, $asset, $sealDecision);
     session_write_close();
 
     $storage = $asset['storage'] ?? 'local';

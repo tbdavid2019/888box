@@ -10,6 +10,8 @@
 - 伺服器管理者或具有儲存後端權限的操作者仍可能在解鎖前讀取原始明文。
 - 若既有 S3、OSS、UpYun 物件曾經以公開 URL 對外，外部 URL 可能繞過 888box 的代理閘門。
 - 這一階段提供的是存取控制 Seal，不是端到端加密保管庫。
+- 第一階段的 DMS Burn 會刪除 Seal 對應的既有資產；管理員 revoke 才是保留資產並解除 Seal 的操作。
+- 第一階段 Ephemeral 限制圖片與文件。最後一次成功配送完成後，系統會在 response 結束時刪除資產；若清理失敗，管理員可透過 revoke 解除卡住的 Seal。
 
 ## 目標
 
@@ -32,7 +34,8 @@ URL fragment 仍是 Bearer credential。瀏覽器歷史、書籤、瀏覽器外�
 - Key A：瀏覽器產生，保留在 `/seal/<id>#<keyA>` 的 fragment，只在瀏覽器解密時使用。
 - Key B：瀏覽器產生，送往伺服器前以 `SEAL_MASTER_KEY` 包裝。
 - Content Key：由 Key A 與 Key B 透過 HKDF 衍生，使用 AES-GCM-256 加密內容。
-- IV：每個 Seal 使用新的隨機 96-bit IV，作為公開 metadata 保存。
+- Blob IV：每個密文 blob 使用新的隨機 96-bit IV，作為公開 metadata 保存。
+- Key B 包裝 IV：若使用 AES-GCM 包裝 Key B，必須使用另一個獨立的隨機 96-bit IV 與 authentication tag；兩者不可重用 Blob IV。替代方案是採用標準 AES-KW／AES-KWP，並保存明確的 key-wrap 版本。
 - `SEAL_MASTER_KEY`：只存在部署環境的 secret，不寫入 SQLite、物件儲存或 API 回應。
 
 伺服器資料表只保存：
@@ -119,7 +122,7 @@ POST /api.php?action=seal_cleanup
 - manifest 完整性驗證
 - Range 請求與 Ephemeral 次數的明確定義
 - 中斷續傳與重試
-- 避免把整個密文轉成 Base64 後放入 JSON
+- 避免把整個密文轉成 Base64 後放入 JSON；優先採用 `multipart/form-data` 原始二進位上傳，或定義 chunked binary upload。Base64 會增加約三分之一傳輸量，並同時放大瀏覽器與 PHP 記憶體需求。
 
 ## 金鑰輪替
 
@@ -136,7 +139,7 @@ POST /api.php?action=seal_cleanup
 - 資料庫與物件儲存只看得到密文。
 - API log、PHP error log 與分析資料不包含 Key A、Key B 或完整 Seal URL fragment。
 - 解鎖前所有 API response 均不包含密文與 Key B。
-- 伺服器本機時間變更不會繞過解鎖條件；判斷使用受信任的伺服器時間來源。
+- 單機部署以受保護的主機系統時間作為時間根信任，並在部署文件中要求 NTP 與主機權限控管。若產品需要抵抗主機管理者或系統時鐘被竄改，必須另行導入外部簽章時間服務或 RFC 3161 timestamp authority；PHP `time()` 本身無法提供此保證。
 - Key B 包裝失敗時建立流程完整 rollback，不留下孤立密文物件。
 - Ephemeral 並行請求不會超過 `max_views`。
 - Burn、清理、金鑰輪替都有可重現的整合測試。

@@ -8,6 +8,11 @@ if (empty($_SESSION['loggedin'])) {
     exit;
 }
 
+if (empty($_SESSION['seal_csrf_token'])) {
+    $_SESSION['seal_csrf_token'] = bin2hex(random_bytes(32));
+}
+$sealCsrfToken = $_SESSION['seal_csrf_token'];
+
 require_once '../config/database.php';
 require_once '../config/seal.php';
 
@@ -97,6 +102,7 @@ $seals = $pdo->query(
                         <span class="muted">模式：<?= htmlspecialchars($seal['mode']) ?>／狀態：<?= htmlspecialchars(getSealState($seal)) ?></span>
                         <span class="muted">解鎖時間：<?= htmlspecialchars(date('Y-m-d H:i:s', (int)$seal['unlock_at'])) ?></span>
                         <a class="seal-link" href="<?= htmlspecialchars(buildSealUrl($seal['seal_token'], $config)) ?>" target="_blank" rel="noopener">開啟公開 Seal 頁面</a>
+                        <button type="button" class="revoke-seal" data-seal-id="<?= (int)$seal['id'] ?>">解除 Seal（保留資產）</button>
                     </div>
                 <?php endforeach; ?>
             <?php endif; ?>
@@ -122,6 +128,7 @@ $seals = $pdo->query(
         const payload = new URLSearchParams();
         payload.set('asset_id', form.get('asset_id'));
         payload.set('mode', form.get('mode'));
+        payload.set('csrf_token', <?= json_encode($sealCsrfToken) ?>);
         if (form.get('mode') === 'timed') {
             payload.set('unlock_at', String(Math.floor(new Date(form.get('unlock_at')).getTime() / 1000)));
         } else if (form.get('mode') === 'dms') {
@@ -146,8 +153,26 @@ $seals = $pdo->query(
         }
     });
 
+    document.querySelectorAll('.revoke-seal').forEach((button) => {
+        button.addEventListener('click', async () => {
+            if (!window.confirm('解除 Seal 後，資產會恢復公開。確定繼續？')) return;
+            const payload = new URLSearchParams({
+                seal_id: button.dataset.sealId,
+                csrf_token: <?= json_encode($sealCsrfToken) ?>
+            });
+            try {
+                const response = await fetch('/api.php?action=seal_revoke', { method: 'POST', body: payload });
+                const body = await response.json();
+                if (!response.ok || body.result !== 'success') throw new Error(body.message || '解除失敗');
+                window.location.reload();
+            } catch (error) {
+                window.alert(error.message);
+            }
+        });
+    });
+
     // Pulse and Burn are intentionally handled by /seal.php?pulse=... so the private token stays out of the list page.
-    const phaseOneActions = ['seal_pulse', 'seal_burn'];
+    const phaseOneActions = ['seal_pulse', 'seal_burn', 'seal_revoke'];
     void phaseOneActions;
 </script>
 </body>

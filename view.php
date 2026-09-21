@@ -249,6 +249,7 @@ try {
             http_response_code((int)($sealDecision['code'] ?? 403));
             exit('此 Seal 尚未開放或已達使用上限');
         }
+        scheduleEphemeralAssetDeletion($pdo, $asset, $sealDecision);
     }
 
     if ($isAuthorized && isset($_GET['pdf_inline'])) {
@@ -267,7 +268,7 @@ try {
 
 // 判定資源類型
 $url = $activeSeal
-    ? buildSealedAssetDeliveryUrl($asset)
+    ? ($sealState === 'unlocked' ? buildSealedAssetDeliveryUrl($asset) : '')
     : getAssetPublicUrl($asset, $config);
 $shareUrl = buildAssetShareUrl($asset, $config);
 $shareUrl = $activeSeal ? buildSealUrl($activeSeal['seal_token'], $config) : $shareUrl;
@@ -309,7 +310,10 @@ if (function_exists('mb_substr')) {
 }
 $defaultOgImage = $siteUrl . '/static/og-image.png?v=30f0c30';
 $ogImage = $defaultOgImage;
-if ($type === 'image' && empty($asset['password']) && preg_match('/\.(jpe?g|png|gif|webp)$/i', $asset['path'] ?? '')) {
+if ((!$activeSeal || $sealState === 'unlocked')
+    && $type === 'image'
+    && empty($asset['password'])
+    && preg_match('/\.(jpe?g|png|gif|webp)$/i', $asset['path'] ?? '')) {
     $ogImage = $url;
 }
 $jsonLd = [

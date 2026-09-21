@@ -283,6 +283,10 @@ try {
             handleSealBurn($pdo);
             break;
 
+        case 'seal_revoke':
+            handleSealRevoke($pdo);
+            break;
+
         case 'seal_cleanup':
             handleSealCleanup($pdo);
             break;
@@ -636,10 +640,25 @@ function sealError($code, $message) {
     respondAndExit(['result' => 'error', 'code' => $code, 'message' => $message]);
 }
 
+function requireSealAdmin($checkCsrf = true) {
+    if (empty($_SESSION['loggedin'])) {
+        sealError(403, 'Seal 管理需要管理員登入');
+    }
+
+    if ($checkCsrf) {
+        $expected = (string)($_SESSION['seal_csrf_token'] ?? '');
+        $provided = (string)($_POST['csrf_token'] ?? '');
+        if ($expected === '' || $provided === '' || !hash_equals($expected, $provided)) {
+            sealError(403, 'Seal 請求驗證失敗');
+        }
+    }
+}
+
 function handleSealCreate($pdo, $config) {
     if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
         sealError(405, 'Seal 建立必須使用 POST');
     }
+    requireSealAdmin();
 
     $assetId = (int)($_POST['asset_id'] ?? 0);
     $mode = strtolower(trim((string)($_POST['mode'] ?? '')));
@@ -650,7 +669,7 @@ function handleSealCreate($pdo, $config) {
         sealError(400, '資產 ID 或 Seal 模式無效');
     }
 
-    $assetStmt = $pdo->prepare('SELECT id, share_token FROM images WHERE id = ? LIMIT 1');
+    $assetStmt = $pdo->prepare('SELECT id, share_token, is_video, is_audio FROM images WHERE id = ? LIMIT 1');
     $assetStmt->execute([$assetId]);
     $asset = $assetStmt->fetch(PDO::FETCH_ASSOC);
     if (!$asset) {
@@ -682,6 +701,9 @@ function handleSealCreate($pdo, $config) {
             sealError(400, '最大瀏覽次數必須介於 1 與 100');
         }
         $unlockAt = $now;
+        if ((int)$asset['is_video'] === 1 || (int)$asset['is_audio'] === 1) {
+            sealError(400, '閱後即焚目前只支援圖片與文件，影片及音訊請使用定時或 DMS Seal');
+        }
     }
 
     $sealToken = generateSealToken();
@@ -798,20 +820,38 @@ function handleSealBurn($pdo) {
         sealError(404, 'Pulse Token 無效');
     }
 
-    $stmt = $pdo->prepare(
-        'UPDATE seals SET burned_at = ?, updated_at = ?, cleanup_at = ?
-         WHERE id = ? AND burned_at IS NULL'
-    );
-    $now = time();
-    $stmt->execute([$now, $now, $now, (int)$seal['id']]);
-    if ($stmt->rowCount() !== 1) {
-        sealError(409, 'Seal 已經被銷毀');
+    if (getSealState($seal) !== 'locked') {
+        sealError(409, 'Seal 已解鎖，無法執行 Burn');
     }
 
-    respondAndExit(['result' => 'success', 'code' => 200, 'data' => ['message' => 'Seal 已銷毀']]);
+    require_once __DIR__ . '/config/delete.php';
+    if (!deleteAsset($pdo, (int)$seal['asset_id'])) {
+        sealError(500, 'Seal 銷毀失敗，資產仍然保留');
+    }
+
+    respondAndExit(['result' => 'success', 'code' => 200, 'data' => ['message' => 'Seal 與資產已銷毀']]);
+}
+
+function handleSealRevoke($pdo) {
+    requireSealAdmin();
+    $sealId = (int)($_POST['seal_id'] ?? 0);
+    if ($sealId <= 0) {
+        sealError(400, 'Seal ID 無效');
+    }
+
+    $stmt = $pdo->prepare('DELETE FROM seals WHERE id = ?');
+    $stmt->execute([$sealId]);
+    if ($stmt->rowCount() !== 1) {
+        sealError(404, '找不到 Seal');
+    }
+
+    respondAndExit(['result' => 'success', 'code' => 200, 'data' => ['message' => 'Seal 已解除，資產保留']]);
 }
 
 function handleSealCleanup($pdo) {
+    if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+        sealError(405, 'Seal cleanup 必須使用 POST');
+    }
     $isAdmin = !empty($_SESSION['loggedin']);
     $authHeader = $_SERVER['HTTP_AUTHORIZATION'] ?? '';
     $providedToken = '';
@@ -823,7 +863,9 @@ function handleSealCleanup($pdo) {
         && $providedToken !== ''
         && hash_equals($configuredToken, $providedToken);
 
-    if (!$isAdmin && !$hasValidToken) {
+    if ($isAdmin) {
+        requireSealAdmin();
+    } elseif (!$hasValidToken) {
         sealError(403, 'Seal cleanup 權限不足');
     }
 

@@ -138,23 +138,35 @@ function getSealAccessDecision($pdo, $asset) {
     }
 
     if ($seal['mode'] === SEAL_MODE_EPHEMERAL) {
-        $sessionKey = 'seal_delivery_' . (int)$seal['id'];
-        if (empty($_SESSION[$sessionKey])) {
-            if (!recordSealView($pdo, $seal['id'])) {
-                return ['allowed' => false, 'seal' => $seal, 'state' => 'exhausted', 'code' => 410];
-            }
-            $_SESSION[$sessionKey] = time();
-            $seal['view_count'] = (int)$seal['view_count'] + 1;
+        if (!recordSealView($pdo, $seal['id'])) {
+            return ['allowed' => false, 'seal' => $seal, 'state' => 'exhausted', 'code' => 410];
         }
+        $seal['view_count'] = (int)$seal['view_count'] + 1;
+        $seal['should_delete'] = $seal['max_views'] !== null
+            && $seal['view_count'] >= (int)$seal['max_views'];
     }
 
     return ['allowed' => true, 'seal' => $seal, 'state' => 'unlocked'];
 }
 
+function scheduleEphemeralAssetDeletion($pdo, $asset, $decision) {
+    if (empty($decision['should_delete']) && empty($decision['seal']['should_delete'])) {
+        return;
+    }
+
+    register_shutdown_function(static function () use ($pdo, $asset) {
+        require_once __DIR__ . '/delete.php';
+        deleteAsset($pdo, (int)$asset['id']);
+    });
+}
+
 function cleanupExpiredSeals($pdo, $now = null) {
     $now = $now ?? time();
     $stmt = $pdo->prepare(
-        'DELETE FROM seals WHERE cleanup_at IS NOT NULL AND cleanup_at <= ?'
+        "DELETE FROM seals
+         WHERE cleanup_at IS NOT NULL
+           AND cleanup_at <= ?
+           AND mode != 'ephemeral'"
     );
     $stmt->execute([$now]);
     return $stmt->rowCount();
