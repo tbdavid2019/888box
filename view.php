@@ -3,6 +3,7 @@ session_start();
 require_once 'config/database.php';
 require_once 'config/theme_helper.php';
 require_once 'config/upload.php';
+require_once 'config/seal.php';
 
 const TEXT_PREVIEW_EXTENSIONS = ['txt', 'md', 'json', 'csv', 'log', 'yaml', 'yml'];
 const TEXT_PREVIEW_MAX_BYTES = 2 * 1024 * 1024;
@@ -190,6 +191,12 @@ try {
         exit("找不到該資源");
     }
 
+    cleanupExpiredSeals($pdo);
+    $activeSeal = getActiveSealForAsset($pdo, (int)$asset['id']);
+    $sealState = $activeSeal ? getSealState($activeSeal) : null;
+    $sealLocked = $sealState === 'locked';
+    $sealExhausted = $sealState === 'exhausted';
+
     // 內部統一用 id 作會話鍵（已知專屬）
     $id = $asset['id'];
     
@@ -206,6 +213,15 @@ try {
         } else {
             $error = "密碼錯誤";
         }
+    }
+
+    if ($sealLocked || $sealExhausted) {
+        $isAuthorized = false;
+    }
+
+    if (($sealLocked || $sealExhausted) && ($inlineMode !== '' || isset($_GET['pdf_inline']))) {
+        http_response_code($sealExhausted ? 410 : 423);
+        exit('此 Seal 尚未開放或已達使用上限');
     }
     
     // 3. 只接受瀏覽器首次標記後的 POST 計數請求。
@@ -227,6 +243,14 @@ try {
         exit;
     }
 
+    if ($isAuthorized && $activeSeal && (isset($_GET['pdf_inline']) || $inlineMode !== '')) {
+        $sealDecision = getSealAccessDecision($pdo, $asset);
+        if (!$sealDecision['allowed']) {
+            http_response_code((int)($sealDecision['code'] ?? 403));
+            exit('此 Seal 尚未開放或已達使用上限');
+        }
+    }
+
     if ($isAuthorized && isset($_GET['pdf_inline'])) {
         outputInlinePdf($asset, $config);
     }
@@ -242,10 +266,13 @@ try {
 }
 
 // 判定資源類型
-$url = getAssetPublicUrl($asset, $config);
+$url = $activeSeal
+    ? buildSealedAssetDeliveryUrl($asset)
+    : getAssetPublicUrl($asset, $config);
 $shareUrl = buildAssetShareUrl($asset, $config);
+$shareUrl = $activeSeal ? buildSealUrl($activeSeal['seal_token'], $config) : $shareUrl;
 $mime = $asset['mime_type'] ?: '';
-$ext = strtolower(pathinfo($url, PATHINFO_EXTENSION));
+$ext = strtolower(pathinfo($asset['path'] ?: $url, PATHINFO_EXTENSION));
 
 $type = 'other';
 if ($asset['is_audio'] == 1 || strpos($mime, 'audio/') !== false || in_array($ext, ['mp3', 'wav', 'aac', 'ogg', 'm4a', 'flac'])) {
@@ -1266,7 +1293,20 @@ $jsonLd = [
         </div>
     </div>
     <div class="view-container">
-        <?php if (!$isAuthorized): ?>
+        <?php if ($sealLocked): ?>
+            <div class="password-gate seal-gate">
+                <div style="margin-bottom: 20px; display: flex; justify-content: center;"><i data-lucide="hourglass" style="width: 52px; height: 52px; color: #7aa2f7;"></i></div>
+                <h2 style="margin-bottom: 12px;">此 Seal 尚未解鎖</h2>
+                <p>預計解鎖時間：<?= htmlspecialchars(date('Y-m-d H:i:s', (int)$activeSeal['unlock_at'])) ?></p>
+                <p id="seal-countdown" data-unlock-at="<?= (int)$activeSeal['unlock_at'] ?>">正在計算剩餘時間…</p>
+            </div>
+        <?php elseif ($sealExhausted): ?>
+            <div class="password-gate seal-gate">
+                <div style="margin-bottom: 20px; display: flex; justify-content: center;"><i data-lucide="flame" style="width: 52px; height: 52px; color: #ff7a90;"></i></div>
+                <h2 style="margin-bottom: 12px;">此 Seal 已達瀏覽上限</h2>
+                <p>內容已停止提供。</p>
+            </div>
+        <?php elseif (!$isAuthorized): ?>
             <div class="password-gate">
                 <div style="margin-bottom: 20px; display: flex; justify-content: center;"><i data-lucide="lock" style="width: 52px; height: 52px; color: #7aa2f7;"></i></div>
                 <h2 style="margin-bottom: 20px;" data-i18n="passwordProtected">此資源受密碼保護</h2>
@@ -1482,6 +1522,22 @@ $jsonLd = [
 
     <script src="/static/js/lucide.min.js"></script>
     <script>
+        const sealCountdown = document.getElementById('seal-countdown');
+        if (sealCountdown) {
+            const unlockAt = Number(sealCountdown.dataset.unlockAt) * 1000;
+            const updateSealCountdown = () => {
+                const remaining = Math.max(0, unlockAt - Date.now());
+                const totalSeconds = Math.ceil(remaining / 1000);
+                const days = Math.floor(totalSeconds / 86400);
+                const hours = Math.floor((totalSeconds % 86400) / 3600);
+                const minutes = Math.floor((totalSeconds % 3600) / 60);
+                const seconds = totalSeconds % 60;
+                sealCountdown.textContent = `${days} 天 ${hours} 小時 ${minutes} 分 ${seconds} 秒`;
+                if (remaining <= 0) window.location.reload();
+            };
+            updateSealCountdown();
+            window.setInterval(updateSealCountdown, 1000);
+        }
         const embedTemplates = {
             share: <?= json_encode($shareUrl) ?>,
             url: <?= json_encode($url) ?>,

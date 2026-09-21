@@ -28,6 +28,7 @@ RewriteRule ^mcp$ mcp.php [L,QSA]
 # ── Pretty Short Share URLs: /v/{token} & /s/{token} ───────────
 RewriteRule ^v/([a-zA-Z0-9_-]+)$ view.php?token=$1 [L,QSA]
 RewriteRule ^s/([a-zA-Z0-9_-]+)$ view.php?token=$1 [L,QSA]
+RewriteRule ^seal/([a-zA-Z0-9_-]+)$ seal.php?token=$1 [L,QSA]
 
 # ── .well-known/api-catalog ───────────────────────────────────
 # Serve without extension, with correct Content-Type

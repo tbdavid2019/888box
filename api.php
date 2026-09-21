@@ -8,6 +8,7 @@ require_once 'config/upload.php';
 require_once 'config/cors.php';
 require_once 'config/security.php';
 require_once 'config/turnstile.php';
+require_once 'config/seal.php';
 
 // 初始化
 $db = Database::getInstance();
@@ -198,6 +199,11 @@ function setCorsHeaders() {
 function isPublicActionAllowed($action) {
     global $config;
 
+    $sealActions = ['seal_status', 'seal_pulse', 'seal_burn', 'seal_cleanup'];
+    if (in_array($action, $sealActions, true)) {
+        return true;
+    }
+
     $publicActions = ['upload', 'upload_url', 'stats'];
     if (!in_array($action, $publicActions, true)) {
         return false;
@@ -259,6 +265,26 @@ try {
                 respondAndExit(['result' => 'error', 'code' => 403, 'message' => $turnstileCheck['message']]);
             }
             handleUploadFromUrl($pdo, $config);
+            break;
+
+        case 'seal_create':
+            handleSealCreate($pdo, $config);
+            break;
+
+        case 'seal_status':
+            handleSealStatus($pdo, $config);
+            break;
+
+        case 'seal_pulse':
+            handleSealPulse($pdo, $config);
+            break;
+
+        case 'seal_burn':
+            handleSealBurn($pdo);
+            break;
+
+        case 'seal_cleanup':
+            handleSealCleanup($pdo);
             break;
 
         default:
@@ -595,6 +621,214 @@ function handleUnifiedSearch($pdo, $query) {
         'data' => $assets,
         'query' => $query
     ]);
+}
+
+function parseSealTimestamp($value) {
+    if (is_numeric($value)) {
+        return (int)$value;
+    }
+
+    $timestamp = strtotime((string)$value);
+    return $timestamp === false ? 0 : $timestamp;
+}
+
+function sealError($code, $message) {
+    respondAndExit(['result' => 'error', 'code' => $code, 'message' => $message]);
+}
+
+function handleSealCreate($pdo, $config) {
+    if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+        sealError(405, 'Seal 建立必須使用 POST');
+    }
+
+    $assetId = (int)($_POST['asset_id'] ?? 0);
+    $mode = strtolower(trim((string)($_POST['mode'] ?? '')));
+    $now = time();
+    $maxDurationDays = max(1, getSealConfigInt($config, 'seal_max_duration_days', 30));
+
+    if ($assetId <= 0 || !validateSealMode($mode)) {
+        sealError(400, '資產 ID 或 Seal 模式無效');
+    }
+
+    $assetStmt = $pdo->prepare('SELECT id, share_token FROM images WHERE id = ? LIMIT 1');
+    $assetStmt->execute([$assetId]);
+    $asset = $assetStmt->fetch(PDO::FETCH_ASSOC);
+    if (!$asset) {
+        sealError(404, '找不到指定資產');
+    }
+
+    cleanupExpiredSeals($pdo, $now);
+    if (getActiveSealForAsset($pdo, $assetId)) {
+        sealError(409, '此資產已有使用中的 Seal');
+    }
+
+    $pulseInterval = null;
+    $maxViews = null;
+    if ($mode === SEAL_MODE_TIMED) {
+        $unlockAt = parseSealTimestamp($_POST['unlock_at'] ?? 0);
+        $maxUnlockAt = $now + $maxDurationDays * 24 * 60 * 60;
+        if ($unlockAt < $now + SEAL_MIN_UNLOCK_DELAY || $unlockAt > $maxUnlockAt) {
+            sealError(400, "解鎖時間必須介於 {$maxDurationDays} 天內，且至少提前 1 分鐘");
+        }
+    } elseif ($mode === SEAL_MODE_DMS) {
+        $pulseInterval = (int)($_POST['pulse_interval'] ?? 0);
+        if ($pulseInterval < SEAL_MIN_PULSE_INTERVAL || $pulseInterval > SEAL_MAX_PULSE_INTERVAL) {
+            sealError(400, 'Pulse 間隔必須介於 5 分鐘與 30 天');
+        }
+        $unlockAt = $now + $pulseInterval;
+    } else {
+        $maxViews = (int)($_POST['max_views'] ?? 1);
+        if ($maxViews < 1 || $maxViews > 100) {
+            sealError(400, '最大瀏覽次數必須介於 1 與 100');
+        }
+        $unlockAt = $now;
+    }
+
+    $sealToken = generateSealToken();
+    $pulseToken = $mode === SEAL_MODE_DMS ? generateSealPulseToken() : null;
+    $retentionAt = $mode === SEAL_MODE_EPHEMERAL
+        ? null
+        : $unlockAt + getSealRetentionSeconds($config);
+
+    try {
+        $stmt = $pdo->prepare(
+            'INSERT INTO seals
+             (asset_id, seal_token, mode, unlock_at, pulse_interval, last_pulse_at,
+              pulse_token_hash, max_views, view_count, created_at, updated_at, cleanup_at)
+             VALUES (?, ?, ?, ?, ?, ?, ?, ?, 0, ?, ?, ?)'
+        );
+        $stmt->execute([
+            $assetId,
+            $sealToken,
+            $mode,
+            $unlockAt,
+            $pulseInterval,
+            $mode === SEAL_MODE_DMS ? $now : null,
+            $pulseToken ? hashSealToken($pulseToken) : null,
+            $maxViews,
+            $now,
+            $now,
+            $retentionAt
+        ]);
+    } catch (PDOException $e) {
+        sealError(409, 'Seal 建立失敗，資產可能已有使用中的 Seal');
+    }
+
+    $response = [
+        'id' => (int)$pdo->lastInsertId(),
+        'mode' => $mode,
+        'public_url' => buildSealUrl($sealToken, $config),
+        'unlock_at' => $unlockAt,
+        'status' => $mode === SEAL_MODE_EPHEMERAL ? 'unlocked' : 'locked'
+    ];
+    if ($pulseToken) {
+        $response['pulse_url'] = buildSealPulseUrl($pulseToken, $config);
+        $response['pulse_token'] = $pulseToken;
+    }
+
+    respondAndExit(['result' => 'success', 'code' => 200, 'data' => $response]);
+}
+
+function handleSealStatus($pdo, $config) {
+    cleanupExpiredSeals($pdo);
+    $token = trim((string)($_GET['token'] ?? $_POST['token'] ?? ''));
+    $seal = findSealByToken($pdo, $token);
+    if (!$seal) {
+        sealError(404, 'Seal 不存在');
+    }
+
+    $payload = getSealStatusPayload($seal);
+    $payload['public_url'] = buildSealUrl($seal['seal_token'], $config);
+    respondAndExit(['result' => 'success', 'code' => 200, 'data' => $payload]);
+}
+
+function handleSealPulse($pdo, $config) {
+    $pulseToken = trim((string)($_POST['pulse_token'] ?? ''));
+    $seal = findSealByPulseToken($pdo, $pulseToken);
+    if (!$seal || $seal['mode'] !== SEAL_MODE_DMS) {
+        sealError(404, 'Pulse Token 無效');
+    }
+
+    if (getSealState($seal) !== 'locked') {
+        sealError(409, 'Seal 已解鎖或已失效，無法重設 Pulse');
+    }
+
+    $newInterval = isset($_POST['new_interval']) ? (int)$_POST['new_interval'] : (int)$seal['pulse_interval'];
+    if ($newInterval < SEAL_MIN_PULSE_INTERVAL || $newInterval > SEAL_MAX_PULSE_INTERVAL) {
+        sealError(400, 'Pulse 間隔必須介於 5 分鐘與 30 天');
+    }
+
+    $now = time();
+    $newUnlockAt = $now + $newInterval;
+    $stmt = $pdo->prepare(
+        'UPDATE seals
+         SET pulse_interval = ?, last_pulse_at = ?, unlock_at = ?,
+             updated_at = ?, cleanup_at = ?
+         WHERE id = ? AND burned_at IS NULL AND unlock_at > ?'
+    );
+    $stmt->execute([
+        $newInterval,
+        $now,
+        $newUnlockAt,
+        $now,
+        $newUnlockAt + getSealRetentionSeconds($config),
+        (int)$seal['id'],
+        $now
+    ]);
+
+    if ($stmt->rowCount() !== 1) {
+        sealError(409, 'Seal 狀態已變更，Pulse 未套用');
+    }
+
+    respondAndExit([
+        'result' => 'success',
+        'code' => 200,
+        'data' => [
+            'new_unlock_at' => $newUnlockAt,
+            'pulse_interval' => $newInterval,
+            'message' => 'Pulse 已更新'
+        ]
+    ]);
+}
+
+function handleSealBurn($pdo) {
+    $pulseToken = trim((string)($_POST['pulse_token'] ?? ''));
+    $seal = findSealByPulseToken($pdo, $pulseToken);
+    if (!$seal || $seal['mode'] !== SEAL_MODE_DMS) {
+        sealError(404, 'Pulse Token 無效');
+    }
+
+    $stmt = $pdo->prepare(
+        'UPDATE seals SET burned_at = ?, updated_at = ?, cleanup_at = ?
+         WHERE id = ? AND burned_at IS NULL'
+    );
+    $now = time();
+    $stmt->execute([$now, $now, $now, (int)$seal['id']]);
+    if ($stmt->rowCount() !== 1) {
+        sealError(409, 'Seal 已經被銷毀');
+    }
+
+    respondAndExit(['result' => 'success', 'code' => 200, 'data' => ['message' => 'Seal 已銷毀']]);
+}
+
+function handleSealCleanup($pdo) {
+    $isAdmin = !empty($_SESSION['loggedin']);
+    $authHeader = $_SERVER['HTTP_AUTHORIZATION'] ?? '';
+    $providedToken = '';
+    if (preg_match('/Bearer\s+(.*)$/i', $authHeader, $matches)) {
+        $providedToken = trim($matches[1]);
+    }
+    $configuredToken = trim((string)($_ENV['SEAL_CLEANUP_TOKEN'] ?? ''));
+    $hasValidToken = $configuredToken !== ''
+        && $providedToken !== ''
+        && hash_equals($configuredToken, $providedToken);
+
+    if (!$isAdmin && !$hasValidToken) {
+        sealError(403, 'Seal cleanup 權限不足');
+    }
+
+    $deleted = cleanupExpiredSeals($pdo);
+    respondAndExit(['result' => 'success', 'code' => 200, 'data' => ['deleted' => $deleted]]);
 }
 
 /**

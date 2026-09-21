@@ -8,6 +8,7 @@
 session_start();
 require_once 'config/database.php';
 require_once 'config/upload.php';
+require_once 'config/seal.php';
 
 use Aws\S3\S3Client;
 
@@ -91,7 +92,7 @@ function sendStorageHeaders($asset, $contentType, $contentLength, $range = null)
     header('X-Content-Type-Options: nosniff');
     header('Content-Disposition: inline; filename="' . addcslashes(safeAssetFileName($asset['path'] ?? ''), '"\\') . '"');
 
-    if (!empty($asset['password'])) {
+    if (!empty($asset['password']) || !empty($asset['_sealed'])) {
         header('Cache-Control: private, no-store');
     } else {
         header('Cache-Control: public, max-age=31536000, immutable');
@@ -262,6 +263,14 @@ try {
     $isAdmin = !empty($_SESSION['loggedin']);
     if (!empty($asset['password']) && empty($_SESSION[$sessionKey]) && !$isAdmin) {
         failStorageRequest(403, 'This asset requires a password');
+    }
+
+    $sealDecision = getSealAccessDecision($pdo, $asset);
+    if (!$sealDecision['allowed']) {
+        failStorageRequest((int)($sealDecision['code'] ?? 403), 'This asset is sealed and is not currently available');
+    }
+    if ($sealDecision['seal']) {
+        $asset['_sealed'] = true;
     }
     session_write_close();
 
