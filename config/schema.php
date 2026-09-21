@@ -34,6 +34,23 @@ function getCoreTableSql() {
             value TEXT,
             description VARCHAR(255),
             created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+        )",
+        'seals' => "CREATE TABLE IF NOT EXISTS seals (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            asset_id INTEGER NOT NULL,
+            seal_token VARCHAR(64) NOT NULL UNIQUE,
+            mode VARCHAR(20) NOT NULL,
+            unlock_at INTEGER NOT NULL,
+            pulse_interval INTEGER DEFAULT NULL,
+            last_pulse_at INTEGER DEFAULT NULL,
+            pulse_token_hash VARCHAR(64) DEFAULT NULL,
+            max_views INTEGER DEFAULT NULL,
+            view_count INTEGER NOT NULL DEFAULT 0,
+            created_at INTEGER NOT NULL,
+            updated_at INTEGER NOT NULL,
+            burned_at INTEGER DEFAULT NULL,
+            cleanup_at INTEGER DEFAULT NULL,
+            FOREIGN KEY (asset_id) REFERENCES images(id) ON DELETE CASCADE
         )"
     ];
 }
@@ -51,6 +68,14 @@ function getCoreImageColumns() {
         'is_audio' => 'INTEGER DEFAULT 0',
         'share_token' => 'VARCHAR(32) NULL'
     ];
+}
+
+function ensureSealIndexes($pdo) {
+    $pdo->exec('CREATE INDEX IF NOT EXISTS idx_seals_asset_id ON seals(asset_id)');
+    $pdo->exec('CREATE INDEX IF NOT EXISTS idx_seals_unlock_at ON seals(unlock_at)');
+    $pdo->exec('CREATE INDEX IF NOT EXISTS idx_seals_cleanup_at ON seals(cleanup_at)');
+    $pdo->exec('CREATE INDEX IF NOT EXISTS idx_seals_pulse_token_hash ON seals(pulse_token_hash)');
+    $pdo->exec('CREATE UNIQUE INDEX IF NOT EXISTS idx_seals_one_active_per_asset ON seals(asset_id) WHERE burned_at IS NULL');
 }
 
 function getVideoAssetConditionSql() {
@@ -124,7 +149,9 @@ function getCoreConfigDefaults($siteUrl) {
         'turnstile_site_key' => ['', 'Turnstile Site Key (公鑰)'],
         'turnstile_secret_key' => ['', 'Turnstile Secret Key (密鑰)'],
         'turnstile_protect_login' => ['true', 'Turnstile 保護後台登入/重設'],
-        'turnstile_protect_upload' => ['false', 'Turnstile 保護公開網頁上傳']
+        'turnstile_protect_upload' => ['false', 'Turnstile 保護公開網頁上傳'],
+        'seal_max_duration_days' => ['30', 'Seal 最長等待天數'],
+        'seal_retention_days' => ['30', 'Seal 解鎖後保留天數']
     ];
 }
 
@@ -208,6 +235,7 @@ function backfillShareTokens($pdo) {
 
 function ensureCoreSchema($pdo) {
     createCoreTables($pdo);
+    ensureSealIndexes($pdo);
     normalizeConfigsTable($pdo);
     ensureColumns($pdo, 'images', getCoreImageColumns());
     backfillAssetFlags($pdo);
