@@ -275,6 +275,10 @@ try {
             handleSealStatus($pdo, $config);
             break;
 
+        case 'seal_admin_status':
+            handleSealAdminStatus($pdo, $config);
+            break;
+
         case 'seal_pulse':
             handleSealPulse($pdo, $config);
             break;
@@ -760,6 +764,25 @@ function handleSealStatus($pdo, $config) {
     }
 
     $payload = getSealStatusPayload($seal);
+    $payload['public_url'] = buildSealUrl($seal['seal_token'], $config);
+    respondAndExit(['result' => 'success', 'code' => 200, 'data' => $payload]);
+}
+
+function handleSealAdminStatus($pdo, $config) {
+    requireSealAdmin(false);
+    $assetId = (int)($_GET['asset_id'] ?? $_POST['asset_id'] ?? 0);
+    if ($assetId <= 0) {
+        sealError(400, '資產 ID 無效');
+    }
+
+    cleanupExpiredSeals($pdo);
+    $seal = getActiveSealForAsset($pdo, $assetId);
+    if (!$seal) {
+        respondAndExit(['result' => 'success', 'code' => 200, 'data' => ['exists' => false]]);
+    }
+
+    $payload = getSealStatusPayload($seal);
+    $payload['exists'] = true;
     $payload['public_url'] = buildSealUrl($seal['seal_token'], $config);
     respondAndExit(['result' => 'success', 'code' => 200, 'data' => $payload]);
 }

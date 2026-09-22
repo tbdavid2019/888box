@@ -8,6 +8,16 @@ const SEAL_MAX_PULSE_INTERVAL = 30 * 24 * 60 * 60;
 const SEAL_MIN_UNLOCK_DELAY = 60;
 const SEAL_DEFAULT_RETENTION_DAYS = 30;
 
+function ensureSealCsrfToken() {
+    if (session_status() !== PHP_SESSION_ACTIVE) {
+        session_start();
+    }
+    if (empty($_SESSION['seal_csrf_token'])) {
+        $_SESSION['seal_csrf_token'] = bin2hex(random_bytes(32));
+    }
+    return $_SESSION['seal_csrf_token'];
+}
+
 function getSealModes() {
     return [SEAL_MODE_TIMED, SEAL_MODE_DMS, SEAL_MODE_EPHEMERAL];
 }
@@ -60,6 +70,18 @@ function getActiveSealForAsset($pdo, $assetId) {
     );
     $stmt->execute([(int)$assetId]);
     return $stmt->fetch(PDO::FETCH_ASSOC) ?: null;
+}
+
+function getActiveSealMap($pdo) {
+    $rows = $pdo->query('SELECT * FROM seals WHERE burned_at IS NULL ORDER BY id DESC')->fetchAll(PDO::FETCH_ASSOC);
+    $map = [];
+    foreach ($rows as $row) {
+        $assetId = (int)$row['asset_id'];
+        if (!isset($map[$assetId])) {
+            $map[$assetId] = $row;
+        }
+    }
+    return $map;
 }
 
 function findSealByToken($pdo, $token) {

@@ -8,6 +8,7 @@ if (!isset($_SESSION['loggedin']) || !$_SESSION['loggedin']) {
 }
 
 require_once '../config/database.php';
+require_once '../config/seal.php';
 require_once '../config/rss.php';
 require_once '../config/theme_helper.php';
 require_once '../config/admin_ui.php';
@@ -15,6 +16,8 @@ require_once '../config/admin_ui.php';
 $db = Database::getInstance();
 $pdo = $db->getConnection();
 $config = Database::getConfig($pdo);
+$sealCsrfToken = ensureSealCsrfToken();
+$activeSeals = getActiveSealMap($pdo);
 $audioRssUrl = buildRssUrl('audio', $config, true);
 
 // 撈取音訊
@@ -35,6 +38,8 @@ unset($audio);
     <title>音訊管理後台 - 888 BOX</title>
     <link rel="shortcut icon" href="/static/favicon.svg">
     <link rel="stylesheet" href="/static/css/admin/shared.css?v=<?php echo time(); ?>">
+    <link rel="stylesheet" href="/static/css/admin/seal-controls.css?v=<?php echo time(); ?>">
+    <meta name="seal-csrf-token" content="<?= htmlspecialchars($sealCsrfToken, ENT_QUOTES, 'UTF-8') ?>">
     <?php renderThemeStyles($pdo); ?>
     <style>
         body { background: radial-gradient(circle at top, rgba(122, 162, 247, 0.14), transparent 32%), linear-gradient(180deg, #1f2335 0%, #1a1b26 42%, #16161e 100%); color: #c0caf5; font-family: var(--font-ui); margin: 0; padding: 20px; }
@@ -68,7 +73,7 @@ unset($audio);
 
         /* Modal Styles */
         .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.8); backdrop-filter: blur(5px); }
-        .modal-content { background-color: #24283b; margin: 10% auto; padding: 30px; border: 1px solid #414868; width: 90%; max-width: 500px; border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.5); }
+        .modal-content { background-color: #24283b; margin: 5vh auto; padding: 30px; border: 1px solid #414868; width: 90%; max-width: 500px; max-height: calc(100vh - 10vh); overflow-y: auto; border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.5); }
         .modal-header { margin-bottom: 20px; font-size: 20px; font-weight: bold; color: #c0caf5; }
         .form-group { margin-bottom: 15px; }
         .form-group label { display: block; margin-bottom: 8px; color: #a9b1d6; }
@@ -124,6 +129,7 @@ unset($audio);
         <?php else: ?>
             <?php foreach ($audios as $audio): ?>
                 <?php $shareUrl = buildAssetShareUrl($audio, $config); ?>
+                <?php $activeSeal = $activeSeals[(int)$audio['id']] ?? null; ?>
                 <div class="video-card" id="audio-<?= $audio['id'] ?>" data-has-password="<?= empty($audio['password']) ? '0' : '1' ?>">
                     <div class="audio-container">
                         <div class="audio-visualizer-icon"><i data-lucide="mic" style="width: 48px; height: 48px; color: #7aa2f7;"></i></div>
@@ -143,6 +149,7 @@ unset($audio);
                             <?php if (!empty($audio['password'])): ?>
                                 <span class="video-badge password">密碼保護中</span>
                             <?php endif; ?>
+                            <?php if ($activeSeal): ?><span class="video-badge" style="background: rgba(187,154,247,.18); color:#bb9af7; border:1px solid rgba(187,154,247,.35);">⏳ Seal</span><?php endif; ?>
                         </div>
                     </div>
                     <div class="actions">
@@ -157,6 +164,7 @@ unset($audio);
     </div>
 
     <?php renderAdminFooter(); ?>
+    <script src="/static/js/admin/seal-controls.js?v=<?php echo time(); ?>"></script>
     <script>
         function openEditModal(id) {
             const card = document.getElementById('audio-' + id);
@@ -172,6 +180,10 @@ unset($audio);
             document.getElementById('editPasswordAction').value = 'keep';
             document.getElementById('editPassword').value = '';
             togglePasswordInput();
+            if (!document.querySelector('#editModal [data-seal-control]')) {
+                document.querySelector('#editModal .modal-actions').insertAdjacentHTML('beforebegin', window.SealControls.template());
+            }
+            window.SealControls.attach(document.querySelector('#editModal [data-seal-control]'), id);
             document.getElementById('editModal').style.display = 'block';
         }
 

@@ -8,11 +8,15 @@ if (!isset($_SESSION['loggedin']) || !$_SESSION['loggedin']) {
 }
 
 require_once '../config/database.php';
+require_once '../config/seal.php';
 require_once '../config/theme_helper.php';
 require_once '../config/admin_ui.php';
 
 $db = Database::getInstance();
 $pdo = $db->getConnection();
+$sealCsrfToken = ensureSealCsrfToken();
+$config = Database::getConfig($pdo);
+$activeSeals = getActiveSealMap($pdo);
 
 // 撈取文件 (排除圖片、影片和音訊，即 is_file = 1)
 $stmt = $pdo->prepare("SELECT * FROM images WHERE is_file = 1 ORDER BY id DESC");
@@ -28,6 +32,8 @@ $files = $stmt->fetchAll(PDO::FETCH_ASSOC);
     <title>文件管理後台 - 888 BOX</title>
     <link rel="shortcut icon" href="/static/favicon.svg">
     <link rel="stylesheet" href="/static/css/admin/shared.css?v=<?php echo time(); ?>">
+    <link rel="stylesheet" href="/static/css/admin/seal-controls.css?v=<?php echo time(); ?>">
+    <meta name="seal-csrf-token" content="<?= htmlspecialchars($sealCsrfToken, ENT_QUOTES, 'UTF-8') ?>">
     <?php renderThemeStyles($pdo); ?>
     <style>
         body { background: radial-gradient(circle at top, rgba(122, 162, 247, 0.14), transparent 32%), linear-gradient(180deg, #1f2335 0%, #1a1b26 42%, #16161e 100%); color: #c0caf5; font-family: var(--font-ui); margin: 0; padding: 20px; }
@@ -49,6 +55,7 @@ $files = $stmt->fetchAll(PDO::FETCH_ASSOC);
         .btn { padding: 8px 16px; border-radius: 6px; border: none; cursor: pointer; font-weight: bold; transition: opacity 0.2s; }
         .btn:hover { opacity: 0.8; }
         .btn-view { background: #7aa2f7; color: #1a1b26; }
+        .btn-seal { background: #bb9af7; color: #1a1b26; }
         .btn-delete { background: #f7768e; color: #1a1b26; }
         .empty-state { text-align: center; color: #7f88b2; padding: 100px; font-size: 1.2rem; }
     </style>
@@ -66,6 +73,7 @@ $files = $stmt->fetchAll(PDO::FETCH_ASSOC);
             <div class="empty-state">尚未上傳任何文件</div>
         <?php else: ?>
             <?php foreach ($files as $file): ?>
+                <?php $activeSeal = $activeSeals[(int)$file['id']] ?? null; ?>
                 <div class="file-item" id="file-<?= $file['id'] ?>">
                     <div class="file-icon"><i data-lucide="file-text" style="width: 28px; height: 28px; color: #7dcfff;"></i></div>
                     <div class="file-info">
@@ -77,6 +85,7 @@ $files = $stmt->fetchAll(PDO::FETCH_ASSOC);
                             <?php if (!empty($file['password'])): ?>
                                 <span class="badge badge-pass">密碼保護</span>
                             <?php endif; ?>
+                            <?php if ($activeSeal): ?><span class="badge" style="background: rgba(187,154,247,.18); color:#bb9af7; border:1px solid rgba(187,154,247,.35);">⏳ Seal</span><?php endif; ?>
                         </h3>
                         <p>
                             大小: <?= number_format($file['size'] / 1024 / 1024, 2) ?> MB | 
@@ -90,6 +99,7 @@ $files = $stmt->fetchAll(PDO::FETCH_ASSOC);
                         <a href="<?= $fileShareUrl ?>" target="_blank" style="text-decoration:none;">
                             <button class="btn btn-view">預覽/分享</button>
                         </a>
+                        <button class="btn btn-seal" onclick="window.SealControls.openStandalone(<?= (int)$file['id'] ?>, <?= htmlspecialchars(json_encode($file['title'] ?: basename($file['path']), JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT), ENT_QUOTES, 'UTF-8') ?>)">設定 Seal</button>
                         <button class="btn btn-delete" onclick="deleteFile(<?= $file['id'] ?>, '<?= htmlspecialchars($file['path']) ?>')">刪除</button>
                     </div>
                 </div>
@@ -98,6 +108,7 @@ $files = $stmt->fetchAll(PDO::FETCH_ASSOC);
     </div>
 
     <?php renderAdminFooter(); ?>
+    <script src="/static/js/admin/seal-controls.js?v=<?php echo time(); ?>"></script>
     <script>
         function deleteFile(id, path) {
             if (!confirm('確定要永久刪除此文件嗎？')) return;

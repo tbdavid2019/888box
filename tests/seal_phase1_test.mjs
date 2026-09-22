@@ -40,7 +40,7 @@ assert(sealHelper.includes('view_count < max_views'), 'ephemeral views must use 
 assert(!sealHelper.includes('seal_delivery_'), 'ephemeral views must not grant unlimited session downloads.');
 
 const api = read('api.php');
-for (const action of ['seal_create', 'seal_status', 'seal_pulse', 'seal_burn', 'seal_revoke', 'seal_cleanup']) {
+for (const action of ['seal_create', 'seal_status', 'seal_admin_status', 'seal_pulse', 'seal_burn', 'seal_revoke', 'seal_cleanup']) {
     assert(api.includes(`'${action}'`), `api.php must route ${action}.`);
 }
 assert(api.includes("if (in_array($action, $sealActions, true))"), 'Seal token actions must remain reachable when login restriction is enabled.');
@@ -63,7 +63,15 @@ const htaccess = read('storage/.htaccess');
 assert(htaccess.includes('get_file.php?path='), 'storage assets must continue through the authorization proxy.');
 
 const adminPage = read('admin/seals.php');
-assert(adminPage.includes('seal_create') && adminPage.includes('seal_pulse') && adminPage.includes('seal_burn') && adminPage.includes('seal_revoke'), 'admin page must expose Seal operations.');
-assert(adminPage.includes('seal_csrf_token'), 'admin page must provision a CSRF token.');
+assert(adminPage.includes("header('Location: /admin/index.php?notice=seal_controls_moved')"), 'legacy admin/seals.php must redirect to asset-local Seal controls.');
+
+for (const adminFile of ['admin/index.php', 'admin/video.php', 'admin/audio.php', 'admin/file.php']) {
+    const adminCode = read(adminFile);
+    assert(adminCode.includes('seal-controls.js'), `${adminFile} must load shared Seal controls.`);
+    assert(adminCode.includes('seal-controls.css'), `${adminFile} must load shared Seal styles.`);
+    assert(adminCode.includes('seal-csrf-token'), `${adminFile} must expose the Seal CSRF token.`);
+}
+const sealControls = read('static/js/admin/seal-controls.js');
+assert(sealControls.includes('seal_admin_status') && sealControls.includes('seal_create') && sealControls.includes('seal_revoke'), 'Shared Seal controls must support status, create, and revoke.');
 
 console.log('Seal phase 1 contract checks passed.');

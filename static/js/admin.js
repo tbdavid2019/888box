@@ -275,9 +275,9 @@ function showEditModal(id, galleryItem) {
 
     const modal = document.createElement('div');
     modal.id = 'img-edit-modal';
-    modal.style.cssText = 'position:fixed;inset:0;z-index:9000;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,0.7);backdrop-filter:blur(4px);';
+    modal.style.cssText = 'position:fixed;inset:0;z-index:9000;display:flex;align-items:center;justify-content:center;padding:20px;background:rgba(0,0,0,0.7);backdrop-filter:blur(4px);';
     modal.innerHTML = `
-        <div style="background:#1f2335;border:1px solid #414868;border-radius:16px;padding:28px 32px;min-width:340px;max-width:480px;width:90%;box-shadow:0 20px 60px rgba(0,0,0,0.5);">
+        <div style="background:#1f2335;border:1px solid #414868;border-radius:16px;padding:28px 32px;min-width:340px;max-width:480px;width:90%;max-height:calc(100vh - 40px);overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,0.5);">
             <h3 style="margin:0 0 20px;color:#c0caf5;font-size:1.1rem;">✏️ 編輯圖片資訊</h3>
             <label style="display:block;margin-bottom:6px;color:#7f88b2;font-size:12px;">標題</label>
             <input id="eim-title" type="text" value="${escHtml(title)}"
@@ -296,6 +296,7 @@ function showEditModal(id, galleryItem) {
             </div>
             <input id="eim-pw" type="password" placeholder="輸入新密碼"
                 style="display:none;width:100%;box-sizing:border-box;padding:10px 12px;border-radius:8px;border:1px solid #414868;background:#1a1b26;color:#c0caf5;font-size:14px;margin-bottom:14px;outline:none;">
+            ${window.SealControls.template()}
             <div style="display:flex;gap:10px;margin-top:18px;">
                 <button id="eim-save" style="flex:1;padding:10px;border-radius:8px;border:none;background:#7aa2f7;color:#1a1b26;font-weight:bold;font-size:14px;cursor:pointer;">儲存</button>
                 <button id="eim-cancel" style="flex:1;padding:10px;border-radius:8px;border:1px solid #414868;background:transparent;color:#c0caf5;font-size:14px;cursor:pointer;">取消</button>
@@ -303,6 +304,7 @@ function showEditModal(id, galleryItem) {
         </div>
     `;
     document.body.appendChild(modal);
+    window.SealControls.attach(modal.querySelector('[data-seal-control]'), id);
 
     // 密碼 action 切換顯示
     const pwAction = modal.querySelector('#eim-pw-action');

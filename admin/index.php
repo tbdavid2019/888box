@@ -9,6 +9,7 @@ if (!isset($_SESSION['loggedin']) || !$_SESSION['loggedin']) {
 }
 
 require_once '../config/database.php';
+require_once '../config/seal.php';
 require_once '../config/theme_helper.php';
 require_once '../config/admin_ui.php';
 
@@ -17,6 +18,8 @@ require 'pagination.php';
 $db = Database::getInstance();
 $pdo = $db->getConnection();
 $config = Database::getConfig($pdo);
+$sealCsrfToken = ensureSealCsrfToken();
+$activeSeals = getActiveSealMap($pdo);
 $demoMode = ($_ENV['DEMO_MODE'] ?? 'false') === 'true';
 $isDemoAutoLogin = isset($_SESSION['demo_auto_login']) && $_SESSION['demo_auto_login'];
 
@@ -74,13 +77,14 @@ $pagination = renderPagination($current_page, $total_pages);
     <link rel="shortcut icon" href="/static/favicon.svg">
     <link rel="stylesheet" href="/static/css/admin.css?v=<?php echo time(); ?>">
     <link rel="stylesheet" href="/static/css/fancybox.min.css?v=<?php echo time(); ?>">
+    <link rel="stylesheet" href="/static/css/admin/seal-controls.css?v=<?php echo time(); ?>">
+    <meta name="seal-csrf-token" content="<?= htmlspecialchars($sealCsrfToken, ENT_QUOTES, 'UTF-8') ?>">
     <?php renderThemeStyles($pdo); ?>
     <?php renderCustomTrackingCode($pdo); ?>
 </head>
 <body>
     <?php renderAdminHeader('image', '圖片管理後台', [
         ['label' => '上傳圖片', 'href' => '/upload_image.php'],
-        ['label' => 'Seal 管理', 'href' => '/admin/seals.php'],
         ['label' => '系統設定', 'href' => '#', 'class' => 'settings-link'],
         ['label' => '返回首頁', 'href' => '/'],
         ['label' => '登出', 'href' => '/admin/index.php?logout=true'],
@@ -116,10 +120,16 @@ $pagination = renderPagination($current_page, $total_pages);
     <script src="/static/js/fancybox.umd.min.js?v=<?php echo time(); ?>"></script>
     <script src="/static/js/lazyload.min.js?v=<?php echo time(); ?>"></script>
     <script src="/static/js/admin.js?v=<?php echo time(); ?>"></script>
+    <script src="/static/js/admin/seal-controls.js?v=<?php echo time(); ?>"></script>
     <script src="/static/js/settings.js?v=<?php echo time(); ?>"></script>
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             if (window.lucide) lucide.createIcons();
+            if (new URLSearchParams(window.location.search).get('notice') === 'seal_controls_moved') {
+                window.setTimeout(() => {
+                    if (typeof UI !== 'undefined') UI.showNotification('Seal 已移至每個資產的編輯視窗');
+                }, 0);
+            }
         });
     </script>
 </body>
@@ -127,6 +137,7 @@ $pagination = renderPagination($current_page, $total_pages);
 <?php
 // 輔助函數
 function renderImagesList($images) {
+    global $activeSeals;
     if (empty($images)) {
         return '<div class="empty-state"><div class="empty-icon" style="margin-bottom: 12px;"><i data-lucide="image-off" style="width: 48px; height: 48px; color: #565f89;"></i></div><p>目前沒有圖片</p></div>';
     }
@@ -143,12 +154,16 @@ function renderImagesList($images) {
         $title       = htmlspecialchars($image['title'] ?? '');
         $description = htmlspecialchars($image['description'] ?? '');
         $hasPassword = empty($image['password']) ? '0' : '1';
+        $activeSeal = $activeSeals[(int)$image['id']] ?? null;
         
         $reportBadge = $image['report_count'] > 0 
             ? "<div style=\"position: absolute; top: 10px; left: 10px; background: #f7768e; color: #1a1b26; padding: 2px 6px; border-radius: 4px; font-size: 10px; font-weight: bold; z-index: 10;\">檢舉: {$image['report_count']}</div>" 
             : "";
         $passBadge = !empty($image['password'])
             ? '<div style="position:absolute;top:10px;left:10px;background:#e0af68;color:#1a1b26;padding:2px 6px;border-radius:4px;font-size:10px;font-weight:bold;z-index:10;">🔒 密碼</div>'
+            : '';
+        $sealBadge = $activeSeal
+            ? '<div style="position:absolute;top:10px;right:10px;background:#bb9af7;color:#1a1b26;padding:2px 6px;border-radius:4px;font-size:10px;font-weight:bold;z-index:10;">⏳ Seal</div>'
             : '';
         if ($image['report_count'] > 0) $passBadge = ''; // 檢舉優先
             
@@ -157,7 +172,7 @@ function renderImagesList($images) {
              data-title="{$title}"
              data-description="{$description}"
              data-has-password="{$hasPassword}">
-            {$reportBadge}{$passBadge}
+            {$reportBadge}{$passBadge}{$sealBadge}
             <div class="image-wrapper">
                 <div class="image-placeholder"><div class="spinner"></div></div>
                 <img class="lazy" src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-src="{$url}" data-fancybox="gallery">
