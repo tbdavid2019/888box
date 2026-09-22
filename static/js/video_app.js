@@ -278,6 +278,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         resDiv.style.display = 'flex';
                         document.getElementById('url_' + id).value = res.data.share_url || res.data.url;
                         document.getElementById('thumb_' + id).value = res.data.thumbnail_url || '無封面圖';
+                        window.SealUserControls?.addButton(resDiv, res.data, finalTitle || item.file.name);
                         sessionSuccessCount++;
                         window.UploadStats.increment('video');
 

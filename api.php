@@ -199,7 +199,15 @@ function setCorsHeaders() {
 function isPublicActionAllowed($action) {
     global $config;
 
-    $sealActions = ['seal_status', 'seal_pulse', 'seal_burn', 'seal_cleanup'];
+    $sealActions = [
+        'seal_status',
+        'seal_capability_status',
+        'seal_create',
+        'seal_revoke',
+        'seal_pulse',
+        'seal_burn',
+        'seal_cleanup'
+    ];
     if (in_array($action, $sealActions, true)) {
         return true;
     }
@@ -277,6 +285,10 @@ try {
 
         case 'seal_admin_status':
             handleSealAdminStatus($pdo, $config);
+            break;
+
+        case 'seal_capability_status':
+            handleSealCapabilityStatus($pdo, $config);
             break;
 
         case 'seal_pulse':
@@ -631,15 +643,6 @@ function handleUnifiedSearch($pdo, $query) {
     ]);
 }
 
-function parseSealTimestamp($value) {
-    if (is_numeric($value)) {
-        return (int)$value;
-    }
-
-    $timestamp = strtotime((string)$value);
-    return $timestamp === false ? 0 : $timestamp;
-}
-
 function sealError($code, $message) {
     respondAndExit(['result' => 'error', 'code' => $code, 'message' => $message]);
 }
@@ -658,98 +661,98 @@ function requireSealAdmin($checkCsrf = true) {
     }
 }
 
+function getRequestApiToken() {
+    $authHeader = $_SERVER['HTTP_AUTHORIZATION'] ?? $_SERVER['REDIRECT_HTTP_AUTHORIZATION'] ?? '';
+    if (empty($authHeader) && function_exists('apache_request_headers')) {
+        $headers = apache_request_headers();
+        $authHeader = $headers['Authorization'] ?? $headers['authorization'] ?? '';
+    }
+    if (preg_match('/Bearer\s+(.+)$/i', $authHeader, $matches)) {
+        return trim($matches[1]);
+    }
+
+    return trim((string)($_POST['token'] ?? ''));
+}
+
+function findRequestApiUserId($pdo) {
+    $token = getRequestApiToken();
+    if ($token === '') {
+        return null;
+    }
+
+    $stmt = $pdo->prepare('SELECT id FROM users WHERE token = ? LIMIT 1');
+    $stmt->execute([$token]);
+    $userId = $stmt->fetchColumn();
+    return $userId === false ? null : (int)$userId;
+}
+
+function getSealAsset($pdo, $assetId) {
+    $stmt = $pdo->prepare('SELECT * FROM images WHERE id = ? LIMIT 1');
+    $stmt->execute([(int)$assetId]);
+    return $stmt->fetch(PDO::FETCH_ASSOC) ?: null;
+}
+
+function authorizeSealAsset($pdo, $asset, $manageToken = '') {
+    if (!$asset) {
+        return null;
+    }
+
+    if ($manageToken !== '' && findAssetByManageToken($pdo, (int)$asset['id'], $manageToken)) {
+        return ['type' => 'asset_capability'];
+    }
+
+    if (!empty($_SESSION['loggedin'])) {
+        return ['type' => 'admin_session'];
+    }
+
+    $apiUserId = findRequestApiUserId($pdo);
+    if ($apiUserId !== null) {
+        return ['type' => 'admin_token', 'user_id' => $apiUserId];
+    }
+
+    return null;
+}
+
+function requireSealAssetAccess($pdo, $asset, $manageToken = '') {
+    $actor = authorizeSealAsset($pdo, $asset, $manageToken);
+    if (!$actor) {
+        sealError(403, '缺少資產管理權限，請提供 manage_token、管理員 API token 或管理員登入');
+    }
+    return $actor;
+}
+
+function requireSealMutationAccess($pdo, $asset, $manageToken = '') {
+    $actor = requireSealAssetAccess($pdo, $asset, $manageToken);
+    if ($actor['type'] === 'admin_session') {
+        requireSealAdmin();
+    }
+    return $actor;
+}
+
 function handleSealCreate($pdo, $config) {
     if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
         sealError(405, 'Seal 建立必須使用 POST');
     }
-    requireSealAdmin();
-
     $assetId = (int)($_POST['asset_id'] ?? 0);
+    $manageToken = trim((string)($_POST['manage_token'] ?? ''));
     $mode = strtolower(trim((string)($_POST['mode'] ?? '')));
-    $now = time();
-    $maxDurationDays = max(1, getSealConfigInt($config, 'seal_max_duration_days', 30));
 
-    if ($assetId <= 0 || !validateSealMode($mode)) {
-        sealError(400, '資產 ID 或 Seal 模式無效');
+    if ($assetId <= 0) {
+        sealError(400, '資產 ID 無效');
     }
 
-    $assetStmt = $pdo->prepare('SELECT id, share_token, is_video, is_audio FROM images WHERE id = ? LIMIT 1');
-    $assetStmt->execute([$assetId]);
-    $asset = $assetStmt->fetch(PDO::FETCH_ASSOC);
+    $asset = getSealAsset($pdo, $assetId);
     if (!$asset) {
         sealError(404, '找不到指定資產');
     }
-
-    cleanupExpiredSeals($pdo, $now);
-    if (getActiveSealForAsset($pdo, $assetId)) {
-        sealError(409, '此資產已有使用中的 Seal');
-    }
-
-    $pulseInterval = null;
-    $maxViews = null;
-    if ($mode === SEAL_MODE_TIMED) {
-        $unlockAt = parseSealTimestamp($_POST['unlock_at'] ?? 0);
-        $maxUnlockAt = $now + $maxDurationDays * 24 * 60 * 60;
-        if ($unlockAt < $now + SEAL_MIN_UNLOCK_DELAY || $unlockAt > $maxUnlockAt) {
-            sealError(400, "解鎖時間必須介於 {$maxDurationDays} 天內，且至少提前 1 分鐘");
-        }
-    } elseif ($mode === SEAL_MODE_DMS) {
-        $pulseInterval = (int)($_POST['pulse_interval'] ?? 0);
-        if ($pulseInterval < SEAL_MIN_PULSE_INTERVAL || $pulseInterval > SEAL_MAX_PULSE_INTERVAL) {
-            sealError(400, 'Pulse 間隔必須介於 5 分鐘與 30 天');
-        }
-        $unlockAt = $now + $pulseInterval;
-    } else {
-        $maxViews = (int)($_POST['max_views'] ?? 1);
-        if ($maxViews < 1 || $maxViews > 100) {
-            sealError(400, '最大瀏覽次數必須介於 1 與 100');
-        }
-        $unlockAt = $now;
-        if ((int)$asset['is_video'] === 1 || (int)$asset['is_audio'] === 1) {
-            sealError(400, '閱後即焚目前只支援圖片與文件，影片及音訊請使用定時或 DMS Seal');
-        }
-    }
-
-    $sealToken = generateSealToken();
-    $pulseToken = $mode === SEAL_MODE_DMS ? generateSealPulseToken() : null;
-    $retentionAt = $mode === SEAL_MODE_EPHEMERAL
-        ? null
-        : $unlockAt + getSealRetentionSeconds($config);
+    requireSealMutationAccess($pdo, $asset, $manageToken);
 
     try {
-        $stmt = $pdo->prepare(
-            'INSERT INTO seals
-             (asset_id, seal_token, mode, unlock_at, pulse_interval, last_pulse_at,
-              pulse_token_hash, max_views, view_count, created_at, updated_at, cleanup_at)
-             VALUES (?, ?, ?, ?, ?, ?, ?, ?, 0, ?, ?, ?)'
-        );
-        $stmt->execute([
-            $assetId,
-            $sealToken,
-            $mode,
-            $unlockAt,
-            $pulseInterval,
-            $mode === SEAL_MODE_DMS ? $now : null,
-            $pulseToken ? hashSealToken($pulseToken) : null,
-            $maxViews,
-            $now,
-            $now,
-            $retentionAt
-        ]);
-    } catch (PDOException $e) {
-        sealError(409, 'Seal 建立失敗，資產可能已有使用中的 Seal');
-    }
-
-    $response = [
-        'id' => (int)$pdo->lastInsertId(),
-        'mode' => $mode,
-        'public_url' => buildSealUrl($sealToken, $config),
-        'unlock_at' => $unlockAt,
-        'status' => $mode === SEAL_MODE_EPHEMERAL ? 'unlocked' : 'locked'
-    ];
-    if ($pulseToken) {
-        $response['pulse_url'] = buildSealPulseUrl($pulseToken, $config);
-        $response['pulse_token'] = $pulseToken;
+        $response = createSealRecord($pdo, $asset, $mode, $_POST, $config);
+    } catch (InvalidArgumentException $e) {
+        sealError(400, $e->getMessage());
+    } catch (RuntimeException $e) {
+        sealError(409, $e->getMessage());
     }
 
     respondAndExit(['result' => 'success', 'code' => 200, 'data' => $response]);
@@ -775,6 +778,30 @@ function handleSealAdminStatus($pdo, $config) {
         sealError(400, '資產 ID 無效');
     }
 
+    cleanupExpiredSeals($pdo);
+    $seal = getActiveSealForAsset($pdo, $assetId);
+    if (!$seal) {
+        respondAndExit(['result' => 'success', 'code' => 200, 'data' => ['exists' => false]]);
+    }
+
+    $payload = getSealStatusPayload($seal);
+    $payload['exists'] = true;
+    $payload['public_url'] = buildSealUrl($seal['seal_token'], $config);
+    respondAndExit(['result' => 'success', 'code' => 200, 'data' => $payload]);
+}
+
+function handleSealCapabilityStatus($pdo, $config) {
+    $assetId = (int)($_GET['asset_id'] ?? $_POST['asset_id'] ?? 0);
+    $manageToken = trim((string)($_POST['manage_token'] ?? ''));
+    if ($assetId <= 0) {
+        sealError(400, '資產 ID 無效');
+    }
+
+    $asset = getSealAsset($pdo, $assetId);
+    if (!$asset) {
+        sealError(404, '找不到指定資產');
+    }
+    requireSealAssetAccess($pdo, $asset, $manageToken);
     cleanupExpiredSeals($pdo);
     $seal = getActiveSealForAsset($pdo, $assetId);
     if (!$seal) {
@@ -856,14 +883,28 @@ function handleSealBurn($pdo) {
 }
 
 function handleSealRevoke($pdo) {
-    requireSealAdmin();
     $sealId = (int)($_POST['seal_id'] ?? 0);
-    if ($sealId <= 0) {
-        sealError(400, 'Seal ID 無效');
+    $assetId = (int)($_POST['asset_id'] ?? 0);
+    $manageToken = trim((string)($_POST['manage_token'] ?? ''));
+    if ($sealId <= 0 && $assetId <= 0) {
+        sealError(400, '請提供 Seal ID 或資產 ID');
     }
 
+    if ($sealId > 0) {
+        $sealStmt = $pdo->prepare('SELECT * FROM seals WHERE id = ? LIMIT 1');
+        $sealStmt->execute([$sealId]);
+        $seal = $sealStmt->fetch(PDO::FETCH_ASSOC) ?: null;
+    } else {
+        $seal = getActiveSealForAsset($pdo, $assetId);
+    }
+    if (!$seal) {
+        sealError(404, '找不到 Seal');
+    }
+    $asset = getSealAsset($pdo, $seal['asset_id']);
+    requireSealMutationAccess($pdo, $asset, $manageToken);
+
     $stmt = $pdo->prepare('DELETE FROM seals WHERE id = ?');
-    $stmt->execute([$sealId]);
+    $stmt->execute([(int)$seal['id']]);
     if ($stmt->rowCount() !== 1) {
         sealError(404, '找不到 Seal');
     }

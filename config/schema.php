@@ -51,6 +51,13 @@ function getCoreTableSql() {
             burned_at INTEGER DEFAULT NULL,
             cleanup_at INTEGER DEFAULT NULL,
             FOREIGN KEY (asset_id) REFERENCES images(id) ON DELETE CASCADE
+        )",
+        'asset_capabilities' => "CREATE TABLE IF NOT EXISTS asset_capabilities (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            asset_id INTEGER NOT NULL UNIQUE,
+            token_hash VARCHAR(64) NOT NULL UNIQUE,
+            created_at INTEGER NOT NULL,
+            FOREIGN KEY (asset_id) REFERENCES images(id) ON DELETE CASCADE
         )"
     ];
 }
@@ -76,6 +83,8 @@ function ensureSealIndexes($pdo) {
     $pdo->exec('CREATE INDEX IF NOT EXISTS idx_seals_cleanup_at ON seals(cleanup_at)');
     $pdo->exec('CREATE INDEX IF NOT EXISTS idx_seals_pulse_token_hash ON seals(pulse_token_hash)');
     $pdo->exec('CREATE UNIQUE INDEX IF NOT EXISTS idx_seals_one_active_per_asset ON seals(asset_id) WHERE burned_at IS NULL');
+    $pdo->exec('CREATE INDEX IF NOT EXISTS idx_asset_capabilities_token_hash ON asset_capabilities(token_hash)');
+    $pdo->exec('CREATE INDEX IF NOT EXISTS idx_asset_capabilities_asset_id ON asset_capabilities(asset_id)');
 }
 
 function getVideoAssetConditionSql() {
@@ -233,6 +242,37 @@ function backfillShareTokens($pdo) {
     }
 }
 
+/**
+ * 為既有資產建立 capability hash。原始 token 不回溯公開，既有資產仍由 admin 管理。
+ */
+function backfillAssetCapabilities($pdo) {
+    $marker = $pdo->prepare("SELECT value FROM configs WHERE `key` = 'asset_capabilities_backfilled'");
+    $marker->execute();
+    if ($marker->fetchColumn() === '1') {
+        return;
+    }
+
+    $rows = $pdo->query(
+        'SELECT images.id FROM images
+         LEFT JOIN asset_capabilities ON asset_capabilities.asset_id = images.id
+         WHERE asset_capabilities.asset_id IS NULL'
+    )->fetchAll(PDO::FETCH_ASSOC);
+    if (!empty($rows)) {
+        $stmt = $pdo->prepare(
+            'INSERT OR IGNORE INTO asset_capabilities (asset_id, token_hash, created_at) VALUES (?, ?, ?)'
+        );
+        foreach ($rows as $row) {
+            $stmt->execute([(int)$row['id'], hash('sha256', bin2hex(random_bytes(32))), time()]);
+        }
+    }
+
+    $markerStmt = $pdo->prepare(
+        "INSERT INTO configs (`key`, value, description) VALUES ('asset_capabilities_backfilled', '1', 'Asset capability migration marker')
+         ON CONFLICT(`key`) DO UPDATE SET value = '1'"
+    );
+    $markerStmt->execute();
+}
+
 function ensureCoreSchema($pdo) {
     createCoreTables($pdo);
     ensureSealIndexes($pdo);
@@ -240,6 +280,7 @@ function ensureCoreSchema($pdo) {
     ensureColumns($pdo, 'images', getCoreImageColumns());
     backfillAssetFlags($pdo);
     backfillShareTokens($pdo);
+    backfillAssetCapabilities($pdo);
 }
 
 function backfillAssetFlags($pdo) {

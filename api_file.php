@@ -185,6 +185,7 @@ function handleFileUpload($file, $pdo, $config) {
         ]);
         
         $dbId = $pdo->lastInsertId();
+        $manageToken = issueAssetManageToken($pdo, $dbId);
         
         // Return success with share link
         respondAndExit([
@@ -192,7 +193,8 @@ function handleFileUpload($file, $pdo, $config) {
             'data' => [
                 'id' => $dbId,
                 'url' => $publicFileUrl,
-                'share_url' => buildAssetShareUrl($shareToken, $config)
+                'share_url' => buildAssetShareUrl($shareToken, $config),
+                'manage_token' => $manageToken
             ]
         ]);
         

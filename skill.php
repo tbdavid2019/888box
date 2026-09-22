@@ -54,6 +54,7 @@ Use this skill when the user wants to:
 - inspect counts or asset stats
 - delete an asset by `id`
 - inspect podcast RSS information for uploaded videos or audios
+- create, inspect, revoke, pulse, or burn a Seal for an asset
 - operate against the live 888box deployment without hardcoding the wrong domain
 
 ## Workflow
@@ -81,6 +82,12 @@ Authentication depends on the action:
 - `list` token required
 - `search` token required
 - `delete` token required
+- `seal_create` asset capability token, admin API token, or admin session
+- `seal_capability_status` asset capability token, admin API token, or admin session
+- `seal_revoke` asset capability token, admin API token, or admin session
+- `seal_status` public with a Seal public token
+- `seal_pulse` public with a private Pulse token
+- `seal_burn` public with a private Pulse token and permanently deletes the asset
 
 ### Supported Actions
 
@@ -133,6 +140,31 @@ Remove an asset.
 Parameters:
 - `id` required
 
+#### Asset capability and Seal actions
+
+Every new upload returns a one-time `manage_token` inside `data`. Store it with the asset. It grants management access to that asset only and is accepted by `seal_create`, `seal_capability_status`, and `seal_revoke`.
+
+```bash
+# Create a timed Seal with the asset-scoped capability
+curl -X POST '<?= $baseUrl ?>/api.php?action=seal_create' \
+  -d 'asset_id=123' \
+  -d 'manage_token=ASSET_MANAGE_TOKEN' \
+  -d 'mode=timed' \
+  -d 'unlock_at=2030-01-01T12:00:00'
+
+# Read current Seal status
+curl -X POST '<?= $baseUrl ?>/api.php?action=seal_capability_status' \
+  -d 'asset_id=123' \
+  -d 'manage_token=ASSET_MANAGE_TOKEN'
+```
+
+Modes:
+- `timed`: unlocks at `unlock_at`.
+- `dms`: requires `pulse_interval` in seconds. The response includes a private `pulse_url` and `pulse_token`; keep them private.
+- `ephemeral`: deletes the asset after `max_views` successful deliveries. Images and documents are supported.
+
+The public `seal_url` only controls access to the asset. The management capability and DMS Pulse token provide separate authority. Treat all three as secrets where applicable.
+
 ## Example HTTP Requests
 
 ### Public Upload From URL
@@ -172,10 +204,15 @@ Available tools:
 - **`get_podcast_info`**: Retrieve the RSS feeds for your videos or audios.
 - **`rebuild_podcast_rss`**: Force rebuild of Podcast RSS feeds (Admin only).
 - **`delete_asset`**: Remove an asset by ID (Admin only).
+- **`create_asset_seal`**: Create a timed, DMS, or ephemeral Seal with an asset capability or owner token.
+- **`get_asset_seal`**: Read an asset Seal status.
+- **`revoke_asset_seal`**: Remove an asset Seal while retaining the asset.
+- **`pulse_asset_seal`**: Reset a locked DMS timer using the private Pulse token.
+- **`burn_asset_seal`**: Permanently delete a locked DMS asset using the private Pulse token.
 
 ## Best Practices
 - **Images**: Automatically converted to WebP for optimization.
 - **Videos**: Automatically extracted metadata and generated thumbnails. Added to Video Podcast RSS (`<?= $videoRssPath ?>`) if no password is set.
 - **Audios**: Automatically extracted duration and bitrate metadata. Added to Audio Podcast RSS (`<?= $audioRssPath ?>`) if no password is set.
-- **Security**: Use the provided `token` for protected actions such as listing, searching, deleting, or MCP-driven maintenance.
+- **Security**: Store each upload response `manage_token` as an asset-scoped secret. Use it for that asset's Seal actions. Keep DMS `pulse_token` private because it can reset the timer; `burn_asset_seal` is destructive.
 - **Error Handling**: Check the `result` field in JSON responses. `error` indicates a failure.

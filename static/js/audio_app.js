@@ -273,6 +273,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         const resDiv = document.getElementById('res_' + id);
                         resDiv.style.display = 'flex';
                         document.getElementById('url_' + id).value = res.data.share_url || res.data.url;
+                        window.SealUserControls?.addButton(resDiv, res.data, finalTitle || item.file.name);
                         sessionSuccessCount++;
                         window.UploadStats.increment('audio');
 

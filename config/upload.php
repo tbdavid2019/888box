@@ -3,6 +3,7 @@ session_start();
 
 require_once __DIR__ . '/../vendor/autoload.php';
 require_once __DIR__ . '/database.php';
+require_once __DIR__ . '/seal.php';
 require_once __DIR__ . '/storage.php';
 require_once __DIR__ . '/detector.php';
 
@@ -135,8 +136,22 @@ function resolveAssetOriginUrl($asset, $config) {
 /**
  * 生成上传响应数据
  */
-function generateUploadResponse($fileUrl, $filePath, $finalFilePath, $size, $width, $height, $message = '', $isError = false, $assetId = null, $config = null) {
-    $shareUrl = buildAssetShareUrl($assetId, $config);
+function generateUploadResponse($fileUrl, $filePath, $finalFilePath, $size, $width, $height, $message = '', $isError = false, $assetId = null, $config = null, $manageToken = null, $shareToken = null) {
+    $shareUrl = buildAssetShareUrl($shareToken ?: $assetId, $config);
+
+    $data = [
+        'id' => $assetId,
+        'url' => $fileUrl,
+        'share_url' => $shareUrl ?: $fileUrl,
+        'name' => basename($finalFilePath),
+        'width' => $width,
+        'height' => $height,
+        'size' => $size,
+        'path' => $filePath
+    ];
+    if ($manageToken) {
+        $data['manage_token'] = $manageToken;
+    }
 
     respondAndExit($isError ? [
         'result' => 'error',
@@ -147,16 +162,7 @@ function generateUploadResponse($fileUrl, $filePath, $finalFilePath, $size, $wid
         'code' => 200,
         'status' => true,
         'name' => basename($finalFilePath),
-        'data' => [
-            'id' => $assetId,
-            'url' => $fileUrl,
-            'share_url' => $shareUrl ?: $fileUrl,
-            'name' => basename($finalFilePath),
-            'width' => $width,
-            'height' => $height,
-            'size' => $size,
-            'path' => $filePath
-        ],
+        'data' => $data,
         'url' => $fileUrl,
         'share_url' => $shareUrl ?: $fileUrl
     ]);
@@ -488,12 +494,13 @@ function handleUploadedFile($file, $token, $referer, $password = '') {
         $stmt = $pdo->prepare("INSERT INTO images (url, path, storage, size, upload_ip, user_id, password, mime_type, is_video, is_file, share_token) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
         $stmt->execute([$fileUrl, $storagePath, $storage, $fileSize, getClientIp(), $user_id, $hashedPassword, $mimeType, 0, 0, $shareToken]);
         $assetId = $pdo->lastInsertId();
+        $manageToken = issueAssetManageToken($pdo, $assetId);
         
         // 记录上传成功日志
         $clientIp = getClientIp();
         logMessage("上传成功 | IP: {$clientIp} | 存储: {$storage} | URL: {$fileUrl}");
 
-        generateUploadResponse($publicFileUrl, $storagePath, $finalFilePath, $fileSize, $dimensions['width'], $dimensions['height'], '', false, $shareToken, $config);
+        generateUploadResponse($publicFileUrl, $storagePath, $finalFilePath, $fileSize, $dimensions['width'], $dimensions['height'], '', false, $assetId, $config, $manageToken, $shareToken);
     } catch (Exception $e) {
         // 记录上传失败日志
         $clientIp = getClientIp();

@@ -35,6 +35,7 @@ try {
     <meta name="theme-color" content="#1a1b26">
     <script defer src="/static/js/pwa.js?v=2"></script>
     <link rel="stylesheet" href="static/css/video_ui.css?v=<?php echo time(); ?>">
+    <link rel="stylesheet" href="static/css/seal-user-controls.css?v=<?php echo time(); ?>">
     <?php renderThemeStyles($pdo); ?>
     <?php renderTurnstileScript($pdo, 'upload'); ?>
     <?php renderTurnstileJsHelper($pdo, 'upload'); ?>
@@ -143,6 +144,7 @@ try {
 
     <script src="static/js/upload_history.js?v=<?php echo time(); ?>"></script>
     <script src="static/js/upload_stats.js?v=<?php echo time(); ?>"></script>
+    <script src="static/js/seal-user-controls.js?v=<?php echo time(); ?>"></script>
     <script src="static/js/video_app.js?v=<?php echo time(); ?>"></script>
     <script src="/static/js/lucide.min.js"></script>
     <?php renderI18nAssets('upload-video'); ?>

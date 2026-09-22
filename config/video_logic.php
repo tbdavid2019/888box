@@ -132,6 +132,7 @@ function handleVideoUpload($file, $pdo, $title = '', $description = '', $passwor
         $stmt = $pdo->prepare("INSERT INTO images (url, path, storage, size, upload_ip, user_id, title, description, password, mime_type, is_video, is_file, share_token) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
         $stmt->execute([$videoUrl, $videoRemotePath, $storage, $videoData['size'], getClientIp(), $user_id, $title, $description, $hashedPassword, $mimeType, 1, 0, $shareToken]);
         $videoData['id'] = $pdo->lastInsertId();
+        $videoData['manage_token'] = issueAssetManageToken($pdo, $videoData['id']);
         $videoData['share_url'] = buildAssetShareUrl($shareToken, $config);
 
         // 7. Update RSS and JSON

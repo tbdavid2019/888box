@@ -512,6 +512,45 @@ if (!headers_sent()) {
                         const r = await fetch(BASE_URL + '/api.php?action=stats');
                         return r.json();
                     }
+                },
+                {
+                    name: 'create_asset_seal',
+                    description: 'Create a timed, DMS, or ephemeral Seal using the asset manage_token returned by upload.',
+                    inputSchema: {
+                        type: 'object',
+                        required: ['asset_id', 'manage_token', 'mode'],
+                        properties: {
+                            asset_id: { type: 'integer' },
+                            manage_token: { type: 'string' },
+                            mode: { type: 'string', enum: ['timed', 'dms', 'ephemeral'] },
+                            unlock_at: { type: 'string' },
+                            pulse_interval: { type: 'integer' },
+                            max_views: { type: 'integer' }
+                        }
+                    },
+                    execute: async (args) => {
+                        const payload = { ...args };
+                        if (payload.mode === 'timed' && payload.unlock_at) {
+                            payload.unlock_at = String(Math.floor(new Date(payload.unlock_at).getTime() / 1000));
+                        }
+                        const body = new URLSearchParams(payload);
+                        const r = await fetch(`${BASE_URL}/api.php?action=seal_create`, { method: 'POST', body });
+                        return r.json();
+                    }
+                },
+                {
+                    name: 'get_asset_seal',
+                    description: 'Read the current Seal status for an asset using its manage_token.',
+                    inputSchema: {
+                        type: 'object',
+                        required: ['asset_id', 'manage_token'],
+                        properties: { asset_id: { type: 'integer' }, manage_token: { type: 'string' } }
+                    },
+                    execute: async ({ asset_id, manage_token }) => {
+                        const body = new URLSearchParams({ asset_id, manage_token });
+                        const r = await fetch(`${BASE_URL}/api.php?action=seal_capability_status`, { method: 'POST', body });
+                        return r.json();
+                    }
                 }
             ]
         });

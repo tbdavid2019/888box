@@ -117,8 +117,19 @@ export class ImageHandler {
     clearImageInfo() {
         UI.clearImageInfo(this.dom);
         UI.updateLinkDisplays(null);
+        this.updateSealButton(null, this.previewState.currentIndex);
         this.cleanup();
         UI.showNotification('圖片資訊已清除');
+    }
+
+    updateSealButton(urlData, imageIndex) {
+        const sealButton = document.getElementById('imageSealButton');
+        const image = this.previewState.images[imageIndex];
+        if (!sealButton) return;
+        sealButton.hidden = !urlData?.manage_token;
+        sealButton.onclick = urlData?.manage_token
+            ? () => window.SealUserControls?.open(urlData.id, urlData.manage_token, image?.file?.name || '圖片')
+            : null;
     }
 
     processFiles(files) {
@@ -333,9 +344,11 @@ export class ImageHandler {
             if (urlData) {
                 UI.updateCompressedInfo(this.dom, urlData);
                 UI.updateLinkDisplays(urlData);
+                this.updateSealButton(urlData, index);
             }
         } else {
             UI.updateLinkDisplays(null);
+            this.updateSealButton(null, index);
         }
         
         if ('requestIdleCallback' in window) {
@@ -427,6 +440,7 @@ export class ImageHandler {
             if (imageIndex === this.previewState.currentIndex) {
                 UI.updateCompressedInfo(this.dom, response.data);
                 UI.updateLinkDisplays(response.data);
+                this.updateSealButton(response.data, imageIndex);
             }
             
             if (UI.uploadedCount === this.previewState.images.length) {

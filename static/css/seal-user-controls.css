@@ -1,0 +1,57 @@
+.seal-user-trigger {
+    border: 1px solid rgba(122, 162, 247, 0.55);
+    background: rgba(122, 162, 247, 0.14);
+    color: inherit;
+    border-radius: 8px;
+    padding: 6px 10px;
+    cursor: pointer;
+    font: inherit;
+}
+
+.seal-user-trigger:hover { background: rgba(122, 162, 247, 0.25); }
+
+.seal-user-backdrop {
+    position: fixed;
+    inset: 0;
+    z-index: 10000;
+    display: grid;
+    place-items: center;
+    padding: 20px;
+    background: rgba(8, 12, 26, 0.78);
+}
+
+.seal-user-dialog {
+    width: min(520px, 100%);
+    max-height: min(760px, calc(100vh - 40px));
+    overflow: auto;
+    padding: 24px;
+    border: 1px solid rgba(122, 162, 247, 0.45);
+    border-radius: 16px;
+    background: var(--panel-bg, #20243b);
+    color: var(--text-primary, #e6eaff);
+    box-shadow: 0 24px 80px rgba(0, 0, 0, 0.42);
+}
+
+.seal-user-dialog h2 { margin: 0 0 6px; font-size: 1.25rem; }
+.seal-user-dialog p { color: var(--text-secondary, #aab4d2); }
+.seal-user-field { display: grid; gap: 6px; margin: 16px 0; }
+.seal-user-field label { font-size: 0.85rem; color: var(--text-secondary, #aab4d2); }
+.seal-user-field input,
+.seal-user-field select {
+    width: 100%;
+    box-sizing: border-box;
+    padding: 10px 12px;
+    border: 1px solid rgba(170, 180, 210, 0.4);
+    border-radius: 8px;
+    background: var(--input-bg, #171a2b);
+    color: inherit;
+}
+.seal-user-actions { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 20px; }
+.seal-user-actions button { flex: 1 1 150px; min-height: 42px; border-radius: 8px; cursor: pointer; }
+.seal-user-primary { border: 0; background: #7aa2f7; color: #101426; }
+.seal-user-secondary { border: 1px solid rgba(170, 180, 210, 0.45); background: transparent; color: inherit; }
+.seal-user-danger { border: 1px solid #f7768e; background: transparent; color: #f7768e; }
+.seal-user-status { min-height: 22px; margin: 12px 0; color: var(--text-secondary, #aab4d2); }
+.seal-user-result { display: grid; gap: 8px; margin-top: 16px; }
+.seal-user-result input { width: 100%; box-sizing: border-box; padding: 9px; }
+.seal-user-copy { justify-self: start; }

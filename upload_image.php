@@ -49,6 +49,7 @@ try {
     <meta name="theme-color" content="#1a1b26">
     <script defer src="/static/js/pwa.js?v=2"></script>
     <link rel="stylesheet" type="text/css" href="static/css/styles.css?v=<?php echo time(); ?>">
+    <link rel="stylesheet" type="text/css" href="static/css/seal-user-controls.css?v=<?php echo time(); ?>">
     <?php renderThemeStyles($pdo); ?>
 
     <style>
@@ -357,7 +358,7 @@ try {
                                 <i data-lucide="code" class="icon"></i>
                             </button>
                         </div>
-                        <div class="copy-links-column">
+                <div class="copy-links-column">
                             <div class="copy-link-display disabled" data-type="url">
                                 <span class="copy-link-text" id="urlLinkText"></span>
                             </div>
@@ -370,6 +371,7 @@ try {
                         </div>
                     </div>
                 </div>
+                <button type="button" id="imageSealButton" class="seal-user-trigger" hidden>設定 Seal</button>
             </div>
 
             <section class="image-stats-card blur">
@@ -471,6 +473,7 @@ try {
     </footer>
     <script src="static/js/upload_history.js?v=<?php echo time(); ?>"></script>
     <script src="static/js/upload_stats.js?v=<?php echo time(); ?>"></script>
+    <script src="static/js/seal-user-controls.js?v=<?php echo time(); ?>"></script>
     <script type="module" src="static/js/main.js?v=<?php echo time(); ?>" data-max-file-size="<?php echo $maxFileSize; ?>">
     </script>
     <script>

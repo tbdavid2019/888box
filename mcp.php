@@ -17,6 +17,7 @@ require_once __DIR__ . '/config/upload.php';
 require_once __DIR__ . '/config/rss.php';
 require_once __DIR__ . '/config/cors.php';
 require_once __DIR__ . '/config/security.php';
+require_once __DIR__ . '/config/seal.php';
 
 // 初始化数据库连接
 $db = Database::getInstance();
@@ -123,6 +124,71 @@ function getMcpTools() {
                 ],
                 'required' => ['id']
             ]
+        ],
+        [
+            'name' => 'create_asset_seal',
+            'description' => 'Create a timed, DMS Pulse, or ephemeral Seal for one asset. Requires the asset manage_token or an API token that owns the asset. Returns a one-time private Pulse URL for DMS.',
+            'inputSchema' => [
+                'type' => 'object',
+                'properties' => [
+                    'asset_id' => ['type' => 'integer', 'description' => 'Asset ID to protect'],
+                    'mode' => ['type' => 'string', 'enum' => ['timed', 'dms', 'ephemeral']],
+                    'unlock_at' => ['type' => 'string', 'description' => 'Timed mode ISO/date string, at least one minute in the future'],
+                    'pulse_interval' => ['type' => 'integer', 'description' => 'DMS interval in seconds (300 to 2592000)'],
+                    'max_views' => ['type' => 'integer', 'description' => 'Ephemeral view limit (1 to 100)'],
+                    'manage_token' => ['type' => 'string', 'description' => 'Asset-scoped capability token returned once after upload'],
+                    'token' => ['type' => 'string', 'description' => 'Authorized API token']
+                ],
+                'required' => ['asset_id', 'mode']
+            ]
+        ],
+        [
+            'name' => 'get_asset_seal',
+            'description' => 'Read the current Seal status for one asset using its manage_token or authorized API token.',
+            'inputSchema' => [
+                'type' => 'object',
+                'properties' => [
+                    'asset_id' => ['type' => 'integer'],
+                    'manage_token' => ['type' => 'string'],
+                    'token' => ['type' => 'string', 'description' => 'Authorized API token']
+                ],
+                'required' => ['asset_id']
+            ]
+        ],
+        [
+            'name' => 'revoke_asset_seal',
+            'description' => 'Remove the active Seal from one asset while keeping the asset. This changes access control.',
+            'inputSchema' => [
+                'type' => 'object',
+                'properties' => [
+                    'asset_id' => ['type' => 'integer'],
+                    'seal_id' => ['type' => 'integer'],
+                    'manage_token' => ['type' => 'string'],
+                    'token' => ['type' => 'string']
+                ],
+                'required' => ['asset_id']
+            ]
+        ],
+        [
+            'name' => 'pulse_asset_seal',
+            'description' => 'Reset a locked DMS Seal timer using its private Pulse token.',
+            'inputSchema' => [
+                'type' => 'object',
+                'properties' => [
+                    'pulse_token' => ['type' => 'string'],
+                    'new_interval' => ['type' => 'integer', 'description' => 'New interval in seconds']
+                ],
+                'required' => ['pulse_token']
+            ]
+        ],
+        [
+            'name' => 'burn_asset_seal',
+            'description' => 'Permanently delete the DMS protected asset using its private Pulse token. Destructive.',
+            'inputSchema' => [
+                'type' => 'object',
+                'properties' => ['pulse_token' => ['type' => 'string']],
+                'required' => ['pulse_token']
+            ]
         ]
     ];
 }
@@ -171,6 +237,12 @@ function authenticateUser($pdo, $args = []) {
     }
 
     return null;
+}
+
+function findSealByIdForMcp($pdo, $sealId) {
+    $stmt = $pdo->prepare('SELECT * FROM seals WHERE id = ? LIMIT 1');
+    $stmt->execute([(int)$sealId]);
+    return $stmt->fetch(PDO::FETCH_ASSOC) ?: null;
 }
 
 /**
@@ -308,7 +380,8 @@ function executeUploadFromUrl($pdo, $config, $url, $title = '', $description = '
                 'title' => $title,
                 'url' => $videoData['url'] ?? '',
                 'thumbnail_url' => $videoData['thumbnail_url'] ?? '',
-                'share_url' => $videoData['share_url'] ?? ''
+                'share_url' => $videoData['share_url'] ?? '',
+                'manage_token' => $videoData['manage_token'] ?? ''
             ];
         } elseif (strpos($mimeType, 'audio/') === 0) {
             require_once __DIR__ . '/config/audio_logic.php';
@@ -319,7 +392,8 @@ function executeUploadFromUrl($pdo, $config, $url, $title = '', $description = '
                 'id' => $audioData['id'] ?? null,
                 'title' => $title,
                 'url' => $audioData['url'] ?? '',
-                'share_url' => $audioData['share_url'] ?? ''
+                'share_url' => $audioData['share_url'] ?? '',
+                'manage_token' => $audioData['manage_token'] ?? ''
             ];
         } elseif (strpos($mimeType, 'image/') === 0) {
             $storage = $config['storage'] ?? 'local';
@@ -356,6 +430,7 @@ function executeUploadFromUrl($pdo, $config, $url, $title = '', $description = '
             $stmt = $pdo->prepare("INSERT INTO images (url, path, storage, size, upload_ip, user_id, title, description, password, mime_type, is_video, is_audio, is_file, share_token) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 0, 0, 0, ?)");
             $stmt->execute([$fileUrl, $storagePath, $storage, $imgSize, getClientIp(), $userId, $title, $description, $hashedPassword, $mimeType, $shareToken]);
             $assetId = $pdo->lastInsertId();
+            $manageToken = issueAssetManageToken($pdo, $assetId);
 
             return [
                 'success' => true,
@@ -363,7 +438,8 @@ function executeUploadFromUrl($pdo, $config, $url, $title = '', $description = '
                 'id' => (int)$assetId,
                 'title' => $title,
                 'url' => $publicUrl,
-                'share_url' => buildAssetShareUrl($shareToken, $config)
+                'share_url' => buildAssetShareUrl($shareToken, $config),
+                'manage_token' => $manageToken
             ];
         } else {
             // 一般文件
@@ -399,6 +475,7 @@ function executeUploadFromUrl($pdo, $config, $url, $title = '', $description = '
             $stmt = $pdo->prepare("INSERT INTO images (url, path, storage, size, upload_ip, user_id, title, description, password, mime_type, is_video, is_audio, is_file, share_token) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 0, 0, 1, ?)");
             $stmt->execute([$fileUrl, $storagePath, $storage, $docSize, getClientIp(), $userId, $title, $description, $hashedPassword, $mimeType, $shareToken]);
             $assetId = $pdo->lastInsertId();
+            $manageToken = issueAssetManageToken($pdo, $assetId);
 
             return [
                 'success' => true,
@@ -406,7 +483,8 @@ function executeUploadFromUrl($pdo, $config, $url, $title = '', $description = '
                 'id' => (int)$assetId,
                 'title' => $title,
                 'url' => $publicUrl,
-                'share_url' => buildAssetShareUrl($shareToken, $config)
+                'share_url' => buildAssetShareUrl($shareToken, $config),
+                'manage_token' => $manageToken
             ];
         }
     } catch (Exception $e) {
@@ -462,8 +540,13 @@ function handleRequest($request, $pdo, $config) {
             $authUser = authenticateUser($pdo, $args);
             $loginRestriction = isset($config['login_restriction']) && filter_var($config['login_restriction'], FILTER_VALIDATE_BOOLEAN);
 
-            // 當開啟登入限制時，任何 tool 調用皆需身分認證
-            if ($loginRestriction && !$authUser) {
+            $capabilityTools = ['create_asset_seal', 'get_asset_seal', 'revoke_asset_seal'];
+            $pulseTools = ['pulse_asset_seal', 'burn_asset_seal'];
+            $isAuthorizedCapabilityCall = in_array($toolName, $capabilityTools, true) && !empty($args['manage_token']);
+            $isAuthorizedPulseCall = in_array($toolName, $pulseTools, true) && !empty($args['pulse_token']);
+
+            // 當開啟登入限制時，capability 與 private Pulse token 自帶資產級授權。
+            if ($loginRestriction && !$authUser && !$isAuthorizedCapabilityCall && !$isAuthorizedPulseCall) {
                 return [
                     'content' => [
                         ['type' => 'text', 'text' => 'Error: Authentication required. Please provide a valid API token or login first.']
@@ -493,6 +576,77 @@ function handleRequest($request, $pdo, $config) {
                         ['type' => 'text', 'text' => "Asset uploaded successfully!\n" . json_encode($res, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES)]
                     ]
                 ];
+            }
+
+            if (in_array($toolName, $capabilityTools, true)) {
+                $assetId = (int)($args['asset_id'] ?? 0);
+                $assetStmt = $pdo->prepare('SELECT * FROM images WHERE id = ? LIMIT 1');
+                $assetStmt->execute([$assetId]);
+                $asset = $assetStmt->fetch(PDO::FETCH_ASSOC);
+                $manageToken = trim((string)($args['manage_token'] ?? ''));
+                $authorized = $asset && (
+                    ($authUser && !empty($authUser['isAdmin']))
+                    || ($authUser && !empty($asset['user_id']) && (int)$asset['user_id'] === (int)$authUser['id'])
+                    || ($manageToken !== '' && findAssetByManageToken($pdo, $assetId, $manageToken))
+                );
+                if (!$authorized) {
+                    return ['content' => [['type' => 'text', 'text' => 'Error: asset capability or owner authorization required']], 'isError' => true];
+                }
+
+                if ($toolName === 'get_asset_seal') {
+                    $seal = getActiveSealForAsset($pdo, $assetId);
+                    $data = $seal ? getSealStatusPayload($seal) : ['exists' => false];
+                    if ($seal) {
+                        $data['exists'] = true;
+                        $data['public_url'] = buildSealUrl($seal['seal_token'], $config);
+                    }
+                    return ['content' => [['type' => 'text', 'text' => json_encode($data, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES)]]];
+                }
+
+                if ($toolName === 'revoke_asset_seal') {
+                    $sealId = (int)($args['seal_id'] ?? 0);
+                    $seal = $sealId > 0
+                        ? findSealByIdForMcp($pdo, $sealId)
+                        : getActiveSealForAsset($pdo, $assetId);
+                    if (!$seal || (int)$seal['asset_id'] !== $assetId) {
+                        return ['content' => [['type' => 'text', 'text' => 'Error: active Seal not found']], 'isError' => true];
+                    }
+                    $stmt = $pdo->prepare('DELETE FROM seals WHERE id = ?');
+                    $stmt->execute([(int)$seal['id']]);
+                    return ['content' => [['type' => 'text', 'text' => 'Seal revoked; asset retained.']]];
+                }
+
+                try {
+                    $data = createSealRecord($pdo, $asset, $args['mode'] ?? '', $args, $config);
+                    return ['content' => [['type' => 'text', 'text' => json_encode($data, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES)]]];
+                } catch (InvalidArgumentException | RuntimeException $error) {
+                    return ['content' => [['type' => 'text', 'text' => 'Error: ' . $error->getMessage()]], 'isError' => true];
+                }
+            }
+
+            if ($toolName === 'pulse_asset_seal') {
+                $seal = findSealByPulseToken($pdo, trim((string)($args['pulse_token'] ?? '')));
+                if (!$seal || $seal['mode'] !== SEAL_MODE_DMS || getSealState($seal) !== 'locked') {
+                    return ['content' => [['type' => 'text', 'text' => 'Error: locked DMS Pulse token required']], 'isError' => true];
+                }
+                $newInterval = isset($args['new_interval']) ? (int)$args['new_interval'] : (int)$seal['pulse_interval'];
+                if ($newInterval < SEAL_MIN_PULSE_INTERVAL || $newInterval > SEAL_MAX_PULSE_INTERVAL) {
+                    return ['content' => [['type' => 'text', 'text' => 'Error: Pulse interval must be between 300 and 2592000 seconds']], 'isError' => true];
+                }
+                $now = time();
+                $stmt = $pdo->prepare('UPDATE seals SET pulse_interval = ?, last_pulse_at = ?, unlock_at = ?, updated_at = ?, cleanup_at = ? WHERE id = ? AND burned_at IS NULL AND unlock_at > ?');
+                $stmt->execute([$newInterval, $now, $now + $newInterval, $now, $now + $newInterval + getSealRetentionSeconds($config), (int)$seal['id'], $now]);
+                return ['content' => [['type' => 'text', 'text' => 'Pulse updated. New unlock timestamp: ' . ($now + $newInterval)]]];
+            }
+
+            if ($toolName === 'burn_asset_seal') {
+                $seal = findSealByPulseToken($pdo, trim((string)($args['pulse_token'] ?? '')));
+                if (!$seal || $seal['mode'] !== SEAL_MODE_DMS || getSealState($seal) !== 'locked') {
+                    return ['content' => [['type' => 'text', 'text' => 'Error: locked DMS Pulse token required']], 'isError' => true];
+                }
+                require_once __DIR__ . '/config/delete.php';
+                $success = deleteAsset($pdo, (int)$seal['asset_id']);
+                return ['content' => [['type' => 'text', 'text' => $success ? 'Asset burned and deleted.' : 'Error: asset burn failed']], 'isError' => !$success];
             }
 
             // 2. list_assets
