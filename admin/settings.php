@@ -43,7 +43,7 @@ if (!empty($_POST['action'])) {
             case 'test_storage':
                 if (empty($_POST['storage_type'])) throw new Exception('未指定儲存類型');
                 
-                require_once '../config/storage.php';
+                require_once __DIR__ . '/../config/storage.php';
                 $config = Database::getConfig($pdo);
                 
                 try {
@@ -59,7 +59,7 @@ if (!empty($_POST['action'])) {
                 break;
                 
             case 'check_update':
-                $currentVersion = json_decode(file_get_contents('../package.json'), true)['version'] ?? '2.0';
+                $currentVersion = json_decode(file_get_contents(__DIR__ . '/../package.json'), true)['version'] ?? '2.0';
                 
                 $context = stream_context_create([
                     'http' => [
@@ -107,7 +107,7 @@ if (!empty($_POST['action'])) {
                 break;
 
             case 'test_turnstile':
-                require_once '../config/turnstile.php';
+                require_once __DIR__ . '/../config/turnstile.php';
                 $secretKey = $_POST['secret_key'] ?? '';
                 if (empty($secretKey)) {
                     $config = Database::getConfig($pdo);
@@ -209,7 +209,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 // 获取配置
 $configs = array_column($pdo->query("SELECT * FROM configs ORDER BY id")->fetchAll(PDO::FETCH_ASSOC), null, 'key');
-$storageConfigs = json_decode(file_get_contents('../config/configs.json'), true);
+$storageConfigs = json_decode(file_get_contents(__DIR__ . '/../config/configs.json'), true);
 $stmt = $pdo->prepare("SELECT token FROM users WHERE id = ?");
 $stmt->execute([$_SESSION['user_id']]);
 $userToken = $stmt->fetch(PDO::FETCH_ASSOC)['token'] ?? '';
