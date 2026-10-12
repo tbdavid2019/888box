@@ -11,8 +11,8 @@ if (empty($_SERVER['HTTP_X_REQUESTED_WITH']) ||
     exit('禁止直接存取');
 }
 
-require_once '../config/database.php';
-require_once '../config/rss.php';
+require_once __DIR__ . '/../config/database.php';
+require_once __DIR__ . '/../config/rss.php';
 $db = Database::getInstance();
 $pdo = $db->getConnection();
 $demoMode = ($_ENV['DEMO_MODE'] ?? 'false') === 'true';
