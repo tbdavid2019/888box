@@ -1,7 +1,8 @@
 /* ========================================
    设置模态框 (.modal)
    ======================================== */
-.modal {
+#settings-modal.modal,
+.modal.settings-modal {
     position: fixed;
     z-index: 9999;
     inset: 0;
@@ -13,12 +14,14 @@
     opacity: 0;
 }
 
-.modal.show {
+#settings-modal.modal.show,
+.modal.settings-modal.show {
     display: block;
     animation: modalFadeIn 0.3s ease-out forwards;
 }
 
-.modal.hide {
+#settings-modal.modal.hide,
+.modal.settings-modal.hide {
     animation: modalFadeOut 0.3s ease-out forwards;
 }
 

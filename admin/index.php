@@ -83,32 +83,13 @@ $pagination = renderPagination($current_page, $total_pages);
     <?php renderCustomTrackingCode($pdo); ?>
 </head>
 <body>
-    <?php renderAdminHeader('image', '圖片管理後台', [
-        ['label' => '上傳圖片', 'href' => '/upload_image.php'],
-        ['label' => '帳號管理', 'href' => '/admin/users.php'],
-        ['label' => '系統設定', 'href' => '#', 'class' => 'settings-link'],
-        ['label' => '返回首頁', 'href' => '/'],
-        ['label' => '登出', 'href' => '/admin/index.php?logout=true'],
+    <?php renderAdminHeader('image', '圖片管理', [
+        ['label' => '上傳圖片', 'href' => '/upload_image.php', 'variant' => 'primary'],
     ]); ?>
     <div id="gallery" class="gallery"><?= $images_html ?></div>
     <div class="rightside">
-        <a href="/admin/video.php" class="floating-link" title="影片管理" style="background-color: #7aa2f7;">
-            <i data-lucide="arrow-right" class="icon" style="color: white;"></i>
-        </a>
-        <a href="/" class="floating-link" title="返回首頁">
-            <i data-lucide="home" class="icon"></i>
-        </a>
-        <a href="/admin/users.php" class="floating-link" title="帳號管理" style="background-color: #bb9af7;">
-            <i data-lucide="users" class="icon" style="color: white;"></i>
-        </a>
         <a class="select-link" title="多選模式">
             <i data-lucide="check-square" class="icon"></i>
-        </a>
-        <a href="#" class="settings-link" title="系統設定">
-            <i data-lucide="settings" class="icon"></i>
-        </a>
-        <a href="?logout=true" class="logout-link" title="登出">
-            <i data-lucide="log-out" class="icon"></i>
         </a>
         <a class="top-link" id="scroll-to-top" title="回到頂部">
             <i data-lucide="arrow-up" class="icon"></i>
@@ -116,16 +97,12 @@ $pagination = renderPagination($current_page, $total_pages);
         <span id="current-total-pages"><?= $current_page ?>/<?= $total_pages ?></span>
     </div>
     <div id="pagination" class="pagination"><?= $pagination ?></div>
-    <div id="settings-modal" class="modal">
-        <div class="modal-content"></div>
-    </div>
     <?php renderAdminFooter(); ?>
     <script src="/static/js/lucide.min.js"></script>
     <script src="/static/js/fancybox.umd.min.js?v=<?php echo time(); ?>"></script>
     <script src="/static/js/lazyload.min.js?v=<?php echo time(); ?>"></script>
     <script src="/static/js/admin.js?v=<?php echo time(); ?>"></script>
     <script src="/static/js/admin/seal-controls.js?v=<?php echo time(); ?>"></script>
-    <script src="/static/js/settings.js?v=<?php echo time(); ?>"></script>
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             if (window.lucide) lucide.createIcons();

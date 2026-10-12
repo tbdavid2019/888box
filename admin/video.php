@@ -113,13 +113,10 @@ unset($video);
         </div>
     </div>
 
-    <?php renderAdminHeader('video', '影片管理後台', [
-        ['label' => '上傳影片', 'href' => '/upload_video.php'],
-        ['label' => '帳號管理', 'href' => '/admin/users.php'],
+    <?php renderAdminHeader('video', '影片管理', [
+        ['label' => '上傳影片', 'href' => '/upload_video.php', 'variant' => 'primary'],
         ['label' => 'Podcast RSS', 'href' => $videoRssUrl, 'target' => '_blank'],
         ['label' => '重建 RSS', 'type' => 'button', 'onclick' => 'rebuildPodcast()'],
-        ['label' => '返回首頁', 'href' => '/'],
-        ['label' => '登出', 'href' => '/admin/index.php?logout=true'],
     ]); ?>
 
     <div class="video-grid">

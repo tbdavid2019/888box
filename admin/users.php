@@ -892,9 +892,9 @@ $apiUploadUrl = rtrim($siteUrl, '/') . '/api.php?action=upload';
     </style>
 </head>
 <body>
-    <?php renderAdminHeader('users', '帳號管理後台', [
-        ['label' => '返回首頁', 'href' => '/'],
-        ['label' => '登出', 'href' => '/admin/users.php?logout=true'],
+    <?php renderAdminHeader('users', '帳號管理', [
+        ['label' => '新增同事帳號', 'type' => 'button', 'onclick' => 'openAddUserModal()', 'variant' => 'primary'],
+        ['label' => 'API 介接指南', 'type' => 'button', 'onclick' => 'openApiGuideModal()'],
     ]); ?>
 
     <div class="users-container">

@@ -62,11 +62,8 @@ $files = $stmt->fetchAll(PDO::FETCH_ASSOC);
     <?php renderCustomTrackingCode($pdo); ?>
 </head>
 <body>
-    <?php renderAdminHeader('file', '文件管理後台', [
-        ['label' => '上傳文件', 'href' => '/upload_file.php'],
-        ['label' => '帳號管理', 'href' => '/admin/users.php'],
-        ['label' => '返回首頁', 'href' => '/'],
-        ['label' => '登出', 'href' => '/admin/index.php?logout=true'],
+    <?php renderAdminHeader('file', '文件管理', [
+        ['label' => '上傳文件', 'href' => '/upload_file.php', 'variant' => 'primary'],
     ]); ?>
 
     <div class="file-list">

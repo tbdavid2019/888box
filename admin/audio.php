@@ -115,13 +115,10 @@ unset($audio);
         </div>
     </div>
 
-    <?php renderAdminHeader('audio', '音訊管理後台', [
-        ['label' => '上傳音訊', 'href' => '/upload_audio.php'],
-        ['label' => '帳號管理', 'href' => '/admin/users.php'],
+    <?php renderAdminHeader('audio', '音訊管理', [
+        ['label' => '上傳音訊', 'href' => '/upload_audio.php', 'variant' => 'primary'],
         ['label' => 'Podcast RSS', 'href' => $audioRssUrl, 'target' => '_blank'],
         ['label' => '重建 RSS', 'type' => 'button', 'onclick' => 'rebuildPodcast()'],
-        ['label' => '返回首頁', 'href' => '/'],
-        ['label' => '登出', 'href' => '/admin/index.php?logout=true'],
     ]); ?>
 
     <div class="video-grid">
