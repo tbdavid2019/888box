@@ -267,6 +267,10 @@ document.addEventListener('DOMContentLoaded', () => {
             void modal.offsetHeight;
             modal.classList.add('show');
             
+            if (window.lucide) {
+                lucide.createIcons();
+            }
+
             initializeSettingsForm();
             setupModalCloseHandlers(modal, () => closeModal(modal));
         } catch (error) {

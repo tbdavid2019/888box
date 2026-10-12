@@ -50,70 +50,30 @@ function respondAndExit($response) {
     exit;
 }
 
-function isUploadAllowed($maxUploadsPerDay) {
-    if ($maxUploadsPerDay <= 0) return true;
-    
-    $uploadDir = 'storage/i/.upload_limits/';
-    if (!is_dir($uploadDir)) mkdir($uploadDir, 0755, true);
-    
-    $clientIp = getClientIp();
-    $currentDate = date('Y-m-d');
-    $limitFile = $uploadDir . md5($clientIp) . '.json';
-    
-    $uploadData = file_exists($limitFile) 
-        ? json_decode(file_get_contents($limitFile), true) ?: []
-        : [];
-    
-    if (!isset($uploadData['date']) || $uploadData['date'] !== $currentDate) {
-        $uploadData = ['date' => $currentDate, 'count' => 0, 'ip' => $clientIp];
-    }
-    
-    if ($uploadData['count'] >= $maxUploadsPerDay) {
-        return "影片上傳次數已達今日限制（{$maxUploadsPerDay}次），請明天再試";
-    }
-    
-    $uploadData['count']++;
-    $uploadData['last_upload'] = date('Y-m-d H:i:s');
-    file_put_contents($limitFile, json_encode($uploadData, JSON_PRETTY_PRINT));
-    
-    return true;
-}
-
 function validateToken() {
     global $pdo, $config;
     
-    $token = '';
-    $authHeader = $_SERVER['HTTP_AUTHORIZATION'] ?? $_SERVER['REDIRECT_HTTP_AUTHORIZATION'] ?? '';
-    if (empty($authHeader) && function_exists('apache_request_headers')) {
-        $reqHeaders = apache_request_headers();
-        $authHeader = $reqHeaders['Authorization'] ?? $reqHeaders['authorization'] ?? '';
-    }
-    if (empty($authHeader) && function_exists('getallheaders')) {
-        $reqHeaders = getallheaders();
-        $authHeader = $reqHeaders['Authorization'] ?? $reqHeaders['authorization'] ?? '';
-    }
-
-    if (preg_match('/Bearer\s+(.*)$/i', $authHeader, $matches)) {
-        $token = trim($matches[1]);
-    } else {
-        $token = trim($_POST['token'] ?? $_GET['token'] ?? '');
+    // 1. 验证 Token 或 API Key (優先級最高)
+    $user = resolveUploadUser($pdo);
+    if ($user) {
+        if (isset($user['status']) && (int)$user['status'] === 0) {
+            respondAndExit(['result' => 'error', 'code' => 403, 'message' => '帳號已被停用，無存取權限']);
+        }
+        return;
     }
     
-    if (!empty($token)) {
-        $stmt = $pdo->prepare("SELECT id FROM users WHERE token = ?");
-        $stmt->execute([$token]);
-        if ($stmt->fetch()) return;
-    }
-    
+    // 2. 验证 Session
     if (isset($_SESSION['loggedin']) && $_SESSION['loggedin'] === true) {
         return;
     }
     
+    // 3. 如果開啟了登入限制，則此時應拒絕
     $loginRestriction = isset($config['login_restriction']) && filter_var($config['login_restriction'], FILTER_VALIDATE_BOOLEAN);
     if ($loginRestriction) {
         respondAndExit(['result' => 'error', 'code' => 403, 'message' => '登入保護已開啟，請提供有效的 Token 或先登入']);
     }
 
+    // 4. 驗證網域
     $refererHost = parse_url($_SERVER['HTTP_REFERER'] ?? '', PHP_URL_HOST);
     $currentHost = parse_url(((!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https://' : 'http://') . ($_SERVER['HTTP_HOST'] ?? ''), PHP_URL_HOST);
     if (!empty($refererHost) && !empty($currentHost) && strcasecmp($refererHost, $currentHost) === 0) {
@@ -140,7 +100,7 @@ function setCorsHeaders() {
     }
     
     header("Access-Control-Allow-Methods: GET, POST, OPTIONS");
-    header("Access-Control-Allow-Headers: Content-Type, Authorization");
+    header("Access-Control-Allow-Headers: Content-Type, Authorization, X-API-Key, X-Requested-With");
 }
 
 function formatSizeLimit($bytes) {
@@ -175,7 +135,7 @@ try {
 
     // 3. 验证上传次数限制 (重用 api.php 逻辑)
     $maxUploadsPerDay = getConfigValue($pdo, 'max_uploads_per_day');
-    $uploadCheck = isUploadAllowed($maxUploadsPerDay);
+    $uploadCheck = isUploadAllowed($maxUploadsPerDay, $pdo);
     if ($uploadCheck !== true) {
         respondAndExit(['result' => 'error', 'code' => 429, 'message' => $uploadCheck]);
     }

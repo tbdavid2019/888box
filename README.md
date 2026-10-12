@@ -42,11 +42,94 @@
 - **存取密碼門禁 (Gatekeeper)**：支援為單一資源設定存取密碼，透過毛玻璃 UI 進行授權驗證；密碼保護之資源自動自公開 Podcast RSS 隱藏。
 - **真實點擊分析**：基於裝置持久標記追蹤每筆資產的真實造訪次數，並具備即時檢舉違規系統。
 
+### 👥 多帳號與同事權限管理 (Colleague Accounts & Quota Bypass)
+- **獨立帳號與 API 金鑰**：管理員可於「帳號管理」後台（`/admin/users.php`）為同事或第三方系統建立獨立帳號，系統自動發行 32 位元高強度專屬 API Token。
+- **突破每日 100 則限制**：
+  - **無限制模式 (`daily_limit = 0`)**：同事或自動化腳本攜帶專屬 Token 時，**完全不受全站每日 100 則限制，享有無限量高速上傳權限**。
+  - **自訂配額模式**：亦可彈性設定每位同事每日獨立配額（例如每日 500 則、1000 則）。
+  - **跟隨預設**：若設定為 `-1` 則套用全站預設每日上限。
+- **靈活 API 認證**：支援標準 `Authorization: Bearer <TOKEN>`、專用標頭 `X-API-Key: <TOKEN>` 或參數傳遞，無縫對接 cURL、Python、Node.js、ShareX、PicGo 等各式自動化腳本。
+- **全方位帳號生命週期管理**：支援即時啟用/停用帳號、單鍵重新產生 Token（舊 Token 即刻失效）、修改密碼與自訂備註、查看累計上傳資產數，內建防刪除目前登入帳號與防最後管理員降級等完整安全防護機制。
+- **內建一鍵式同事呼叫指南**：後台提供視覺化彈窗指南，一鍵複製填入該同事專屬 Token 的 cURL、Python 與 Fetch 範例程式碼，直接轉發同事即可零門檻上線。
+
 ### 🤖 AI 代理人原生整合 (AI Agent Ready)
 - **標準動態 `/llms.txt` (`llms.php`)**：遵循 [llmstxt.org](https://llmstxt.org/) 標準規範，提供結構化 Markdown 網站索引與 API 導覽。
 - **動態技能指南 (`skill.php`)**：為 AI 代理人提供動態生成的指令文檔，自動識別 Base URL 並在登入狀態下注入 Token。
 - **MCP & WebMCP 雙模伺服器 (`mcp.php` / `/mcp`)**：符合 Model Context Protocol (MCP) 與 W3C / Chrome 146+ WebMCP 標準，支援 **CLI stdio** 與 **HTTP JSON-RPC 2.0** 雙模通訊。
 - **RFC 9727 API 目錄 & 發現標頭**：發布 `/.well-known/api-catalog` 與 RFC 8288 `Link` 標頭，供 Agent 自動探測端點。
+
+---
+
+## 🔑 同事專用 API 上傳與突破限額指南
+
+為同事建立「無限制 (daily_limit = 0)」帳號後，同事可直接攜帶專屬 API Token 上傳檔案，**完全突破全站每日 100 則上限**：
+
+### 1. cURL 指令範例
+
+**上傳本地檔案（圖片/影片/音訊/文件均可）：**
+```bash
+# 方式 A：使用標準 Bearer Token 標頭（推薦）
+curl -X POST "https://box.david888.com/api.php?action=upload" \
+  -H "Authorization: Bearer YOUR_COLLEAGUE_API_TOKEN" \
+  -F "file=@/path/to/my_image.png"
+
+# 方式 B：使用 X-API-Key 專用標頭
+curl -X POST "https://box.david888.com/api.php?action=upload" \
+  -H "X-API-Key: YOUR_COLLEAGUE_API_TOKEN" \
+  -F "file=@/path/to/document.pdf"
+```
+
+**上傳遠端 URL（支援自動抓取遠端資源並託管）：**
+```bash
+curl -X POST "https://box.david888.com/api.php?action=upload" \
+  -H "Authorization: Bearer YOUR_COLLEAGUE_API_TOKEN" \
+  -F "url=https://example.com/sample.mp4" \
+  -F "title=範例影片"
+```
+
+### 2. Python (requests) 範例
+
+```python
+import requests
+
+API_URL = "https://box.david888.com/api.php?action=upload"
+API_TOKEN = "YOUR_COLLEAGUE_API_TOKEN"
+
+headers = {
+    "Authorization": f"Bearer {API_TOKEN}"
+}
+
+# 上傳檔案
+with open("report.docx", "rb") as f:
+    files = {"file": f}
+    data = {"title": "2026 年度報告"}
+    response = requests.post(API_URL, headers=headers, files=files, data=data)
+    result = response.json()
+    print("上傳成功，分享連結：", result["data"]["share_url"])
+```
+
+### 3. JavaScript / Node.js (Fetch) 範例
+
+```javascript
+const fs = require('fs');
+
+async function uploadAsset(filePath) {
+    const formData = new FormData();
+    const fileBlob = new Blob([fs.readFileSync(filePath)]);
+    formData.append('file', fileBlob, 'photo.jpg');
+
+    const res = await fetch('https://box.david888.com/api.php?action=upload', {
+        method: 'POST',
+        headers: {
+            'Authorization': 'Bearer YOUR_COLLEAGUE_API_TOKEN'
+        },
+        body: formData
+    });
+
+    const data = await res.json();
+    console.log('上傳結果：', data);
+}
+```
 
 ---
 

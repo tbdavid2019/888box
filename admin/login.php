@@ -38,23 +38,29 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         $stmt->execute([$_POST['username'] ?? '']);
         
         if ($user = $stmt->fetch(PDO::FETCH_ASSOC) and password_verify($_POST['password'] ?? '', $user['password'])) {
-            session_regenerate_id(true);
-            $_SESSION['loggedin'] = true;
-            $_SESSION['username'] = $user['username'];
-            $_SESSION['user_id'] = $user['id'];
-            unset($_SESSION['demo_auto_login']);
+            if (isset($user['status']) && (int)$user['status'] === 0) {
+                $_SESSION['error'] = "該帳號已被停用，請聯絡管理員";
+            } else {
+                session_regenerate_id(true);
+                $_SESSION['loggedin'] = true;
+                $_SESSION['username'] = $user['username'];
+                $_SESSION['user_id'] = (int)$user['id'];
+                $_SESSION['role'] = $user['role'] ?? 'user';
+                unset($_SESSION['demo_auto_login']);
+            }
         } else {
             $_SESSION['error'] = "使用者名稱或密碼無效";
         }
     } elseif ($action === 'demo_login' && $isDemoMode) {
         // 演示模式快速登录
-        $stmt = $pdo->prepare("SELECT id, username FROM users ORDER BY id LIMIT 1");
+        $stmt = $pdo->prepare("SELECT id, username, role FROM users ORDER BY id LIMIT 1");
         $stmt->execute();
         if ($user = $stmt->fetch(PDO::FETCH_ASSOC)) {
             session_regenerate_id(true);
             $_SESSION['loggedin'] = true;
             $_SESSION['username'] = $user['username'];
-            $_SESSION['user_id'] = $user['id'];
+            $_SESSION['user_id'] = (int)$user['id'];
+            $_SESSION['role'] = $user['role'] ?? 'admin';
             $_SESSION['demo_auto_login'] = true;
         }
     } elseif ($action === 'reset' && $allowPasswordReset) {

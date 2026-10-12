@@ -248,8 +248,12 @@ function buildAssetShareUrl($asset, $config = null) {
 function renderCustomTrackingCode($pdo) {
     if (!$pdo) return;
     try {
-        $code = Database::getConfig($pdo, 'custom_tracking_code');
+        $code = trim((string)Database::getConfig($pdo, 'custom_tracking_code'));
         if (!empty($code)) {
+            // 防止曾因 placeholder 未轉義而誤存的 textarea style 垃圾字串破壞畫面
+            if (strpos($code, 'style="width:') === 0 || strpos($code, '" style="') === 0 || (strpos($code, 'box-sizing: border-box') !== false && strpos($code, '<script') === false)) {
+                return;
+            }
             echo $code . "\n";
         }
     } catch (Exception $e) {

@@ -26,7 +26,12 @@ function getCoreTableSql() {
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             username VARCHAR(255) NOT NULL UNIQUE,
             password VARCHAR(255) NOT NULL,
-            token VARCHAR(32) NOT NULL UNIQUE
+            token VARCHAR(32) NOT NULL UNIQUE,
+            role VARCHAR(20) DEFAULT 'user',
+            daily_limit INTEGER DEFAULT 0,
+            status INTEGER DEFAULT 1,
+            note VARCHAR(255) DEFAULT '',
+            created_at DATETIME DEFAULT CURRENT_TIMESTAMP
         )",
         'configs' => "CREATE TABLE IF NOT EXISTS configs (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -74,6 +79,16 @@ function getCoreImageColumns() {
         'is_file' => 'INTEGER DEFAULT 0',
         'is_audio' => 'INTEGER DEFAULT 0',
         'share_token' => 'VARCHAR(32) NULL'
+    ];
+}
+
+function getCoreUserColumns() {
+    return [
+        'role' => "VARCHAR(20) DEFAULT 'user'",
+        'daily_limit' => "INTEGER DEFAULT 0",
+        'status' => "INTEGER DEFAULT 1",
+        'note' => "VARCHAR(255) DEFAULT ''",
+        'created_at' => "DATETIME NULL"
     ];
 }
 
@@ -273,11 +288,32 @@ function backfillAssetCapabilities($pdo) {
     $markerStmt->execute();
 }
 
+function backfillUserRoles($pdo) {
+    try {
+        $pdo->exec("UPDATE users SET role = 'admin' WHERE id = 1 AND (role IS NULL OR role = '' OR role = 'user')");
+        $adminCount = (int)$pdo->query("SELECT COUNT(*) FROM users WHERE role = 'admin'")->fetchColumn();
+        if ($adminCount === 0) {
+            $pdo->exec("UPDATE users SET role = 'admin' WHERE id = (SELECT MIN(id) FROM users)");
+        }
+        $pdo->exec("UPDATE users SET created_at = datetime('now') WHERE created_at IS NULL");
+    } catch (Exception $e) {}
+}
+
+function ensureUserIndexes($pdo) {
+    try {
+        $pdo->exec("CREATE INDEX IF NOT EXISTS idx_users_token ON users(token)");
+        $pdo->exec("CREATE INDEX IF NOT EXISTS idx_users_role ON users(role)");
+    } catch (Exception $e) {}
+}
+
 function ensureCoreSchema($pdo) {
     createCoreTables($pdo);
     ensureSealIndexes($pdo);
+    ensureUserIndexes($pdo);
     normalizeConfigsTable($pdo);
     ensureColumns($pdo, 'images', getCoreImageColumns());
+    ensureColumns($pdo, 'users', getCoreUserColumns());
+    backfillUserRoles($pdo);
     backfillAssetFlags($pdo);
     backfillShareTokens($pdo);
     backfillAssetCapabilities($pdo);

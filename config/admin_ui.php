@@ -9,6 +9,7 @@ function renderAdminHeader($active, $title, $actions = []) {
             '上傳影片' => 'upload-cloud',
             '上傳音訊' => 'upload-cloud',
             '上傳文件' => 'upload-cloud',
+            '帳號管理' => 'users',
             '系統設定' => 'settings',
             '返回首頁' => 'home',
             '登出' => 'log-out',
@@ -33,6 +34,7 @@ function renderAdminFooter() {
             <a href="/admin/video.php">影片管理</a>
             <a href="/admin/audio.php">音訊管理</a>
             <a href="/admin/file.php">文件管理</a>
+            <a href="/admin/users.php">帳號管理</a>
             <a href="/skill.php" target="_blank" rel="noopener noreferrer">AI Agent Skills</a>
         </div>
         <div>

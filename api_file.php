@@ -33,28 +33,13 @@ if (realpath(__FILE__) === realpath($_SERVER['SCRIPT_FILENAME'])) {
         // 檢查是否需要登入限制
         $loginRestriction = isset($config['login_restriction']) && filter_var($config['login_restriction'], FILTER_VALIDATE_BOOLEAN);
         if ($loginRestriction) {
-            $token = '';
-            $authHeader = $_SERVER['HTTP_AUTHORIZATION'] ?? $_SERVER['REDIRECT_HTTP_AUTHORIZATION'] ?? '';
-            if (empty($authHeader) && function_exists('apache_request_headers')) {
-                $reqHeaders = apache_request_headers();
-                $authHeader = $reqHeaders['Authorization'] ?? $reqHeaders['authorization'] ?? '';
-            }
-            if (empty($authHeader) && function_exists('getallheaders')) {
-                $reqHeaders = getallheaders();
-                $authHeader = $reqHeaders['Authorization'] ?? $reqHeaders['authorization'] ?? '';
-            }
-
-            if (preg_match('/Bearer\s+(.*)$/i', $authHeader, $matches)) {
-                $token = trim($matches[1]);
-            } else {
-                $token = trim($_POST['token'] ?? $_GET['token'] ?? '');
-            }
-            
+            $user = resolveUploadUser($pdo);
             $authenticated = false;
-            if (!empty($token)) {
-                $stmt = $pdo->prepare("SELECT id FROM users WHERE token = ?");
-                $stmt->execute([$token]);
-                if ($stmt->fetch()) $authenticated = true;
+            if ($user) {
+                if (isset($user['status']) && (int)$user['status'] === 0) {
+                    respondAndExit(['result' => 'error', 'message' => '帳號已被停用，無權限']);
+                }
+                $authenticated = true;
             }
             if (isset($_SESSION['loggedin']) && $_SESSION['loggedin'] === true) {
                 $authenticated = true;
@@ -83,7 +68,7 @@ if (realpath(__FILE__) === realpath($_SERVER['SCRIPT_FILENAME'])) {
     }
 }
 
-function handleFileUpload($file, $pdo, $config) {
+function handleFileUpload($file, $pdo, $config, $checkLimit = true) {
     $storage = $config['storage'];
     $user_id = $_SESSION['user_id'] ?? NULL;
     $title = $_POST['title'] ?? '';
@@ -92,6 +77,15 @@ function handleFileUpload($file, $pdo, $config) {
     
     if (empty($title)) {
         $title = pathinfo($file['name'], PATHINFO_FILENAME);
+    }
+
+    // 驗證上傳次數限制 (支援同事 API Key / 無限制額度)
+    if ($checkLimit) {
+        $maxUploadsPerDay = (int)($config['max_uploads_per_day'] ?? 100);
+        $uploadCheck = isUploadAllowed($maxUploadsPerDay, $pdo);
+        if ($uploadCheck !== true) {
+            respondAndExit(['result' => 'error', 'code' => 429, 'message' => $uploadCheck]);
+        }
     }
     
     // 1. Validate file (content-type detection + strict document extension whitelist)

@@ -2,7 +2,38 @@
 
 All notable changes to this project will be documented in this file.
 
-## [2026.9.5] - 2026-09-11
+## [2026.10.1] - 2026-10-12
+
+### 👥 帳號管理中心與同事突破每日 100 則上傳限制 (Colleague Accounts & Quota Bypass)
+- **全新「帳號管理」後台介面 (`admin/users.php`)**：
+  - 為系統管理員提供獨立的帳號管理控制台，具備東京之夜（Tokyo Night）毛玻璃現代視覺與四維度即時指標統計（總帳號數、同事專用帳號、管理員數、無限制帳號數）。
+  - 支援帳號全生命週期管理：新增同事帳號、重設密碼、修改備註與權限、一鍵重新產生 32 字元高強度 API Key、即時啟用/停用與安全刪除。
+  - 內建安全防呆守衛：防止管理員誤刪除自己登入中的帳號，並禁止將系統唯一的管理員降級為一般帳號。
+- **突破每日 100 則上傳限制架構 (`config/upload.php`, `config/schema.php`)**：
+  - 擴充資料庫 Schema：`users` 表新增 `role`、`daily_limit`、`status`、`note` 與 `created_at` 欄位，並自動建立 `idx_users_token` 與 `idx_users_role` 索引。
+  - **無限制配額模式 (`daily_limit = 0`)**：管理員或指定同事攜帶專屬 Token 時，**完全繞過全站每日 100 則限制，享有不受限的極速上傳權限**。
+  - **自訂每日配額 (`daily_limit > 0`)**：支援為個別同事自訂獨立額度（如 500、1000 則/日），系統獨立維護用戶級別的速率計數器 (`storage/.upload_limits/user_{id}.json`)。
+  - **全站預設跟隨 (`daily_limit = -1`)**：依循全站 `max_uploads_per_day`（預設 100 則）。
+- **統一認證解析器 (`resolveUploadUser`)**：
+  - 集中整合 `Bearer <token>`、`X-API-Key: <token>`、URL/Form 參數與 Web 後台 Session 四種認證途徑。
+  - 嚴格校驗帳號狀態（`status = 1`），停用帳號即刻阻斷 API 與後台存取。
+  - 解決 API 呼叫污染 Session 狀態的隱患，若請求提供 Token 則嚴格以 Token 鑑權，不回退舊 Cookie。
+  - 在 `api.php`、`audio.php` 與 `video.php` 補充放行 `X-API-Key` CORS 標頭。
+- **一鍵式「同事 API 呼叫指南」視覺化彈窗**：
+  - 提供整合該同事專屬 Token 的完整程式碼範例（包含 cURL、Python、JavaScript Fetch），一鍵點擊即可複製指令，方便直接轉發給同事無縫串接。
+
+### 🛡️ 安全加固與雙軌 Code Review 改善 (Codex & OpenCode)
+- **CSRF 跨站請求偽造防禦**：`admin/users.php` 全面納入 Session CSRF 權杖校驗，阻斷偽造請求。
+- **即時資料庫狀態重驗**：後台設定與帳號管理在每次存取時嚴格重查資料庫的即時角色與啟用狀態，杜絕帳號降級或停用後的 Session 殘留。
+- **修復文件上傳雙重計費**：重構 `api_file.php` 與 `api.php` 路由流，在統一入口完成限額檢查後避免二次重複扣減額度。
+- **MCP 遠端 URL 上傳速率限制**：在 `mcp.php` 的 `upload_asset_by_url` 端點套用 `isUploadAllowed()` 配額防護。
+
+### 🐛 介面渲染與全站追蹤碼防護修復
+- **修復設定頁面動態 Lucide 向量圖示空白**：在 `static/js/settings.js` 的 `openSettings()` 注入 HTML 後主動調用 `lucide.createIcons()`，解決設定彈窗複製與重新產生圖示無法渲染的問題。
+- **全站追蹤碼 HTML 屬性溢出防禦**：
+  - 根治 `admin/settings.php` 中 `placeholder` 未做 `htmlspecialchars()` 轉義導致 `<textarea>` 的 `style="..."` 溢出並誤寫入資料庫的問題。
+  - 在 `renderCustomTrackingCode()` 加入自動防禦過濾機制，阻斷殘留的樣式字串輸出至公開首頁 `<head>`。
+
 
 ### 🛡️ Cloudflare Turnstile Bot Protection & Multi-Site Fallback Architecture
 - **Dedicated Security & Verification Engine (`config/turnstile.php`)**:

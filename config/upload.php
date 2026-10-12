@@ -22,13 +22,173 @@ use Upyun\Config;
  * 获取客户端IP地址
  */
 function getClientIp() {
-    $ip = $_SERVER['REMOTE_ADDR'];
+    $ip = $_SERVER['REMOTE_ADDR'] ?? '127.0.0.1';
     if (isset($_SERVER['HTTP_X_FORWARDED_FOR'])) {
         $ip = $_SERVER['HTTP_X_FORWARDED_FOR'];
     } elseif (isset($_SERVER['HTTP_CLIENT_IP'])) {
         $ip = $_SERVER['HTTP_CLIENT_IP'];
     }
     return trim(explode(',', $ip)[0]);
+}
+
+/**
+ * 解析當前請求的使用者（支援 Bearer Token, X-API-Key, 請求參數 token / api_key, 或 Session）
+ */
+function resolveUploadUser($pdo) {
+    if (!$pdo) {
+        return null;
+    }
+
+    $token = '';
+    $authHeader = $_SERVER['HTTP_AUTHORIZATION'] ?? $_SERVER['REDIRECT_HTTP_AUTHORIZATION'] ?? '';
+    if (empty($authHeader) && function_exists('apache_request_headers')) {
+        $reqHeaders = apache_request_headers();
+        $authHeader = $reqHeaders['Authorization'] ?? $reqHeaders['authorization'] ?? '';
+    }
+    if (empty($authHeader) && function_exists('getallheaders')) {
+        $reqHeaders = getallheaders();
+        $authHeader = $reqHeaders['Authorization'] ?? $reqHeaders['authorization'] ?? '';
+    }
+
+    $tokenProvided = false;
+    $token = '';
+    if (preg_match('/Bearer\s+(.+)$/i', $authHeader, $matches)) {
+        $token = trim($matches[1]);
+        $tokenProvided = true;
+    } elseif (!empty($_SERVER['HTTP_X_API_KEY'])) {
+        $token = trim($_SERVER['HTTP_X_API_KEY']);
+        $tokenProvided = true;
+    } else {
+        $paramToken = trim((string)($_POST['token'] ?? $_GET['token'] ?? $_POST['api_key'] ?? $_GET['api_key'] ?? ''));
+        if ($paramToken !== '') {
+            $token = $paramToken;
+            $tokenProvided = true;
+        }
+    }
+
+    if ($tokenProvided) {
+        if ($token === '') {
+            return null;
+        }
+        $stmt = $pdo->prepare("SELECT * FROM users WHERE token = ? AND status = 1 LIMIT 1");
+        $stmt->execute([$token]);
+        $user = $stmt->fetch(PDO::FETCH_ASSOC);
+        // 若客戶端傳遞了 Token，不論有效或無效，絕不回退到 session，避免已註銷 Token 的 session 洩漏
+        return $user ?: null;
+    }
+
+    // 僅在完全未提供 Token 時，允許透過已登入後台的 session 認證
+    if (!empty($_SESSION['loggedin']) && !empty($_SESSION['user_id'])) {
+        $stmt = $pdo->prepare("SELECT * FROM users WHERE id = ? AND status = 1 LIMIT 1");
+        $stmt->execute([(int)$_SESSION['user_id']]);
+        $user = $stmt->fetch(PDO::FETCH_ASSOC);
+        if ($user) {
+            return $user;
+        }
+    }
+
+    return null;
+}
+
+/**
+ * 檢查速率限制檔案
+ */
+function checkUploadRateLimitFile($key, $limit, $limitMessage, $ip = '') {
+    $uploadDir = 'storage/.upload_limits/';
+    if (!is_dir($uploadDir)) {
+        @mkdir($uploadDir, 0755, true);
+    }
+
+    $currentDate = date('Y-m-d');
+    $limitFile = $uploadDir . $key . '.json';
+
+    $uploadData = file_exists($limitFile)
+        ? json_decode(@file_get_contents($limitFile), true) ?: []
+        : [];
+
+    if (!isset($uploadData['date']) || $uploadData['date'] !== $currentDate) {
+        $uploadData = ['date' => $currentDate, 'count' => 0];
+        if ($ip !== '') {
+            $uploadData['ip'] = $ip;
+        }
+    }
+
+    if ($uploadData['count'] >= $limit) {
+        return $limitMessage;
+    }
+
+    $uploadData['count']++;
+    $uploadData['last_upload'] = date('Y-m-d H:i:s');
+    @file_put_contents($limitFile, json_encode($uploadData, JSON_PRETTY_PRINT));
+
+    // 10% 機率清理過期檔案
+    try {
+        if (random_int(1, 10) === 1) {
+            foreach (glob($uploadDir . '*.json') as $file) {
+                $data = json_decode(@file_get_contents($file), true);
+                if (isset($data['date']) && $data['date'] !== $currentDate) {
+                    @unlink($file);
+                }
+            }
+        }
+    } catch (Exception $e) {}
+
+    return true;
+}
+
+/**
+ * 檢查上傳次數限制 (支援自訂使用者上限、無限制額度與 IP 限制)
+ *
+ * @param int $maxUploadsPerDay 全站預設每日上限
+ * @param PDO|null $pdo 資料庫連線實例
+ * @return true|string 允許返回 true，若超過限制則返回錯誤訊息字串
+ */
+function isUploadAllowed($maxUploadsPerDay, $pdo = null) {
+    if (!$pdo instanceof PDO) {
+        if (class_exists('Database')) {
+            try {
+                $pdo = Database::getInstance()->getConnection();
+            } catch (Exception $e) {
+                $pdo = null;
+            }
+        }
+    }
+
+    $user = null;
+    if ($pdo instanceof PDO) {
+        $user = resolveUploadUser($pdo);
+    }
+
+    // 已驗證的使用者
+    if ($user) {
+        // 若帳號已被停用，直接拒絕
+        if (isset($user['status']) && (int)$user['status'] === 0) {
+            return '您的帳號已被停用，無法上傳檔案';
+        }
+
+        $role = $user['role'] ?? 'user';
+        $dailyLimit = isset($user['daily_limit']) ? (int)$user['daily_limit'] : 0;
+
+        // 管理員角色 或 每日上限設為 0 (無限制)：完全不受 100 則限制，可無上限上傳！
+        if ($role === 'admin' || $dailyLimit === 0) {
+            return true;
+        }
+
+        // 自訂額度模式 (> 0) 或 跟隨全站預設 (< 0)
+        $userLimit = ($dailyLimit > 0) ? $dailyLimit : (int)$maxUploadsPerDay;
+        if ($userLimit <= 0) {
+            return true; // 若全站或自訂設為 0 表示不限制
+        }
+
+        return checkUploadRateLimitFile('user_' . (int)$user['id'], $userLimit, "您的帳號上傳次數已達今日限制（{$userLimit}次），請明天再試");
+    }
+
+    // 訪客未帶 API Key：按 IP 進行每日上傳次數限制
+    if ($maxUploadsPerDay <= 0) {
+        return true;
+    }
+    $clientIp = getClientIp();
+    return checkUploadRateLimitFile(md5($clientIp), (int)$maxUploadsPerDay, "上传次数已达今日限制（{$maxUploadsPerDay}次），请明天再试", $clientIp);
 }
 
 /**

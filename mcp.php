@@ -219,11 +219,16 @@ function authenticateUser($pdo, $args = []) {
 
     // 2. 驗證 Token
     if (!empty($token)) {
-        $stmt = $pdo->prepare("SELECT id, username FROM users WHERE token = ?");
+        $stmt = $pdo->prepare("SELECT id, username, role, status FROM users WHERE token = ?");
         $stmt->execute([$token]);
         $user = $stmt->fetch(PDO::FETCH_ASSOC);
         if ($user) {
-            return ['id' => (int)$user['id'], 'username' => $user['username'], 'isAdmin' => true];
+            if (isset($user['status']) && (int)$user['status'] === 0) return null;
+            return [
+                'id' => (int)$user['id'],
+                'username' => $user['username'],
+                'isAdmin' => (($user['role'] ?? 'user') === 'admin')
+            ];
         }
     }
 
@@ -232,7 +237,7 @@ function authenticateUser($pdo, $args = []) {
         return [
             'id' => (int)$_SESSION['user_id'],
             'username' => $_SESSION['username'] ?? 'admin',
-            'isAdmin' => true
+            'isAdmin' => (($_SESSION['role'] ?? 'user') === 'admin')
         ];
     }
 
@@ -564,6 +569,13 @@ function handleRequest($request, $pdo, $config) {
 
                 if (empty($url)) {
                     return ['content' => [['type' => 'text', 'text' => 'Error: URL is required']], 'isError' => true];
+                }
+
+                $maxUploadsPerDay = (int)($config['max_uploads_per_day'] ?? 100);
+                require_once __DIR__ . '/config/upload.php';
+                $uploadCheck = isUploadAllowed($maxUploadsPerDay, $pdo);
+                if ($uploadCheck !== true) {
+                    return ['content' => [['type' => 'text', 'text' => 'Rate limit exceeded: ' . $uploadCheck]], 'isError' => true];
                 }
 
                 $res = executeUploadFromUrl($pdo, $config, $url, $title, $desc, $pwd, $authUser['id'] ?? null);

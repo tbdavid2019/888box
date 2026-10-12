@@ -17,6 +17,23 @@ $db = Database::getInstance();
 $pdo = $db->getConnection();
 $demoMode = ($_ENV['DEMO_MODE'] ?? 'false') === 'true';
 
+// 權限檢查：僅啟用狀態之管理員可存取系統設定
+$currentUserId = (int)($_SESSION['user_id'] ?? 0);
+if (!$currentUserId) {
+    header('Content-Type: application/json; charset=utf-8');
+    http_response_code(401);
+    exit(json_encode(['success' => false, 'message' => '請先登入']));
+}
+$stmtRole = $pdo->prepare("SELECT role, status FROM users WHERE id = ?");
+$stmtRole->execute([$currentUserId]);
+$currentUserRecord = $stmtRole->fetch(PDO::FETCH_ASSOC);
+if (!$currentUserRecord || (int)$currentUserRecord['status'] === 0 || $currentUserRecord['role'] !== 'admin') {
+    header('Content-Type: application/json; charset=utf-8');
+    http_response_code(403);
+    exit(json_encode(['success' => false, 'message' => '權限不足：僅系統管理員可修改或查看系統設定']));
+}
+$_SESSION['role'] = 'admin';
+
 // 处理AJAX请求
 if (!empty($_POST['action'])) {
     header('Content-Type: application/json; charset=utf-8');
@@ -160,6 +177,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         foreach ($_POST as $key => $value) {
             if (!in_array($key, ['submit', 'token', 'new_password', 'confirm_password'])) {
+                // 自動清理誤存的 textarea style 垃圾字串
+                if ($key === 'custom_tracking_code') {
+                    $cleanVal = trim((string)$value);
+                    if (strpos($cleanVal, 'style="width:') === 0 || strpos($cleanVal, '" style="') === 0 || (strpos($cleanVal, 'box-sizing: border-box') !== false && strpos($cleanVal, '<script') === false)) {
+                        $value = '';
+                    }
+                }
+
                 // 自动处理域名和endpoint
                 if (!empty($value) && (strpos($key, '_cdn_domain') !== false || strpos($key, '_endpoint') !== false)) {
                     $value = rtrim($value, '/');
@@ -188,7 +213,13 @@ $storageConfigs = json_decode(file_get_contents('../config/configs.json'), true)
 $stmt = $pdo->prepare("SELECT token FROM users WHERE id = ?");
 $stmt->execute([$_SESSION['user_id']]);
 $userToken = $stmt->fetch(PDO::FETCH_ASSOC)['token'] ?? '';
+if (empty($userToken)) {
+    $userToken = bin2hex(random_bytes(16));
+}
 $rssToken = $configs['rss_token']['value'] ?? '';
+if (empty($rssToken)) {
+    $rssToken = generateRssToken();
+}
 $rssTokenEnabled = ($configs['rss_token_enabled']['value'] ?? 'false') === 'true';
 $videoRssPreviewUrl = buildRssUrl('video', [
     'site_domain' => $configs['site_domain']['value'] ?? '',
@@ -234,20 +265,20 @@ function renderFields($fields, $configs) {
             <?php elseif ($field['type'] === 'password'): ?>
                 <div class="password-wrapper">
                     <input type="password" name="<?= $key ?>" id="<?= $key ?>" value="<?= $value ?>"
-                           placeholder="<?= $field['placeholder'] ?? '' ?>" autocomplete="new-password">
+                           placeholder="<?= htmlspecialchars($field['placeholder'] ?? '', ENT_QUOTES, 'UTF-8') ?>" autocomplete="new-password">
                     <span class="toggle-password">
                         <i data-lucide="eye" class="icon"></i>
                     </span>
                 </div>
             <?php elseif ($field['type'] === 'textarea'): ?>
                 <textarea name="<?= $key ?>" id="<?= $key ?>" rows="<?= $field['rows'] ?? 5 ?>" 
-                          placeholder="<?= $field['placeholder'] ?? '' ?>"
+                          placeholder="<?= htmlspecialchars($field['placeholder'] ?? '', ENT_QUOTES, 'UTF-8') ?>"
                           style="width: 100%; box-sizing: border-box; padding: 10px; border-radius: 8px; border: 1px solid #414868; background: #1a1b26; color: #c0caf5; font-size: 14px; font-family: monospace; outline: none; resize: vertical;"><?= htmlspecialchars($value) ?></textarea>
             <?php else: ?>
                 <input type="<?= $field['type'] ?>" name="<?= $key ?>" id="<?= $key ?>" value="<?= $value ?>"
                        <?= isset($field['min']) ? "min=\"{$field['min']}\"" : '' ?>
                        <?= isset($field['max']) ? "max=\"{$field['max']}\"" : '' ?>
-                       placeholder="<?= $field['placeholder'] ?? '' ?>">
+                       placeholder="<?= htmlspecialchars($field['placeholder'] ?? '', ENT_QUOTES, 'UTF-8') ?>">
             <?php endif; ?>
         </div>
         <?php
@@ -369,7 +400,7 @@ $basicSettings = [
         'label' => '全站自訂追蹤碼 (如 Google Analytics 或 GTM)',
         'type' => 'textarea',
         'rows' => 4,
-        'placeholder' => '在此貼入完整的 Google Analytics (GA4) 全域網站 JavaScript 追蹤碼，或 Google Tag Manager (GTM) 代碼。例如：<script async src="https://www.googletagmanager.com/gtag/js?id=G-XXXXX"></script> <script>...</script>',
+        'placeholder' => '在此貼入完整的 Google Analytics (GA4) 或 GTM 追蹤程式碼（含 <script> 標籤）',
         'description' => '這段程式碼將會被自動注入至所有公開頁面（包含首頁、圖片/影片/文件/音訊上傳中心與資產分享頁面）的 <head> 區塊中。'
     ],
     'turnstile_header' => [
@@ -570,3 +601,8 @@ $basicSettings = [
         <button type="submit" name="submit" class="submit-btn submit-btn-float">儲存設定</button>
     </form>
 </div>
+<script>
+    if (window.lucide) {
+        lucide.createIcons();
+    }
+</script>
