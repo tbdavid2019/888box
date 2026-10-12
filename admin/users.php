@@ -8,9 +8,9 @@ if (!isset($_SESSION['loggedin']) || !$_SESSION['loggedin']) {
     exit;
 }
 
-require_once '../config/database.php';
-require_once '../config/theme_helper.php';
-require_once '../config/admin_ui.php';
+require_once __DIR__ . '/../config/database.php';
+require_once __DIR__ . '/../config/theme_helper.php';
+require_once __DIR__ . '/../config/admin_ui.php';
 
 $db = Database::getInstance();
 $pdo = $db->getConnection();
@@ -178,7 +178,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !empty($_POST['action'])) {
                     $updateStmt->execute([$note, $role, $dailyLimit, $status, $id]);
                 }
 
-                echo json_encode(['success' => true, 'message' => '帳號設定已儲存更新'], JSON_UNESCAPED_UNICODE);
+                $stmt = $pdo->prepare("SELECT id, username, token, role, daily_limit, status, note FROM users WHERE id = ?");
+                $stmt->execute([$id]);
+                $updatedUser = $stmt->fetch(PDO::FETCH_ASSOC);
+
+                echo json_encode([
+                    'success' => true,
+                    'message' => '帳號設定已儲存更新',
+                    'data' => $updatedUser
+                ], JSON_UNESCAPED_UNICODE);
                 break;
 
             case 'regenerate_token':
@@ -274,7 +282,12 @@ foreach ($users as $u) {
     }
 }
 
-$siteUrl = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off' ? 'https://' : 'http://') . ($_SERVER['HTTP_HOST'] ?? 'localhost');
+$forwardedProto = strtolower(trim(explode(',', (string)($_SERVER['HTTP_X_FORWARDED_PROTO'] ?? ''))[0]));
+$isHttps = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off')
+    || $forwardedProto === 'https'
+    || (isset($_SERVER['SERVER_PORT']) && (int)$_SERVER['SERVER_PORT'] === 443);
+$scheme = $isHttps ? 'https://' : 'http://';
+$siteUrl = $scheme . ($_SERVER['HTTP_HOST'] ?? 'localhost');
 $apiUploadUrl = rtrim($siteUrl, '/') . '/api.php?action=upload';
 ?>
 <!DOCTYPE html>
@@ -1047,7 +1060,10 @@ $apiUploadUrl = rtrim($siteUrl, '/') . '/api.php?action=upload';
                                         <button type="button" class="btn-icon" title="複製 API Key" onclick="copyToken('<?= htmlspecialchars($user['token']) ?>', this)">
                                             <i data-lucide="copy" style="width: 15px; height: 15px;"></i>
                                         </button>
-                                        <button type="button" class="btn-icon" title="查看 API 呼叫範例" onclick="showColleagueApiGuide('<?= htmlspecialchars($user['username']) ?>', '<?= htmlspecialchars($user['token']) ?>')">
+                                        <button type="button" class="btn-icon" title="複製同事專用通知訊息" onclick="copyColleagueInfo('<?= htmlspecialchars($user['username']) ?>', '<?= htmlspecialchars($user['token']) ?>', <?= $dailyLimit ?>, this)">
+                                            <i data-lucide="share-2" style="width: 15px; height: 15px;"></i>
+                                        </button>
+                                        <button type="button" class="btn-icon" title="查看 API 呼叫範例與完整資訊" onclick="showColleagueApiGuide('<?= htmlspecialchars($user['username']) ?>', '<?= htmlspecialchars($user['token']) ?>', <?= $dailyLimit ?>)">
                                             <i data-lucide="terminal" style="width: 15px; height: 15px;"></i>
                                         </button>
                                     </div>
@@ -1255,9 +1271,16 @@ $apiUploadUrl = rtrim($siteUrl, '/') . '/api.php?action=upload';
                         </div>
                     </div>
                 </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn-secondary" onclick="closeModal('modal-edit-user')">取消</button>
-                    <button type="submit" class="btn-primary">儲存變更</button>
+                <div class="modal-footer" style="display: flex; justify-content: space-between; align-items: center;">
+                    <div>
+                        <button type="button" class="btn-secondary" onclick="copyFromEditUserModal()" title="依目前設定產生並複製同事通知訊息">
+                            <i data-lucide="share-2" style="width: 14px; height: 14px;"></i> 複製同事通知訊息
+                        </button>
+                    </div>
+                    <div style="display: flex; gap: 8px;">
+                        <button type="button" class="btn-secondary" onclick="closeModal('modal-edit-user')">取消</button>
+                        <button type="submit" class="btn-primary">儲存變更</button>
+                    </div>
                 </div>
             </form>
         </div>
@@ -1273,7 +1296,7 @@ $apiUploadUrl = rtrim($siteUrl, '/') . '/api.php?action=upload';
                 </button>
             </div>
             <div class="modal-body">
-                <p style="margin-top: 0; color: #a9b1d6;">已為同事成功建立專用帳號與 API Key，此帳號可無限制上傳（突破每日 100 則限制）。</p>
+                <p id="created-success-desc" style="margin-top: 0; color: #a9b1d6;">已為同事成功建立專用帳號與 API Key。</p>
                 
                 <div class="form-item">
                     <label>帳號名稱</label>
@@ -1317,8 +1340,20 @@ $apiUploadUrl = rtrim($siteUrl, '/') . '/api.php?action=upload';
             </div>
             <div class="modal-body">
                 <p style="margin-top: 0; color: #a9b1d6; font-size: 0.9rem;">
-                    同事只要在上傳請求時帶上其專屬的 <strong>API Key</strong>，即可不受每日 100 則的限制，支援多種帶入方式：
+                    同事只要在上傳請求時帶上其專屬的 <strong>API Key</strong>，即可套用專屬上傳配額（如自訂上限或突破限制），支援多種帶入方式：
                 </p>
+
+                <div class="form-item" style="margin-bottom: 20px;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                        <label style="margin: 0; font-weight: 600; color: #7dcfff;">快速傳送給同事的訊息範本</label>
+                        <button type="button" class="code-copy-btn" style="position: static;" onclick="copyColleagueGuideMessage()">
+                            <i data-lucide="copy" style="width: 13px; height: 13px;"></i> 複製整段訊息
+                        </button>
+                    </div>
+                    <div class="code-block">
+                        <pre id="guide-full-colleague-message"></pre>
+                    </div>
+                </div>
 
                 <div style="margin-bottom: 16px;">
                     <div style="font-size: 0.85rem; font-weight: 600; color: #e0af68; margin-bottom: 6px;">
@@ -1392,6 +1427,68 @@ print(response.json())</pre>
     <script src="/static/js/admin.js?v=<?= time(); ?>"></script>
     <script>
         const API_UPLOAD_URL = <?= json_encode($apiUploadUrl, JSON_UNESCAPED_SLASHES) ?>;
+        const SYSTEM_DEFAULT_LIMIT = <?= (int)$systemDefaultLimit ?>;
+        let currentGuideMessage = '';
+
+        function getQuotaDescription(dailyLimit) {
+            const limit = parseInt(dailyLimit, 10);
+            if (limit === 0) {
+                return `無限制（已開放突破 ${SYSTEM_DEFAULT_LIMIT} 則限制）`;
+            } else if (limit > 0) {
+                return `每日 ${limit.toLocaleString()} 則（自訂上限）`;
+            } else {
+                return `跟隨全站預設（每日 ${SYSTEM_DEFAULT_LIMIT.toLocaleString()} 則）`;
+            }
+        }
+
+        function formatColleagueMessage(username, token, dailyLimit) {
+            const quotaDesc = getQuotaDescription(dailyLimit);
+            return `888 BOX 同事專用帳號資訊：\n\n帳號：${username}\nAPI Key (Token)：${token}\n上傳端點：${API_UPLOAD_URL}\n每日配額：${quotaDesc}\n\n上傳範例 (cURL)：\ncurl -X POST "${API_UPLOAD_URL}" -H "Authorization: Bearer ${token}" -F "file=@your_image.jpg"`;
+        }
+
+        function copyColleagueInfo(username, token, dailyLimit, btnEl) {
+            const msg = formatColleagueMessage(username, token, dailyLimit);
+            if (navigator.clipboard) {
+                navigator.clipboard.writeText(msg).then(() => {
+                    if (typeof UI !== 'undefined') UI.showNotification(`已複製「${username}」的同事專用通知訊息`, 'success');
+                    if (btnEl) {
+                        btnEl.classList.add('is-copied');
+                        setTimeout(() => btnEl.classList.remove('is-copied'), 1500);
+                    }
+                });
+            }
+        }
+
+        function copyColleagueGuideMessage() {
+            if (navigator.clipboard && currentGuideMessage) {
+                navigator.clipboard.writeText(currentGuideMessage).then(() => {
+                    if (typeof UI !== 'undefined') UI.showNotification('已複製給同事的通知訊息', 'success');
+                });
+            }
+        }
+
+        function copyFromEditUserModal() {
+            const id = document.getElementById('edit-id').value;
+            const row = document.querySelector(`.user-row[data-id="${id}"]`);
+            const username = document.getElementById('edit-username').value;
+            const token = row ? row.dataset.token : '';
+
+            const limitTypeRadio = document.querySelector('#modal-edit-user input[name="daily_limit_type"]:checked');
+            const limitType = limitTypeRadio ? limitTypeRadio.value : 'unlimited';
+            let dailyLimit = 0;
+            if (limitType === 'custom') {
+                dailyLimit = parseInt(document.getElementById('edit-custom-daily-limit').value, 10) || 100;
+            } else if (limitType === 'default') {
+                dailyLimit = -1;
+            }
+
+            const msg = formatColleagueMessage(username, token, dailyLimit);
+            if (navigator.clipboard) {
+                navigator.clipboard.writeText(msg).then(() => {
+                    if (typeof UI !== 'undefined') UI.showNotification(`已依目前設定複製「${username}」的通知訊息`, 'success');
+                });
+            }
+        }
 
         document.addEventListener('DOMContentLoaded', () => {
             if (window.lucide) lucide.createIcons();
@@ -1535,8 +1632,15 @@ print(response.json())</pre>
                     document.getElementById('created-username').value = data.data.username;
                     document.getElementById('created-token').value = data.data.token;
                     
-                    const message = `888 BOX 同事專用帳號資訊：\n帳號：${data.data.username}\nAPI Key (Token)：${data.data.token}\n上傳端點：${API_UPLOAD_URL}\n每日配額：無限制（已開放突破 100 則限制）\n\n上傳範例 (cURL)：\ncurl -X POST "${API_UPLOAD_URL}" -H "Authorization: Bearer ${data.data.token}" -F "file=@your_image.jpg"`;
+                    const dailyLimit = data.data.daily_limit;
+                    const message = formatColleagueMessage(data.data.username, data.data.token, dailyLimit);
                     document.getElementById('created-colleague-message').textContent = message;
+
+                    const quotaSummary = (dailyLimit === 0) 
+                        ? `此帳號為無限制上傳（已突破每日 ${SYSTEM_DEFAULT_LIMIT} 則限制）。` 
+                        : (dailyLimit > 0 ? `此帳號每日上限為 ${parseInt(dailyLimit, 10).toLocaleString()} 則。` : `此帳號跟隨全站預設配額。`);
+                    const descEl = document.getElementById('created-success-desc');
+                    if (descEl) descEl.textContent = `已為同事成功建立專用帳號與 API Key，${quotaSummary}`;
 
                     openModal('modal-created-success');
                 } else {
@@ -1719,11 +1823,17 @@ print(response.json())</pre>
         // 同事 API 呼叫指南 Modal
         function openApiGuideModal() {
             document.querySelectorAll('.guide-placeholder-token').forEach(el => el.textContent = 'YOUR_API_KEY');
+            currentGuideMessage = formatColleagueMessage('YOUR_USERNAME', 'YOUR_API_KEY', 0);
+            const msgEl = document.getElementById('guide-full-colleague-message');
+            if (msgEl) msgEl.textContent = currentGuideMessage;
             openModal('modal-api-guide');
         }
 
-        function showColleagueApiGuide(username, token) {
+        function showColleagueApiGuide(username, token, dailyLimit = 0) {
             document.querySelectorAll('.guide-placeholder-token').forEach(el => el.textContent = token);
+            currentGuideMessage = formatColleagueMessage(username, token, dailyLimit);
+            const msgEl = document.getElementById('guide-full-colleague-message');
+            if (msgEl) msgEl.textContent = currentGuideMessage;
             openModal('modal-api-guide');
         }
 
