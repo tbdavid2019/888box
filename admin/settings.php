@@ -455,8 +455,8 @@ $basicSettings = [
         <div class="settings-group">
             <div class="settings-header">
                 <h2>基本設定</h2>
-                <button type="button" class="close-modal">
-                    <i data-lucide="x" class="icon"></i>
+                <button type="button" class="close-modal" aria-label="關閉">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
                 </button>
             </div>
             <div class="form-group">
@@ -495,10 +495,10 @@ $basicSettings = [
                 <div class="token-input-group">
                     <input type="text" name="token" id="token-input" value="<?= $userToken ?>" readonly>
                     <button type="button" class="token-action-btn copy-token" title="複製">
-                        <i data-lucide="copy" class="icon"></i>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg>
                     </button>
                     <button type="button" class="token-action-btn refresh-token" title="重新產生">
-                        <i data-lucide="refresh-cw" class="icon"></i>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon"><path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/><path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"/><path d="M8 16H3v5"/></svg>
                     </button>
                 </div>
             </div>
@@ -527,10 +527,10 @@ $basicSettings = [
                 <div class="token-input-group">
                     <input type="text" name="rss_token" id="rss-token-input" value="<?= htmlspecialchars($rssToken) ?>" readonly>
                     <button type="button" class="token-action-btn copy-rss-token" title="複製">
-                        <i data-lucide="copy" class="icon"></i>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg>
                     </button>
                     <button type="button" class="token-action-btn refresh-rss-token" title="重新產生">
-                        <i data-lucide="refresh-cw" class="icon"></i>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon"><path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/><path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"/><path d="M8 16H3v5"/></svg>
                     </button>
                 </div>
             </div>

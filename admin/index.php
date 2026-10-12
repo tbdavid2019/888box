@@ -98,6 +98,9 @@ $pagination = renderPagination($current_page, $total_pages);
         <a href="/" class="floating-link" title="返回首頁">
             <i data-lucide="home" class="icon"></i>
         </a>
+        <a href="/admin/users.php" class="floating-link" title="帳號管理" style="background-color: #bb9af7;">
+            <i data-lucide="users" class="icon" style="color: white;"></i>
+        </a>
         <a class="select-link" title="多選模式">
             <i data-lucide="check-square" class="icon"></i>
         </a>
