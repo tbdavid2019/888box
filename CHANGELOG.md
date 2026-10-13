@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [2026.10.2] - 2026-10-13
+
+### 💬 WebTalk 服務端點全面遷移至自訂網域 (`webtalk.david888.com`)
+- **服務網域遷移**：將全站 6 個公開使用者頁面（`index.php`、`upload_image.php`、`upload_video.php`、`upload_audio.php`、`upload_file.php`、`view.php`）之 WebTalk 聊天掛件由 `https://webtalk-nine.vercel.app/webtalk-chat.js` 全面遷移至專屬自訂網域 `https://webtalk.david888.com/webtalk-chat.js`。
+- **維持 Origin 範疇**：保留 `data-webtalk-scope="origin"` 屬性，確保跨資產管理介面聊天室維持一致識別與即時連線。
+
 ## [2026.10.1] - 2026-10-12
 
 ### 👥 帳號管理中心與同事突破每日 100 則上傳限制 (Colleague Accounts & Quota Bypass)

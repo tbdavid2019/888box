@@ -558,6 +558,6 @@ if (!headers_sent()) {
     </script>
 
     <!-- Webtalk Chat Widget -->
-    <script async src="https://webtalk-nine.vercel.app/webtalk-chat.js" data-webtalk-scope="origin"></script>
+    <script async src="https://webtalk.david888.com/webtalk-chat.js" data-webtalk-scope="origin"></script>
 </body>
 </html>
