@@ -75,10 +75,12 @@ function renderThemeStyles($pdo) {
     }
     
     body {
-        margin: 0 !important;
-        padding-top: 0 !important;
         background: <?= $theme['bg_gradient'] ?> !important;
         color: <?= $theme['content'] ?> !important;
+    }
+    body:has(.box-site-header) {
+        margin: 0 !important;
+        padding-top: 0 !important;
     }
     
     h1, h2, h3, h4, h5, h6, 
@@ -372,7 +374,7 @@ function renderThemeStyles($pdo) {
     .box-site-header + .login-container {
         margin-top: 60px;
     }
-    @media (max-width: 820px) {
+    @media (max-width: 1024px) {
         .box-language-switcher {
             top: max(10px, env(safe-area-inset-top));
             right: max(10px, env(safe-area-inset-right));
@@ -393,6 +395,8 @@ function renderThemeStyles($pdo) {
         }
         .box-site-header-actions {
             order: 2;
+            flex-wrap: wrap;
+            justify-content: flex-end;
         }
         .box-site-section-nav {
             order: 3;
