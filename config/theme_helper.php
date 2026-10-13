@@ -75,6 +75,8 @@ function renderThemeStyles($pdo) {
     }
     
     body {
+        margin: 0 !important;
+        padding-top: 0 !important;
         background: <?= $theme['bg_gradient'] ?> !important;
         color: <?= $theme['content'] ?> !important;
     }
@@ -157,20 +159,28 @@ function renderThemeStyles($pdo) {
         background: <?= $theme['overlay_deep'] ?> !important;
     }
 
+    :root {
+        --nav-height: 60px;
+        --nav-control-height: 34px;
+        --nav-radius: 8px;
+        --nav-gap: 8px;
+    }
+
     .box-language-switcher {
         position: fixed;
-        top: max(16px, env(safe-area-inset-top));
-        right: max(18px, env(safe-area-inset-right));
+        top: max(14px, env(safe-area-inset-top));
+        right: max(16px, env(safe-area-inset-right));
         z-index: 2000;
         display: inline-flex;
         align-items: center;
-        gap: 4px;
-        padding: 4px;
+        gap: 3px;
+        padding: 3px;
         border: 1px solid <?= $theme['border_color'] ?>;
         border-radius: 999px;
         background: <?= $theme['panel_bg'] ?>;
-        box-shadow: 0 10px 28px rgba(0, 0, 0, 0.24);
+        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.24);
         backdrop-filter: blur(14px);
+        -webkit-backdrop-filter: blur(14px);
     }
     .box-language-switcher-inline {
         position: static;
@@ -179,24 +189,25 @@ function renderThemeStyles($pdo) {
         z-index: auto;
         box-shadow: none;
         backdrop-filter: none;
+        -webkit-backdrop-filter: none;
     }
     .box-language-label {
-        padding: 0 5px 0 8px;
+        padding: 0 4px 0 6px;
         color: <?= $theme['muted'] ?> !important;
         font-size: 0.72rem;
         font-weight: 700;
     }
     .box-language-switcher button {
-        min-width: 32px;
-        min-height: 30px;
-        padding: 4px 8px;
+        min-width: 28px;
+        min-height: 28px;
+        padding: 2px 8px;
         border: 0;
         border-radius: 999px;
         background: transparent;
         color: <?= $theme['content'] ?> !important;
         cursor: pointer;
         font: inherit;
-        font-size: 0.78rem;
+        font-size: 0.76rem;
         font-weight: 800;
         transition: background 160ms ease, color 160ms ease, transform 160ms ease;
     }
@@ -208,83 +219,105 @@ function renderThemeStyles($pdo) {
     .box-language-switcher button.is-active {
         background: <?= $theme['accent'] ?>;
         color: #111827 !important;
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.18);
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.18);
     }
     .box-site-header {
         position: relative;
         z-index: 1000;
-        display: flex;
+        display: grid;
+        grid-template-columns: minmax(160px, 1fr) auto minmax(160px, 1fr);
         align-items: center;
-        justify-content: space-between;
-        gap: 18px;
-        width: 100vw;
-        margin-top: -20px;
-        margin-left: calc(50% - 50vw);
-        margin-right: calc(50% - 50vw);
-        min-height: 64px;
+        gap: 16px;
+        width: 100%;
+        margin: 0;
+        min-height: var(--nav-height);
         box-sizing: border-box;
-        padding: 10px clamp(18px, 4vw, 48px);
+        padding: 10px clamp(16px, 3.5vw, 44px);
         color: <?= $theme['content'] ?>;
         background: rgba(15, 18, 32, 0.94);
         border-bottom: 1px solid <?= $theme['border_color'] ?>;
-        box-shadow: 0 10px 28px rgba(0, 0, 0, 0.22);
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25);
+        backdrop-filter: blur(16px);
+        -webkit-backdrop-filter: blur(16px);
     }
-    .box-site-header-left,
-    .box-site-section-nav,
-    .box-site-header-actions {
+    .box-site-header-left {
+        grid-column: 1;
+        justify-self: start;
         display: inline-flex;
         align-items: center;
-        gap: 10px;
+        gap: 8px;
         min-width: 0;
     }
     .box-site-section-nav {
-        gap: 4px;
-        flex: 1 1 auto;
-        justify-content: center;
+        grid-column: 2;
+        justify-self: center;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        min-width: 0;
+    }
+    .box-site-header-actions {
+        grid-column: 3;
+        justify-self: end;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        min-width: 0;
     }
     .box-site-section-link {
         display: inline-flex;
         align-items: center;
-        min-height: 32px;
-        padding: 6px 10px;
+        gap: 6px;
+        min-height: var(--nav-control-height);
+        padding: 0 12px;
         border: 1px solid transparent;
-        border-radius: 7px;
+        border-radius: var(--nav-radius);
         color: <?= $theme['muted'] ?> !important;
         text-decoration: none;
-        font-size: 0.82rem;
-        font-weight: 700;
+        font-size: 0.85rem;
+        font-weight: 600;
         white-space: nowrap;
-        transition: background 160ms ease, border-color 160ms ease, color 160ms ease;
+        transition: all 160ms cubic-bezier(0.16, 1, 0.3, 1);
     }
-    .box-site-section-link:hover,
-    .box-site-section-link.is-active {
+    .box-site-section-link svg {
+        width: 15px;
+        height: 15px;
+        opacity: 0.75;
+        transition: opacity 160ms ease;
+    }
+    .box-site-section-link:hover {
         color: <?= $theme['content'] ?> !important;
-        background: rgba(122, 162, 247, 0.16);
-        border-color: rgba(125, 207, 255, 0.46);
+        background: rgba(122, 162, 247, 0.12);
+        border-color: rgba(122, 162, 247, 0.25);
     }
-    .box-site-header-actions {
-        justify-content: flex-end;
-        flex-wrap: wrap;
+    .box-site-section-link:hover svg {
+        opacity: 1;
     }
-    .box-site-brand,
-    .box-site-header-action {
+    .box-site-section-link.is-active {
+        color: #ffffff !important;
+        background: rgba(122, 162, 247, 0.22);
+        border-color: rgba(125, 207, 255, 0.55);
+        font-weight: 700;
+        box-shadow: 0 2px 8px rgba(122, 162, 247, 0.25);
+    }
+    .box-site-section-link.is-active svg {
+        opacity: 1;
+        color: #7dcfff;
+    }
+    .box-site-brand {
         display: inline-flex;
         align-items: center;
         gap: 7px;
-        min-height: 34px;
+        min-height: var(--nav-control-height);
         box-sizing: border-box;
-        color: <?= $theme['content'] ?> !important;
+        color: <?= $theme['title'] ?> !important;
         text-decoration: none;
         font-size: 0.98rem;
         font-weight: 700;
+        letter-spacing: 0.01em;
         white-space: nowrap;
     }
-    .box-site-brand {
-        color: <?= $theme['title'] ?> !important;
-        letter-spacing: 0.01em;
-    }
-    .box-site-brand svg,
-    .box-site-header-action svg {
+    .box-site-brand svg {
         width: 16px;
         height: 16px;
     }
@@ -294,40 +327,52 @@ function renderThemeStyles($pdo) {
     }
     .box-site-context {
         color: <?= $theme['muted'] ?> !important;
-        font-size: 0.95rem;
+        font-size: 0.92rem;
         font-weight: 600;
         white-space: nowrap;
     }
     .box-site-header-action {
-        min-height: 36px;
-        padding: 8px 13px;
-        border: 1px solid rgba(255, 255, 255, 0.18);
-        border-radius: 999px;
-        background: rgba(255, 255, 255, 0.04);
-        transition: background 160ms ease, border-color 160ms ease, color 160ms ease, transform 160ms ease;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        min-height: var(--nav-control-height);
+        box-sizing: border-box;
+        padding: 0 12px;
+        border: 1px solid rgba(255, 255, 255, 0.16);
+        border-radius: var(--nav-radius);
+        background: rgba(255, 255, 255, 0.05);
+        color: <?= $theme['content'] ?> !important;
+        text-decoration: none;
+        font-size: 0.85rem;
+        font-weight: 600;
+        white-space: nowrap;
+        transition: all 160ms ease;
     }
-    .box-site-header-action:hover,
-    .box-site-header-action:focus-visible {
+    .box-site-header-action svg {
+        width: 15px;
+        height: 15px;
+    }
+    .box-site-header-action:hover {
         color: #ffffff !important;
-        background: rgba(125, 207, 255, 0.14);
-        border-color: rgba(125, 207, 255, 0.58);
+        background: rgba(255, 255, 255, 0.1);
+        border-color: rgba(125, 207, 255, 0.4);
         transform: translateY(-1px);
     }
+    .box-site-section-link:focus-visible,
+    .box-site-header-action:focus-visible,
+    .box-site-brand:focus-visible,
+    .box-language-switcher button:focus-visible {
+        outline: 2px solid #7dcfff !important;
+        outline-offset: 2px !important;
+    }
     .box-site-header + .video-main,
-    .box-site-header + main,
-    .box-site-header + .admin-header {
+    .box-site-header + main {
         margin-top: 24px;
     }
-    .box-site-header + .admin-header {
-        margin-top: 0;
-    }
     .box-site-header + .login-container {
-        margin-top: 88px;
+        margin-top: 60px;
     }
-    .admin-login-page .box-site-header {
-        margin-top: 0;
-    }
-    @media (max-width: 640px) {
+    @media (max-width: 820px) {
         .box-language-switcher {
             top: max(10px, env(safe-area-inset-top));
             right: max(10px, env(safe-area-inset-right));
@@ -336,22 +381,39 @@ function renderThemeStyles($pdo) {
             display: none;
         }
         .box-site-header {
-            align-items: flex-start;
+            display: flex;
             flex-wrap: wrap;
+            justify-content: space-between;
+            align-items: center;
             gap: 8px 12px;
-            width: 100vw;
-            margin-top: -20px;
-            margin-left: calc(50% - 50vw);
-            margin-right: calc(50% - 50vw);
             padding: 10px max(14px, env(safe-area-inset-right)) 10px max(14px, env(safe-area-inset-left));
         }
-    .box-site-header-left,
-        .box-site-section-nav,
+        .box-site-header-left {
+            order: 1;
+        }
         .box-site-header-actions {
-            flex-wrap: wrap;
+            order: 2;
+        }
+        .box-site-section-nav {
+            order: 3;
+            width: 100%;
+            justify-content: flex-start;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            scrollbar-width: none;
+            padding-bottom: 2px;
+        }
+        .box-site-section-nav::-webkit-scrollbar {
+            display: none;
+        }
+        .box-site-section-link {
+            flex: 0 0 auto;
+            padding: 0 10px;
+            font-size: 0.82rem;
         }
         .box-site-header-action {
-            padding-inline: 10px;
+            padding: 0 10px;
+            font-size: 0.82rem;
         }
     }
     </style>
@@ -381,10 +443,10 @@ function renderLanguageSwitcher($inline = false) {
  */
 function renderSiteHeader($context, $actions = [], $activeSection = null) {
     $sections = [
-        'image' => ['label' => '圖片', 'href' => '/upload_image.php'],
-        'video' => ['label' => '影片', 'href' => '/upload_video.php'],
-        'audio' => ['label' => '音訊', 'href' => '/upload_audio.php'],
-        'file' => ['label' => '文件', 'href' => '/upload_file.php'],
+        'image' => ['label' => '圖片', 'href' => '/upload_image.php', 'icon' => 'image'],
+        'video' => ['label' => '影片', 'href' => '/upload_video.php', 'icon' => 'video'],
+        'audio' => ['label' => '音訊', 'href' => '/upload_audio.php', 'icon' => 'music'],
+        'file'  => ['label' => '文件', 'href' => '/upload_file.php',  'icon' => 'file-text'],
     ];
     ?>
     <header class="box-site-header">
@@ -393,13 +455,16 @@ function renderSiteHeader($context, $actions = [], $activeSection = null) {
                 <i data-lucide="box"></i>
                 <span data-i18n="brandName">888 BOX</span>
             </a>
-            <span class="box-site-separator" aria-hidden="true">/</span>
-            <span class="box-site-context" data-i18n><?= htmlspecialchars($context, ENT_QUOTES, 'UTF-8') ?></span>
+            <?php if ($activeSection === false && !empty($context)): ?>
+                <span class="box-site-separator" aria-hidden="true">/</span>
+                <span class="box-site-context" data-i18n><?= htmlspecialchars($context, ENT_QUOTES, 'UTF-8') ?></span>
+            <?php endif; ?>
         </div>
         <?php if ($activeSection !== false): ?>
-            <nav class="box-site-section-nav" aria-label="管理分類">
+            <nav class="box-site-section-nav" aria-label="資產類型導覽">
                 <?php foreach ($sections as $key => $section): ?>
                     <a href="<?= htmlspecialchars($section['href'], ENT_QUOTES, 'UTF-8') ?>" class="box-site-section-link<?= $activeSection === $key ? ' is-active' : '' ?>"<?= $activeSection === $key ? ' aria-current="page"' : '' ?>>
+                        <i data-lucide="<?= htmlspecialchars($section['icon'], ENT_QUOTES, 'UTF-8') ?>"></i>
                         <span data-i18n><?= htmlspecialchars($section['label'], ENT_QUOTES, 'UTF-8') ?></span>
                     </a>
                 <?php endforeach; ?>

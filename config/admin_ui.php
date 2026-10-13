@@ -66,8 +66,6 @@ function renderAdminHeader($active, $title, $actions = []) {
                 <span data-i18n="brandName">888 BOX</span>
             </a>
             <span class="box-admin-pill-badge" data-i18n>後台</span>
-            <span class="box-site-separator" aria-hidden="true">/</span>
-            <span class="box-site-context" data-i18n><?= htmlspecialchars($cleanTitle, ENT_QUOTES, 'UTF-8') ?></span>
         </div>
 
         <nav class="box-site-section-nav box-admin-section-nav" aria-label="後台管理分類">

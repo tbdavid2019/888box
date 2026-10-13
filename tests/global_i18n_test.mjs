@@ -77,7 +77,7 @@ assert.match(index, /pwa\.js\?v=2/);
 
 const uploadImage = await read('upload_image.php');
 assert.match(uploadImage, /pwa\.js\?v=2/);
-assert.match(helper, /\.box-site-header\s*\{[\s\S]*?margin-top:\s*-20px/);
+assert.match(helper, /\.box-site-header\s*\{[\s\S]*?margin:\s*0/);
 for (const page of ['upload_image.php', 'upload_video.php', 'upload_audio.php', 'upload_file.php']) {
     const source = await read(page);
     assert.match(source, /renderSiteHeader\([^\n]+,[\s\S]*?['"](image|video|audio|file)['"]\)/);
