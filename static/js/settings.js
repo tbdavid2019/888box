@@ -141,7 +141,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // 郵件發信通道切換 (Resend vs SMTP)
         const updateMailDriverSettings = () => {
-            const driver = document.querySelector('input[name="mail_driver"]:checked')?.value || 'resend';
+            const driverSelect = modal.querySelector('select[name="mail_driver"]');
+            const driverRadio = modal.querySelector('input[name="mail_driver"]:checked');
+            const driver = (driverSelect ? driverSelect.value : driverRadio?.value) || 'resend';
             const resendSection = document.getElementById('mail-section-resend');
             const smtpSection = document.getElementById('mail-section-smtp');
             if (resendSection && smtpSection) {
@@ -151,7 +153,8 @@ document.addEventListener('DOMContentLoaded', () => {
         };
 
         updateMailDriverSettings();
-        document.querySelectorAll('input[name="mail_driver"]').forEach(input =>
+        modal.querySelector('select[name="mail_driver"]')?.addEventListener('change', updateMailDriverSettings);
+        modal.querySelectorAll('input[name="mail_driver"]').forEach(input =>
             input.addEventListener('change', updateMailDriverSettings)
         );
 
@@ -302,7 +305,8 @@ document.addEventListener('DOMContentLoaded', () => {
             const btn = e.currentTarget;
             btn.disabled = true;
             const originalHtml = btn.innerHTML;
-            btn.innerHTML = '<span>發送中…</span>';
+            btn.innerHTML = '<i data-lucide="loader-2" class="icon spin" style="width: 14px; height: 14px;"></i> <span>傳送中...</span>';
+            if (window.lucide) lucide.createIcons();
 
             try {
                 const form = document.getElementById('settings-form');

@@ -23,6 +23,15 @@ function sendMail($to, $subject, $content, $isHtml = false, $config = null) {
         $config = Database::getConfig($pdo);
     }
 
+    // 檢查郵件傳送是否啟用
+    $mailEnabled = strtolower(trim((string)($config['mail_enabled'] ?? 'true')));
+    if ($mailEnabled === 'false' || $mailEnabled === '0' || $mailEnabled === 'off') {
+        return [
+            'success' => false,
+            'message' => '郵件傳送功能已停用（請在「系統設定 > 郵件通知」開啟啟用郵件傳送）'
+        ];
+    }
+
     // 整理收件者陣列
     $recipients = [];
     if (is_array($to)) {
@@ -35,8 +44,8 @@ function sendMail($to, $subject, $content, $isHtml = false, $config = null) {
         return ['success' => false, 'message' => '未指定有效的收件者信箱'];
     }
 
-    // 判斷發信通道
-    $driver = strtolower(trim((string)($config['mail_driver'] ?? '')));
+    // 判斷發信通道 (resend 或 smtp)
+    $driver = strtolower(trim((string)($config['mail_driver'] ?? ($config['mail_service'] ?? ''))));
     if ($driver !== 'smtp' && $driver !== 'resend') {
         if (!empty($config['resend_api_key'])) {
             $driver = 'resend';
@@ -62,13 +71,22 @@ function sendViaResend(array $recipients, $subject, $content, $isHtml, array $co
     if (empty($apiKey)) {
         return [
             'success' => false,
-            'message' => '尚未設定 Resend API Key，請至「系統設定」>「郵件維護」填寫 API Key'
+            'message' => '尚未設定 Resend API Key，請至「系統設定」>「郵件通知」填寫 API Key'
         ];
     }
 
-    $from = trim((string)($config['resend_from_email'] ?? ''));
-    if (empty($from)) {
-        $from = '888 BOX <onboarding@resend.dev>';
+    // 發件人處理 (名稱 + 信箱)
+    $fromName = trim((string)($config['mail_from_name'] ?? '888 BOX'));
+    $fromEmail = trim((string)($config['mail_from_email'] ?? ($config['resend_from_email'] ?? 'onboarding@resend.dev')));
+    if (empty($fromEmail)) {
+        $fromEmail = 'onboarding@resend.dev';
+    }
+
+    // 若未包含 < >，組裝完整格式
+    if (strpos($fromEmail, '<') === false && !empty($fromName)) {
+        $from = "{$fromName} <{$fromEmail}>";
+    } else {
+        $from = $fromEmail;
     }
 
     $payload = [
@@ -76,6 +94,12 @@ function sendViaResend(array $recipients, $subject, $content, $isHtml, array $co
         'to' => $recipients,
         'subject' => $subject,
     ];
+
+    // Reply-To 支援
+    $replyTo = trim((string)($config['mail_reply_to'] ?? ''));
+    if (!empty($replyTo)) {
+        $payload['reply_to'] = $replyTo;
+    }
 
     if ($isHtml) {
         $payload['html'] = $content;
