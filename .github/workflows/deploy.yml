@@ -85,6 +85,10 @@ jobs:
             docker cp api_file.php 888box:/var/www/html/ 2>/dev/null || true
             docker cp index.php 888box:/var/www/html/
             docker cp view.php 888box:/var/www/html/
+            docker cp upload_image.php 888box:/var/www/html/ 2>/dev/null || true
+            docker cp upload_video.php 888box:/var/www/html/ 2>/dev/null || true
+            docker cp upload_audio.php 888box:/var/www/html/ 2>/dev/null || true
+            docker cp upload_file.php 888box:/var/www/html/ 2>/dev/null || true
             docker cp video.php 888box:/var/www/html/ 2>/dev/null || true
             docker cp audio.php 888box:/var/www/html/ 2>/dev/null || true
             docker cp mcp.php 888box:/var/www/html/ 2>/dev/null || true
