@@ -13,6 +13,8 @@ require_once '../config/rss.php';
 require_once '../config/theme_helper.php';
 require_once '../config/admin_ui.php';
 
+require_once 'pagination.php';
+
 $db = Database::getInstance();
 $pdo = $db->getConnection();
 $config = Database::getConfig($pdo);
@@ -20,15 +22,25 @@ $sealCsrfToken = ensureSealCsrfToken();
 $activeSeals = getActiveSealMap($pdo);
 $audioRssUrl = buildRssUrl('audio', $config, true);
 
-// 撈取音訊
-$stmt = $pdo->prepare("SELECT * FROM images WHERE is_audio = 1 ORDER BY id DESC");
-$stmt->execute();
+// 分頁設定
+$items_per_page = (int)($pdo->query("SELECT value FROM configs WHERE `key` = 'per_page'")->fetchColumn() ?: 20);
+$countStmt = $pdo->query("SELECT COUNT(id) FROM images WHERE is_audio = 1");
+$total_rows = (int)($countStmt->fetchColumn() ?: 0);
+$total_pages = max(1, ceil($total_rows / $items_per_page));
+$current_page = min(max(1, (int)($_GET['page'] ?? 1)), $total_pages);
+$offset = ($current_page - 1) * $items_per_page;
+
+// 撈取當前分頁音訊
+$stmt = $pdo->prepare("SELECT * FROM images WHERE is_audio = 1 ORDER BY id DESC LIMIT ? OFFSET ?");
+$stmt->execute([$items_per_page, $offset]);
 $audios = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
 foreach ($audios as &$audio) {
     $audio['url'] = getAssetPublicUrl($audio, $config);
 }
 unset($audio);
+
+$pagination_html = renderPagination($current_page, $total_pages);
 ?>
 <!DOCTYPE html>
 <html lang="zh-Hant">
@@ -72,9 +84,9 @@ unset($audio);
         .empty-state { text-align: center; color: #7f88b2; padding: 80px; font-size: 20px; grid-column: 1 / -1; background: rgba(36, 40, 59, 0.94); border-radius: 12px; border: 1px dashed #565f89; }
 
         /* Modal Styles */
-        .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.8); backdrop-filter: blur(5px); }
-        .modal-content { background-color: #24283b; margin: 5vh auto; padding: 30px; border: 1px solid #414868; width: 90%; max-width: 500px; max-height: calc(100vh - 10vh); overflow-y: auto; border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.5); }
-        .modal-header { margin-bottom: 20px; font-size: 20px; font-weight: bold; color: #c0caf5; }
+        #editModal.modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.8); backdrop-filter: blur(5px); }
+        #editModal .modal-content { background-color: #24283b; margin: 5vh auto; padding: 30px; border: 1px solid #414868; width: 90%; max-width: 500px; max-height: calc(100vh - 10vh); overflow-y: auto; border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.5); }
+        #editModal .modal-header { margin-bottom: 20px; font-size: 20px; font-weight: bold; color: #c0caf5; }
         .form-group { margin-bottom: 15px; }
         .form-group label { display: block; margin-bottom: 8px; color: #a9b1d6; }
         .form-group input, .form-group textarea { width: 100%; padding: 12px; background: rgba(26, 27, 38, 0.72); border: 1px solid #414868; color: #c0caf5; border-radius: 6px; box-sizing: border-box; }
@@ -121,6 +133,13 @@ unset($audio);
         ['label' => '重建 RSS', 'type' => 'button', 'onclick' => 'rebuildPodcast()'],
     ]); ?>
 
+    <div class="admin-toolbar-row">
+        <div class="admin-stats-badge">
+            <i data-lucide="mic"></i>
+            <span>共 <?= $total_rows ?> 首音訊 · 第 <?= $current_page ?> / <?= $total_pages ?> 頁</span>
+        </div>
+    </div>
+
     <div class="video-grid">
         <?php if (empty($audios)): ?>
             <div class="empty-state">目前沒有音訊</div>
@@ -131,7 +150,7 @@ unset($audio);
                 <div class="video-card" id="audio-<?= $audio['id'] ?>" data-has-password="<?= empty($audio['password']) ? '0' : '1' ?>">
                     <div class="audio-container">
                         <div class="audio-visualizer-icon"><i data-lucide="mic" style="width: 48px; height: 48px; color: #7aa2f7;"></i></div>
-                        <audio src="<?= htmlspecialchars($audio['url']) ?>" controls preload="metadata"></audio>
+                        <audio src="<?= htmlspecialchars($audio['url']) ?>" controls preload="none"></audio>
                     </div>
                     <div class="video-info">
                         <p>
@@ -160,6 +179,12 @@ unset($audio);
             <?php endforeach; ?>
         <?php endif; ?>
     </div>
+
+    <?php if ($total_pages > 1): ?>
+        <div class="box-pagination-wrapper">
+            <div class="pagination box-pagination"><?= $pagination_html ?></div>
+        </div>
+    <?php endif; ?>
 
     <?php renderAdminFooter(); ?>
     <script src="/static/js/admin/seal-controls.js?v=<?php echo time(); ?>"></script>

@@ -13,6 +13,8 @@ require_once '../config/rss.php';
 require_once '../config/theme_helper.php';
 require_once '../config/admin_ui.php';
 
+require_once 'pagination.php';
+
 $db = Database::getInstance();
 $pdo = $db->getConnection();
 $config = Database::getConfig($pdo);
@@ -20,15 +22,25 @@ $sealCsrfToken = ensureSealCsrfToken();
 $activeSeals = getActiveSealMap($pdo);
 $videoRssUrl = buildRssUrl('video', $config, true);
 
-// 撈取影片
-$stmt = $pdo->prepare("SELECT * FROM images WHERE url LIKE '%.mp4' OR url LIKE '%.webm' OR url LIKE '%.mov' OR url LIKE '%.mkv' ORDER BY id DESC");
-$stmt->execute();
+// 分頁設定
+$items_per_page = (int)($pdo->query("SELECT value FROM configs WHERE `key` = 'per_page'")->fetchColumn() ?: 20);
+$countStmt = $pdo->query("SELECT COUNT(id) FROM images WHERE is_video = 1 OR url LIKE '%.mp4' OR url LIKE '%.webm' OR url LIKE '%.mov' OR url LIKE '%.mkv'");
+$total_rows = (int)($countStmt->fetchColumn() ?: 0);
+$total_pages = max(1, ceil($total_rows / $items_per_page));
+$current_page = min(max(1, (int)($_GET['page'] ?? 1)), $total_pages);
+$offset = ($current_page - 1) * $items_per_page;
+
+// 撈取當前分頁影片
+$stmt = $pdo->prepare("SELECT * FROM images WHERE is_video = 1 OR url LIKE '%.mp4' OR url LIKE '%.webm' OR url LIKE '%.mov' OR url LIKE '%.mkv' ORDER BY id DESC LIMIT ? OFFSET ?");
+$stmt->execute([$items_per_page, $offset]);
 $videos = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
 foreach ($videos as &$video) {
     $video['url'] = getAssetPublicUrl($video, $config);
 }
 unset($video);
+
+$pagination_html = renderPagination($current_page, $total_pages);
 ?>
 <!DOCTYPE html>
 <html lang="zh-Hant">
@@ -70,9 +82,9 @@ unset($video);
         .empty-state { text-align: center; color: #7f88b2; padding: 80px; font-size: 20px; grid-column: 1 / -1; background: rgba(36, 40, 59, 0.94); border-radius: 12px; border: 1px dashed #565f89; }
 
         /* Modal Styles */
-        .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.8); backdrop-filter: blur(5px); }
-        .modal-content { background-color: #24283b; margin: 5vh auto; padding: 30px; border: 1px solid #414868; width: 90%; max-width: 500px; max-height: calc(100vh - 10vh); overflow-y: auto; border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.5); }
-        .modal-header { margin-bottom: 20px; font-size: 20px; font-weight: bold; color: #c0caf5; }
+        #editModal.modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.8); backdrop-filter: blur(5px); }
+        #editModal .modal-content { background-color: #24283b; margin: 5vh auto; padding: 30px; border: 1px solid #414868; width: 90%; max-width: 500px; max-height: calc(100vh - 10vh); overflow-y: auto; border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.5); }
+        #editModal .modal-header { margin-bottom: 20px; font-size: 20px; font-weight: bold; color: #c0caf5; }
         .form-group { margin-bottom: 15px; }
         .form-group label { display: block; margin-bottom: 8px; color: #a9b1d6; }
         .form-group input, .form-group textarea { width: 100%; padding: 12px; background: rgba(26, 27, 38, 0.72); border: 1px solid #414868; color: #c0caf5; border-radius: 6px; box-sizing: border-box; }
@@ -119,6 +131,13 @@ unset($video);
         ['label' => '重建 RSS', 'type' => 'button', 'onclick' => 'rebuildPodcast()'],
     ]); ?>
 
+    <div class="admin-toolbar-row">
+        <div class="admin-stats-badge">
+            <i data-lucide="film"></i>
+            <span>共 <?= $total_rows ?> 部影片 · 第 <?= $current_page ?> / <?= $total_pages ?> 頁</span>
+        </div>
+    </div>
+
     <div class="video-grid">
         <?php if (empty($videos)): ?>
             <div class="empty-state">目前沒有影片</div>
@@ -127,7 +146,7 @@ unset($video);
                 <?php $shareUrl = buildAssetShareUrl($video, $config); ?>
                 <?php $activeSeal = $activeSeals[(int)$video['id']] ?? null; ?>
                 <div class="video-card" id="video-<?= $video['id'] ?>" data-has-password="<?= empty($video['password']) ? '0' : '1' ?>">
-                    <video src="<?= htmlspecialchars($video['url']) ?>" controls preload="metadata"></video>
+                    <video src="<?= htmlspecialchars($video['url']) ?>" controls preload="none" playsinline></video>
                     <div class="video-info">
                         <p>
                             <strong>標題：</strong> <span class="v-title"><?= htmlspecialchars($video['title'] ?: $video['path']) ?></span>
@@ -155,6 +174,12 @@ unset($video);
             <?php endforeach; ?>
         <?php endif; ?>
     </div>
+
+    <?php if ($total_pages > 1): ?>
+        <div class="box-pagination-wrapper">
+            <div class="pagination box-pagination"><?= $pagination_html ?></div>
+        </div>
+    <?php endif; ?>
 
     <?php renderAdminFooter(); ?>
     <script src="/static/js/admin/seal-controls.js?v=<?php echo time(); ?>"></script>

@@ -232,7 +232,7 @@ $audioRssPreviewUrl = buildRssUrl('audio', [
     'rss_token' => $rssToken,
 ], true);
 
-// 渲染字段
+// 渲染表單欄位輔助函式
 function renderFields($fields, $configs) {
     $halfWidthCount = 0;
     foreach($fields as $key => $field): 
@@ -242,40 +242,36 @@ function renderFields($fields, $configs) {
         $value = $key === 'max_file_size' ? ($configs[$key]['value'] / (1024 * 1024)) : ($configs[$key]['value'] ?? '');
         ?>
         <div class="<?= $isHalfWidth ? 'form-group form-group-half' : 'form-group' ?>">
-            <label for="<?= $key ?>">
-                <?= $field['name'] ?? $field['label'] ?>
+            <label for="<?= htmlspecialchars($key) ?>">
+                <?= htmlspecialchars($field['name'] ?? $field['label'] ?? '') ?>
                 <?php if (!empty($field['description'])): ?>
-                    <span class="label-description"><?= $field['description'] ?></span>
+                    <span class="label-description"><?= htmlspecialchars($field['description']) ?></span>
                 <?php endif; ?>
             </label>
-            <?php if ($field['type'] === 'header'): ?>
-                <div class="settings-section-header" style="grid-column: 1 / -1; margin: 20px 0 10px 0; padding-bottom: 10px; border-bottom: 1px solid rgba(255,255,255,0.1);">
-                    <h3 style="color: #fff; margin: 0;"><?= $field['name'] ?></h3>
-                </div>
-            <?php elseif ($field['type'] === 'radio'): ?>
+            <?php if (($field['type'] ?? '') === 'radio'): ?>
                 <div class="radio-group">
                     <?php foreach($field['options'] as $val => $label): ?>
                         <label>
-                            <input type="radio" name="<?= $key ?>" value="<?= $val ?>" 
-                                   <?= ($configs[$key]['value'] ?? '') === $val ? 'checked' : '' ?>>
-                            <span><?= $label ?></span>
+                            <input type="radio" name="<?= htmlspecialchars($key) ?>" value="<?= htmlspecialchars((string)$val) ?>" 
+                                   <?= ($configs[$key]['value'] ?? '') === (string)$val ? 'checked' : '' ?>>
+                            <span><?= htmlspecialchars($label) ?></span>
                         </label>
                     <?php endforeach; ?>
                 </div>
-            <?php elseif ($field['type'] === 'password'): ?>
+            <?php elseif (($field['type'] ?? '') === 'password'): ?>
                 <div class="password-wrapper">
-                    <input type="password" name="<?= $key ?>" id="<?= $key ?>" value="<?= $value ?>"
+                    <input type="password" name="<?= htmlspecialchars($key) ?>" id="<?= htmlspecialchars($key) ?>" value="<?= htmlspecialchars((string)$value) ?>"
                            placeholder="<?= htmlspecialchars($field['placeholder'] ?? '', ENT_QUOTES, 'UTF-8') ?>" autocomplete="new-password">
-                    <span class="toggle-password">
+                    <span class="toggle-password" title="顯示/隱藏密碼">
                         <i data-lucide="eye" class="icon"></i>
                     </span>
                 </div>
-            <?php elseif ($field['type'] === 'textarea'): ?>
-                <textarea name="<?= $key ?>" id="<?= $key ?>" rows="<?= $field['rows'] ?? 5 ?>" 
+            <?php elseif (($field['type'] ?? '') === 'textarea'): ?>
+                <textarea name="<?= htmlspecialchars($key) ?>" id="<?= htmlspecialchars($key) ?>" rows="<?= $field['rows'] ?? 5 ?>" 
                           placeholder="<?= htmlspecialchars($field['placeholder'] ?? '', ENT_QUOTES, 'UTF-8') ?>"
-                          style="width: 100%; box-sizing: border-box; padding: 10px; border-radius: 8px; border: 1px solid #414868; background: #1a1b26; color: #c0caf5; font-size: 14px; font-family: monospace; outline: none; resize: vertical;"><?= htmlspecialchars($value) ?></textarea>
+                          style="width: 100%; box-sizing: border-box; padding: 10px; border-radius: 8px; border: 1px solid rgba(122, 162, 247, 0.25); background: rgba(26, 27, 38, 0.85); color: #c0caf5; font-size: 13px; font-family: monospace; outline: none; resize: vertical;"><?= htmlspecialchars((string)$value) ?></textarea>
             <?php else: ?>
-                <input type="<?= $field['type'] ?>" name="<?= $key ?>" id="<?= $key ?>" value="<?= $value ?>"
+                <input type="<?= htmlspecialchars($field['type'] ?? 'text') ?>" name="<?= htmlspecialchars($key) ?>" id="<?= htmlspecialchars($key) ?>" value="<?= htmlspecialchars((string)$value) ?>"
                        <?= isset($field['min']) ? "min=\"{$field['min']}\"" : '' ?>
                        <?= isset($field['max']) ? "max=\"{$field['max']}\"" : '' ?>
                        placeholder="<?= htmlspecialchars($field['placeholder'] ?? '', ENT_QUOTES, 'UTF-8') ?>">
@@ -284,14 +280,16 @@ function renderFields($fields, $configs) {
         <?php
         if ($isHalfWidth && ++$halfWidthCount % 2 === 0) echo '</div>';
     endforeach;
+    if ($isHalfWidth && $halfWidthCount % 2 !== 0) echo '</div>';
 }
 
-$basicSettings = [
-    'url_prefix' => [
-        'label' => '圖片代理',
-        'type' => 'text',
-        'placeholder' => '例如：https://i1.wp.com/（留空則不使用）',
-        'description' => '圖片 URL 代理位址，可用於 CDN 加速或圖片處理服務',
+$generalSettings = [
+    'max_uploads_per_day' => [
+        'label' => '每日限制',
+        'type' => 'number',
+        'min' => 1,
+        'placeholder' => '建議設定為 100',
+        'description' => '每日上傳次數限制（管理員不受此限）',
         'half_width' => true
     ],
     'per_page' => [
@@ -300,27 +298,19 @@ $basicSettings = [
         'min' => 1,
         'max' => 100,
         'placeholder' => '建議設定為 20',
-        'description' => '後台單頁顯示圖片數量',
-        'half_width' => true
-    ],
-    'max_uploads_per_day' => [
-        'label' => '每日限制',
-        'type' => 'number',
-        'min' => 1,
-        'placeholder' => '建議設定為 100',
-        'description' => '每日上傳次數限制',
+        'description' => '後台管理單頁顯示資產數量',
         'half_width' => true
     ],
     'max_file_size' => [
-        'label' => '圖片大小',
+        'label' => '圖片大小上限',
         'type' => 'number',
         'min' => 1,
-        'placeholder' => '建議設定為 5',
+        'placeholder' => '建議設定為 10',
         'description' => '單一圖片大小限制（MB）',
         'half_width' => true
     ],
     'max_video_size' => [
-        'label' => '影片大小',
+        'label' => '影片大小上限',
         'type' => 'number',
         'min' => 1,
         'placeholder' => '建議設定為 500',
@@ -328,28 +318,39 @@ $basicSettings = [
         'half_width' => true
     ],
     'max_audio_size' => [
-        'label' => '音訊大小',
+        'label' => '音訊大小上限',
         'type' => 'number',
         'min' => 1,
         'placeholder' => '建議設定為 100',
         'description' => '單一音訊大小限制（MB）',
         'half_width' => true
     ],
+    'url_prefix' => [
+        'label' => '圖片代理 (CDN / Proxy)',
+        'type' => 'text',
+        'placeholder' => '例如：https://i1.wp.com/（留空則不使用）',
+        'description' => '圖片 URL 代理位址，可用於 CDN 加速或圖片處理服務',
+        'half_width' => true
+    ],
     'site_domain' => [
-        'label' => '網站網域',
+        'label' => '網站授權網域',
         'type' => 'text',
         'placeholder' => '例如：https://example.com,http://localhost',
-        'description' => '用於驗證上傳，多個網域請用英文逗號分隔，支援萬用字元 "*"'
+        'description' => '用於驗證上傳來源，多個網域請用英文逗號分隔，支援萬用字元 "*"'
     ],
     'output_format' => [
-        'label' => '輸出格式',
+        'label' => '預設輸出格式',
         'type' => 'radio',
         'options' => [
             'original' => '原始格式',
             'webp' => 'WebP',
             'avif' => 'AVIF'
-        ]
+        ],
+        'description' => '公開上傳後的預設圖片轉換格式'
     ],
+];
+
+$appearanceSettings = [
     'active_theme' => [
         'label' => '全站配色主題',
         'type' => 'radio',
@@ -357,75 +358,45 @@ $basicSettings = [
             'default' => '深色：Catppuccin Macchiato',
             'middle_east_dart' => '深色：Catppuccin Macchiato (舊設定)',
             'kanagawa_wave' => '淺色：Kanagawa Wave'
-        ]
-    ],
-    'smtp_header' => [
-        'type' => 'header',
-        'name' => '📧 SMTP 與檢舉設定'
-    ],
-    'smtp_host' => [
-        'label' => 'SMTP 伺服器',
-        'type' => 'text',
-        'half_width' => true
-    ],
-    'smtp_port' => [
-        'label' => 'SMTP 端口',
-        'type' => 'number',
-        'half_width' => true
-    ],
-    'smtp_user' => [
-        'label' => 'SMTP 帳號',
-        'type' => 'text',
-        'half_width' => true
-    ],
-    'smtp_pass' => [
-        'label' => 'SMTP 密碼',
-        'type' => 'password',
-        'half_width' => true
-    ],
-    'smtp_tls' => [
-        'label' => '啟用 TLS',
-        'type' => 'radio',
-        'options' => ['true' => '是', 'false' => '否'],
-        'half_width' => true
-    ],
-    'admin_emails' => [
-        'label' => '管理員收件信箱',
-        'type' => 'text',
-        'placeholder' => '多個信箱請用逗點分隔',
-        'description' => '當資產被檢舉時，系統將發送郵件至這些信箱',
-        'half_width' => true
+        ],
+        'description' => '全站前台與後台的視覺佈景配色風格'
     ],
     'custom_tracking_code' => [
         'label' => '全站自訂追蹤碼 (如 Google Analytics 或 GTM)',
         'type' => 'textarea',
-        'rows' => 4,
+        'rows' => 5,
         'placeholder' => '在此貼入完整的 Google Analytics (GA4) 或 GTM 追蹤程式碼（含 <script> 標籤）',
         'description' => '這段程式碼將會被自動注入至所有公開頁面（包含首頁、圖片/影片/文件/音訊上傳中心與資產分享頁面）的 <head> 區塊中。'
     ],
-    'turnstile_header' => [
-        'type' => 'header',
-        'name' => '🛡️ Cloudflare Turnstile 機器人驗證 (支援多站獨立 Fallback)'
+];
+
+$securitySettings = [
+    'login_restriction' => [
+        'label' => '啟用登入保護',
+        'type' => 'radio',
+        'options' => ['true' => '啟用', 'false' => '關閉'],
+        'description' => '關閉後允許訪客公開存取前台各類上傳中心',
+        'half_width' => true
     ],
     'turnstile_enabled' => [
-        'label' => '啟用 Turnstile',
+        'label' => '啟用 Cloudflare Turnstile',
         'type' => 'radio',
         'options' => ['true' => '啟用', 'false' => '停用（預設 / Fallback）'],
-        'description' => '總開關。未啟用或未填寫金鑰時完全不載入、不驗證（支援 .env TURNSTILE_ENABLED 覆蓋）',
+        'description' => '未啟用或未填寫金鑰時完全不載入（支援 .env TURNSTILE_ENABLED 覆蓋）',
         'half_width' => true
     ],
     'turnstile_protect_login' => [
         'label' => '保護後台登入',
         'type' => 'radio',
         'options' => ['true' => '是', 'false' => '否'],
-        'description' => '為後台登入與密碼重設表單啟用 Turnstile 驗證，防止暴力破解',
+        'description' => '為後台登入表單啟用 Turnstile 驗證，防止暴力破解',
         'half_width' => true
     ],
     'turnstile_protect_upload' => [
         'label' => '保護公開上傳',
         'type' => 'radio',
         'options' => ['true' => '是', 'false' => '否'],
-        'description' => '為公開網頁上傳啟用驗證（持合法 Token 的工具如 ShareX、PicGo、MCP 自動放行）',
+        'description' => '為公開網頁上傳啟用驗證（合法 Token 工具如 ShareX、PicGo、MCP 自動放行）',
         'half_width' => true
     ],
     'turnstile_site_key' => [
@@ -441,164 +412,293 @@ $basicSettings = [
         'placeholder' => '0x4AAAAAA...',
         'description' => 'Cloudflare Turnstile 儀表板密鑰（支援 .env TURNSTILE_SECRET_KEY 覆蓋）',
         'half_width' => true
-    ]
+    ],
+];
+
+$smtpSettings = [
+    'smtp_host' => [
+        'label' => 'SMTP 伺服器',
+        'type' => 'text',
+        'placeholder' => '例如：smtp.gmail.com',
+        'half_width' => true
+    ],
+    'smtp_port' => [
+        'label' => 'SMTP 端口',
+        'type' => 'number',
+        'placeholder' => '587 或 465',
+        'half_width' => true
+    ],
+    'smtp_user' => [
+        'label' => 'SMTP 帳號 / 信箱',
+        'type' => 'text',
+        'placeholder' => 'your-email@example.com',
+        'half_width' => true
+    ],
+    'smtp_pass' => [
+        'label' => 'SMTP 密碼 / 應用程式密碼',
+        'type' => 'password',
+        'placeholder' => '••••••••',
+        'half_width' => true
+    ],
+    'smtp_tls' => [
+        'label' => '啟用 TLS 安全加密',
+        'type' => 'radio',
+        'options' => ['true' => '是', 'false' => '否'],
+        'half_width' => true
+    ],
+    'admin_emails' => [
+        'label' => '管理員收件信箱',
+        'type' => 'text',
+        'placeholder' => '多個信箱請用逗號分隔',
+        'description' => '當資產被檢舉或系統發生警報時發送至此信箱',
+        'half_width' => true
+    ],
 ];
 ?>
 
-<div class="settings-container">
+<div class="settings-modal-dialog">
+    <!-- Modal Header -->
+    <div class="settings-modal-header">
+        <div class="settings-modal-title">
+            <i data-lucide="sliders-horizontal" class="icon"></i>
+            <h2>系統設定</h2>
+        </div>
+        <div class="settings-modal-header-actions">
+            <button type="submit" form="settings-form" class="settings-save-btn settings-header-save-btn">
+                <i data-lucide="check" class="icon"></i>
+                <span>儲存設定</span>
+            </button>
+            <button type="button" class="close-modal" aria-label="關閉">
+                <i data-lucide="x" class="icon"></i>
+            </button>
+        </div>
+    </div>
+
+    <!-- Sheet Tabs Bar -->
+    <div class="settings-tabs-bar" role="tablist">
+        <button type="button" class="settings-tab-btn is-active" data-tab="general" role="tab" aria-selected="true">
+            <i data-lucide="settings"></i>
+            <span>一般設定</span>
+        </button>
+        <button type="button" class="settings-tab-btn" data-tab="storage" role="tab" aria-selected="false">
+            <i data-lucide="hard-drive"></i>
+            <span>儲存空間</span>
+        </button>
+        <button type="button" class="settings-tab-btn" data-tab="security" role="tab" aria-selected="false">
+            <i data-lucide="shield-check"></i>
+            <span>安全防護</span>
+        </button>
+        <button type="button" class="settings-tab-btn" data-tab="rss" role="tab" aria-selected="false">
+            <i data-lucide="rss"></i>
+            <span>Podcast RSS</span>
+        </button>
+        <button type="button" class="settings-tab-btn" data-tab="appearance" role="tab" aria-selected="false">
+            <i data-lucide="palette"></i>
+            <span>外觀追蹤</span>
+        </button>
+        <button type="button" class="settings-tab-btn" data-tab="smtp" role="tab" aria-selected="false">
+            <i data-lucide="mail"></i>
+            <span>郵件維護</span>
+        </button>
+    </div>
+
+    <!-- Settings Form -->
     <form id="settings-form" method="POST">
         <?php if ($demoMode): ?>
             <div class="demo-mode-warning">
                 <span>⚠️ <strong>示範模式</strong> - 目前處於示範模式，所有設定修改都將被禁止</span>
             </div>
         <?php endif; ?>
-        <div class="settings-group">
-            <div class="settings-header">
-                <h2>基本設定</h2>
-                <button type="button" class="close-modal" aria-label="關閉">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
-                </button>
-            </div>
-            <div class="form-group">
-                <label>儲存方式</label>
-                <div class="radio-group">
-                    <?php foreach($storageConfigs['storage_types'] as $value => $storage): ?>
-                        <label>
-                            <input type="radio" name="storage" value="<?= $value ?>" 
-                                   <?= $configs['storage']['value'] === $value ? 'checked' : '' ?>>
-                            <span><?= $storage['name'] ?></span>
-                        </label>
-                    <?php endforeach; ?>
-                </div>
-            </div>
-            
-            <?php renderFields($basicSettings, $configs); ?>
 
-            <div class="form-group">
-                <label>啟用登入保護</label>
-                <div class="radio-group">
-                    <?php foreach(['true' => '啟用', 'false' => '關閉'] as $value => $label): ?>
-                        <label>
-                            <input type="radio" name="login_restriction" value="<?= $value ?>"
-                                   <?= $configs['login_restriction']['value'] === $value ? 'checked' : '' ?>>
-                            <span><?= $label ?></span>
-                        </label>
-                    <?php endforeach; ?>
+        <div class="settings-modal-body">
+            <!-- Tab 1: 一般設定 -->
+            <div class="settings-tab-panel is-active" id="panel-general">
+                <div class="settings-panel-section">
+                    <?php renderFields($generalSettings, $configs); ?>
                 </div>
             </div>
 
-            <div class="form-group">
-                <label>
-                    API Token
-                    <span class="label-description">用於 API 介面驗證，請勿外洩並妥善保管</span>
-                </label>
-                <div class="token-input-group">
-                    <input type="text" name="token" id="token-input" value="<?= $userToken ?>" readonly>
-                    <button type="button" class="token-action-btn copy-token" title="複製">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg>
-                    </button>
-                    <button type="button" class="token-action-btn refresh-token" title="重新產生">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon"><path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/><path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"/><path d="M8 16H3v5"/></svg>
-                    </button>
-                </div>
-            </div>
+            <!-- Tab 2: 儲存空間 -->
+            <div class="settings-tab-panel" id="panel-storage">
+                <div class="settings-panel-section">
+                    <div class="form-group">
+                        <label>主要儲存策略</label>
+                        <div class="radio-group">
+                            <?php foreach($storageConfigs['storage_types'] as $value => $storage): ?>
+                                <label>
+                                    <input type="radio" name="storage" value="<?= htmlspecialchars($value) ?>" 
+                                           <?= $configs['storage']['value'] === $value ? 'checked' : '' ?>>
+                                    <span><?= htmlspecialchars($storage['name']) ?></span>
+                                </label>
+                            <?php endforeach; ?>
+                        </div>
+                    </div>
 
-            <div class="form-group">
-                <label>
-                    RSS Token 保護
-                    <span class="label-description">開啟後，影片與音訊 RSS 需帶 token 才能讀取</span>
-                </label>
-                <div class="radio-group">
-                    <?php foreach(['false' => '公開', 'true' => '啟用 Token'] as $value => $label): ?>
-                        <label>
-                            <input type="radio" name="rss_token_enabled" value="<?= $value ?>"
-                                   <?= ($configs['rss_token_enabled']['value'] ?? 'false') === $value ? 'checked' : '' ?>>
-                            <span><?= $label ?></span>
-                        </label>
+                    <?php foreach ($storageConfigs['storage_types'] as $type => $storage): ?>
+                        <div class="storage-config-card" id="<?= $type ?>-settings" style="display: none;">
+                            <div class="storage-card-header">
+                                <h3><?= htmlspecialchars($storage['name']) ?> 設定</h3>
+                                <?php if ($type !== 'local'): ?>
+                                    <button type="button" class="test-storage-btn" data-storage="<?= htmlspecialchars($type) ?>">
+                                        <i data-lucide="link-2" class="icon"></i>
+                                        <span class="btn-text">連線測試</span>
+                                    </button>
+                                <?php endif; ?>
+                            </div>
+                            <?php renderFields(array_column($storage['configs'], null, 'key'), $configs); ?>
+                        </div>
                     <?php endforeach; ?>
                 </div>
             </div>
 
-            <div class="form-group">
-                <label>
-                    RSS Token
-                    <span class="label-description">可獨立重新產生；舊的 RSS 訂閱連結會立即失效</span>
-                </label>
-                <div class="token-input-group">
-                    <input type="text" name="rss_token" id="rss-token-input" value="<?= htmlspecialchars($rssToken) ?>" readonly>
-                    <button type="button" class="token-action-btn copy-rss-token" title="複製">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg>
-                    </button>
-                    <button type="button" class="token-action-btn refresh-rss-token" title="重新產生">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon"><path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/><path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"/><path d="M8 16H3v5"/></svg>
-                    </button>
+            <!-- Tab 3: 安全防護 -->
+            <div class="settings-tab-panel" id="panel-security">
+                <div class="settings-panel-section">
+                    <?php renderFields($securitySettings, $configs); ?>
+
+                    <div class="form-group" style="margin-top: 10px;">
+                        <label>Turnstile 連線診斷</label>
+                        <button type="button" id="test-turnstile-btn" class="update-btn" style="max-width: 200px;">
+                            <i data-lucide="shield"></i> 測試 Turnstile 連線
+                        </button>
+                    </div>
+
+                    <div class="settings-section-divider"></div>
+
+                    <div class="form-group">
+                        <label>
+                            管理員 API Token
+                            <span class="label-description">用於 API 介接驗證，請妥善保管</span>
+                        </label>
+                        <div class="token-input-group">
+                            <input type="text" name="token" id="token-input" value="<?= htmlspecialchars($userToken) ?>" readonly>
+                            <button type="button" class="token-action-btn copy-token" title="複製 Token">
+                                <i data-lucide="copy" class="icon"></i>
+                            </button>
+                            <button type="button" class="token-action-btn refresh-token" title="重新產生 Token">
+                                <i data-lucide="refresh-cw" class="icon"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group form-group-half">
+                            <label for="new_password">修改管理員密碼</label>
+                            <div class="password-wrapper">
+                                <input type="password" name="new_password" id="new_password" placeholder="留空則不修改" autocomplete="new-password">
+                                <span class="toggle-password" title="顯示/隱藏密碼">
+                                    <i data-lucide="eye" class="icon"></i>
+                                </span>
+                            </div>
+                        </div>
+                        <div class="form-group form-group-half">
+                            <label for="confirm_password">確認新密碼</label>
+                            <div class="password-wrapper">
+                                <input type="password" name="confirm_password" id="confirm_password" placeholder="請再次輸入新密碼" autocomplete="new-password">
+                                <span class="toggle-password" title="顯示/隱藏密碼">
+                                    <i data-lucide="eye" class="icon"></i>
+                                </span>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
 
-            <div class="form-group">
-                <label>
-                    RSS Preview
-                    <span class="label-description">管理員可直接複製帶 token 的 RSS URL 進行測試或訂閱</span>
-                </label>
-                <div class="rss-preview-group">
-                    <div class="rss-preview-item">
-                        <span class="rss-preview-label">影片 RSS</span>
-                        <input type="text" id="rss-video-preview" value="<?= htmlspecialchars($videoRssPreviewUrl) ?>" readonly data-public-url="<?= htmlspecialchars(buildRssUrl('video', ['site_domain' => $configs['site_domain']['value'] ?? '', 'rss_token_enabled' => 'false', 'rss_token' => ''], false)) ?>">
+            <!-- Tab 4: Podcast RSS -->
+            <div class="settings-tab-panel" id="panel-rss">
+                <div class="settings-panel-section">
+                    <div class="form-group">
+                        <label>
+                            RSS Token 保護
+                            <span class="label-description">開啟後，影片與音訊 RSS 訂閱連結需攜帶 token 才能存取</span>
+                        </label>
+                        <div class="radio-group">
+                            <?php foreach(['false' => '公開（無需 Token）', 'true' => '啟用 Token 保護'] as $value => $label): ?>
+                                <label>
+                                    <input type="radio" name="rss_token_enabled" value="<?= $value ?>"
+                                           <?= ($configs['rss_token_enabled']['value'] ?? 'false') === $value ? 'checked' : '' ?>>
+                                    <span><?= $label ?></span>
+                                </label>
+                            <?php endforeach; ?>
+                        </div>
                     </div>
-                    <div class="rss-preview-item">
-                        <span class="rss-preview-label">音訊 RSS</span>
-                        <input type="text" id="rss-audio-preview" value="<?= htmlspecialchars($audioRssPreviewUrl) ?>" readonly data-public-url="<?= htmlspecialchars(buildRssUrl('audio', ['site_domain' => $configs['site_domain']['value'] ?? '', 'rss_token_enabled' => 'false', 'rss_token' => ''], false)) ?>">
+
+                    <div class="form-group">
+                        <label>
+                            Podcast RSS Token
+                            <span class="label-description">重新產生後，舊的訂閱連結將立即失效</span>
+                        </label>
+                        <div class="token-input-group">
+                            <input type="text" name="rss_token" id="rss-token-input" value="<?= htmlspecialchars($rssToken) ?>" readonly>
+                            <button type="button" class="token-action-btn copy-rss-token" title="複製 RSS Token">
+                                <i data-lucide="copy" class="icon"></i>
+                            </button>
+                            <button type="button" class="token-action-btn refresh-rss-token" title="重新產生 RSS Token">
+                                <i data-lucide="refresh-cw" class="icon"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>
+                            RSS 訂閱連結預覽
+                            <span class="label-description">可直接複製連結至 Podcast 播放器（如 Apple Podcasts、Overcast）訂閱</span>
+                        </label>
+                        <div class="rss-preview-group">
+                            <div class="rss-preview-item">
+                                <span class="rss-preview-label">影片 RSS</span>
+                                <input type="text" id="rss-video-preview" value="<?= htmlspecialchars($videoRssPreviewUrl) ?>" readonly data-public-url="<?= htmlspecialchars(buildRssUrl('video', ['site_domain' => $configs['site_domain']['value'] ?? '', 'rss_token_enabled' => 'false', 'rss_token' => ''], false)) ?>">
+                            </div>
+                            <div class="rss-preview-item">
+                                <span class="rss-preview-label">音訊 RSS</span>
+                                <input type="text" id="rss-audio-preview" value="<?= htmlspecialchars($audioRssPreviewUrl) ?>" readonly data-public-url="<?= htmlspecialchars(buildRssUrl('audio', ['site_domain' => $configs['site_domain']['value'] ?? '', 'rss_token_enabled' => 'false', 'rss_token' => ''], false)) ?>">
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
 
-            <div class="form-row">
-                <div class="form-group form-group-half">
-                    <label for="new_password">修改管理員密碼</label>
-                    <div class="password-wrapper">
-                        <input type="password" name="new_password" id="new_password" placeholder="留空則不修改" autocomplete="new-password">
-                        <span class="toggle-password">
-                            <i data-lucide="eye" class="icon"></i>
-                        </span>
-                    </div>
-                </div>
-                <div class="form-group form-group-half">
-                    <label for="confirm_password">確認新密碼</label>
-                    <div class="password-wrapper">
-                        <input type="password" name="confirm_password" id="confirm_password" placeholder="請再次輸入新密碼" autocomplete="new-password">
-                        <span class="toggle-password">
-                            <i data-lucide="eye" class="icon"></i>
-                        </span>
-                    </div>
+            <!-- Tab 5: 外觀與追蹤 -->
+            <div class="settings-tab-panel" id="panel-appearance">
+                <div class="settings-panel-section">
+                    <?php renderFields($appearanceSettings, $configs); ?>
                 </div>
             </div>
-            
-            <div class="form-group">
-                <label>系統維護與驗證測試</label>
-                <div style="display: flex; gap: 10px; flex-wrap: wrap;">
-                    <button type="button" id="optimize-db-btn" class="update-btn">最佳化資料庫</button>
-                    <button type="button" id="check-update-btn" class="update-btn">檢查更新</button>
-                    <button type="button" id="test-turnstile-btn" class="update-btn">測試 Turnstile 連線</button>
+
+            <!-- Tab 6: 郵件與維護 -->
+            <div class="settings-tab-panel" id="panel-smtp">
+                <div class="settings-panel-section">
+                    <h3 style="margin: 0 0 16px 0; font-size: 0.98rem; color: #c0caf5;">📧 SMTP 郵件通知設定</h3>
+                    <?php renderFields($smtpSettings, $configs); ?>
+
+                    <div class="settings-section-divider"></div>
+
+                    <h3 style="margin: 0 0 16px 0; font-size: 0.98rem; color: #c0caf5;">🛠️ 系統維護工具</h3>
+                    <div style="display: flex; gap: 12px; flex-wrap: wrap;">
+                        <button type="button" id="optimize-db-btn" class="update-btn">
+                            <i data-lucide="database"></i> 最佳化資料庫 (VACUUM)
+                        </button>
+                        <button type="button" id="check-update-btn" class="update-btn">
+                            <i data-lucide="download-cloud"></i> 檢查系統更新
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>
-        
-        <?php foreach ($storageConfigs['storage_types'] as $type => $storage): ?>
-            <div class="settings-group" id="<?= $type ?>-settings" style="display: none;">
-                <div class="settings-header">
-                    <h2><?= $storage['name'] ?>設定</h2>
-                    <?php if ($type !== 'local'): ?>
-                        <button type="button" class="test-storage-btn" data-storage="<?= $type ?>">
-                            <i data-lucide="link-2" class="icon"></i>
-                            <span class="btn-text">測試</span>
-                        </button>
-                    <?php endif; ?>
-                </div>
-                <?php renderFields(array_column($storage['configs'], null, 'key'), $configs); ?>
+
+        <!-- Sticky Footer Action Bar -->
+        <div class="settings-modal-footer">
+            <div class="settings-footer-hint">
+                <span>快捷鍵：<kbd>Ctrl/Cmd</kbd> + <kbd>S</kbd> 快速儲存</span>
             </div>
-        <?php endforeach; ?>
-        
-        <button type="submit" name="submit" class="submit-btn submit-btn-float">儲存設定</button>
+            <div class="settings-footer-actions">
+                <button type="button" class="settings-cancel-btn close-modal">取消</button>
+                <button type="submit" name="submit" class="settings-save-btn settings-footer-save-btn">
+                    <i data-lucide="save" class="icon"></i>
+                    <span>儲存設定</span>
+                </button>
+            </div>
+        </div>
     </form>
 </div>
 <script>

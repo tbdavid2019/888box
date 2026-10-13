@@ -12,17 +12,28 @@ require_once '../config/seal.php';
 require_once '../config/theme_helper.php';
 require_once '../config/admin_ui.php';
 
+require_once 'pagination.php';
+
 $db = Database::getInstance();
 $pdo = $db->getConnection();
 $sealCsrfToken = ensureSealCsrfToken();
 $config = Database::getConfig($pdo);
 $activeSeals = getActiveSealMap($pdo);
 
-// 撈取文件 (排除圖片、影片和音訊，即 is_file = 1)
-$stmt = $pdo->prepare("SELECT * FROM images WHERE is_file = 1 ORDER BY id DESC");
-$stmt->execute();
+// 分頁設定
+$items_per_page = (int)($pdo->query("SELECT value FROM configs WHERE `key` = 'per_page'")->fetchColumn() ?: 20);
+$countStmt = $pdo->query("SELECT COUNT(id) FROM images WHERE is_file = 1");
+$total_rows = (int)($countStmt->fetchColumn() ?: 0);
+$total_pages = max(1, ceil($total_rows / $items_per_page));
+$current_page = min(max(1, (int)($_GET['page'] ?? 1)), $total_pages);
+$offset = ($current_page - 1) * $items_per_page;
+
+// 撈取當前分頁文件 (排除圖片、影片和音訊，即 is_file = 1)
+$stmt = $pdo->prepare("SELECT * FROM images WHERE is_file = 1 ORDER BY id DESC LIMIT ? OFFSET ?");
+$stmt->execute([$items_per_page, $offset]);
 $files = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
+$pagination_html = renderPagination($current_page, $total_pages);
 ?>
 <!DOCTYPE html>
 <html lang="zh-Hant">
@@ -66,6 +77,13 @@ $files = $stmt->fetchAll(PDO::FETCH_ASSOC);
         ['label' => '上傳文件', 'href' => '/upload_file.php', 'variant' => 'primary'],
     ]); ?>
 
+    <div class="admin-toolbar-row" style="max-width: 1200px;">
+        <div class="admin-stats-badge">
+            <i data-lucide="file-text"></i>
+            <span>共 <?= $total_rows ?> 份文件 · 第 <?= $current_page ?> / <?= $total_pages ?> 頁</span>
+        </div>
+    </div>
+
     <div class="file-list">
         <?php if (empty($files)): ?>
             <div class="empty-state">尚未上傳任何文件</div>
@@ -104,6 +122,12 @@ $files = $stmt->fetchAll(PDO::FETCH_ASSOC);
             <?php endforeach; ?>
         <?php endif; ?>
     </div>
+
+    <?php if ($total_pages > 1): ?>
+        <div class="box-pagination-wrapper">
+            <div class="pagination box-pagination"><?= $pagination_html ?></div>
+        </div>
+    <?php endif; ?>
 
     <?php renderAdminFooter(); ?>
     <script src="/static/js/admin/seal-controls.js?v=<?php echo time(); ?>"></script>

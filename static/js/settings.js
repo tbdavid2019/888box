@@ -125,6 +125,34 @@ document.addEventListener('DOMContentLoaded', () => {
             input.addEventListener('change', updateRssPreviewUrls)
         );
 
+        // Sheet Tabs 切換
+        const tabBtns = modal.querySelectorAll('.settings-tab-btn');
+        const tabPanels = modal.querySelectorAll('.settings-tab-panel');
+        tabBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                const targetTab = btn.dataset.tab;
+                tabBtns.forEach(b => {
+                    const active = b === btn;
+                    b.classList.toggle('is-active', active);
+                    b.setAttribute('aria-selected', active ? 'true' : 'false');
+                });
+                tabPanels.forEach(panel => {
+                    panel.classList.toggle('is-active', panel.id === `panel-${targetTab}`);
+                });
+                if (window.lucide) lucide.createIcons();
+            });
+        });
+
+        // 支援 Cmd+S / Ctrl+S 快速儲存
+        const handleSettingsShortcut = (e) => {
+            if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 's') {
+                e.preventDefault();
+                settingsForm?.requestSubmit();
+            }
+        };
+        modal.removeEventListener('keydown', handleSettingsShortcut);
+        modal.addEventListener('keydown', handleSettingsShortcut);
+
         settingsForm?.addEventListener('submit', async (e) => {
             e.preventDefault();
             const formData = new FormData(e.target);
@@ -132,6 +160,14 @@ document.addEventListener('DOMContentLoaded', () => {
             const maxFileSize = formData.get('max_file_size');
             if (maxFileSize) formData.set('max_file_size', Math.floor(maxFileSize * 1024 * 1024));
             
+            const saveBtns = modal.querySelectorAll('.settings-save-btn');
+            saveBtns.forEach(b => {
+                b.disabled = true;
+                b.dataset.origHtml = b.innerHTML;
+                b.innerHTML = '<i data-lucide="loader-2" class="icon spin"></i> <span>儲存中...</span>';
+            });
+            if (window.lucide) lucide.createIcons();
+
             try {
                 const response = await fetch('settings.php', {
                     method: 'POST',
@@ -147,6 +183,12 @@ document.addEventListener('DOMContentLoaded', () => {
             } catch (error) {
                 console.error('Error saving settings:', error);
                 UI.showNotification('儲存設定失敗', 'error');
+            } finally {
+                saveBtns.forEach(b => {
+                    b.disabled = false;
+                    if (b.dataset.origHtml) b.innerHTML = b.dataset.origHtml;
+                });
+                if (window.lucide) lucide.createIcons();
             }
         });
 
