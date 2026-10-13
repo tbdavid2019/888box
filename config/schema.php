@@ -175,7 +175,16 @@ function getCoreConfigDefaults($siteUrl) {
         'turnstile_protect_login' => ['true', 'Turnstile 保護後台登入/重設'],
         'turnstile_protect_upload' => ['false', 'Turnstile 保護公開網頁上傳'],
         'seal_max_duration_days' => ['30', 'Seal 最長等待天數'],
-        'seal_retention_days' => ['30', 'Seal 解鎖後保留天數']
+        'seal_retention_days' => ['30', 'Seal 解鎖後保留天數'],
+        'mail_driver' => ['resend', '發信服務通道 (resend 或 smtp)'],
+        'resend_api_key' => ['', 'Resend API Key'],
+        'resend_from_email' => ['888 BOX <onboarding@resend.dev>', 'Resend 寄件者信箱'],
+        'admin_emails' => ['', '管理員收件信箱'],
+        'smtp_host' => ['smtp.gmail.com', 'SMTP 伺服器'],
+        'smtp_port' => ['587', 'SMTP 端口'],
+        'smtp_user' => ['', 'SMTP 帳號'],
+        'smtp_pass' => ['', 'SMTP 密碼'],
+        'smtp_tls' => ['true', '啟用 TLS']
     ];
 }
 

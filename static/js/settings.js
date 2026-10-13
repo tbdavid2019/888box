@@ -139,6 +139,22 @@ document.addEventListener('DOMContentLoaded', () => {
             input.addEventListener('change', updateRssPreviewUrls)
         );
 
+        // 郵件發信通道切換 (Resend vs SMTP)
+        const updateMailDriverSettings = () => {
+            const driver = document.querySelector('input[name="mail_driver"]:checked')?.value || 'resend';
+            const resendSection = document.getElementById('mail-section-resend');
+            const smtpSection = document.getElementById('mail-section-smtp');
+            if (resendSection && smtpSection) {
+                resendSection.style.display = (driver === 'resend') ? 'block' : 'none';
+                smtpSection.style.display = (driver === 'smtp') ? 'block' : 'none';
+            }
+        };
+
+        updateMailDriverSettings();
+        document.querySelectorAll('input[name="mail_driver"]').forEach(input =>
+            input.addEventListener('change', updateMailDriverSettings)
+        );
+
         // Sheet Tabs 切換
         const tabBtns = modal.querySelectorAll('.settings-tab-btn');
         const tabPanels = modal.querySelectorAll('.settings-tab-panel');
@@ -277,6 +293,43 @@ document.addEventListener('DOMContentLoaded', () => {
             } finally {
                 btn.disabled = false;
                 btn.textContent = originalText;
+            }
+        });
+
+        // 郵件測試按鈕
+        document.getElementById('btn-test-mail')?.addEventListener('click', async (e) => {
+            e.preventDefault();
+            const btn = e.currentTarget;
+            btn.disabled = true;
+            const originalHtml = btn.innerHTML;
+            btn.innerHTML = '<span>發送中…</span>';
+
+            try {
+                const form = document.getElementById('settings-form');
+                const formData = new FormData(form);
+                formData.append('action', 'test_mail');
+
+                const testRecipientInput = document.getElementById('test-email-recipient');
+                const testRecipient = testRecipientInput ? testRecipientInput.value.trim() : '';
+                if (testRecipient) {
+                    formData.append('test_recipient', testRecipient);
+                }
+
+                const response = await fetch('settings.php', {
+                    method: 'POST',
+                    headers: {'X-Requested-With': 'XMLHttpRequest'},
+                    body: formData
+                });
+
+                const data = await response.json();
+                UI.showNotification(data.message, data.success ? 'success' : 'error');
+            } catch (error) {
+                console.error('Error sending test email:', error);
+                UI.showNotification('發送測試信失敗，請檢查網路或稍後再試', 'error');
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = originalHtml;
+                if (window.lucide) lucide.createIcons();
             }
         });
 

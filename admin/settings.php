@@ -116,6 +116,36 @@ if (!empty($_POST['action'])) {
                 $testRes = testTurnstileSecretKey((string)$secretKey);
                 echo json_encode($testRes, JSON_UNESCAPED_UNICODE);
                 break;
+
+            case 'test_mail':
+                require_once __DIR__ . '/../config/mail.php';
+                $customConfig = array_merge(Database::getConfig($pdo), $_POST);
+                $driver = strtolower(trim((string)($customConfig['mail_driver'] ?? 'resend')));
+                $recipient = trim((string)($_POST['test_recipient'] ?? ''));
+                if (empty($recipient)) {
+                    $recipient = trim((string)($customConfig['admin_emails'] ?? ''));
+                }
+                if (empty($recipient)) {
+                    throw new Exception('請填寫測試收件信箱或設定管理員收件信箱');
+                }
+
+                $driverName = ($driver === 'resend') ? 'Resend REST API' : 'SMTP 伺服器';
+                $subject = "【888 BOX】發信測試成功 ({$driverName})";
+                $body = "您好！\n\n這是一封來自 888 BOX 系統設定的測試郵件。\n\n發信通道: {$driverName}\n測試時間: " . date('Y-m-d H:i:s') . "\n\n如果您收到此郵件，代表系統郵件發送服務已成功連線並運作正常！";
+
+                $testResult = sendMail($recipient, $subject, $body, false, $customConfig);
+                if ($testResult['success']) {
+                    echo json_encode([
+                        'success' => true,
+                        'message' => "測試郵件已成功寄出！請至 {$recipient} 查收" . (!empty($testResult['id']) ? " (ID: {$testResult['id']})" : '')
+                    ], JSON_UNESCAPED_UNICODE);
+                } else {
+                    echo json_encode([
+                        'success' => false,
+                        'message' => $testResult['message']
+                    ], JSON_UNESCAPED_UNICODE);
+                }
+                break;
                 
             default:
                 throw new Exception('未知操作');
@@ -168,15 +198,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             }
         }
         
-        // 更新配置
-        $stmt = $pdo->prepare("UPDATE configs SET value = ? WHERE `key` = ?");
+        // 更新或寫入配置
+        $stmt = $pdo->prepare("INSERT INTO configs (`key`, value) VALUES (?, ?) ON CONFLICT(`key`) DO UPDATE SET value = excluded.value");
 
         if (($_POST['rss_token_enabled'] ?? 'false') === 'true' && empty($_POST['rss_token'])) {
             $_POST['rss_token'] = generateRssToken();
         }
 
         foreach ($_POST as $key => $value) {
-            if (!in_array($key, ['submit', 'token', 'new_password', 'confirm_password'])) {
+            if (!in_array($key, ['submit', 'token', 'new_password', 'confirm_password', 'test_recipient'])) {
                 // 自動清理誤存的 textarea style 垃圾字串
                 if ($key === 'custom_tracking_code') {
                     $cleanVal = trim((string)$value);
@@ -193,7 +223,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         $value = 'https://' . $value;
                     }
                 }
-                $stmt->execute([$value, $key]);
+                $stmt->execute([$key, $value]);
             }
         }
 
@@ -415,11 +445,41 @@ $securitySettings = [
     ],
 ];
 
+$mailDriverSettings = [
+    'mail_driver' => [
+        'label' => '發信服務通道',
+        'type' => 'radio',
+        'options' => [
+            'resend' => 'Resend REST API (推薦 / 極速穩定)',
+            'smtp' => '傳統 SMTP 協定'
+        ],
+        'description' => 'Resend 走標準 HTTPS 443 埠，永不被防火牆封鎖且響應極快；SMTP 走 587/465 埠',
+        'half_width' => false
+    ]
+];
+
+$resendSettings = [
+    'resend_api_key' => [
+        'label' => 'Resend API Key',
+        'type' => 'password',
+        'placeholder' => 're_xxxxxxxxxxxxxxxxxxxxxxxx',
+        'description' => '請至 resend.com/api-keys 複製 API Key',
+        'half_width' => true
+    ],
+    'resend_from_email' => [
+        'label' => '寄件者信箱 (From Email)',
+        'type' => 'text',
+        'placeholder' => '888 BOX <onboarding@resend.dev> 或 notify@aiurl.tw',
+        'description' => '必須為 Resend 驗證通過之網域信箱；測試時可用 onboarding@resend.dev',
+        'half_width' => true
+    ]
+];
+
 $smtpSettings = [
     'smtp_host' => [
         'label' => 'SMTP 伺服器',
         'type' => 'text',
-        'placeholder' => '例如：smtp.gmail.com',
+        'placeholder' => '例如：smtp.gmail.com 或 smtp.resend.com',
         'half_width' => true
     ],
     'smtp_port' => [
@@ -431,7 +491,7 @@ $smtpSettings = [
     'smtp_user' => [
         'label' => 'SMTP 帳號 / 信箱',
         'type' => 'text',
-        'placeholder' => 'your-email@example.com',
+        'placeholder' => 'your-email@example.com (Resend SMTP 填 resend)',
         'half_width' => true
     ],
     'smtp_pass' => [
@@ -445,14 +505,17 @@ $smtpSettings = [
         'type' => 'radio',
         'options' => ['true' => '是', 'false' => '否'],
         'half_width' => true
-    ],
+    ]
+];
+
+$commonMailSettings = [
     'admin_emails' => [
         'label' => '管理員收件信箱',
         'type' => 'text',
-        'placeholder' => '多個信箱請用逗號分隔',
-        'description' => '當資產被檢舉或系統發生警報時發送至此信箱',
-        'half_width' => true
-    ],
+        'placeholder' => '例如：admin@example.com,alert@example.com',
+        'description' => '當資產被檢舉或系統發生警報時發送通知至此信箱（多個信箱請用英文逗號分隔）',
+        'half_width' => false
+    ]
 ];
 ?>
 
@@ -668,12 +731,65 @@ $smtpSettings = [
             <!-- Tab 6: 郵件與維護 -->
             <div class="settings-tab-panel" id="panel-smtp">
                 <div class="settings-panel-section">
-                    <h3 style="margin: 0 0 16px 0; font-size: 0.98rem; color: #c0caf5;">📧 SMTP 郵件通知設定</h3>
-                    <?php renderFields($smtpSettings, $configs); ?>
+                    <h3 style="margin: 0 0 16px 0; font-size: 0.98rem; color: #c0caf5; display: flex; align-items: center; gap: 8px;">
+                        <i data-lucide="mail" style="width: 18px; height: 18px; color: #7dcfff;"></i>
+                        <span>系統郵件通知設定</span>
+                    </h3>
+
+                    <!-- 發信通道切換 -->
+                    <?php renderFields($mailDriverSettings, $configs); ?>
+
+                    <!-- Resend 專屬設定區塊 -->
+                    <div id="mail-section-resend" class="mail-driver-section" style="margin-top: 14px; padding: 18px; background: rgba(22, 26, 43, 0.75); border: 1px solid rgba(122, 162, 247, 0.25); border-radius: 10px;">
+                        <div style="margin-bottom: 14px; display: flex; align-items: center; justify-content: space-between;">
+                            <span style="font-weight: 700; color: #7aa2f7; font-size: 0.92rem; display: flex; align-items: center; gap: 6px;">
+                                <i data-lucide="send" style="width: 16px; height: 16px;"></i>
+                                Resend HTTP REST API 設定
+                            </span>
+                            <a href="https://resend.com/docs" target="_blank" rel="noopener noreferrer" style="font-size: 12px; color: #7dcfff; text-decoration: none;">Resend 官方文件 ↗</a>
+                        </div>
+                        <?php renderFields($resendSettings, $configs); ?>
+                    </div>
+
+                    <!-- SMTP 專屬設定區塊 -->
+                    <div id="mail-section-smtp" class="mail-driver-section" style="margin-top: 14px; padding: 18px; background: rgba(22, 26, 43, 0.75); border: 1px solid rgba(122, 162, 247, 0.25); border-radius: 10px; display: none;">
+                        <div style="margin-bottom: 14px; font-weight: 700; color: #7aa2f7; font-size: 0.92rem; display: flex; align-items: center; gap: 6px;">
+                            <i data-lucide="server" style="width: 16px; height: 16px;"></i>
+                            傳統 SMTP 伺服器設定
+                        </div>
+                        <?php renderFields($smtpSettings, $configs); ?>
+                    </div>
+
+                    <div style="margin-top: 14px;">
+                        <?php renderFields($commonMailSettings, $configs); ?>
+                    </div>
+
+                    <!-- 即時郵件測試卡片 -->
+                    <div style="margin-top: 16px; padding: 14px 18px; background: rgba(26, 27, 38, 0.85); border: 1px solid rgba(122, 162, 247, 0.2); border-radius: 10px; display: flex; align-items: center; justify-content: space-between; gap: 14px; flex-wrap: wrap;">
+                        <div style="display: flex; flex-direction: column; gap: 4px;">
+                            <span style="font-size: 0.9rem; font-weight: 600; color: #c0caf5; display: flex; align-items: center; gap: 6px;">
+                                <i data-lucide="mail-check" style="width: 16px; height: 16px; color: #9ece6a;"></i>
+                                即時郵件連線測試
+                            </span>
+                            <span style="font-size: 12px; color: #7f88b2;">
+                                點擊發送測試郵件，無需事先存檔即可立即驗證目前的 API Key 或 SMTP 連線是否暢通
+                            </span>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
+                            <input type="email" id="test-email-recipient" placeholder="測試接收信箱（預設為管理員信箱）" style="width: 260px; padding: 7px 12px; font-size: 13px; border-radius: 6px; border: 1px solid rgba(122, 162, 247, 0.3); background: rgba(18, 20, 32, 0.9); color: #c0caf5;">
+                            <button type="button" id="btn-test-mail" class="update-btn" style="background: rgba(122, 162, 247, 0.18); border: 1px solid rgba(122, 162, 247, 0.5); color: #7dcfff; padding: 7px 14px; font-size: 13px; font-weight: 600; border-radius: 6px; display: inline-flex; align-items: center; gap: 6px; cursor: pointer; transition: all .2s ease;">
+                                <i data-lucide="send" style="width: 14px; height: 14px;"></i>
+                                <span>發送測試郵件</span>
+                            </button>
+                        </div>
+                    </div>
 
                     <div class="settings-section-divider"></div>
 
-                    <h3 style="margin: 0 0 16px 0; font-size: 0.98rem; color: #c0caf5;">🛠️ 系統維護工具</h3>
+                    <h3 style="margin: 0 0 16px 0; font-size: 0.98rem; color: #c0caf5; display: flex; align-items: center; gap: 8px;">
+                        <i data-lucide="wrench" style="width: 18px; height: 18px; color: #e0af68;"></i>
+                        <span>系統維護工具</span>
+                    </h3>
                     <div style="display: flex; gap: 12px; flex-wrap: wrap;">
                         <button type="button" id="optimize-db-btn" class="update-btn">
                             <i data-lucide="database"></i> 最佳化資料庫 (VACUUM)
