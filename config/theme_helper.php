@@ -226,45 +226,44 @@ function renderThemeStyles($pdo) {
     .box-site-header {
         position: relative;
         z-index: 1000;
-        display: grid;
-        grid-template-columns: minmax(160px, 1fr) auto minmax(160px, 1fr);
+        display: flex;
         align-items: center;
-        gap: 16px;
+        justify-content: space-between;
+        gap: 12px;
         width: 100%;
         margin: 0;
-        min-height: var(--nav-height);
+        min-height: 56px;
         box-sizing: border-box;
-        padding: 10px clamp(16px, 3.5vw, 44px);
+        padding: 8px clamp(14px, 2.5vw, 32px);
         color: <?= $theme['content'] ?>;
         background: rgba(15, 18, 32, 0.94);
         border-bottom: 1px solid <?= $theme['border_color'] ?>;
         box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25);
         backdrop-filter: blur(16px);
         -webkit-backdrop-filter: blur(16px);
+        flex-wrap: nowrap !important;
+        white-space: nowrap !important;
     }
     .box-site-header-left {
-        grid-column: 1;
-        justify-self: start;
         display: inline-flex;
         align-items: center;
         gap: 8px;
-        min-width: 0;
+        flex-shrink: 0;
     }
     .box-site-section-nav {
-        grid-column: 2;
-        justify-self: center;
         display: inline-flex;
         align-items: center;
-        gap: 6px;
-        min-width: 0;
+        gap: 4px;
+        flex: 0 0 auto;
+        margin: 0 auto;
     }
     .box-site-header-actions {
-        grid-column: 3;
-        justify-self: end;
         display: inline-flex;
         align-items: center;
         gap: 8px;
-        min-width: 0;
+        flex-shrink: 0;
+        flex-wrap: nowrap !important;
+        white-space: nowrap !important;
     }
     .box-site-section-link {
         display: inline-flex;
@@ -374,7 +373,7 @@ function renderThemeStyles($pdo) {
     .box-site-header + .login-container {
         margin-top: 60px;
     }
-    @media (max-width: 1024px) {
+    @media (max-width: 820px) {
         .box-language-switcher {
             top: max(10px, env(safe-area-inset-top));
             right: max(10px, env(safe-area-inset-right));
@@ -388,15 +387,22 @@ function renderThemeStyles($pdo) {
             justify-content: space-between;
             align-items: center;
             gap: 8px 12px;
-            padding: 10px max(14px, env(safe-area-inset-right)) 10px max(14px, env(safe-area-inset-left));
+            padding: 8px max(14px, env(safe-area-inset-right)) 8px max(14px, env(safe-area-inset-left));
         }
         .box-site-header-left {
             order: 1;
+            flex-shrink: 0;
         }
         .box-site-header-actions {
             order: 2;
-            flex-wrap: wrap;
+            flex-wrap: nowrap !important;
             justify-content: flex-end;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            scrollbar-width: none;
+        }
+        .box-site-header-actions::-webkit-scrollbar {
+            display: none;
         }
         .box-site-section-nav {
             order: 3;
