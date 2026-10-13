@@ -3,26 +3,34 @@
    ======================================== */
 #settings-modal.modal,
 .modal.settings-modal {
-    position: fixed;
-    z-index: 9999;
-    inset: 0;
-    background: var(--bg-black-50);
-    backdrop-filter: blur(10px);
-    overflow-y: auto;
+    position: fixed !important;
+    z-index: 99999 !important;
+    inset: 0 !important;
+    width: 100vw !important;
+    height: 100vh !important;
+    background: rgba(10, 12, 20, 0.82) !important;
+    backdrop-filter: blur(14px) !important;
+    -webkit-backdrop-filter: blur(14px) !important;
+    overflow-y: auto !important;
     display: none;
-    padding: 10px;
+    align-items: center !important;
+    justify-content: center !important;
+    padding: 24px 16px !important;
+    box-sizing: border-box !important;
     opacity: 0;
+    transition: opacity 200ms ease;
 }
 
 #settings-modal.modal.show,
 .modal.settings-modal.show {
-    display: block;
-    animation: modalFadeIn 0.3s ease-out forwards;
+    display: flex !important;
+    opacity: 1 !important;
 }
 
 #settings-modal.modal.hide,
 .modal.settings-modal.hide {
-    animation: modalFadeOut 0.3s ease-out forwards;
+    display: flex !important;
+    opacity: 0 !important;
 }
 
 /* 允许在输入框内选择文本 */
@@ -520,17 +528,23 @@
 }
 
 .settings-tab-panel {
-    display: none;
+    display: none !important;
 }
 
 .settings-tab-panel.is-active {
-    display: block;
+    display: block !important;
     animation: tabFadeIn 180ms cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 @keyframes tabFadeIn {
     from { opacity: 0; transform: translateY(4px); }
     to { opacity: 1; transform: translateY(0); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .settings-tab-panel.is-active {
+        animation: none !important;
+    }
 }
 
 .settings-panel-section {

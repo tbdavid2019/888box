@@ -6,20 +6,34 @@ document.addEventListener('DOMContentLoaded', () => {
         Array.from({length}, () => 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789'[Math.floor(Math.random() * 62)]).join('');
 
     const closeModal = (modalElement) => {
+        if (!modalElement) return;
         modalElement.classList.replace('show', 'hide');
         setTimeout(() => {
             modalElement.style.display = 'none';
             modalElement.classList.remove('hide');
-        }, 300);
+        }, 200);
     };
 
     const setupModalCloseHandlers = (modalElement, closeHandler) => {
-        modalElement.querySelector('.close-modal')?.addEventListener('click', closeHandler);
-        modalElement.addEventListener('click', (e) => {
-            const container = modalElement.querySelector('.settings-container');
-            if (container && !container.contains(e.target)) closeHandler();
-        });
+        modalElement.onclick = (e) => {
+            if (e.target.closest('.close-modal')) {
+                e.preventDefault();
+                closeHandler();
+                return;
+            }
+            const dialog = modalElement.querySelector('.modal-content');
+            if (dialog && !dialog.contains(e.target)) {
+                closeHandler();
+            }
+        };
     };
+
+    // 全域 Esc 鍵關閉模態框
+    document.addEventListener('keydown', (e) => {
+        if ((e.key === 'Escape' || e.key === 'Esc') && modal && modal.classList.contains('show')) {
+            closeModal(modal);
+        }
+    });
 
     const handleAction = async (btn, action, onSuccess) => {
         const originalText = btn.textContent;
@@ -129,15 +143,17 @@ document.addEventListener('DOMContentLoaded', () => {
         const tabBtns = modal.querySelectorAll('.settings-tab-btn');
         const tabPanels = modal.querySelectorAll('.settings-tab-panel');
         tabBtns.forEach(btn => {
-            btn.addEventListener('click', () => {
+            btn.addEventListener('click', (e) => {
+                e.preventDefault();
                 const targetTab = btn.dataset.tab;
                 tabBtns.forEach(b => {
-                    const active = b === btn;
+                    const active = (b === btn);
                     b.classList.toggle('is-active', active);
                     b.setAttribute('aria-selected', active ? 'true' : 'false');
                 });
                 tabPanels.forEach(panel => {
-                    panel.classList.toggle('is-active', panel.id === `panel-${targetTab}`);
+                    const active = (panel.id === `panel-${targetTab}`);
+                    panel.classList.toggle('is-active', active);
                 });
                 if (window.lucide) lucide.createIcons();
             });

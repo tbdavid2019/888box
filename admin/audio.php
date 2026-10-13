@@ -49,7 +49,7 @@ $pagination_html = renderPagination($current_page, $total_pages);
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>音訊管理後台 - 888 BOX</title>
     <link rel="shortcut icon" href="/static/favicon.svg">
-    <link rel="stylesheet" href="/static/css/admin/shared.css?v=<?php echo time(); ?>">
+    <link rel="stylesheet" href="/static/css/admin.css?v=<?php echo time(); ?>">
     <link rel="stylesheet" href="/static/css/admin/seal-controls.css?v=<?php echo time(); ?>">
     <meta name="seal-csrf-token" content="<?= htmlspecialchars($sealCsrfToken, ENT_QUOTES, 'UTF-8') ?>">
     <?php renderThemeStyles($pdo); ?>
@@ -135,8 +135,8 @@ $pagination_html = renderPagination($current_page, $total_pages);
 
     <div class="admin-toolbar-row">
         <div class="admin-stats-badge">
-            <i data-lucide="mic"></i>
-            <span>共 <?= $total_rows ?> 首音訊 · 第 <?= $current_page ?> / <?= $total_pages ?> 頁</span>
+            <i data-lucide="music"></i>
+            <span>共 <?= number_format($total_rows) ?> 筆音訊 · 顯示第 <?= $total_rows > 0 ? ($offset + 1) : 0 ?> - <?= min($offset + $items_per_page, $total_rows) ?> 筆 · 第 <?= $current_page ?> / <?= $total_pages ?> 頁</span>
         </div>
     </div>
 
@@ -180,11 +180,13 @@ $pagination_html = renderPagination($current_page, $total_pages);
         <?php endif; ?>
     </div>
 
-    <?php if ($total_pages > 1): ?>
-        <div class="box-pagination-wrapper">
-            <div class="pagination box-pagination"><?= $pagination_html ?></div>
-        </div>
-    <?php endif; ?>
+    <div class="rightside">
+        <a class="top-link" id="scroll-to-top" title="回到頂部">
+            <i data-lucide="arrow-up" class="icon"></i>
+        </a>
+        <span id="current-total-pages" title="點擊跳轉頁碼"><?= $current_page ?>/<?= $total_pages ?></span>
+    </div>
+    <div id="pagination" class="pagination"><?= $pagination_html ?></div>
 
     <?php renderAdminFooter(); ?>
     <script src="/static/js/admin/seal-controls.js?v=<?php echo time(); ?>"></script>
@@ -337,6 +339,7 @@ $pagination_html = renderPagination($current_page, $total_pages);
             });
         }
     </script>
+    <script src="/static/js/admin/pagination.js?v=<?php echo time(); ?>"></script>
     <script src="/static/js/lucide.min.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', () => {

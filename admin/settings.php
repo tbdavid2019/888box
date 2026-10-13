@@ -468,7 +468,7 @@ $smtpSettings = [
                 <i data-lucide="check" class="icon"></i>
                 <span>儲存設定</span>
             </button>
-            <button type="button" class="close-modal" aria-label="關閉">
+            <button type="button" class="close-modal" aria-label="關閉" title="關閉 (Esc)">
                 <i data-lucide="x" class="icon"></i>
             </button>
         </div>
