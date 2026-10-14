@@ -249,8 +249,11 @@ body {
 .queue-progress-fill {
     height: 100%;
     background: linear-gradient(90deg, #7dcfff 0%, #9ece6a 100%);
-    width: 0%;
-    transition: width 0.2s ease;
+    width: 100%;
+    transform: scaleX(0);
+    transform-origin: left center;
+    transition: transform 0.2s ease-out;
+    will-change: transform;
 }
 
 .queue-item-actions {
@@ -310,7 +313,11 @@ body {
     padding: 30px;
     text-decoration: none;
     color: inherit;
-    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    transition:
+        transform 0.4s cubic-bezier(0.16, 1, 0.3, 1),
+        background-color 0.25s ease-out,
+        border-color 0.25s ease-out,
+        box-shadow 0.4s ease-out;
     display: flex;
     flex-direction: column;
     justify-content: space-between;

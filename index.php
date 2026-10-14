@@ -326,7 +326,7 @@ if (!headers_sent()) {
                     <span class="status-text" style="font-size: 0.78rem; color: #7dcfff;">上傳中 0%...</span>
                 </div>
                 <div class="queue-progress-bar">
-                    <div class="queue-progress-fill" style="width: 0%;"></div>
+                    <div class="queue-progress-fill" style="transform: scaleX(0);"></div>
                 </div>
             `;
 
@@ -350,7 +350,7 @@ if (!headers_sent()) {
             xhr.upload.onprogress = (e) => {
                 if (e.lengthComputable) {
                     const percent = Math.round((e.loaded / e.total) * 100);
-                    if (fillEl) fillEl.style.width = percent + '%';
+                    if (fillEl) fillEl.style.transform = `scaleX(${percent / 100})`;
                     if (statusEl) statusEl.textContent = `上傳中 ${percent}%...`;
                 }
             };
@@ -366,7 +366,7 @@ if (!headers_sent()) {
                         const data = response.data || {};
                         const pageUrl = data.share_url || data.page_url || data.url || '#';
                         
-                        if (fillEl) fillEl.style.width = '100%';
+                        if (fillEl) fillEl.style.transform = 'scaleX(1)';
                         
                         const actionsEl = itemEl.querySelector('.queue-item-actions');
                         if (actionsEl) {
