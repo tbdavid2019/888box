@@ -1,0 +1,33 @@
+{
+  "brand": "888 Box",
+  "tagline": "One compact place for every asset",
+  "brief": "A unified asset platform for images, videos, audio, and files. The identity should feel precise, open, dependable, and lightly playful across browser tabs, upload centers, PWAs, READMEs, and shared links.",
+  "adjectives": ["precise", "open", "dependable", "energetic", "playful"],
+  "criteria": "Success: the connected Link 8 symbol is recognizable at 16px, the 888 Box name is immediately readable, and the system works in colour, one colour, and reverse.",
+  "industry": "developer-tools",
+  "nav": ["Upload", "Assets", "API"],
+  "brand_color": "#FF5A00",
+  "tile_color": "#FF5A00",
+  "greyscale": false,
+  "final": true,
+  "round": 2,
+  "designer": "888box",
+  "concepts": [
+    {
+      "name": "Link 8",
+      "symbol": "888box-symbol-orange.svg",
+      "lockup": "888box-horizontal-color.svg",
+      "stacked": "888box-stacked-color.svg",
+      "symbol_on_tile": "exports/888box-symbol-orange-app-icon.svg",
+      "symbol_on_dark": "exports/888box-symbol-orange-white.svg",
+      "lockup_on_dark": "888box-horizontal-dark.svg",
+      "idea": "A connected 8-grid turns the repeated 888 rhythm into one open system for uploading and sharing assets.",
+      "rationale": [
+        "The symbol carries the 888 name without depending on live text.",
+        "The open junction gives the system a sense of access and movement.",
+        "The custom 888 Box wordmark keeps the name present in every primary lockup."
+      ]
+    }
+  ],
+  "recommendation": "Link 8 — approved direction with the 888 Box wordmark added to the primary horizontal and stacked lockups."
+}

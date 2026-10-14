@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" role="img" aria-labelledby="title desc">
+  <title id="title">888box Three Windows concept</title>
+  <desc id="desc">Three rounded windows sit inside an open square frame.</desc>
+  <path fill="#000" fill-rule="evenodd" d="M34 24h72c7 0 12 5 12 12v20h20V36c0-7 5-12 12-12h72c7 0 12 5 12 12v72c0 7-5 12-12 12h-20v20h20c7 0 12 5 12 12v72c0 7-5 12-12 12h-72c-7 0-12-5-12-12v-20h-20v20c0 7-5 12-12 12H34c-7 0-12-5-12-12v-72c0-7 5-12 12-12h20v-20H34c-7 0-12-5-12-12V36c0-7 5-12 12-12Zm12 24v48h48V48H46Zm80 20H74v48h52V68Zm-80 68v48h48v-48H46Zm80 0v52h52v-52h-52Zm52-20V48h-52v48h52Z"/>
+  <path fill="#000" d="M126 116h4v24h-4z"/>
+</svg>

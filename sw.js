@@ -1,5 +1,5 @@
 const CACHE_PREFIX = '888box-pwa-';
-const CACHE_NAME = '888box-pwa-v7';
+const CACHE_NAME = '888box-pwa-v8';
 const OFFLINE_URL = '/offline.html';
 const NETWORK_ONLY_PATHS = [
     '/admin/',
@@ -15,6 +15,7 @@ const PRECACHE_URLS = [
     OFFLINE_URL,
     '/static/site.webmanifest',
     '/static/favicon.svg',
+    '/static/brand-lockup.svg',
     '/static/pwa-192.png',
     '/static/pwa-512.png',
     '/static/pwa-maskable-512.png',

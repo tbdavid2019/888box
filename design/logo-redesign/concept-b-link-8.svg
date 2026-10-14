@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" role="img" aria-labelledby="title desc">
+  <title id="title">888box Link 8 concept</title>
+  <desc id="desc">A continuous ribbon links three rounded chambers.</desc>
+  <g transform="translate(14 24)">
+    <path fill="#000" fill-rule="evenodd" d="M22 58c0-20 16-36 36-36h28c11 0 21 5 28 13 7-8 17-13 28-13h28c20 0 36 16 36 36v20c0 9-3 17-8 24 5 7 8 15 8 24v20c0 20-16 36-36 36h-28c-11 0-21-5-28-13-7 8-17 13-28 13H58c-20 0-36-16-36-36v-20c0-9 3-17 8-24-5-7-8-15-8-24V58Zm36-12c-7 0-12 5-12 12v20c0 7 5 12 12 12h28c7 0 12-5 12-12V58c0-7-5-12-12-12H58Zm84 0c-7 0-12 5-12 12v20c0 7 5 12 12 12h28c7 0 12-5 12-12V58c0-7-5-12-12-12h-28ZM58 112c-7 0-12 5-12 12v20c0 7 5 12 12 12h28c7 0 12-5 12-12v-20c0-7-5-12-12-12H58Zm84 0c-7 0-12 5-12 12v20c0 7 5 12 12 12h28c7 0 12-5 12-12v-20c0-7-5-12-12-12h-28ZM106 80h44v32h-44z"/>
+  </g>
+</svg>

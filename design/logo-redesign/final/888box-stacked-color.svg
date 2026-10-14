@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 520 520" role="img" aria-labelledby="title desc">
+  <title id="title">888 Box</title>
+  <desc id="desc">888 Box connected asset platform stacked logo.</desc>
+  <defs>
+    <path id="link8" fill-rule="evenodd" d="M22 58c0-20 16-36 36-36h28c11 0 21 5 28 13 7-8 17-13 28-13h28c20 0 36 16 36 36v20c0 9-3 17-8 24 5 7 8 15 8 24v20c0 20-16 36-36 36h-28c-11 0-21-5-28-13-7 8-17 13-28 13H58c-20 0-36-16-36-36v-20c0-9 3-17 8-24-5-7-8-15-8-24V58Zm36-12c-7 0-12 5-12 12v20c0 7 5 12 12 12h28c7 0 12-5 12-12V58c0-7-5-12-12-12H58Zm84 0c-7 0-12 5-12 12v20c0 7 5 12 12 12h28c7 0 12-5 12-12V58c0-7-5-12-12-12h-28ZM58 112c-7 0-12 5-12 12v20c0 7 5 12 12 12h28c7 0 12-5 12-12v-20c0-7-5-12-12-12H58Zm84 0c-7 0-12 5-12 12v20c0 7 5 12 12 12h28c7 0 12-5 12-12v-20c0-7-5-12-12-12h-28ZM106 80h44v32h-44z"/>
+    <path id="glyph-8" fill-rule="evenodd" d="M28 0A28 28 0 0 1 56 28v40a28 28 0 0 1-28 28A28 28 0 0 1 0 68V28A28 28 0 0 1 28 0ZM16 13A10 10 0 0 0 6 23v3a10 10 0 0 0 10 10h24a10 10 0 0 0 10-10v-3a10 10 0 0 0-10-10H16Zm0 47A10 10 0 0 0 6 70v3a10 10 0 0 0 10 10h24a10 10 0 0 0 10-10v-3a10 10 0 0 0-10-10H16ZM0 43h14v10H0Zm42 0h14v10H42Z"/>
+    <path id="glyph-b" fill-rule="evenodd" d="M0 0h40c21 0 32 10 32 26 0 10-5 18-15 22 11 4 18 13 18 24 0 16-13 24-34 24H0V0Zm16 15v22h22c11 0 17-4 17-11s-6-11-17-11H16Zm0 38v27h24c12 0 19-5 19-14 0-8-7-13-19-13H16Z"/>
+    <path id="glyph-o" fill-rule="evenodd" d="M28 0a28 28 0 0 1 28 28v16a28 28 0 0 1-56 0V28A28 28 0 0 1 28 0Zm0 15a12 12 0 0 0-12 12v18a12 12 0 0 0 24 0V27a12 12 0 0 0-12-12Z"/>
+    <path id="glyph-x" d="M0 12 14 0l14 22L42 0l14 12-20 24 20 24-14 12-14-22L14 72 0 60l20-24L0 12Z"/>
+  </defs>
+  <use href="#link8" transform="translate(150 20) scale(1.02)" fill="#ff5a00"/>
+  <g fill="#111827">
+    <use href="#glyph-8" x="48" y="292"/>
+    <use href="#glyph-8" x="112" y="292"/>
+    <use href="#glyph-8" x="176" y="292"/>
+    <use href="#glyph-b" x="258" y="292"/>
+  </g>
+  <g fill="#ff5a00">
+    <use href="#glyph-o" x="348" y="304"/>
+    <use href="#glyph-x" x="416" y="304"/>
+  </g>
+</svg>
