@@ -1,5 +1,14 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" role="img" aria-labelledby="title desc">
-  <title id="title">888 Box symbol</title>
-  <desc id="desc">Connected 888 Box symbol in orange.</desc>
-  <path fill="#ff5a00" fill-rule="evenodd" d="M36 82c0-20 16-36 36-36h28c11 0 21 5 28 13 7-8 17-13 28-13h28c20 0 36 16 36 36v20c0 9-3 17-8 24 5 7 8 15 8 24v20c0 20-16 36-36 36h-28c-11 0-21-5-28-13-7 8-17 13-28 13H72c-20 0-36-16-36-36v-20c0-9 3-17 8-24-5-7-8-15-8-24V82Zm36-12c-7 0-12 5-12 12v20c0 7 5 12 12 12h28c7 0 12-5 12-12V82c0-7-5-12-12-12H72Zm84 0c-7 0-12 5-12 12v20c0 7 5 12 12 12h28c7 0 12-5 12-12V82c0-7-5-12-12-12h-28ZM72 136c-7 0-12 5-12 12v20c0 7 5 12 12 12h28c7 0 12-5 12-12v-20c0-7-5-12-12-12H72Zm84 0c-7 0-12 5-12 12v20c0 7 5 12 12 12h28c7 0 12-5 12-12v-20c0-7-5-12-12-12h-28ZM120 104h44v32h-44z"/>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <defs>
+    <linearGradient id="orangeGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FF7A1A" />
+      <stop offset="60%" stop-color="#FF5A00" />
+      <stop offset="100%" stop-color="#E54400" />
+    </linearGradient>
+  </defs>
+  <rect width="512" height="512" rx="112" fill="url(#orangeGrad)" />
+  <g fill="#FFFFFF" text-anchor="middle">
+    <text x="256" y="254" font-size="172" font-weight="900" letter-spacing="-4" font-family="-apple-system, BlinkMacSystemFont, 'SF Pro Display', Inter, 'Segoe UI', Roboto, sans-serif">888</text>
+    <text x="256" y="382" font-size="116" font-weight="900" letter-spacing="3" font-family="-apple-system, BlinkMacSystemFont, 'SF Pro Display', Inter, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif" >BOX</text>
+  </g>
 </svg>

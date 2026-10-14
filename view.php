@@ -308,7 +308,7 @@ if (function_exists('mb_substr')) {
 } else {
     $metaDescription = substr($metaDescription, 0, 160);
 }
-$defaultOgImage = $siteUrl . '/static/og-image.png?v=logo-b1';
+$defaultOgImage = $siteUrl . '/static/og-image.png?v=30f0c30';
 $ogImage = $defaultOgImage;
 if ((!$activeSeal || $sealState === 'unlocked')
     && $type === 'image'

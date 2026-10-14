@@ -62,7 +62,7 @@ if (!headers_sent()) {
     <!-- Open Graph -->
     <meta property="og:title" content="888 BOX｜個人檔案中心">
     <meta property="og:description" content="專業、高效、安全的個人檔案中心，支援圖片、影片、音訊與文件託管。">
-    <meta property="og:image" content="<?= $base ?>/static/og-image.png?v=logo-b1">
+    <meta property="og:image" content="<?= $base ?>/static/og-image.png?v=30f0c30">
     <meta property="og:image:type" content="image/png">
     <meta property="og:image:width" content="1200">
     <meta property="og:image:height" content="630">
@@ -75,7 +75,7 @@ if (!headers_sent()) {
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:title" content="888 BOX｜個人檔案中心">
     <meta name="twitter:description" content="專業、高效、安全的個人檔案中心，支援圖片、影片、音訊與文件託管。">
-    <meta name="twitter:image" content="<?= $base ?>/static/og-image.png?v=logo-b1">
+    <meta name="twitter:image" content="<?= $base ?>/static/og-image.png?v=30f0c30">
 
     <!-- Browser theme color -->
     <meta name="theme-color" content="#1a1b26">
@@ -133,7 +133,11 @@ if (!headers_sent()) {
     <?php renderLanguageSwitcher(); ?>
     <div class="header">
         <h1 class="brand-lockup" aria-label="888 BOX">
-            <img class="brand-lockup-image" src="/static/brand-lockup.svg" alt="888 Box">
+            <img class="brand-mark" src="/static/brand-mark.svg" alt="">
+            <div class="brand-wordmark" aria-hidden="true">
+                <span>888</span>
+                <span>BOX</span>
+            </div>
         </h1>
         <p>專業、高效、安全的個人檔案中心</p>
     </div>
@@ -326,7 +330,7 @@ if (!headers_sent()) {
                     <span class="status-text" style="font-size: 0.78rem; color: #7dcfff;">上傳中 0%...</span>
                 </div>
                 <div class="queue-progress-bar">
-                    <div class="queue-progress-fill" style="transform: scaleX(0);"></div>
+                    <div class="queue-progress-fill" style="width: 0%;"></div>
                 </div>
             `;
 
@@ -350,7 +354,7 @@ if (!headers_sent()) {
             xhr.upload.onprogress = (e) => {
                 if (e.lengthComputable) {
                     const percent = Math.round((e.loaded / e.total) * 100);
-                    if (fillEl) fillEl.style.transform = `scaleX(${percent / 100})`;
+                    if (fillEl) fillEl.style.width = percent + '%';
                     if (statusEl) statusEl.textContent = `上傳中 ${percent}%...`;
                 }
             };
@@ -366,7 +370,7 @@ if (!headers_sent()) {
                         const data = response.data || {};
                         const pageUrl = data.share_url || data.page_url || data.url || '#';
                         
-                        if (fillEl) fillEl.style.transform = 'scaleX(1)';
+                        if (fillEl) fillEl.style.width = '100%';
                         
                         const actionsEl = itemEl.querySelector('.queue-item-actions');
                         if (actionsEl) {

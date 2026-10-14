@@ -43,14 +43,40 @@ body {
 }
 
 .brand-lockup {
-    display: inline-block;
+    display: inline-flex;
+    align-items: center;
+    gap: 16px;
     filter: drop-shadow(0 14px 24px rgba(5, 14, 25, 0.35));
 }
 
-.brand-lockup-image {
-    width: min(560px, 88vw);
-    height: auto;
+.brand-mark {
+    width: 72px;
+    height: 72px;
     display: block;
+    border-radius: 19px;
+}
+
+.brand-wordmark {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    color: #f8fafc;
+    font-family: var(--font-ui);
+    font-weight: 900;
+    line-height: 0.78;
+    letter-spacing: -0.08em;
+    text-align: left;
+}
+
+.brand-wordmark span:first-child {
+    font-size: 3.4rem;
+}
+
+.brand-wordmark span:last-child {
+    margin-left: 5px;
+    color: #99f6e4;
+    font-size: 1.58rem;
+    letter-spacing: 0.32em;
 }
 
 .header p {
@@ -249,11 +275,8 @@ body {
 .queue-progress-fill {
     height: 100%;
     background: linear-gradient(90deg, #7dcfff 0%, #9ece6a 100%);
-    width: 100%;
-    transform: scaleX(0);
-    transform-origin: left center;
-    transition: transform 0.2s ease-out;
-    will-change: transform;
+    width: 0%;
+    transition: width 0.2s ease;
 }
 
 .queue-item-actions {
@@ -313,11 +336,7 @@ body {
     padding: 30px;
     text-decoration: none;
     color: inherit;
-    transition:
-        transform 0.4s cubic-bezier(0.16, 1, 0.3, 1),
-        background-color 0.25s ease-out,
-        border-color 0.25s ease-out,
-        box-shadow 0.4s ease-out;
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
     display: flex;
     flex-direction: column;
     justify-content: space-between;
