@@ -133,9 +133,9 @@ if (!headers_sent()) {
     <?php renderLanguageSwitcher(); ?>
     <div class="header">
         <h1 class="brand-lockup" aria-label="888 BOX">
-            <img class="brand-mark" src="/static/brand-mark.svg" alt="">
             <div class="brand-wordmark" aria-hidden="true">
                 <span>888</span>
+                <span class="brand-box-icon material-symbols-outlined">inventory_2</span>
                 <span>BOX</span>
             </div>
         </h1>
