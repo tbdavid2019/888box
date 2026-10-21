@@ -1,4 +1,6 @@
-FROM php:8.1-apache
+# PHP 8.1 reached end of life on 2025-12-31. Keep the runtime on a supported branch
+# so rebuilt images include upstream security fixes.
+FROM php:8.4-apache
 
 # 设置工作目录
 WORKDIR /var/www/html
