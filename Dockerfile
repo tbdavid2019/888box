@@ -1,6 +1,6 @@
-# PHP 8.1 reached end of life on 2025-12-31. Keep the runtime on a supported branch
-# so rebuilt images include upstream security fixes.
-FROM php:8.4-apache
+# PHP 8.1 reached end of life on 2025-12-31. PHP 8.4.26 is the current
+# security release; pin it so every image build contains the verified fix set.
+FROM php:8.4.26-apache
 
 # 设置工作目录
 WORKDIR /var/www/html
