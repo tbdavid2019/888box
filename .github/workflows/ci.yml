@@ -15,10 +15,10 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v4
 
-      - name: Set up PHP 8.4
+      - name: Set up PHP 8.5.12
         uses: shivammathur/setup-php@v2
         with:
-          php-version: '8.4'
+          php-version: '8.5.12'
           extensions: sqlite3, pdo_sqlite, curl, gd, mbstring, dom, fileinfo
           coverage: none
 

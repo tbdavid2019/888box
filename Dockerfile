@@ -1,6 +1,6 @@
-# PHP 8.1 reached end of life on 2025-12-31. PHP 8.4.26 is the current
+# PHP 8.1 reached end of life on 2025-12-31. PHP 8.5.12 is the current
 # security release; pin it so every image build contains the verified fix set.
-FROM php:8.4.26-apache
+FROM php:8.5.12-apache
 
 # 设置工作目录
 WORKDIR /var/www/html
