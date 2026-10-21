@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [2026.10.3] - 2026-10-21
+
+### 🔒 PHP 上傳進度安全設定與映像部署收斂
+- 將 `session.upload_progress.enabled = Off` 納入正式 Docker 映像。
+- CI 測試通過後才建置並發布 amd64／arm64 映像，由各主機的 Watchtower 追蹤 `latest`。
+- 以健康檢查確認 PHP 設定、Apache、首頁與 MCP 工具清單。
+
 ## [2026.10.2] - 2026-10-13
 
 ### 💬 WebTalk 服務端點全面遷移至自訂網域 (`webtalk.david888.com`)

@@ -1,7 +1,6 @@
 services:
   888box:
     image: ${DOCKER_IMAGE:-tbdavid2019/888box:latest}
-    build: .
     container_name: 888box
     restart: unless-stopped
     ports:

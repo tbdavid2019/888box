@@ -137,9 +137,9 @@ async function uploadAsset(filePath) {
 
 888box 官方映像檔已發布至 Docker Hub 與 GitHub Container Registry，支援 **Multi-Arch（`linux/amd64` 與 `linux/arm64`，完全相容 AWS Graviton 與 Apple Silicon）**。
 
-### 方式一：Docker Compose（含 Watchtower 自動看門狗，強烈推薦）
+### 方式一：Docker Compose（含 Watchtower 更新）
 
-本方案包含 `888box` 核心服務與 `watchtower` 自動更新容器。當遠端映像檔更新時，Watchtower 會自動為您平滑熱重啟，達到無人值守的 CI/CD 效果。
+正式映像由 GitHub Actions 在測試通過後建置並發布至 Docker Hub。各主機的 Watchtower 以 `888box` scope 每五分鐘檢查 `latest`，再自行更新容器。
 
 建立 `docker-compose.yml`：
 
@@ -147,7 +147,6 @@ async function uploadAsset(filePath) {
 services:
   888box:
     image: ${DOCKER_IMAGE:-tbdavid2019/888box:latest}
-    build: .
     container_name: 888box
     restart: unless-stopped
     ports:
@@ -180,11 +179,12 @@ services:
 # 準備儲存目錄與設定檔
 mkdir -p storage && cp .env.example .env
 
-# 一鍵啟動
+# 拉取並啟動正式映像
+docker compose pull 888box
 docker compose up -d
 ```
 
-> **提示**：若伺服器對 Docker Hub 連線有路由限制，可在 `.env` 中加入 `DOCKER_IMAGE=ghcr.io/tbdavid2019/888box:latest`，即可直接改由 GitHub Container Registry 拉取。
+一般安裝可使用預設 Docker Hub 映像；手動切換 registry 時，請在 `.env` 設定 `DOCKER_IMAGE`。
 
 ---
 
@@ -226,22 +226,23 @@ cd 888box
 
 ---
 
-## 🔄 CI/CD 與自動化看門狗流程
+## 🔄 CI/CD 發布流程
 
-本專案建置了完全閉環的自動化 CI/CD 架構：
+GitHub Actions 負責測試、建置並發布映像；Watchtower 負責主機更新：
 
 ```mermaid
 flowchart LR
-    A[👨‍💻 本地 git push] --> B[⚙️ GitHub Actions CI 安全審計 & 測試]
-    B --> C[🐳 建置 Multi-Arch 映像檔 AMD64/ARM64]
-    C --> D[📦 推播至 Docker Hub & GHCR]
-    D --> E[🐕 伺服器 Watchtower 每 5 分鐘自動巡檢]
-    E --> F[🔄 自動拉取映像檔並平滑熱重啟 888box]
+    A[Pull request 或 main push] --> B[CI 語法檢查與測試]
+    B --> C[建置 amd64 與 arm64 映像]
+    C --> D[發布版本與 commit 標籤]
+    D --> E[發布 latest 與版本標籤]
+    E --> F[四台 Watchtower 依 scope 更新容器]
 ```
 
-- **多架構原生支援**：GitHub Actions 自動建置 `linux/amd64` 與 `linux/arm64`，各種伺服器皆能下載最佳效能的專屬架構層。
-- **多實例隔離安全**：透過 `WATCHTOWER_SCOPE=888box`，Watchtower 僅鎖定監控 888box 容器，不會影響或重啟同主機上的其他服務。
-- **資料持久化保證**：所有上傳檔案與 SQLite 資料庫均透過 Volume 掛載至宿主機 `./storage`，映像檔換新時資料絕對零遺失。
+- **多架構一致發布**：同一個多架構映像支援 `linux/amd64` 與 `linux/arm64`；主機 image ID 會依架構不同，映像 revision 與版本保持一致。
+- **scope 隔離**：`WATCHTOWER_SCOPE=888box` 與容器標籤讓 Watchtower 只更新 888box。
+- **自動收斂**：Watchtower 每五分鐘檢查 `latest`，所有主機會在各自下一次輪詢後更新。
+- **資料持久化**：上傳檔案與 SQLite 資料庫透過 `./storage` 掛載至宿主機，映像更新保留現有資料。
 
 ---
 
