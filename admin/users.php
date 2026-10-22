@@ -890,7 +890,7 @@ $apiUploadUrl = rtrim($siteUrl, '/') . '/api.php?action=upload';
             .users-table th, .users-table td { padding: 12px 10px; }
         }
     </style>
-    <link rel="stylesheet" href="/static/css/theme-888.css?v=1">
+    <link rel="stylesheet" href="/static/css/theme-888.css?v=2">
 </head>
 <body class="admin-users-page">
     <?php renderAdminHeader('users', '帳號管理', [

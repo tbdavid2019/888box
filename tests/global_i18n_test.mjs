@@ -73,10 +73,10 @@ for (const phrase of [
 for (const label of ['圖片', '影片', '文件', '音訊']) {
     assert.match(index, new RegExp(`<h2 class="card-title">${label}</h2>`));
 }
-assert.match(index, /pwa\.js\?v=2/);
+assert.match(index, /pwa\.js\?v=3/);
 
 const uploadImage = await read('upload_image.php');
-assert.match(uploadImage, /pwa\.js\?v=2/);
+assert.match(uploadImage, /pwa\.js\?v=3/);
 assert.match(helper, /\.box-site-header\s*\{[\s\S]*?margin:\s*0/);
 for (const page of ['upload_image.php', 'upload_video.php', 'upload_audio.php', 'upload_file.php']) {
     const source = await read(page);

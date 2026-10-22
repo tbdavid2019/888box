@@ -70,7 +70,7 @@ $pagination_html = renderPagination($current_page, $total_pages);
         .btn-delete { background: #f7768e; color: #1a1b26; }
         .empty-state { text-align: center; color: #7f88b2; padding: 100px; font-size: 1.2rem; }
     </style>
-    <link rel="stylesheet" href="/static/css/theme-888.css?v=1">
+    <link rel="stylesheet" href="/static/css/theme-888.css?v=2">
     <?php renderCustomTrackingCode($pdo); ?>
 </head>
 <body>

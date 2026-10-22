@@ -57,7 +57,7 @@ if (!headers_sent()) {
 
     <!-- Web app manifest -->
     <link rel="manifest" href="/static/site.webmanifest?v=7">
-    <script defer src="/static/js/pwa.js?v=2"></script>
+    <script defer src="/static/js/pwa.js?v=3"></script>
 
     <!-- Open Graph -->
     <meta property="og:title" content="888 BOX｜個人檔案中心">
@@ -127,7 +127,7 @@ if (!headers_sent()) {
             font-weight: bold;
         }
     </style>
-    <link rel="stylesheet" href="/static/css/theme-888.css?v=1">
+    <link rel="stylesheet" href="/static/css/theme-888.css?v=2">
     <?php renderCustomTrackingCode($pdo); ?>
 </head>
 <body>

@@ -1,5 +1,5 @@
 const CACHE_PREFIX = '888box-pwa-';
-const CACHE_NAME = '888box-pwa-v8';
+const CACHE_NAME = '888box-pwa-v9';
 const OFFLINE_URL = '/offline.html';
 const NETWORK_ONLY_PATHS = [
     '/admin/',

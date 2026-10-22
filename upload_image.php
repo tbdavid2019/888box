@@ -47,7 +47,7 @@ try {
     <link rel="apple-touch-icon" sizes="180x180" href="/static/apple-touch-icon.png">
     <link rel="manifest" href="/static/site.webmanifest">
     <meta name="theme-color" content="#ffb010">
-    <script defer src="/static/js/pwa.js?v=2"></script>
+    <script defer src="/static/js/pwa.js?v=3"></script>
     <link rel="stylesheet" type="text/css" href="static/css/styles.css?v=<?php echo time(); ?>">
     <link rel="stylesheet" type="text/css" href="static/css/seal-user-controls.css?v=<?php echo time(); ?>">
     <?php renderThemeStyles($pdo); ?>
@@ -262,7 +262,7 @@ try {
         }
     </style>
     <?php renderThemeStyles($pdo); ?>
-    <link rel="stylesheet" href="/static/css/theme-888.css?v=1">
+    <link rel="stylesheet" href="/static/css/theme-888.css?v=2">
     <?php renderTurnstileScript($pdo, 'upload'); ?>
     <?php renderTurnstileJsHelper($pdo, 'upload'); ?>
     <?php renderCustomTrackingCode($pdo); ?>

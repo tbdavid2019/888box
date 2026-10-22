@@ -42,7 +42,7 @@ assert(
 
 const serviceWorker = readProjectFile('sw.js');
 assert(serviceWorker.includes("const OFFLINE_URL = '/offline.html';"), 'The service worker must define the offline fallback.');
-assert(serviceWorker.includes("const CACHE_NAME = '888box-pwa-v8';"), 'The service worker cache version must advance when precached PWA code changes.');
+assert(serviceWorker.includes("const CACHE_NAME = '888box-pwa-v9';"), 'The service worker cache version must advance when precached PWA code changes.');
 assert(serviceWorker.includes('const NETWORK_ONLY_PATHS = ['), 'The service worker must define protected network-only paths.');
 assert(serviceWorker.includes("'/api.php'"), 'The service worker must exclude api.php from caching.');
 assert(serviceWorker.includes("'/admin/'"), 'The service worker must exclude admin pages from caching.');
@@ -55,6 +55,8 @@ assert(registrationModule.includes("event.preventDefault();"), 'The registration
 assert(registrationModule.includes('promptEvent.prompt()'), 'The installation button must open the browser install dialog from a user action.');
 assert(registrationModule.includes("window.addEventListener('appinstalled'"), 'The registration module must remove the prompt after installation.');
 assert(registrationModule.includes('安裝 888 BOX'), 'The installation prompt must use a clear Chinese call to action.');
+assert(registrationModule.includes('background: #fff9e8 !important;'), 'The install prompt must use the warm-paper surface.');
+assert(registrationModule.includes('color: #655a43 !important;'), 'The install prompt description must use readable muted ink.');
 
 const windowListeners = {};
 const appendedElements = [];

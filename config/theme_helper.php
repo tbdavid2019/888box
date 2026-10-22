@@ -224,8 +224,8 @@ function renderThemeStyles($pdo) {
         outline: none;
     }
     .box-language-switcher button.is-active {
-        background: <?= $theme['accent'] ?>;
-        color: #111827 !important;
+        background: <?= $theme['button'] ?>;
+        color: <?= $theme['content'] ?> !important;
         box-shadow: 0 2px 8px rgba(0, 0, 0, 0.18);
     }
     .box-site-header {
@@ -278,7 +278,7 @@ function renderThemeStyles($pdo) {
         padding: 0 12px;
         border: 1px solid transparent;
         border-radius: var(--nav-radius);
-        color: <?= $theme['muted'] ?> !important;
+        color: <?= $theme['panel_solid'] ?> !important;
         text-decoration: none;
         font-size: 0.85rem;
         font-weight: 600;
@@ -300,16 +300,15 @@ function renderThemeStyles($pdo) {
         opacity: 1;
     }
     .box-site-section-link.is-active {
-        color: #ffffff !important;
-        background: <?= $theme['accent'] ?>;
-        border-color: <?= $theme['accent'] ?>;
-        color: <?= $theme['panel_solid'] ?> !important;
+        color: <?= $theme['content'] ?> !important;
+        background: <?= $theme['button'] ?>;
+        border-color: <?= $theme['button'] ?>;
         font-weight: 700;
         box-shadow: 0 2px 8px <?= $theme['shadow_color'] ?>;
     }
     .box-site-section-link.is-active svg {
         opacity: 1;
-        color: <?= $theme['panel_solid'] ?>;
+        color: <?= $theme['content'] ?> !important;
     }
     .box-site-brand {
         display: inline-flex;

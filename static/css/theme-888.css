@@ -235,7 +235,7 @@ input[type="file"]::file-selector-button {
     color: #2b251a;
     background: #ffb010;
     border: 1px solid #6b5b38;
-    border-radius: 7px;
+    border-radius: 8px;
     padding: 7px 11px;
     margin-right: 10px;
     cursor: pointer;
@@ -1157,6 +1157,34 @@ table.users-table tr:hover td {
     color: #2b251a !important;
     background: #fff2d1 !important;
     border: 1px solid #9b8350 !important;
+}
+
+.session-stats-panel {
+    color: #2b251a !important;
+    background: #fff9e8 !important;
+    border-color: #9b8350 !important;
+    box-shadow: 0 8px 22px rgba(79, 58, 14, 0.10) !important;
+}
+
+.session-stats-header h3 {
+    color: #17324d !important;
+}
+
+.session-stats-note {
+    color: #655a43 !important;
+}
+
+.box-site-section-link {
+    color: #fff9e8 !important;
+}
+
+.box-site-section-link svg {
+    opacity: 1 !important;
+}
+
+.box-site-section-link.is-active,
+.box-site-section-link.is-active svg {
+    color: #2b251a !important;
 }
 
 .session-stat-label {

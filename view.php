@@ -363,7 +363,7 @@ $jsonLd = [
     <meta name="twitter:image:alt" content="<?= htmlspecialchars($assetTitle) ?>">
     <script type="application/ld+json"><?= json_encode($jsonLd, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) ?></script>
     <meta name="theme-color" content="#ffb010">
-    <script defer src="/static/js/pwa.js?v=2"></script>
+    <script defer src="/static/js/pwa.js?v=3"></script>
     <link rel="stylesheet" href="/static/css/portal.css">
     <?php renderThemeStyles($pdo); ?>
     <style>
@@ -1273,7 +1273,7 @@ $jsonLd = [
             border-radius: 30px;
         }
     </style>
-    <link rel="stylesheet" href="/static/css/theme-888.css?v=1">
+    <link rel="stylesheet" href="/static/css/theme-888.css?v=2">
     <?php renderCustomTrackingCode($pdo); ?>
 </head>
 <body>

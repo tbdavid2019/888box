@@ -71,12 +71,12 @@ function showInstallPrompt() {
                 max-width: 440px;
                 margin: 0 auto;
                 padding: 16px;
-                border: 1px solid rgba(125, 207, 255, 0.32);
-                border-radius: 18px;
-                color: #e6edf3;
-                background: rgba(26, 27, 38, 0.98);
-                box-shadow: 0 16px 44px rgba(0, 0, 0, 0.38);
-                font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+                border: 1px solid #17324d !important;
+                border-radius: 16px;
+                color: #2b251a !important;
+                background: #fff9e8 !important;
+                box-shadow: 0 16px 40px rgba(79, 58, 14, 0.18);
+                font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
             }
             .pwa-install-prompt__content {
                 display: flex;
@@ -91,12 +91,13 @@ function showInstallPrompt() {
             }
             .pwa-install-prompt__title {
                 margin: 0;
+                color: #17324d !important;
                 font-size: 1rem;
                 font-weight: 700;
             }
             .pwa-install-prompt__description {
                 margin: 4px 0 0;
-                color: #a9b1d6;
+                color: #655a43 !important;
                 font-size: 0.84rem;
                 line-height: 1.45;
             }
@@ -107,8 +108,8 @@ function showInstallPrompt() {
             }
             .pwa-install-prompt button {
                 min-height: 38px;
-                border: 0;
-                border-radius: 9px;
+                border: 1px solid #6b5b38 !important;
+                border-radius: 8px;
                 padding: 0 13px;
                 font: inherit;
                 font-size: 0.9rem;
@@ -116,21 +117,24 @@ function showInstallPrompt() {
             }
             .pwa-install-prompt__install {
                 flex: 1;
-                color: #10111a;
-                background: #7dcfff;
+                color: #2b251a !important;
+                background: #ffb010 !important;
                 font-weight: 700;
             }
             .pwa-install-prompt__dismiss {
-                color: #c0caf5;
-                background: transparent;
+                color: #17324d !important;
+                background: #fff2d1 !important;
             }
             .pwa-install-prompt button:focus-visible {
-                outline: 2px solid #bb9af7;
-                outline-offset: 2px;
+                outline: 3px solid #17324d !important;
+                outline-offset: 2px !important;
             }
             .pwa-install-prompt button:disabled {
                 cursor: wait;
-                opacity: 0.65;
+                color: #655a43 !important;
+                background: #f7e9c5 !important;
+                border-color: #9b8350 !important;
+                opacity: 1;
             }
             @media (min-width: 560px) {
                 .pwa-install-prompt {
