@@ -362,7 +362,7 @@ $jsonLd = [
     <meta name="twitter:image" content="<?= htmlspecialchars($ogImage) ?>">
     <meta name="twitter:image:alt" content="<?= htmlspecialchars($assetTitle) ?>">
     <script type="application/ld+json"><?= json_encode($jsonLd, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) ?></script>
-    <meta name="theme-color" content="#1a1b26">
+    <meta name="theme-color" content="#ffb010">
     <script defer src="/static/js/pwa.js?v=2"></script>
     <link rel="stylesheet" href="/static/css/portal.css">
     <?php renderThemeStyles($pdo); ?>
@@ -860,7 +860,7 @@ $jsonLd = [
 .text-preview pre {
     margin: 0;
     color: inherit;
-    font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    font-family: '888box JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
     font-size: clamp(0.8rem, 1.8vw, 0.94rem);
     line-height: 1.7;
     white-space: pre-wrap;
@@ -1273,6 +1273,7 @@ $jsonLd = [
             border-radius: 30px;
         }
     </style>
+    <link rel="stylesheet" href="/static/css/theme-888.css?v=1">
     <?php renderCustomTrackingCode($pdo); ?>
 </head>
 <body>
@@ -1709,7 +1710,7 @@ $jsonLd = [
 
         function showReportToast(message, isError = false) {
             const toast = document.createElement('div');
-            toast.className = 'report-toast' + (isError ? ' is-error' : '');
+            toast.className = 'report-toast' + (isError ? ' is-error' : ' is-success');
             toast.setAttribute('role', 'status');
             toast.textContent = message;
             document.body.appendChild(toast);

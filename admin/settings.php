@@ -397,11 +397,11 @@ $appearanceSettings = [
         'label' => '全站配色主題',
         'type' => 'radio',
         'options' => [
-            'default' => '深色：Catppuccin Macchiato',
-            'middle_east_dart' => '深色：Catppuccin Macchiato (舊設定)',
-            'kanagawa_wave' => '淺色：Kanagawa Wave'
+            'default' => '2MD：藏紅花與暖紙',
+            'middle_east_dart' => '2MD：藏紅花與暖紙（相容舊設定）',
+            'kanagawa_wave' => '2MD：藏紅花與暖紙（相容舊設定）'
         ],
-        'description' => '全站前台與後台的視覺佈景配色風格'
+        'description' => '全站統一使用高對比暖紙、藏藍與藏紅花黃配色'
     ],
     'custom_tracking_code' => [
         'label' => '全站自訂追蹤碼 (如 Google Analytics 或 GTM)',

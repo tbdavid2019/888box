@@ -9,7 +9,8 @@
         element.textContent = message || '';
         element.setAttribute('role', 'status');
         element.setAttribute('aria-live', 'polite');
-        element.style.color = isError ? '#f7768e' : '#7f88b2';
+        element.classList.toggle('is-error', isError);
+        element.classList.toggle('is-success', !isError && Boolean(message));
     }
 
     function showPulseMessage(root, pulseUrl) {

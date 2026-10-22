@@ -78,7 +78,7 @@ if (!headers_sent()) {
     <meta name="twitter:image" content="<?= $base ?>/static/og-image.png?v=30f0c30">
 
     <!-- Browser theme color -->
-    <meta name="theme-color" content="#1a1b26">
+    <meta name="theme-color" content="#ffb010">
 
     <!-- Structured data (JSON-LD) -->
     <script type="application/ld+json">
@@ -127,6 +127,7 @@ if (!headers_sent()) {
             font-weight: bold;
         }
     </style>
+    <link rel="stylesheet" href="/static/css/theme-888.css?v=1">
     <?php renderCustomTrackingCode($pdo); ?>
 </head>
 <body>
@@ -389,13 +390,13 @@ if (!headers_sent()) {
                         refreshStats();
                     } else {
                         if (statusEl) {
-                            statusEl.style.color = '#f7768e';
+                            statusEl.classList.add('is-error');
                             statusEl.textContent = '失敗: ' + (response.message || '上傳失敗');
                         }
                     }
                 } catch (e) {
                     if (statusEl) {
-                        statusEl.style.color = '#f7768e';
+                        statusEl.classList.add('is-error');
                         statusEl.textContent = '解析回應失敗';
                     }
                 }
@@ -407,7 +408,7 @@ if (!headers_sent()) {
                     window.turnstileUploadToken = '';
                 }
                 if (statusEl) {
-                    statusEl.style.color = '#f7768e';
+                    statusEl.classList.add('is-error');
                     statusEl.textContent = '網路上傳失敗';
                 }
             };

@@ -59,20 +59,21 @@ $modeLabels = [
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title><?= htmlspecialchars($pageTitle) ?> - 888 BOX</title>
     <style>
-        :root { color-scheme: dark; font-family: system-ui, sans-serif; background: #0d111b; color: #f4f7ff; }
+        :root { color-scheme: light; font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; background: #fff0cc; color: #2b251a; }
         body { margin: 0; min-height: 100vh; display: grid; place-items: center; padding: 24px; box-sizing: border-box; }
-        main { width: min(100%, 560px); padding: 32px; border: 1px solid rgba(255,255,255,.14); border-radius: 20px; background: rgba(255,255,255,.06); box-shadow: 0 24px 80px rgba(0,0,0,.3); }
-        h1 { margin: 0 0 12px; font-size: clamp(1.6rem, 4vw, 2.3rem); }
-        p { color: #aeb9d6; line-height: 1.6; }
-        code { color: #8bd5ff; word-break: break-all; }
-        button, input { width: 100%; box-sizing: border-box; border: 0; border-radius: 10px; padding: 12px 14px; font: inherit; }
-        button { cursor: pointer; color: #07111d; background: #8bd5ff; font-weight: 700; }
-        button.danger { color: #fff; background: #be4b68; }
-        input { margin: 8px 0 12px; color: #fff; background: rgba(0,0,0,.25); border: 1px solid rgba(255,255,255,.16); }
-        .status { margin: 24px 0; padding: 18px; border-radius: 14px; background: rgba(0,0,0,.2); }
-        .muted { color: #8490ae; font-size: .92rem; }
+        main { width: min(100%, 560px); padding: 32px; border: 1px solid #9b8350; border-radius: 16px; background: #fff9e8; box-shadow: 0 8px 22px rgba(79,58,14,.1); }
+        h1 { margin: 0 0 12px; color: #17324d; font-size: clamp(1.6rem, 4vw, 2.3rem); }
+        p { color: #2b251a; line-height: 1.6; }
+        code { color: #17324d; word-break: break-all; }
+        button, input { width: 100%; box-sizing: border-box; border-radius: 9px; padding: 12px 14px; font: inherit; }
+        button { cursor: pointer; color: #2b251a; background: #ffb010; border: 1px solid #6b5b38; font-weight: 700; }
+        button.danger { color: #991b1b; background: #fee2e2; border: 1px solid #991b1b; }
+        input { margin: 8px 0 12px; color: #2b251a; background: #fffefa; border: 1px solid #6b5b38; }
+        .status { margin: 24px 0; padding: 18px; border: 1px solid #9b8350; border-radius: 12px; background: #fff2d1; }
+        .muted { color: #655a43; font-size: .92rem; }
         .actions { display: grid; gap: 12px; margin-top: 18px; }
-        a { color: #8bd5ff; }
+        a { color: #17324d; }
+        :focus-visible { outline: 3px solid #17324d; outline-offset: 3px; }
     </style>
 </head>
 <body>
@@ -100,7 +101,7 @@ $modeLabels = [
             <button type="button" id="pulse-button">Pulse，延長鎖定</button>
             <button type="button" class="danger" id="burn-button">Burn，銷毀 Seal</button>
         </div>
-        <p id="action-result" class="muted"></p>
+        <p id="action-result" class="muted action-result"></p>
     <?php endif; ?>
 
     <p class="muted"><a href="/">返回 888 BOX</a></p>
@@ -129,6 +130,8 @@ $modeLabels = [
         const response = await fetch(`/api.php?action=${action}`, { method: 'POST', body });
         const payload = await response.json();
         if (!response.ok || payload.result !== 'success') {
+            result.classList.add('is-error');
+            result.classList.remove('is-success');
             throw new Error(payload.message || '操作失敗');
         }
         return payload;
@@ -138,9 +141,13 @@ $modeLabels = [
         try {
             const interval = Math.max(5, Number(document.getElementById('new-interval').value || 5));
             await callSealAction('seal_pulse', { new_interval: String(interval * 60) });
+            result.classList.add('is-success');
+            result.classList.remove('is-error');
             result.textContent = 'Pulse 已更新，頁面即將重新整理。';
             window.setTimeout(() => window.location.reload(), 700);
         } catch (error) {
+            result.classList.add('is-error');
+            result.classList.remove('is-success');
             result.textContent = error.message;
         }
     });
@@ -149,9 +156,13 @@ $modeLabels = [
         if (!window.confirm('確定要永久銷毀此 Seal？')) return;
         try {
             await callSealAction('seal_burn', {});
+            result.classList.add('is-success');
+            result.classList.remove('is-error');
             result.textContent = 'Seal 已銷毀。';
             window.setTimeout(() => window.location.reload(), 700);
         } catch (error) {
+            result.classList.add('is-error');
+            result.classList.remove('is-success');
             result.textContent = error.message;
         }
     });

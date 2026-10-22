@@ -103,7 +103,8 @@
         let currentSeal = null;
         const setStatus = (message, error = false) => {
             status.textContent = message;
-            status.style.color = error ? '#f7768e' : '';
+            status.classList.toggle('is-error', error);
+            status.classList.toggle('is-success', !error && Boolean(message));
         };
         const renderFields = () => {
             dynamicFields.replaceChildren();

@@ -46,7 +46,7 @@ try {
     <link rel="shortcut icon" href="static/favicon.svg">
     <link rel="apple-touch-icon" sizes="180x180" href="/static/apple-touch-icon.png">
     <link rel="manifest" href="/static/site.webmanifest">
-    <meta name="theme-color" content="#1a1b26">
+    <meta name="theme-color" content="#ffb010">
     <script defer src="/static/js/pwa.js?v=2"></script>
     <link rel="stylesheet" type="text/css" href="static/css/styles.css?v=<?php echo time(); ?>">
     <link rel="stylesheet" type="text/css" href="static/css/seal-user-controls.css?v=<?php echo time(); ?>">
@@ -54,12 +54,12 @@ try {
 
     <style>
         :root {
-            --page-muted: #7f88b2;
-            --page-text: #c0caf5;
-            --page-surface: rgba(36, 40, 59, 0.72);
-            --page-surface-strong: rgba(41, 46, 66, 0.82);
-            --page-border: rgba(122, 162, 247, 0.18);
-            --page-link: #7dcfff;
+            --page-muted: #655a43;
+            --page-text: #2b251a;
+            --page-surface: #fff9e8;
+            --page-surface-strong: #fff2d1;
+            --page-border: #9b8350;
+            --page-link: #17324d;
         }
 
         .image-history-panel {
@@ -262,6 +262,7 @@ try {
         }
     </style>
     <?php renderThemeStyles($pdo); ?>
+    <link rel="stylesheet" href="/static/css/theme-888.css?v=1">
     <?php renderTurnstileScript($pdo, 'upload'); ?>
     <?php renderTurnstileJsHelper($pdo, 'upload'); ?>
     <?php renderCustomTrackingCode($pdo); ?>
@@ -289,7 +290,7 @@ try {
                                 <button id="prevButton" class="nav-button prev-button">
                                     <i data-lucide="chevron-left" class="icon"></i>
                                 </button>
-                                <img id="imagePreview" class="imagePreview" src="" alt="">
+                                <img id="imagePreview" class="imagePreview" alt="">
                                 <button id="nextButton" class="nav-button next-button">
                                     <i data-lucide="chevron-right" class="icon"></i>
                                 </button>

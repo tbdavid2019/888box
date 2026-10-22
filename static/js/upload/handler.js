@@ -486,7 +486,7 @@ export class ImageHandler {
         clearTimeout(this.urlInputTimeout);
         
         this.dom.imagePreviewContainer.classList.remove('active');
-        this.dom.imagePreview.src = '';
+        this.dom.imagePreview.removeAttribute('src');
         UI.updateCopyButtonsState(false);
         Thumbnails.clear();
         this.emitStatsUpdated();

@@ -335,6 +335,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         }
     </style>
     <?php renderThemeStyles($pdo); ?>
+    <link rel="stylesheet" href="/static/css/theme-888.css?v=1">
     <?php if ($turnstileEnabledForLogin): ?>
     <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
     <?php endif; ?>

@@ -890,8 +890,9 @@ $apiUploadUrl = rtrim($siteUrl, '/') . '/api.php?action=upload';
             .users-table th, .users-table td { padding: 12px 10px; }
         }
     </style>
+    <link rel="stylesheet" href="/static/css/theme-888.css?v=1">
 </head>
-<body>
+<body class="admin-users-page">
     <?php renderAdminHeader('users', '帳號管理', [
         ['label' => '新增同事帳號', 'type' => 'button', 'onclick' => 'openAddUserModal()', 'variant' => 'primary'],
         ['label' => 'API 介接指南', 'type' => 'button', 'onclick' => 'openApiGuideModal()'],

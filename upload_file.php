@@ -32,7 +32,7 @@ try {
     <link rel="shortcut icon" href="static/favicon.svg">
     <link rel="apple-touch-icon" sizes="180x180" href="/static/apple-touch-icon.png">
     <link rel="manifest" href="/static/site.webmanifest">
-    <meta name="theme-color" content="#1a1b26">
+    <meta name="theme-color" content="#ffb010">
     <script defer src="/static/js/pwa.js?v=2"></script>
     <link rel="stylesheet" href="static/css/video_ui.css?v=<?php echo time(); ?>"> <!-- 重用影片中心的 CSS 以保持風格一致 -->
     <link rel="stylesheet" href="static/css/seal-user-controls.css?v=<?php echo time(); ?>">
@@ -67,6 +67,7 @@ try {
         }
     </style>
     <?php renderThemeStyles($pdo); ?>
+    <link rel="stylesheet" href="/static/css/theme-888.css?v=1">
     <?php renderTurnstileScript($pdo, 'upload'); ?>
     <?php renderTurnstileJsHelper($pdo, 'upload'); ?>
     <?php renderCustomTrackingCode($pdo); ?>

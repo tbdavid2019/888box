@@ -90,6 +90,7 @@ $pagination_html = renderPagination($current_page, $total_pages);
         .form-group input, .form-group textarea { width: 100%; padding: 12px; background: rgba(26, 27, 38, 0.72); border: 1px solid #414868; color: #c0caf5; border-radius: 6px; box-sizing: border-box; }
         .modal-actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 25px; }
     </style>
+    <link rel="stylesheet" href="/static/css/theme-888.css?v=1">
     <?php renderCustomTrackingCode($pdo); ?>
 </head>
 <body>

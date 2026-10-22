@@ -17,7 +17,12 @@ function renderThemeStyles($pdo) {
     ?>
     <style>
     :root {
-        color-scheme: <?= ($theme['mode'] ?? 'dark') === 'light' ? 'light' : 'dark' ?>;
+        color-scheme: light;
+        --brand-saffron: <?= $theme['button'] ?> !important;
+        --brand-deep-blue: <?= $theme['accent'] ?> !important;
+        --brand-clay: <?= $theme['accent_alt'] ?> !important;
+        --brand-warm-cream: <?= $theme['panel_solid'] ?> !important;
+        --brand-ink: <?= $theme['content'] ?> !important;
         --bg-dark: <?= $theme['bg_base'] ?> !important;
         --bg-color: <?= $theme['bg_base'] ?> !important;
         --bg-elevated: <?= $theme['bg_elevated'] ?> !important;
@@ -32,7 +37,7 @@ function renderThemeStyles($pdo) {
         --accent: <?= $theme['highlight'] ?> !important;
         --accent-blue: <?= $theme['button'] ?> !important;
         --accent-cyan: <?= $theme['accent'] ?> !important;
-        --accent-purple: <?= $theme['highlight'] ?> !important;
+        --accent-purple: <?= $theme['accent_alt'] ?> !important;
         --accent-orange: <?= $theme['warning'] ?> !important;
         --accent-green: <?= $theme['success'] ?> !important;
         --text-main: <?= $theme['content'] ?> !important;
@@ -66,8 +71,8 @@ function renderThemeStyles($pdo) {
         --gradient-glass: <?= $theme['panel_bg'] ?> !important;
         --gradient-glass-light: <?= $theme['panel_bg'] ?> !important;
         --gradient-progress: linear-gradient(90deg, <?= $theme['button'] ?> 0%, <?= $theme['accent'] ?> 50%, <?= $theme['highlight'] ?> 100%) !important;
-        --link-color: <?= $theme['button'] ?> !important;
-        --link-hover: <?= $theme['highlight'] ?> !important;
+        --link-color: <?= $theme['link'] ?? $theme['accent'] ?> !important;
+        --link-hover: <?= $theme['link_hover'] ?? $theme['accent'] ?> !important;
         --success-color: <?= $theme['success'] ?> !important;
         --warning-color: <?= $theme['warning'] ?> !important;
         --danger-color: <?= $theme['danger'] ?> !important;
@@ -118,7 +123,7 @@ function renderThemeStyles($pdo) {
         color: <?= $theme['content'] ?> !important;
     }
     .btn.secondary:hover {
-        background: rgba(255, 255, 255, 0.1) !important;
+        background: <?= $theme['overlay_soft'] ?> !important;
     }
     
     .upload-panel, .result-panel, .history-panel, .view-container, .modal-content, .card {
@@ -143,14 +148,14 @@ function renderThemeStyles($pdo) {
     }
 
     a {
-        color: <?= $theme['highlight'] ?>;
+        color: <?= $theme['link'] ?? $theme['accent'] ?>;
     }
     a:hover {
         color: <?= $theme['title'] ?> !important;
     }
 
     .stats-badge {
-        background: rgba(255, 255, 255, 0.08) !important;
+        background: <?= $theme['overlay_soft'] ?> !important;
         border: 1px solid <?= $theme['border_color'] ?> !important;
         color: <?= $theme['content'] ?> !important;
     }
@@ -288,22 +293,23 @@ function renderThemeStyles($pdo) {
     }
     .box-site-section-link:hover {
         color: <?= $theme['content'] ?> !important;
-        background: rgba(122, 162, 247, 0.12);
-        border-color: rgba(122, 162, 247, 0.25);
+        background: <?= $theme['overlay_soft'] ?>;
+        border-color: <?= $theme['border_soft'] ?>;
     }
     .box-site-section-link:hover svg {
         opacity: 1;
     }
     .box-site-section-link.is-active {
         color: #ffffff !important;
-        background: rgba(122, 162, 247, 0.22);
-        border-color: rgba(125, 207, 255, 0.55);
+        background: <?= $theme['accent'] ?>;
+        border-color: <?= $theme['accent'] ?>;
+        color: <?= $theme['panel_solid'] ?> !important;
         font-weight: 700;
-        box-shadow: 0 2px 8px rgba(122, 162, 247, 0.25);
+        box-shadow: 0 2px 8px <?= $theme['shadow_color'] ?>;
     }
     .box-site-section-link.is-active svg {
         opacity: 1;
-        color: #7dcfff;
+        color: <?= $theme['panel_solid'] ?>;
     }
     .box-site-brand {
         display: inline-flex;
@@ -339,9 +345,9 @@ function renderThemeStyles($pdo) {
         min-height: var(--nav-control-height);
         box-sizing: border-box;
         padding: 0 12px;
-        border: 1px solid rgba(255, 255, 255, 0.16);
+        border: 1px solid <?= $theme['border_color'] ?>;
         border-radius: var(--nav-radius);
-        background: rgba(255, 255, 255, 0.05);
+        background: <?= $theme['panel_solid'] ?>;
         color: <?= $theme['content'] ?> !important;
         text-decoration: none;
         font-size: 0.85rem;
@@ -354,16 +360,16 @@ function renderThemeStyles($pdo) {
         height: 15px;
     }
     .box-site-header-action:hover {
-        color: #ffffff !important;
-        background: rgba(255, 255, 255, 0.1);
-        border-color: rgba(125, 207, 255, 0.4);
+        color: <?= $theme['content'] ?> !important;
+        background: <?= $theme['overlay_soft'] ?>;
+        border-color: <?= $theme['accent'] ?>;
         transform: translateY(-1px);
     }
     .box-site-section-link:focus-visible,
     .box-site-header-action:focus-visible,
     .box-site-brand:focus-visible,
     .box-language-switcher button:focus-visible {
-        outline: 2px solid #7dcfff !important;
+        outline: 3px solid <?= $theme['accent'] ?> !important;
         outline-offset: 2px !important;
     }
     .box-site-header + .video-main,

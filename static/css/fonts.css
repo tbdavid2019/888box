@@ -31,7 +31,7 @@
 }
 
 :root {
-    --font-ui: "888box JetBrains Mono", "888box Gen Jyuu Gothic", "888box Maple Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", sans-serif;
+    --font-ui: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", "888box Gen Jyuu Gothic", sans-serif;
 }
 
 html,

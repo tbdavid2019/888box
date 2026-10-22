@@ -80,6 +80,7 @@ $pagination = renderPagination($current_page, $total_pages);
     <link rel="stylesheet" href="/static/css/admin/seal-controls.css?v=<?php echo time(); ?>">
     <meta name="seal-csrf-token" content="<?= htmlspecialchars($sealCsrfToken, ENT_QUOTES, 'UTF-8') ?>">
     <?php renderThemeStyles($pdo); ?>
+    <link rel="stylesheet" href="/static/css/theme-888.css?v=1">
     <?php renderCustomTrackingCode($pdo); ?>
 </head>
 <body>

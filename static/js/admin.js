@@ -277,7 +277,7 @@ function showEditModal(id, galleryItem) {
     modal.id = 'img-edit-modal';
     modal.style.cssText = 'position:fixed;inset:0;z-index:9000;display:flex;align-items:center;justify-content:center;padding:20px;background:rgba(0,0,0,0.7);backdrop-filter:blur(4px);';
     modal.innerHTML = `
-        <div style="background:#1f2335;border:1px solid #414868;border-radius:16px;padding:28px 32px;min-width:340px;max-width:480px;width:90%;max-height:calc(100vh - 40px);overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,0.5);">
+        <div class="modal-content" style="background:#1f2335;border:1px solid #414868;border-radius:16px;padding:28px 32px;min-width:340px;max-width:480px;width:90%;max-height:calc(100vh - 40px);overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,0.5);">
             <h3 style="margin:0 0 20px;color:#c0caf5;font-size:1.1rem;">✏️ 編輯圖片資訊</h3>
             <label style="display:block;margin-bottom:6px;color:#7f88b2;font-size:12px;">標題</label>
             <input id="eim-title" type="text" value="${escHtml(title)}"

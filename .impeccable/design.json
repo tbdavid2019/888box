@@ -1,0 +1,590 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-10-22T01:53:57Z",
+  "title": "Design System: 888 BOX",
+  "extensions": {
+    "colorMeta": {
+      "saffron": {
+        "role": "primary",
+        "displayName": "Saffron",
+        "canonical": "#ffb010",
+        "tonalRamp": [
+          "oklch(15% 0.168 75.9)",
+          "oklch(25% 0.168 75.9)",
+          "oklch(35% 0.168 75.9)",
+          "oklch(45% 0.168 75.9)",
+          "oklch(55% 0.168 75.9)",
+          "oklch(65% 0.168 75.9)",
+          "oklch(75% 0.168 75.9)",
+          "oklch(95% 0.168 75.9)"
+        ]
+      },
+      "saffron-hover": {
+        "role": "primary",
+        "displayName": "Saffron Hover",
+        "canonical": "#f2a600",
+        "tonalRamp": [
+          "oklch(15% 0.164 75.9)",
+          "oklch(25% 0.164 75.9)",
+          "oklch(35% 0.164 75.9)",
+          "oklch(45% 0.164 75.9)",
+          "oklch(55% 0.164 75.9)",
+          "oklch(65% 0.164 75.9)",
+          "oklch(75% 0.164 75.9)",
+          "oklch(95% 0.164 75.9)"
+        ]
+      },
+      "deep-blue": {
+        "role": "secondary",
+        "displayName": "Deep Blue",
+        "canonical": "#17324d",
+        "tonalRamp": [
+          "oklch(15% 0.059 250.3)",
+          "oklch(25% 0.059 250.3)",
+          "oklch(35% 0.059 250.3)",
+          "oklch(45% 0.059 250.3)",
+          "oklch(55% 0.059 250.3)",
+          "oklch(65% 0.059 250.3)",
+          "oklch(75% 0.059 250.3)",
+          "oklch(95% 0.059 250.3)"
+        ]
+      },
+      "clay": {
+        "role": "tertiary",
+        "displayName": "Clay",
+        "canonical": "#a9471d",
+        "tonalRamp": [
+          "oklch(15% 0.140 41.4)",
+          "oklch(25% 0.140 41.4)",
+          "oklch(35% 0.140 41.4)",
+          "oklch(45% 0.140 41.4)",
+          "oklch(55% 0.140 41.4)",
+          "oklch(65% 0.140 41.4)",
+          "oklch(75% 0.140 41.4)",
+          "oklch(95% 0.140 41.4)"
+        ]
+      },
+      "warm-cream": {
+        "role": "neutral",
+        "displayName": "Warm Cream",
+        "canonical": "#fff9e8",
+        "tonalRamp": [
+          "oklch(15% 0.023 90.7)",
+          "oklch(25% 0.023 90.7)",
+          "oklch(35% 0.023 90.7)",
+          "oklch(45% 0.023 90.7)",
+          "oklch(55% 0.023 90.7)",
+          "oklch(65% 0.023 90.7)",
+          "oklch(75% 0.023 90.7)",
+          "oklch(95% 0.023 90.7)"
+        ]
+      },
+      "canvas": {
+        "role": "neutral",
+        "displayName": "Warm Canvas",
+        "canonical": "#fff0cc",
+        "tonalRamp": [
+          "oklch(15% 0.050 88.1)",
+          "oklch(25% 0.050 88.1)",
+          "oklch(35% 0.050 88.1)",
+          "oklch(45% 0.050 88.1)",
+          "oklch(55% 0.050 88.1)",
+          "oklch(65% 0.050 88.1)",
+          "oklch(75% 0.050 88.1)",
+          "oklch(95% 0.050 88.1)"
+        ]
+      },
+      "surface-soft": {
+        "role": "neutral",
+        "displayName": "Soft Paper",
+        "canonical": "#fff2d1",
+        "tonalRamp": [
+          "oklch(15% 0.045 89.1)",
+          "oklch(25% 0.045 89.1)",
+          "oklch(35% 0.045 89.1)",
+          "oklch(45% 0.045 89.1)",
+          "oklch(55% 0.045 89.1)",
+          "oklch(65% 0.045 89.1)",
+          "oklch(75% 0.045 89.1)",
+          "oklch(95% 0.045 89.1)"
+        ]
+      },
+      "surface-raised": {
+        "role": "neutral",
+        "displayName": "Raised Paper",
+        "canonical": "#f7e9c5",
+        "tonalRamp": [
+          "oklch(15% 0.049 89.3)",
+          "oklch(25% 0.049 89.3)",
+          "oklch(35% 0.049 89.3)",
+          "oklch(45% 0.049 89.3)",
+          "oklch(55% 0.049 89.3)",
+          "oklch(65% 0.049 89.3)",
+          "oklch(75% 0.049 89.3)",
+          "oklch(95% 0.049 89.3)"
+        ]
+      },
+      "surface-white": {
+        "role": "neutral",
+        "displayName": "Clear Paper",
+        "canonical": "#fffefa",
+        "tonalRamp": [
+          "oklch(15% 0.005 95.1)",
+          "oklch(25% 0.005 95.1)",
+          "oklch(35% 0.005 95.1)",
+          "oklch(45% 0.005 95.1)",
+          "oklch(55% 0.005 95.1)",
+          "oklch(65% 0.005 95.1)",
+          "oklch(75% 0.005 95.1)",
+          "oklch(95% 0.005 95.1)"
+        ]
+      },
+      "ink": {
+        "role": "neutral",
+        "displayName": "Ink",
+        "canonical": "#2b251a",
+        "tonalRamp": [
+          "oklch(15% 0.021 82.5)",
+          "oklch(25% 0.021 82.5)",
+          "oklch(35% 0.021 82.5)",
+          "oklch(45% 0.021 82.5)",
+          "oklch(55% 0.021 82.5)",
+          "oklch(65% 0.021 82.5)",
+          "oklch(75% 0.021 82.5)",
+          "oklch(95% 0.021 82.5)"
+        ]
+      },
+      "muted": {
+        "role": "neutral",
+        "displayName": "Muted Ink",
+        "canonical": "#655a43",
+        "tonalRamp": [
+          "oklch(15% 0.038 85.3)",
+          "oklch(25% 0.038 85.3)",
+          "oklch(35% 0.038 85.3)",
+          "oklch(45% 0.038 85.3)",
+          "oklch(55% 0.038 85.3)",
+          "oklch(65% 0.038 85.3)",
+          "oklch(75% 0.038 85.3)",
+          "oklch(95% 0.038 85.3)"
+        ]
+      },
+      "border": {
+        "role": "neutral",
+        "displayName": "Warm Border",
+        "canonical": "#9b8350",
+        "tonalRamp": [
+          "oklch(15% 0.075 85.1)",
+          "oklch(25% 0.075 85.1)",
+          "oklch(35% 0.075 85.1)",
+          "oklch(45% 0.075 85.1)",
+          "oklch(55% 0.075 85.1)",
+          "oklch(65% 0.075 85.1)",
+          "oklch(75% 0.075 85.1)",
+          "oklch(95% 0.075 85.1)"
+        ]
+      },
+      "border-strong": {
+        "role": "neutral",
+        "displayName": "Strong Brown Border",
+        "canonical": "#6b5b38",
+        "tonalRamp": [
+          "oklch(15% 0.055 85.8)",
+          "oklch(25% 0.055 85.8)",
+          "oklch(35% 0.055 85.8)",
+          "oklch(45% 0.055 85.8)",
+          "oklch(55% 0.055 85.8)",
+          "oklch(65% 0.055 85.8)",
+          "oklch(75% 0.055 85.8)",
+          "oklch(95% 0.055 85.8)"
+        ]
+      },
+      "link-hover": {
+        "role": "secondary",
+        "displayName": "Link Hover",
+        "canonical": "#6b3e08",
+        "tonalRamp": [
+          "oklch(15% 0.088 63.5)",
+          "oklch(25% 0.088 63.5)",
+          "oklch(35% 0.088 63.5)",
+          "oklch(45% 0.088 63.5)",
+          "oklch(55% 0.088 63.5)",
+          "oklch(65% 0.088 63.5)",
+          "oklch(75% 0.088 63.5)",
+          "oklch(95% 0.088 63.5)"
+        ]
+      },
+      "success": {
+        "role": "success",
+        "displayName": "Success",
+        "canonical": "#166534",
+        "tonalRamp": [
+          "oklch(15% 0.108 151.3)",
+          "oklch(25% 0.108 151.3)",
+          "oklch(35% 0.108 151.3)",
+          "oklch(45% 0.108 151.3)",
+          "oklch(55% 0.108 151.3)",
+          "oklch(65% 0.108 151.3)",
+          "oklch(75% 0.108 151.3)",
+          "oklch(95% 0.108 151.3)"
+        ]
+      },
+      "success-bg": {
+        "role": "success",
+        "displayName": "Success Background",
+        "canonical": "#dcfce7",
+        "tonalRamp": [
+          "oklch(15% 0.043 156.7)",
+          "oklch(25% 0.043 156.7)",
+          "oklch(35% 0.043 156.7)",
+          "oklch(45% 0.043 156.7)",
+          "oklch(55% 0.043 156.7)",
+          "oklch(65% 0.043 156.7)",
+          "oklch(75% 0.043 156.7)",
+          "oklch(95% 0.043 156.7)"
+        ]
+      },
+      "warning": {
+        "role": "warning",
+        "displayName": "Warning",
+        "canonical": "#92400e",
+        "tonalRamp": [
+          "oklch(15% 0.125 46.2)",
+          "oklch(25% 0.125 46.2)",
+          "oklch(35% 0.125 46.2)",
+          "oklch(45% 0.125 46.2)",
+          "oklch(55% 0.125 46.2)",
+          "oklch(65% 0.125 46.2)",
+          "oklch(75% 0.125 46.2)",
+          "oklch(95% 0.125 46.2)"
+        ]
+      },
+      "warning-bg": {
+        "role": "warning",
+        "displayName": "Warning Background",
+        "canonical": "#fef3c7",
+        "tonalRamp": [
+          "oklch(15% 0.058 95.6)",
+          "oklch(25% 0.058 95.6)",
+          "oklch(35% 0.058 95.6)",
+          "oklch(45% 0.058 95.6)",
+          "oklch(55% 0.058 95.6)",
+          "oklch(65% 0.058 95.6)",
+          "oklch(75% 0.058 95.6)",
+          "oklch(95% 0.058 95.6)"
+        ]
+      },
+      "danger": {
+        "role": "danger",
+        "displayName": "Danger",
+        "canonical": "#991b1b",
+        "tonalRamp": [
+          "oklch(15% 0.161 26.9)",
+          "oklch(25% 0.161 26.9)",
+          "oklch(35% 0.161 26.9)",
+          "oklch(45% 0.161 26.9)",
+          "oklch(55% 0.161 26.9)",
+          "oklch(65% 0.161 26.9)",
+          "oklch(75% 0.161 26.9)",
+          "oklch(95% 0.161 26.9)"
+        ]
+      },
+      "danger-bg": {
+        "role": "danger",
+        "displayName": "Danger Background",
+        "canonical": "#fee2e2",
+        "tonalRamp": [
+          "oklch(15% 0.031 17.7)",
+          "oklch(25% 0.031 17.7)",
+          "oklch(35% 0.031 17.7)",
+          "oklch(45% 0.031 17.7)",
+          "oklch(55% 0.031 17.7)",
+          "oklch(65% 0.031 17.7)",
+          "oklch(75% 0.031 17.7)",
+          "oklch(95% 0.031 17.7)"
+        ]
+      },
+      "info": {
+        "role": "info",
+        "displayName": "Info",
+        "canonical": "#075985",
+        "tonalRamp": [
+          "oklch(15% 0.100 240.8)",
+          "oklch(25% 0.100 240.8)",
+          "oklch(35% 0.100 240.8)",
+          "oklch(45% 0.100 240.8)",
+          "oklch(55% 0.100 240.8)",
+          "oklch(65% 0.100 240.8)",
+          "oklch(75% 0.100 240.8)",
+          "oklch(95% 0.100 240.8)"
+        ]
+      },
+      "info-bg": {
+        "role": "info",
+        "displayName": "Info Background",
+        "canonical": "#e0f2fe",
+        "tonalRamp": [
+          "oklch(15% 0.025 236.8)",
+          "oklch(25% 0.025 236.8)",
+          "oklch(35% 0.025 236.8)",
+          "oklch(45% 0.025 236.8)",
+          "oklch(55% 0.025 236.8)",
+          "oklch(65% 0.025 236.8)",
+          "oklch(75% 0.025 236.8)",
+          "oklch(95% 0.025 236.8)"
+        ]
+      },
+      "purple": {
+        "role": "tertiary",
+        "displayName": "Purple Status",
+        "canonical": "#6b21a8",
+        "tonalRamp": [
+          "oklch(15% 0.198 303.7)",
+          "oklch(25% 0.198 303.7)",
+          "oklch(35% 0.198 303.7)",
+          "oklch(45% 0.198 303.7)",
+          "oklch(55% 0.198 303.7)",
+          "oklch(65% 0.198 303.7)",
+          "oklch(75% 0.198 303.7)",
+          "oklch(95% 0.198 303.7)"
+        ]
+      },
+      "purple-bg": {
+        "role": "tertiary",
+        "displayName": "Purple Status Background",
+        "canonical": "#f3e8ff",
+        "tonalRamp": [
+          "oklch(15% 0.033 307.2)",
+          "oklch(25% 0.033 307.2)",
+          "oklch(35% 0.033 307.2)",
+          "oklch(45% 0.033 307.2)",
+          "oklch(55% 0.033 307.2)",
+          "oklch(65% 0.033 307.2)",
+          "oklch(75% 0.033 307.2)",
+          "oklch(95% 0.033 307.2)"
+        ]
+      }
+    },
+    "typographyMeta": {
+      "ui": {
+        "displayName": "System UI",
+        "purpose": "Interface text and controls across the portal, upload, admin, and share routes."
+      },
+      "brand-number": {
+        "displayName": "Portal Brand Number",
+        "purpose": "The 888 portion of the portal wordmark."
+      },
+      "brand-word": {
+        "displayName": "Portal Brand Word",
+        "purpose": "The BOX portion of the portal wordmark."
+      },
+      "section-navigation": {
+        "displayName": "Section Navigation",
+        "purpose": "Labels in the shared public and admin section rail."
+    },
+    "mono": {
+      "displayName": "Utility Monospace",
+      "purpose": "RSS and code-like excerpts; not interface copy."
+    },
+    "icon-font": {
+      "displayName": "Brand Icon Font",
+      "purpose": "The portal brand glyph only; action icons use Lucide SVG."
+      }
+    },
+    "shadows": [
+      {
+        "name": "panel-resting",
+        "value": "0 8px 22px rgba(79, 58, 14, 0.10)",
+        "purpose": "Resting elevation for cards, upload panels, and management surfaces."
+      },
+      {
+        "name": "masthead",
+        "value": "0 4px 14px rgba(79, 58, 14, 0.14)",
+        "purpose": "The shared interior saffron header."
+      },
+      {
+        "name": "primary-action",
+        "value": "0 3px 8px rgba(150, 98, 0, 0.18)",
+        "purpose": "Primary action buttons."
+      },
+      {
+        "name": "dialog",
+        "value": "0 16px 40px rgba(79, 58, 14, 0.18)",
+        "purpose": "Modal content."
+      },
+      {
+        "name": "portal-icon-hover",
+        "value": "0 8px 18px rgba(79, 58, 14, 0.12)",
+        "purpose": "Hover elevation on portal asset-type icon tiles."
+      },
+      {
+        "name": "upload-dropzone-hover",
+        "value": "0 12px 30px rgba(79, 58, 14, 0.14)",
+        "purpose": "Hover and drag-over elevation on the universal upload target."
+      },
+      {
+        "name": "field-focus",
+        "value": "0 0 0 3px rgba(23, 50, 77, 0.18)",
+        "purpose": "Visible focus ring for text fields."
+      }
+    ],
+    "focusRings": [
+      {
+        "name": "global-focus-visible",
+        "value": "3px solid #17324d; outline-offset: 3px",
+        "purpose": "Keyboard focus outline for interactive controls and linked cards."
+      },
+      {
+        "name": "section-navigation",
+        "value": "3px solid #ffb010; outline-offset: 2px",
+        "purpose": "Keyboard focus outline within the navy section rail."
+      },
+      {
+        "name": "text-field",
+        "value": "border-color: #17324d; box-shadow: 0 0 0 3px rgba(23, 50, 77, 0.18)",
+        "purpose": "Focused text-field border and ring."
+      }
+    ],
+    "motion": [
+      {
+        "name": "section-navigation",
+        "value": "160ms cubic-bezier(0.16, 1, 0.3, 1)",
+        "purpose": "Section-link state transitions."
+      },
+      {
+        "name": "buttons",
+        "value": "200ms ease",
+        "purpose": "Audio/video action-button state transitions."
+      },
+      {
+        "name": "portal-dropzone",
+        "value": "300ms cubic-bezier(0.4, 0, 0.2, 1)",
+        "purpose": "Portal upload-target transition."
+      }
+    ],
+    "breakpoints": [
+      {
+        "name": "section-navigation",
+        "value": "820px"
+      },
+      {
+        "name": "portal-grid",
+        "value": "768px"
+      },
+      {
+        "name": "share-view",
+        "value": "680px"
+      }
+    ]
+  },
+  "components": [
+    {
+      "name": "Primary Action",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "Saffron action with ink text and a visible keyboard focus ring.",
+      "html": "<button class='ds-primary-button' type='button'>Upload</button>",
+      "css": ".ds-primary-button { padding: 12px 28px; border: 1px solid #6b5b38; border-radius: 8px; background: #ffb010; color: #2b251a; box-shadow: 0 3px 8px rgba(150, 98, 0, 0.18); font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', '888box Gen Jyuu Gothic', sans-serif; font-size: 1.1rem; font-weight: 600; cursor: pointer; transition: all 200ms ease; } .ds-primary-button:hover { background: #f2a600; color: #2b251a; transform: translateY(-2px); } .ds-primary-button:focus-visible { outline: 3px solid #17324d; outline-offset: 3px; }"
+    },
+    {
+      "name": "Secondary Action",
+      "kind": "button",
+      "refersTo": "button-secondary",
+      "description": "Cream surface, navy text, and a quiet outline for secondary actions.",
+      "html": "<button class='ds-secondary-button' type='button'>Cancel</button>",
+      "css": ".ds-secondary-button { padding: 12px 28px; border: 1px solid #17324d; border-radius: 8px; background: #fff9e8; color: #17324d; font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', '888box Gen Jyuu Gothic', sans-serif; font-size: 1.1rem; font-weight: 600; cursor: pointer; transition: all 200ms ease; } .ds-secondary-button:hover { background: #fff2d1; color: #2b251a; border-color: #17324d; } .ds-secondary-button:focus-visible { outline: 3px solid #17324d; outline-offset: 3px; }"
+    },
+    {
+      "name": "Metadata Text Field",
+      "kind": "input",
+      "refersTo": "input-text",
+      "description": "Representative video/audio batch field using its existing 6px radius.",
+      "html": "<input class='ds-text-field' type='text' placeholder='Batch title'>",
+      "css": ".ds-text-field { width: 100%; padding: 10px; border: 1px solid #6b5b38; border-radius: 6px; background: #fffefa; color: #2b251a; font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', '888box Gen Jyuu Gothic', sans-serif; } .ds-text-field::placeholder { color: #655a43; opacity: 1; } .ds-text-field:focus-visible { border-color: #17324d; outline: none; box-shadow: 0 0 0 3px rgba(23, 50, 77, 0.18); }"
+    },
+    {
+      "name": "Section Navigation",
+      "kind": "nav",
+      "refersTo": "section-tab-active",
+      "description": "Navy section rail with cream links and a saffron active tab.",
+      "html": "<nav class='ds-section-rail' aria-label='Asset types'><a class='ds-section-link' href='#'>Images</a><a class='ds-section-link ds-section-link-active' href='#' aria-current='page'>Video</a></nav>",
+      "css": ".ds-section-rail { display: inline-flex; align-items: center; gap: 4px; padding: 4px; border: 1px solid #17324d; border-radius: 12px; background: #17324d; } .ds-section-link { display: inline-flex; align-items: center; min-height: 34px; padding: 0 12px; border: 1px solid transparent; border-radius: 8px; color: #fff9e8; text-decoration: none; font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', '888box Gen Jyuu Gothic', sans-serif; font-size: 0.85rem; font-weight: 600; white-space: nowrap; transition: all 160ms cubic-bezier(0.16, 1, 0.3, 1); } .ds-section-link:hover { color: #2b251a; background: #fff2d1; border-color: #ffb010; } .ds-section-link:focus-visible { outline: 3px solid #ffb010; outline-offset: 2px; } .ds-section-link-active { color: #2b251a; background: #ffb010; border-color: #ffb010; font-weight: 700; }"
+    },
+    {
+      "name": "Portal Asset Card",
+      "kind": "card",
+      "refersTo": "asset-card",
+      "description": "Warm-cream destination card that keeps the existing portal card geometry.",
+      "html": "<a class='ds-asset-card' href='#'><strong>Images</strong><span>Upload and browse images</span></a>",
+      "css": ".ds-asset-card { display: flex; flex-direction: column; justify-content: space-between; min-height: 220px; padding: 30px; border: 1px solid #9b8350; border-radius: 32px; background: #fff9e8; color: #2b251a; text-decoration: none; box-shadow: 0 8px 22px rgba(79, 58, 14, 0.10); transition: all 400ms cubic-bezier(0.175, 0.885, 0.32, 1.275); } .ds-asset-card:hover { transform: translateY(-8px) scale(1.02); } .ds-asset-card:focus-visible { outline: 3px solid #17324d; outline-offset: 3px; }"
+    },
+    {
+      "name": "Purple Status Chip",
+      "kind": "chip",
+      "refersTo": "status-purple",
+      "description": "The purple asset/status pair with an explicit label.",
+      "html": "<span class='ds-purple-chip'>Video</span>",
+      "css": ".ds-purple-chip { display: inline-flex; align-items: center; padding: 4px 8px; border: 1px solid #6b21a8; border-radius: 6px; background: #f3e8ff; color: #6b21a8; font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', '888box Gen Jyuu Gothic', sans-serif; font-size: 0.72rem; font-weight: 700; white-space: nowrap; }"
+    },
+    {
+      "name": "Portal Masthead",
+      "kind": "custom",
+      "refersTo": "portal-masthead",
+      "description": "Full-width saffron masthead that anchors the portal first view.",
+      "html": "<header class='ds-portal-masthead'><strong>888 BOX</strong><span>Personal asset center</span></header>",
+      "css": ".ds-portal-masthead { width: calc(100% + 40px); margin: -40px -20px 36px; padding: 30px 20px 26px; border-bottom: 3px solid #17324d; background: #ffb010; color: #2b251a; text-align: center; } .ds-portal-masthead strong { display: block; color: #17324d; font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', '888box Gen Jyuu Gothic', sans-serif; font-size: 2.7rem; font-weight: 900; } .ds-portal-masthead span { color: #2b251a; }"
+    },
+    {
+      "name": "Portal Asset-Type Icons",
+      "kind": "custom",
+      "refersTo": "asset-type-icon",
+      "description": "Four 52px icon tiles using the image, video, file, and audio semantic color pairs.",
+      "html": "<div class='ds-asset-icon-set'><span class='ds-asset-icon ds-asset-icon-image' aria-hidden='true'><svg viewBox='0 0 24 24'><rect x='3' y='3' width='18' height='18' rx='2'/><circle cx='8.5' cy='8.5' r='1.5'/><path d='m21 15-5-5L5 21'/></svg></span><span class='ds-asset-icon ds-asset-icon-video' aria-hidden='true'><svg viewBox='0 0 24 24'><rect x='3' y='7' width='18' height='14' rx='2'/><path d='M3 7h18M7 3l3 4m4-4 3 4'/></svg></span><span class='ds-asset-icon ds-asset-icon-file' aria-hidden='true'><svg viewBox='0 0 24 24'><path d='M3 7a2 2 0 0 1 2-2h5l2 2h7a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z'/><path d='M3 10h18m-12 3v5m3-5v5m3-5v5'/></svg></span><span class='ds-asset-icon ds-asset-icon-audio' aria-hidden='true'><svg viewBox='0 0 24 24'><rect x='9' y='2' width='6' height='13' rx='3'/><path d='M5 10v2a7 7 0 0 0 14 0v-2m-7 9v3m-4 0h8'/></svg></span></div>",
+      "css": ".ds-asset-icon-set { display: flex; gap: 12px; } .ds-asset-icon { display: inline-flex; align-items: center; justify-content: center; width: 52px; height: 52px; border: 1px solid #9b8350; border-radius: 16px; background: #fff2d1; color: #17324d; box-shadow: none; transition: all 300ms cubic-bezier(0.4, 0, 0.2, 1); } .ds-asset-icon svg { width: 26px; height: 26px; fill: none; stroke: currentColor; stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; } .ds-asset-icon-image { color: #075985; background: #e0f2fe; border-color: #075985; } .ds-asset-icon-video { color: #6b21a8; background: #f3e8ff; border-color: #6b21a8; } .ds-asset-icon-file { color: #166534; background: #dcfce7; border-color: #166534; } .ds-asset-icon-audio { color: #92400e; background: #fef3c7; border-color: #92400e; } .ds-asset-icon-set:hover .ds-asset-icon { transform: translateY(-2px) scale(1.08); box-shadow: 0 8px 18px rgba(79, 58, 14, 0.12); }"
+    }
+  ],
+  "narrative": {
+    "northStar": "The Warm-Paper Asset Desk",
+    "overview": "888 BOX is an operational asset desk for four asset types. The portal puts a universal upload surface and the image, video, file, and audio centers in the first view; routed centers, administration, and shared asset pages retain their established task layouts. Saffron marks primary actions and the current section, navy carries headings, links, and section navigation, and clay identifies upload targets.\n\nWarm cream panels sit on a warm canvas with ink copy and muted supporting text. The shared UI uses the system sans stack declared in `static/css/fonts.css`. Global theme rules carry the paper surfaces, shared navigation, semantic state pairs, and focus treatment across the updated routes while local page CSS supplies each task's spacing and geometry.",
+    "keyCharacteristics": [
+      "Warm canvas, cream panels, and dark ink text.",
+      "Saffron mastheads and primary actions; navy hierarchy, links, and section navigation.",
+      "Four asset centers with route-specific upload, management, and share layouts.",
+      "Explicit foreground/background pairs for semantic messages, asset-type chips, and portal center icons."
+    ],
+    "rules": [
+      {
+        "name": "The Ink-on-Saffron Rule",
+        "body": "Primary actions and the active section tab use ink on saffron; hover shifts the fill to saffron-hover.",
+        "section": "colors"
+      },
+      {
+        "name": "The Paired-State Rule",
+        "body": "Keep each semantic foreground with its matching background and label the state in text or an icon.",
+        "section": "colors"
+      },
+      {
+        "name": "The Contrast Rule",
+        "body": "Meet WCAG 2.2 AA: normal text needs at least 4.5:1 contrast, large text needs at least 3:1 under SC 1.4.3, and essential control indicators need at least 3:1 against adjacent colors under SC 1.4.11.",
+        "section": "colors"
+      },
+      {
+        "name": "The UI-Stack Rule",
+        "body": "Keep the declared system UI stack for interface text; the variable-font specimen in the direction contract is not the shipped UI font.",
+        "section": "typography"
+      }
+    ],
+    "dos": [
+      "Do use ink on saffron for primary actions and the active section tab.",
+      "Do keep links navy on warm surfaces and use the defined semantic foreground/background pairs.",
+      "Do preserve existing page layouts and the responsive section navigation.",
+      "Do meet WCAG 2.2 AA text and non-text contrast thresholds.",
+      "Do use the specified semantic pairs for asset-type icons and keep their text titles visible."
+    ],
+    "donts": [
+      "Don't use color alone to communicate upload, warning, error, or asset-type state.",
+      "Don't replace the shared system UI stack or introduce a radius or shadow without checking the route CSS.",
+      "Don't reintroduce obsolete dark-theme accents into shared controls or surfaces."
+    ]
+  }
+}
